@@ -14,3 +14,4 @@ dependencies:
 
 * [Boost] (http://www.boost.org/)
 
+* [Google Testing Framework](https://github.com/google/googletest)
