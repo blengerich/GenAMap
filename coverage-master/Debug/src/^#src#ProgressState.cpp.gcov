@@ -1,0 +1,50 @@
+        -:    0:Source:../src/ProgressState.cpp
+        -:    0:Graph:ProgressState.gcno
+        -:    0:Data:ProgressState.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*EOF*/
+        -:    2:/*EOF*/
+function _ZN13ProgressStateC2Ej called 3 returned 100% blocks executed 100%
+        3:    3:/*EOF*/
+        3:    4:/*EOF*/
+        -:    5:/*EOF*/
+        3:    6:/*EOF*/
+        -:    7:/*EOF*/
+function _ZN13ProgressStateD0Ev called 0 returned 0% blocks executed 0%
+function _ZN13ProgressStateD2Ev called 3 returned 100% blocks executed 75%
+        3:    8:/*EOF*/
+        -:    9:/*EOF*/
+        3:   10:/*EOF*/
+call    0 never executed
+call    1 never executed
+branch  2 taken 0 (fallthrough)
+branch  3 taken 3
+call    4 never executed
+        -:   11:/*EOF*/
+function _ZN13ProgressState8setValueEi called 3 returned 100% blocks executed 83%
+        3:   12:/*EOF*/
+        -:   13:/*EOF*/
+        3:   14:/*EOF*/
+branch  0 taken 1 (fallthrough)
+branch  1 taken 2
+        -:   15:/*EOF*/
+        1:   16:/*EOF*/
+        -:   17:/*EOF*/
+        2:   18:/*EOF*/
+branch  0 taken 0 (fallthrough)
+branch  1 taken 2
+        -:   19:/*EOF*/
+    #####:   20:/*EOF*/
+        -:   21:/*EOF*/
+        -:   22:/*EOF*/
+        -:   23:/*EOF*/
+        2:   24:/*EOF*/
+        -:   25:/*EOF*/
+        -:   26:/*EOF*/
+        3:   27:/*EOF*/
+        -:   28:/*EOF*/
+function _ZN13ProgressState13getPercentageEv called 3 returned 100% blocks executed 100%
+        3:   29:/*EOF*/
+        -:   30:/*EOF*/
+        3:   31:/*EOF*/
