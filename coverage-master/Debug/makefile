@@ -44,7 +44,7 @@ all: coverage
 coverage: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++ -LGTEST_ROOT/lib/.libs -L/usr/local/lib/gtest.a -L/usr/local/lib/gtest_main.a -o"coverage" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L/usr/local/lib/gtest.a -L/usr/local/lib/gtest_main.a -o "coverage" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
