@@ -28,4 +28,5 @@ bash "${BAZEL_INSTALLER}" \
 
 # Run the build
 BAZEL="${BASE}/binary/bazel --bazelrc=${BASE}/bin/bazel.bazelrc"
+alias bazel ${BAZEL}
 # ${BAZEL} test //...
