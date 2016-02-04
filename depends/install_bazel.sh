@@ -5,7 +5,7 @@ set -e
 # sudo apt-get update
 # sudo apt-get install oracle-java8-installer
 
-if [ -e bazel_installer ]
+if [ -e bazel-installer ]
 then	
 	return 0
 fi
