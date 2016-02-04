@@ -27,6 +27,6 @@ bash "${BAZEL_INSTALLER}" \
   --bin="${BASE}/binary"
 
 # Run the build
-BAZEL="${BASE}/binary/bazel --bazelrc=${BASE}/bin/bazel.bazelrc"
-export PATH=$BASE/binary:$PATH
+export BAZEL="${BASE}/binary/bazel --bazelrc=${BASE}/bin/bazel.bazelrc"
+#export PATH=$BASE/binary:$PATH
 # ${BAZEL} test //...
