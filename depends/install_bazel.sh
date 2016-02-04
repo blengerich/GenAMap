@@ -11,6 +11,7 @@ INSTALLER_PLATFORM=linux-x86_64
 # Fetch the Bazel installer
 URL=https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-${INSTALLER_PLATFORM}.sh
 export BAZEL_INSTALLER=${PWD}/bazel-installer/install.sh
+mkdir bazel-installer
 curl -L -o ${BAZEL_INSTALLER} ${URL}
 BASE="${PWD}/bazel_install"
 
