@@ -5,6 +5,10 @@ set -e
 # sudo apt-get update
 # sudo apt-get install oracle-java8-installer
 
+if [ -e bazel_install]
+	return 0
+fi
+
 BAZEL_VERSION=0.1.4
 INSTALLER_PLATFORM=linux-x86_64
 
