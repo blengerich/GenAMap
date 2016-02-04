@@ -7,7 +7,7 @@ set -e
 
 if [ -e bazel-installer ]
 then	
-	return 0
+	exit 0
 fi
 
 BAZEL_VERSION=0.1.4
