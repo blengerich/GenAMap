@@ -12,4 +12,3 @@ cc_library(
     linkopts = ["-pthread"],
     visibility = ["//visibility:public"],
 )
-

@@ -12,24 +12,24 @@ using namespace Eigen;
 class Model {
 protected:
     MatrixXd X;
-    VectorXd beta;
-    VectorXd y;
+    MatrixXd beta;
+    MatrixXd y;
 public:
     void setX(MatrixXd);
-    void setY(VectorXd);
+    void setY(MatrixXd);
     void initBeta(void);
     void initBeta(MatrixXd);
-    void updateBeta(VectorXd);
+    void updateBeta(MatrixXd);
     MatrixXd getX(void);
     MatrixXd getBeta(void);
-    VectorXd getY(void);
+    MatrixXd getY(void);
 
-    VectorXd predict();
-    VectorXd predict(MatrixXd);
+    MatrixXd predict();
+    MatrixXd predict(MatrixXd);
 
-    virtual VectorXd derivative();
-    virtual VectorXd proximal_derivative();
-    virtual VectorXd proximal_operator(VectorXd, float);
+    virtual MatrixXd derivative();
+    virtual MatrixXd proximal_derivative();
+    virtual MatrixXd proximal_operator(MatrixXd, float);
 
     virtual double cost();
 

@@ -20,13 +20,13 @@ public:
     void setL2_reg(float);
 
     // general use methods
-    VectorXd derivative();
+    MatrixXd derivative();
     double cost();
 
     // algorithm use methods
     // proximal gradient descent
-    VectorXd proximal_derivative();
-    VectorXd proximal_operator(VectorXd, float);
+    MatrixXd proximal_derivative();
+    MatrixXd proximal_operator(VectorXd, float);
 
     LinearRegression();
 };

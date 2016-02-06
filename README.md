@@ -13,5 +13,6 @@ dependencies:
 * [JsonCPP](https://github.com/open-source-parsers/jsoncpp)
 
 * [Boost] (http://www.boost.org/)
+Must be in /usr/include for now. Might be possible to creat a new_local_repository for each dependency.
 
 * [Google Testing Framework](https://github.com/google/googletest)

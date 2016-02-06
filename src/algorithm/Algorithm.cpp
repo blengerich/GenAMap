@@ -8,6 +8,6 @@ using namespace std;
 
 Algorithm::Algorithm() {progress = 0; maxIteration=1000;};
 int Algorithm::getMaxIteration(void) {return maxIteration; };
-float Algorithm::getProgress(void) {return progress; };
+double Algorithm::getProgress(void) {return progress; };
 void Algorithm::setMaxIteration(int m) { maxIteration = m;};
-void Algorithm::run(Model) { cout<<"Missing Model for Algorithm"<<endl;};
+void Algorithm::run(Model*) { cout<<"This algorithm is not implemented for current model"<<endl;};

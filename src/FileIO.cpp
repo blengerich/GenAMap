@@ -6,8 +6,8 @@
 #include <fstream>
 #include <boost/algorithm/string/predicate.hpp>
 #include <unordered_map>
+#include <queue>
 
-#define MAXBUFSIZE  ((int) 1e6)
 
 void FileIO::writeMatrixFile(string fileName, MatrixXd X) {
     ofstream file (fileName);
@@ -273,7 +273,7 @@ string FileIO::getNextToken(unsigned long i, string str) {
     }
     else{
         unsigned long l=0;
-        for (int j=i;j<str.size();j++){
+        for (unsigned long j=i;j<str.size();j++){
             if (str[j] == ',' || str[j] == '(' || str[j] == ')'){
                 break;
             }
@@ -281,4 +281,42 @@ string FileIO::getNextToken(unsigned long i, string str) {
         }
         return str.substr(i, l);
     }
+}
+
+void FileIO::writeTreeFile(string fileName, Tree * tree) {
+    struct parentTreeNode{
+        string parent;
+        treeNode* T;
+    };
+    string output = "";
+    queue<parentTreeNode> nodes;
+    int count = 1;
+    treeNode * root = tree->getRoot();
+    string name;
+    for (int i=0; i<root->children.size(); i++){
+        parentTreeNode ptn;
+        ptn.parent = "root";
+        ptn.T = root->children[i];
+        nodes.push(ptn);
+    }
+    while (nodes.size()>0){
+        parentTreeNode ptnp = nodes.front();
+        if (ptnp.T->children.size()==0){
+            name = "T"+to_string(ptnp.T->trait[0]);
+            output = name+"\t"+ptnp.parent+"\n"+output;
+        }
+        else{
+            name = "node"+to_string(count++);
+            output = name+"\t"+ptnp.parent+"\n"+output;
+            for (int i=0; i<ptnp.T->children.size();i++){
+                parentTreeNode ptn;
+                ptn.parent = name;
+                ptn.T = ptnp.T->children[i];
+                nodes.push(ptn);
+            }
+        }
+        nodes.pop();
+    }
+    ofstream file (fileName);
+    file << output;
 }

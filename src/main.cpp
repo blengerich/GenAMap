@@ -4,7 +4,7 @@
 #include "algorithm/ProximalGradientDescent.hpp"
 #include "FileIO.hpp"
 //#include "DataBaseCommunicator.hpp"
-#include "JsonCoder.hpp"
+#include "json/JsonCoder.hpp"
 
 using namespace Eigen;
 using namespace std;

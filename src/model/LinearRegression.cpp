@@ -16,12 +16,12 @@ double LinearRegression::cost() {
     return 0.5 * ((y - X * beta).squaredNorm() / size + L1_reg * beta.lpNorm<1>() + L2_reg * beta.norm())/X.rows();
 };
 
-VectorXd LinearRegression::derivative() {
+MatrixXd LinearRegression::derivative() {
     return ((-1.0 * X.transpose() * (y - X * beta)).array() + L1_reg * (beta.array() / beta.cwiseAbs().array()).sum() +
            L2_reg * beta.sum()).matrix();
 };
 
-VectorXd LinearRegression::proximal_derivative() {
+MatrixXd LinearRegression::proximal_derivative() {
     return -1.0 * X.transpose() * (y - X * beta);
 };
 
@@ -30,7 +30,7 @@ LinearRegression::LinearRegression() {
     L2_reg = 0;
 };
 
-VectorXd LinearRegression::proximal_operator(VectorXd in, float lr) {
+MatrixXd LinearRegression::proximal_operator(VectorXd in, float lr) {
     if (L1_reg != 0 && L2_reg == 0){
         VectorXd sign = ((in.array()>0).matrix()).cast<double>();//sign
         sign += -1.0*((in.array()<0).matrix()).cast<double>();

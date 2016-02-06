@@ -57,6 +57,8 @@ public:
     void writeMatrixFile(string, MatrixXd);
 
     void writeVectorFile(string, VectorXd);
+
+    void writeTreeFile(string, Tree*);
 };
 
 

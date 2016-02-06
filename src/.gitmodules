@@ -1,0 +1,226 @@
+[submodule "third_party/libunwind/upstream"]
+	path = third_party/libunwind/upstream
+	url = git://git.sv.gnu.org/libunwind.git
+[submodule "third_party/glog/upstream"]
+	path = third_party/glog/upstream
+	url = https://github.com/google/glog.git
+[submodule "third_party/gflags/upstream"]
+	path = third_party/gflags/upstream
+	url = https://github.com/gflags/gflags.git
+[submodule "third_party/bazel/upstream"]
+	path = third_party/bazel/upstream
+	url = https://github.com/google/bazel
+[submodule "third_party/protobuf/upstream"]
+	path = third_party/protobuf/upstream
+	url = https://github.com/google/protobuf.git
+[submodule "third_party/boringssl/src"]
+	path = third_party/boringssl/src
+	url = https://boringssl.googlesource.com/boringssl
+[submodule "third_party/grpc/upstream"]
+	path = third_party/grpc/upstream
+	url = https://github.com/grpc/grpc.git
+[submodule "third_party/folly/upstream"]
+	path = third_party/folly/upstream
+	url = https://github.com/facebook/folly.git
+[submodule "third_party/snappy/upstream"]
+	path = third_party/snappy/upstream
+	url = https://github.com/google/snappy.git
+[submodule "third_party/proxygen/upstream"]
+	path = third_party/proxygen/upstream
+	url = https://github.com/facebook/proxygen.git
+[submodule "third_party/libevent/upstream"]
+	path = third_party/libevent/upstream
+	url = https://github.com/libevent/libevent.git
+[submodule "third_party/boost/upstream/algorithm"]
+	path = third_party/boost/upstream/algorithm
+	url = https://github.com/boostorg/algorithm.git
+[submodule "third_party/boost/upstream/config"]
+	path = third_party/boost/upstream/config
+	url = https://github.com/boostorg/config.git
+[submodule "third_party/boost/upstream/detail"]
+	path = third_party/boost/upstream/detail
+	url = https://github.com/boostorg/detail.git
+[submodule "third_party/boost/upstream/functional"]
+	path = third_party/boost/upstream/functional
+	url = https://github.com/boostorg/functional.git
+[submodule "third_party/boost/upstream/io"]
+	path = third_party/boost/upstream/io
+	url = https://github.com/boostorg/io.git
+[submodule "third_party/boost/upstream/multi_index"]
+	path = third_party/boost/upstream/multi_index
+	url = https://github.com/boostorg/multi_index.git
+[submodule "third_party/boost/upstream/range"]
+	path = third_party/boost/upstream/range
+	url = https://github.com/boostorg/range.git
+[submodule "third_party/boost/upstream/static_assert"]
+	path = third_party/boost/upstream/static_assert
+	url = https://github.com/boostorg/static_assert.git
+[submodule "third_party/boost/upstream/tuple"]
+	path = third_party/boost/upstream/tuple
+	url = https://github.com/boostorg/tuple.git
+[submodule "third_party/boost/upstream/assert"]
+	path = third_party/boost/upstream/assert
+	url = https://github.com/boostorg/assert.git
+[submodule "third_party/boost/upstream/container"]
+	path = third_party/boost/upstream/container
+	url = https://github.com/boostorg/container.git
+[submodule "third_party/boost/upstream/filesystem"]
+	path = third_party/boost/upstream/filesystem
+	url = https://github.com/boostorg/filesystem.git
+[submodule "third_party/boost/upstream/function_types"]
+	path = third_party/boost/upstream/function_types
+	url = https://github.com/boostorg/function_types.git
+[submodule "third_party/boost/upstream/iterator"]
+	path = third_party/boost/upstream/iterator
+	url = https://github.com/boostorg/iterator.git
+[submodule "third_party/boost/upstream/optional"]
+	path = third_party/boost/upstream/optional
+	url = https://github.com/boostorg/optional.git
+[submodule "third_party/boost/upstream/regex"]
+	path = third_party/boost/upstream/regex
+	url = https://github.com/boostorg/regex.git
+[submodule "third_party/boost/upstream/system"]
+	path = third_party/boost/upstream/system
+	url = https://github.com/boostorg/system.git
+[submodule "third_party/boost/upstream/type_traits"]
+	path = third_party/boost/upstream/type_traits
+	url = https://github.com/boostorg/type_traits.git
+[submodule "third_party/boost/upstream/bind"]
+	path = third_party/boost/upstream/bind
+	url = https://github.com/boostorg/bind.git
+[submodule "third_party/boost/upstream/conversion"]
+	path = third_party/boost/upstream/conversion
+	url = https://github.com/boostorg/conversion.git
+[submodule "third_party/boost/upstream/foreach"]
+	path = third_party/boost/upstream/foreach
+	url = https://github.com/boostorg/foreach.git
+[submodule "third_party/boost/upstream/integer"]
+	path = third_party/boost/upstream/integer
+	url = https://github.com/boostorg/integer.git
+[submodule "third_party/boost/upstream/move"]
+	path = third_party/boost/upstream/move
+	url = https://github.com/boostorg/move.git
+[submodule "third_party/boost/upstream/predef"]
+	path = third_party/boost/upstream/predef
+	url = https://github.com/boostorg/predef.git
+[submodule "third_party/boost/upstream/serialization"]
+	path = third_party/boost/upstream/serialization
+	url = https://github.com/boostorg/serialization.git
+[submodule "third_party/boost/upstream/throw_exception"]
+	path = third_party/boost/upstream/throw_exception
+	url = https://github.com/boostorg/throw_exception.git
+[submodule "third_party/boost/upstream/utility"]
+	path = third_party/boost/upstream/utility
+	url = https://github.com/boostorg/utility.git
+[submodule "third_party/boost/upstream/concept_check"]
+	path = third_party/boost/upstream/concept_check
+	url = https://github.com/boostorg/concept_check.git
+[submodule "third_party/boost/upstream/core"]
+	path = third_party/boost/upstream/core
+	url = https://github.com/boostorg/core.git
+[submodule "third_party/boost/upstream/function"]
+	path = third_party/boost/upstream/function
+	url = https://github.com/boostorg/function.git
+[submodule "third_party/boost/upstream/intrusive"]
+	path = third_party/boost/upstream/intrusive
+	url = https://github.com/boostorg/intrusive.git
+[submodule "third_party/boost/upstream/math"]
+	path = third_party/boost/upstream/math
+	url = https://github.com/boostorg/math.git
+[submodule "third_party/boost/upstream/heap"]
+	path = third_party/boost/upstream/heap
+	url = https://github.com/boostorg/heap.git
+[submodule "third_party/boost/upstream/parameter"]
+	path = third_party/boost/upstream/parameter
+	url = https://github.com/boostorg/parameter.git
+[submodule "third_party/boost/upstream/mpl"]
+	path = third_party/boost/upstream/mpl
+	url = https://github.com/boostorg/mpl.git
+[submodule "third_party/boost/upstream/preprocessor"]
+	path = third_party/boost/upstream/preprocessor
+	url = https://github.com/boostorg/preprocessor.git
+[submodule "third_party/boost/upstream/smart_ptr"]
+	path = third_party/boost/upstream/smart_ptr
+	url = https://github.com/boostorg/smart_ptr.git
+[submodule "third_party/boost/upstream/type_index"]
+	path = third_party/boost/upstream/type_index
+	url = https://github.com/boostorg/type_index.git
+[submodule "third_party/boost/upstream/variant"]
+	path = third_party/boost/upstream/variant
+	url = https://github.com/boostorg/variant.git
+[submodule "third_party/boost/upstream/context"]
+	path = third_party/boost/upstream/context
+	url = https://github.com/boostorg/context.git
+[submodule "third_party/double-conversion"]
+	path = third_party/double-conversion
+	url = https://github.com/floitsch/double-conversion.git
+[submodule "third_party/re2"]
+	path = third_party/re2
+	url = https://github.com/google/re2.git
+[submodule "third_party/gperftools/upstream"]
+	path = third_party/gperftools/upstream
+	url = https://github.com/mzhaom/gperftools.git
+[submodule "third_party/java/guava/upstream"]
+	path = third_party/java/guava/upstream
+	url = https://github.com/google/guava
+[submodule "third_party/java/error-prone"]
+	path = third_party/java/error-prone
+	url = https://github.com/google/error-prone.git
+[submodule "third_party/java/netty"]
+	path = third_party/java/netty
+	url = https://github.com/LuminateWireless/netty.git
+[submodule "third_party/java/commons-logging/upstream"]
+	path = third_party/java/commons-logging/upstream
+	url = git://github.com/apache/commons-logging.git
+[submodule "third_party/java/log4j/upstream"]
+	path = third_party/java/log4j/upstream
+	url = git://github.com/apache/log4j.git
+[submodule "third_party/java/slf4j/upstream"]
+	path = third_party/java/slf4j/upstream
+	url = https://github.com/qos-ch/slf4j.git
+[submodule "third_party/java/javassit/upstream"]
+	path = third_party/java/javassit/upstream
+	url = https://github.com/jboss-javassist/javassist.git
+[submodule "third_party/java/javassist/upstream"]
+	path = third_party/java/javassist/upstream
+	url = https://github.com/jboss-javassist/javassist.git
+[submodule "third_party/zlib/upstream"]
+	path = third_party/zlib/upstream
+	url = https://github.com/madler/zlib.git
+[submodule "third_party/wangle/upstream"]
+	path = third_party/wangle/upstream
+	url = https://github.com/facebook/wangle.git
+[submodule "third_party/java/grpc-java/upstream"]
+	path = third_party/java/grpc-java/upstream
+	url = https://github.com/grpc/grpc-java.git
+[submodule "third_party/java/animal-sniffer/upstream"]
+	path = third_party/java/animal-sniffer/upstream
+	url = https://github.com/mojohaus/animal-sniffer.git
+[submodule "third_party/java/j2objc/upstream"]
+	path = third_party/java/j2objc/upstream
+	url = https://github.com/google/j2objc.git
+[submodule "third_party/gtest/github"]
+        path = third_party/gtest/github
+        url = https://github.com/google/googletest.git
+
+[submodule "third_party/boost/upstream/thread"]
+	path = third_party/boost/upstream/thread
+	url = https://github.com/boostorg/thread.git
+[submodule "third_party/boost/upstream/date_time"]
+	path = third_party/boost/upstream/date_time
+	url = https://github.com/boostorg/date_time.git
+[submodule "third_party/boost/upstream/chrono"]
+	path = third_party/boost/upstream/chrono
+	url = https://github.com/boostorg/chrono.git
+[submodule "third_party/boost/upstream/ratio"]
+	path = third_party/boost/upstream/ratio
+	url = https://github.com/boostorg/ratio.git
+[submodule "third_party/boost/upstream/atomic"]
+	path = third_party/boost/upstream/atomic
+	url = https://github.com/boostorg/atomic.git
+[submodule "third_party/boost/upstream/exception"]
+	path = third_party/boost/upstream/exception
+	url = https://github.com/boostorg/exception.git
+[submodule "third_party/boost/upstream/align"]
+	path = third_party/boost/upstream/align
+	url = https://github.com/boostorg/align.git

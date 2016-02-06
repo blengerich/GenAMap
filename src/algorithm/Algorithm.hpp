@@ -9,15 +9,15 @@
 
 class Algorithm {
 protected:
-    float progress;
+    double progress;
     int maxIteration;
 public:
     Algorithm();
     void setMaxIteration(int);
 
-    float getProgress(void);
+    double getProgress(void);
     int getMaxIteration(void);
-    void run(Model);
+    void run(Model*);
 };
 
 
