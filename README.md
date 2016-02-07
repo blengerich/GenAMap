@@ -12,6 +12,5 @@ For now, put these dependencies in /usr/include NOT /usr/local/include. Bazel sq
 * [MySQL C++ connector](https://dev.mysql.com/doc/connector-cpp/en/connector-cpp-getting-started-examples.html)
 * [JsonCPP](https://github.com/open-source-parsers/jsoncpp)
 * [Boost] (http://www.boost.org/)
-
 * [Bazel](https://github.com/bazelbuild/bazel) - This can be installed via the install_bazel.sh script in the depends folder. Just select your platform, run the script, and add the bazel_install/binary folder to your path as directed by the bazel install script. Check out my quick notes on Bazel to get started.
 * [Google Testing Framework](https://github.com/google/googletest) - Bazel will install this for you, no need to do anything.
