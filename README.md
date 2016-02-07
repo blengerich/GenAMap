@@ -1,6 +1,6 @@
 # GenAMap Version 2
 
-[![Build Status](http://ec2-52-90-30-47.compute-1.amazonaws.com/buildStatus/icon?job=GenAMap_Backend)](http://ec2-52-90-30-47.compute-1.amazonaws.com/job/GenAMap_Backend/) <-- Click here to check out the build status (you will need to make an account to do anything)
+[![Build Status](http://ec2-52-90-30-47.compute-1.amazonaws.com/buildStatus/icon?job=GenAMap_Backend)](http://ec2-52-90-30-47.compute-1.amazonaws.com/job/GenAMap_Backend/) <-- Click here to check out the build process (you will need to make an account to do anything)
 
 Todo - Add test coverage here
 
