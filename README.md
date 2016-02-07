@@ -4,7 +4,8 @@
 
 Todo - Add test coverage here
 
-dependencies:
+Dependencies:
+
 For now, put these dependencies in /usr/include NOT /usr/local/include. Bazel squashes includes with locations outside of the workspace directory, so we need to put them in the default C++ include directory. It may be possible to use bazel's new_local_directory command to customize location, but I haven't looked into it enough to recommend it.
 
 * [Java (JDK) 1.8 or greater](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
