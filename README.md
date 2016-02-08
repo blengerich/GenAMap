@@ -4,7 +4,7 @@
 
 Todo - Add test coverage here
 
-Dependencies:
+## Dependencies:
 
 For now, put these dependencies in /usr/include NOT /usr/local/include. Bazel squashes includes with locations outside of the workspace directory, so we need to put them in the default C++ include directory. It may be possible to use bazel's new_local_directory command to customize location, but I haven't looked into it enough to recommend it.
 
@@ -12,6 +12,16 @@ For now, put these dependencies in /usr/include NOT /usr/local/include. Bazel sq
 * [Eigen C++](http://eigen.tuxfamily.org/index.php?title=Main_Page)
 * [MySQL C++ connector](http://dev.mysql.com/downloads/connector/cpp/)
 * [JsonCPP](https://github.com/open-source-parsers/jsoncpp)
-* [Boost] (http://www.boost.org/)
-* [Bazel](https://github.com/bazelbuild/bazel) - This can be installed via the install_bazel.sh script in the depends folder. Just select your platform, run the script, and add the bazel_install/binary folder to your path as directed by the bazel install script. Check out my quick notes on Bazel to get started.
+* [Boost](http://www.boost.org/)
+* [Bazel](https://github.com/bazelbuild/bazel) - This can be installed via the install_bazel.sh script in the depends folder. Just select your platform, run the script, and add the bazel_install/binary folder to your path. Check out my quick notes on Bazel to get started.
 * [Google Testing Framework](https://github.com/google/googletest) - Bazel will install this for you, no need to do anything.
+
+
+## Bazel Quick Notes
+
+
+```bash
+cd src
+bazel build //:main
+bazel test //:tests
+```
