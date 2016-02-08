@@ -6,12 +6,13 @@ set -e
 # sudo apt-get install oracle-java8-installer
 
 if [ -e bazel-installer ]
-then	
+then
 	exit 0
 fi
 
 BAZEL_VERSION=0.1.4
-INSTALLER_PLATFORM=linux-x86_64
+#INSTALLER_PLATFORM=linux-x86_64
+INSTALLER_PLATFORM=darwin-x86_64
 
 # Fetch the Bazel installer
 URL=https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-${INSTALLER_PLATFORM}.sh
