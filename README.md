@@ -2,8 +2,6 @@
 
 [![Build Status](http://ec2-52-90-30-47.compute-1.amazonaws.com/buildStatus/icon?job=GenAMap_Backend)](http://ec2-52-90-30-47.compute-1.amazonaws.com/job/GenAMap_Backend/) <-- Click here to check out the build process (you will need to make an account to do anything)
 
-Todo - Add test coverage here
-
 ## Dependencies:
 
 For now, put these dependencies in /usr/include NOT /usr/local/include. Bazel squashes includes with locations outside of the workspace directory, so we need to put them in the default C++ include directory. It may be possible to use bazel's new_local_directory command to customize location, but I haven't looked into it enough to recommend it.
@@ -18,7 +16,7 @@ For now, put these dependencies in /usr/include NOT /usr/local/include. Bazel sq
 
 
 ## Bazel Quick Notes
-Bazel is Google's open source build tool. It can build and test any compiled language, and standardizes our builds so we don't have to rely on IDE-generated targets or hand-crafted Makefiles. To try it out you can use a few of the examples included in the src folder.
+Bazel is Google's open source build tool. It can build and test any compiled language, and standardizes our builds so we don't have to rely on IDE-generated targets or hand-crafted Makefiles. Once you have installed the dependencies, you can try a few of the examples included in the src folder.
 
 ```bash
 cd src
