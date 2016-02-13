@@ -39,3 +39,6 @@ cc_binary(
 Targets are defined in the format "//package:target", where package gives the path from the src directory.
 
 Read more [here](http://bazel.io/docs/getting-started.html).
+
+## Google Test Quick Notes
+Work in progress, a good introduction is [here](http://www.ibm.com/developerworks/aix/library/au-googletestingframework.html).
