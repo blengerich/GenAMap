@@ -5,6 +5,7 @@
 #include "Algorithm.hpp"
 #include "../model/LinearRegression.hpp"
 #include "../model/TreeLasso.hpp"
+#include "../model/MultiPopLasso.hpp"
 
 #ifndef ALGORITHMS_PROXIMALGRADIENTDESCENT_HPP
 #define ALGORITHMS_PROXIMALGRADIENTDESCENT_HPP
@@ -22,6 +23,7 @@ public:
     void run(LinearRegression*);
 
     void run_accelerated(TreeLasso*);
+    void run_accelerated(MultiPopLasso*);
 
     ProximalGradientDescent();
 };

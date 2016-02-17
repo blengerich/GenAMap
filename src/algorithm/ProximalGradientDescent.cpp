@@ -85,7 +85,44 @@ void ProximalGradientDescent::run_accelerated(TreeLasso * model) {
         if (residue < prev_residue){
             best_beta = beta;
         }
-        cout << "progress\t" << progress << "\tresidue\t" << residue <<endl;
+    }
+    model->updateBeta(best_beta);
+}
+
+void ProximalGradientDescent::run_accelerated(MultiPopLasso * model) {
+    model->initTraining();
+    int epoch = 0;
+    double residue = model->cost();
+    double theta = 1;
+    double theta_new = 0;
+    MatrixXd beta_prev = model->getFormattedBeta(); //bx
+    MatrixXd beta_curr = model->getFormattedBeta(); //bx_new
+    MatrixXd beta = model->getFormattedBeta();  //bw
+    MatrixXd best_beta = model->getFormattedBeta();
+    MatrixXd in;
+    MatrixXd grad;
+    while (epoch < maxIteration && residue > tolerance) {
+        cout << "epoch " << epoch << endl;
+        cout << "residue " << residue <<  endl;
+        epoch++;
+        progress = float(epoch) / maxIteration;
+
+        theta_new = 2.0/(epoch+2);
+
+        grad = model->proximal_derivative();
+
+        double L = model->getL();
+        in = beta - 1/model->getL() * grad;
+        beta_curr = model->proximal_operator(in, learningRate);
+        beta = beta_curr + (1-theta)/theta * theta_new * (beta_curr-beta_prev);
+
+        beta_prev = beta_curr;
+        theta = theta_new;
+        model->updateBeta(beta);
+        residue = model->cost();
+        if (residue < prev_residue){
+            best_beta = beta;
+        }
     }
     model->updateBeta(best_beta);
 }
