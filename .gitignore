@@ -1,1 +1,6 @@
 bazel*
+sampleData/*
+CMakeLists.txt
+.idea*
+.DS_Store
+main.cpp
