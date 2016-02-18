@@ -14,5 +14,6 @@ cc_library(
 	deps = ["//algorithm:Algorithm",
 		"//model:LinearRegression",
 		"//model:TreeLasso",
-		"//model:MultiPopLasso"],
+		"//model:MultiPopLasso",
+		"//Math:Math"],
 )

@@ -12,5 +12,5 @@ cc_library(
 	srcs = ["JsonCoder.cpp"],
 	hdrs = ["JsonCoder.hpp"],
 	deps = ["//json:json",
-		"//:DataBaseCommunicator"],
+		"//IO:DataBaseCommunicator"],
 )

@@ -5,22 +5,10 @@ cc_binary(
 	srcs = ["main.cpp"],
 	deps = ["//model:LinearRegression",
 		"//algorithm:ProximalGradientDescent",
-		"//:FileIO",
+		"//IO:FileIO",
 		"//json:JsonCoder",],
 )
 
-cc_library(
-	name = "FileIO",
-	srcs = ["FileIO.cpp"],
-	hdrs = ["FileIO.hpp"],
-	deps = ["//model:TreeLasso",],
-)
-
-cc_library(
-	name = "DataBaseCommunicator",
-	srcs = ["DataBaseCommunicator.cpp"],
-	hdrs = ["DataBaseCommunicator.hpp"],
-)
 
 cc_test(
 	name = "my_test",
@@ -35,6 +23,6 @@ cc_test(
 	srcs = ["tests.cpp", "my_test.cc"],
 	copts = ["-Iexternal/gtest/include"],
 	deps = ["@gtest//:main",
-	"//Scheduler:Scheduler_Tests"],
+			"//Scheduler:Scheduler_Tests"],
 	size = "small",
 )

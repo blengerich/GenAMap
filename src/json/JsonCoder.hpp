@@ -10,7 +10,7 @@
 #include <unordered_map>
 
 #include "json/json.h"
-#include "DataBaseCommunicator.hpp"
+#include "IO/DataBaseCommunicator.hpp"
 
 using namespace std;
 using namespace Eigen;
