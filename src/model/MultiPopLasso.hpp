@@ -6,7 +6,7 @@
 #define ALGORITHMS_MULTIPOPLASSO_HPP
 
 #include "model/Model.hpp"
-#include "Math.hpp"
+#include "Math/Math.hpp"
 #include <iostream>
 
 using namespace std;
