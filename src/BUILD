@@ -22,7 +22,6 @@ cc_library(
 	hdrs = ["DataBaseCommunicator.hpp"],
 )
 
-
 cc_test(
 	name = "my_test",
 	srcs = ["my_test.cc"],
@@ -35,6 +34,7 @@ cc_test(
 	name = "tests",
 	srcs = ["tests.cpp", "my_test.cc"],
 	copts = ["-Iexternal/gtest/include"],
-	deps = ["@gtest//:main"],
-	size = "small"
+	deps = ["@gtest//:main",
+	"//Scheduler:Scheduler_Tests"],
+	size = "small",
 )

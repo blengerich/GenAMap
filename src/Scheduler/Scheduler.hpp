@@ -12,7 +12,7 @@
 #include <map>
 #include <vector>
 
-#include "Algorithm.hpp"
+#include "algorithm/Algorithm.hpp"
 
 class Scheduler {
 private:
