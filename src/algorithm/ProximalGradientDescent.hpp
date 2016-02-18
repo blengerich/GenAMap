@@ -2,10 +2,10 @@
 // Created by haohanwang on 1/24/16.
 //
 
-#include "Algorithm.hpp"
-#include "../model/LinearRegression.hpp"
-#include "../model/TreeLasso.hpp"
-#include "../model/MultiPopLasso.hpp"
+#include "algorithm/Algorithm.hpp"
+#include "model/LinearRegression.hpp"
+#include "model/TreeLasso.hpp"
+#include "model/MultiPopLasso.hpp"
 
 #ifndef ALGORITHMS_PROXIMALGRADIENTDESCENT_HPP
 #define ALGORITHMS_PROXIMALGRADIENTDESCENT_HPP

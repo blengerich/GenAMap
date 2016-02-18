@@ -13,5 +13,6 @@ cc_library(
 	hdrs = ["ProximalGradientDescent.hpp"],
 	deps = ["//algorithm:Algorithm",
 		"//model:LinearRegression",
-		"//model:TreeLasso"],
+		"//model:TreeLasso",
+		"//model:MultiPopLasso"],
 )

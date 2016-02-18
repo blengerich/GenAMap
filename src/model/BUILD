@@ -22,3 +22,11 @@ cc_library(
 	hdrs = ["TreeLasso.hpp"],
 	deps = ["//model:Model"],
 )
+
+cc_library(
+	name = "MultiPopLasso",
+	srcs = ["MultiPopLasso.cpp"],
+	hdrs = ["MultiPopLasso.hpp"],
+	deps = ["//model:Model",
+		"//:Math"]
+)

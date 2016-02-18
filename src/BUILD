@@ -22,6 +22,13 @@ cc_library(
 	hdrs = ["DataBaseCommunicator.hpp"],
 )
 
+cc_library(
+	name = "Math",
+	srcs = ["Math.cpp"],
+	hdrs = ["Math.hpp"],
+	deps = []
+)
+
 cc_test(
 	name = "my_test",
 	srcs = ["my_test.cc"],

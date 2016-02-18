@@ -5,8 +5,8 @@
 #ifndef ALGORITHMS_MULTIPOPLASSO_HPP
 #define ALGORITHMS_MULTIPOPLASSO_HPP
 
-#include "Model.hpp"
-#include "../Math.hpp"
+#include "model/Model.hpp"
+#include "Math.hpp"
 #include <iostream>
 
 using namespace std;
