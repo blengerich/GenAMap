@@ -3,4 +3,4 @@ sampleData/*
 CMakeLists.txt
 .idea*
 .DS_Store
-main.cpp
+src/main.cpp
