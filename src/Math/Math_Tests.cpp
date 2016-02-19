@@ -1,5 +1,5 @@
 //
-// Created by haohanwang on 2/8/16.
+// Created by haohanwang on 2/18/16.
 //
 
 #include <stdio.h>
@@ -64,10 +64,11 @@ TEST(MathTest, L2Thresholding){
 VectorXd a(8);
 a << 1.1,2.4,2.4,3.2,4.5,6.7,6.8,8.9 ;
 VectorXd b(8);
-b << 2.2,3.6,5.2,1.5,4.5,2.3,3.2,0.9 ;
-MatrixTest::getInstance().TEST_VECTOR_NEAR(a, b, 1e-5);
+b << 0.07527,0.16422,0.16422,0.21897,0.30793,0.45847,0.46531,0.60901 ;
+MatrixTest::getInstance().TEST_VECTOR_NEAR(b, Math::getInstance().L2Thresholding(a), 1e-5);
+MatrixTest::getInstance().TEST_VECTOR_DOUBLE_EQ(b, Math::getInstance().L2Thresholding(b));
 a << 0,0,0,0,0,0,0,0;
-MatrixTest::getInstance().TEST_VECTOR_NEAR(a, a, 1e-5);
+MatrixTest::getInstance().TEST_VECTOR_DOUBLE_EQ(a, Math::getInstance().L2Thresholding(a));
 }
 
 int main(int argc, char** argv) {
