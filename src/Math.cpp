@@ -18,15 +18,18 @@ double Math::covariance(VectorXd v1, VectorXd v2) {
 
 double Math::correlation(VectorXd v1, VectorXd v2) {
     double cov = covariance(v1, v2);
-    double var1 = variance(v1);
-    double var2 = variance(v2);
+    double var1 = std(v1);
+    double var2 = std(v2);
+    if (var1 == 0 or var2 == 0){
+        return 0;
+    }
     return cov / (var1 * var2);
 }
 
 double Math::std(VectorXd v) {
     double mean = v.mean();
     v = (v.array() - mean).matrix();
-    return v.norm() / v.size();
+    return sqrt(v.squaredNorm() / v.size());
 }
 
 void Math::removeCol(MatrixXd *mptr, long y) {

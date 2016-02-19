@@ -4,9 +4,17 @@ cc_binary(
 	name = "main",
 	srcs = ["main.cpp"],
 	deps = ["//model:LinearRegression",
-		"//algorithm:ProximalGradientDescent",
-		"//:FileIO",
-		"//json:JsonCoder",],
+	        "//model:Model",
+	        "//model:MultiPopLasso",
+	        "//model:TreeLasso",
+            "//algorithm:ProximalGradientDescent",
+            "//algorithm:Algorithm",
+            "//algorihtm:IterativeUpdate",
+            "//:FileIO",
+            "//:Math",
+            "//json:JsonCoder",
+            "//:DataBaseCommunication",
+		],
 )
 
 cc_library(
@@ -37,4 +45,20 @@ cc_test(
 	deps = ["@gtest//:main",
 	"//Scheduler:Scheduler_Tests"],
 	size = "small",
+)
+
+cc_library(
+	name = "Math",
+	srcs = ["Math.cpp"],
+	hdrs = ["Math.hpp"],
+	deps = ["@gtest//:main"]
+)
+
+cc_test(
+    name = "Math_Tests",
+    srcs = ["Math_Tests.cpp"],
+    copts = ["-Iexternal/gtest/include"],
+    deps = ["@gtest//:main",
+    "Math"],
+    size = "small"
 )
