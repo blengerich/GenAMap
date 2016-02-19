@@ -2,7 +2,7 @@
 // Created by haohanwang on 1/26/16.
 //
 
-#include "JsonCoder.hpp"
+#include "json/JsonCoder.hpp"
 
 string JsonCoder::encodeMainMessage(mainMessage m) {
     Json::Value root;

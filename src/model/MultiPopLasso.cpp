@@ -2,7 +2,7 @@
 // Created by haohanwang on 2/2/16.
 //
 
-#include "MultiPopLasso.hpp"
+#include "model/MultiPopLasso.hpp"
 #include <limits>
 
 void MultiPopLasso::setXY(MatrixXd m, MatrixXd n) {

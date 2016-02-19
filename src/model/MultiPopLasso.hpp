@@ -5,9 +5,10 @@
 #ifndef ALGORITHMS_MULTIPOPLASSO_HPP
 #define ALGORITHMS_MULTIPOPLASSO_HPP
 
-#include "Model.hpp"
-#include "../Math.hpp"
+#include "model/Model.hpp"
+#include "Math/Math.hpp"
 #include <iostream>
+#include <vector>
 
 using namespace std;
 

@@ -8,13 +8,27 @@
 
 #include <stdio.h>
 
-#include "Scheduler.hpp"
+#include "algorithm/Algorithm.hpp"
+#include "Scheduler/Scheduler.hpp"
 
 using namespace std;
 
-//Scheduler::Scheduler() {};
+// Global static pointer used to ensure a single instance of this class.
+Scheduler* Scheduler::s_instance = NULL;
 
-bool Scheduler::train(int jobNum) {};
 
-float Scheduler::checkStatus(int jobNum) {};
+Scheduler* Scheduler::Instance() {	
+	if (!s_instance) {	// Singleton
+		s_instance = new Scheduler;
+	}
+	return s_instance;
+};
+
+bool Scheduler::train(int jobNum) {
+	return 0;
+};
+
+double Scheduler::checkStatus(int jobNum) {
+	return algorithms[jobNum]->getProgress();
+};
 

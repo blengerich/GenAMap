@@ -12,6 +12,6 @@ cc_test(
     srcs = ["Scheduler_Tests.cpp"],
     copts = ["-Iexternal/gtest/include"],
     deps = ["@gtest//:main",
-    "Scheduler"],
+            "//Scheduler:Scheduler"],
     size = "small"
 )
