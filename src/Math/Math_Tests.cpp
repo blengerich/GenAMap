@@ -6,7 +6,44 @@
 #include "gtest/gtest.h"
 
 #include "Math.hpp"
-#include "testHelper/MatrixTest.hpp"
+
+
+void TEST_VECTOR_NEAR(VectorXd a, VectorXd b, float v) {
+    long l = a.size();
+    ASSERT_EQ(l, b.size());
+    for (long i=0;i<l;i++){
+        EXPECT_NEAR(a(i), b(i), v);
+    }
+}
+
+void TEST_VECTOR_DOUBLE_EQ(VectorXd a, VectorXd b) {
+    long l = a.size();
+    ASSERT_EQ(l, b.size());
+    for (long i=0;i<l;i++){
+        EXPECT_DOUBLE_EQ(a(i), b(i));
+    }
+}
+
+void TEST_MATRIX_NEAR(MatrixXd m, MatrixXd n, float v) {
+    long r = m.rows();
+    long c = m.cols();
+    ASSERT_EQ(r, n.rows());
+    ASSERT_EQ(c, n.cols());
+    for (long i=0;i<r;i++){
+        TEST_VECTOR_NEAR(m.row(i), n.row(i), v);
+    }
+}
+
+void TEST_MATRIX_DOUBLE_EQ(MatrixXd m, MatrixXd n) {
+    long r = m.rows();
+    long c = m.cols();
+    ASSERT_EQ(r, n.rows());
+    ASSERT_EQ(c, n.cols());
+    for (long i=0;i<r;i++){
+        TEST_VECTOR_DOUBLE_EQ(m.row(i), n.row(i));
+    }
+}
+
 
 TEST(MathTest, Always_True) {
 EXPECT_EQ(1,1);
@@ -65,10 +102,10 @@ VectorXd a(8);
 a << 1.1,2.4,2.4,3.2,4.5,6.7,6.8,8.9 ;
 VectorXd b(8);
 b << 0.07527,0.16422,0.16422,0.21897,0.30793,0.45847,0.46531,0.60901 ;
-MatrixTest::getInstance().TEST_VECTOR_NEAR(b, Math::getInstance().L2Thresholding(a), 1e-5);
-MatrixTest::getInstance().TEST_VECTOR_DOUBLE_EQ(b, Math::getInstance().L2Thresholding(b));
+TEST_VECTOR_NEAR(b, Math::getInstance().L2Thresholding(a), 1e-5);
+TEST_VECTOR_DOUBLE_EQ(b, Math::getInstance().L2Thresholding(b));
 a << 0,0,0,0,0,0,0,0;
-MatrixTest::getInstance().TEST_VECTOR_DOUBLE_EQ(a, Math::getInstance().L2Thresholding(a));
+TEST_VECTOR_DOUBLE_EQ(a, Math::getInstance().L2Thresholding(a));
 }
 
 int main(int argc, char** argv) {
