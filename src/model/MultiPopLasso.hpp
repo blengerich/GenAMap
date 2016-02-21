@@ -46,6 +46,9 @@ public:
 
     void initBeta();
     double cost();
+    MatrixXd predict();
+    MatrixXd predict(MatrixXd);
+    MatrixXd predict(MatrixXd, VectorXd);
     void initTraining();
 
     void initC();

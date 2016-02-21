@@ -229,3 +229,23 @@ void MultiPopLasso::setGamma(double g) {
 MatrixXd MultiPopLasso::getFormattedBeta() {
     return beta;
 }
+
+MatrixXd MultiPopLasso::predict() {
+    cout << "does not allow prediction with original X, please use predict(X, population) method instead"<<endl;
+    return MatrixXd::Random(1,1);
+}
+
+MatrixXd MultiPopLasso::predict(MatrixXd x) {
+    cout << "does not allow prediction without population information"<<endl;
+    return MatrixXd::Random(1,1);
+}
+
+MatrixXd MultiPopLasso::predict(MatrixXd x, VectorXd pop){
+    long r= x.rows();
+    MatrixXd y(r, 1);
+    MatrixXd b = getBeta();
+    for (long i=0;i<r;i++){
+        y(i) = x.row(i)*b.row(long(pop(i)));
+    }
+    return y;
+}
