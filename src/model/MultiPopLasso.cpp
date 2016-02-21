@@ -100,13 +100,11 @@ void MultiPopLasso::removeColumns() {
 
 MatrixXd MultiPopLasso::normalizeData_col(MatrixXd a) {
     long c = a.cols();
-    long r = a.rows();
     VectorXd mean = a.colwise().mean();
     VectorXd std_inv = VectorXd::Zero(c);
     for (long i = 0; i < c; i++) {
         std_inv(i) = 1.0 / Math::getInstance().std(a.col(i));
     }
-    MatrixXd m = a.colwise() - mean;
     return ((a.colwise() - mean).array().colwise() * std_inv.array()).matrix();
 }
 
