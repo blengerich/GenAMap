@@ -245,7 +245,7 @@ MatrixXd MultiPopLasso::predict(MatrixXd x, VectorXd pop){
     MatrixXd y(r, 1);
     MatrixXd b = getBeta();
     for (long i=0;i<r;i++){
-        y(i) = x.row(i)*b.row(long(pop(i)));
+        y.row(i) = x.row(i)*b.row(long(pop(i)));
     }
     return y;
 }
