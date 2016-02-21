@@ -6,7 +6,7 @@
 
 using namespace Eigen;
 
-void Model::setX(MatrixXd m) { X = m; initBeta();}
+void Model::setX(MatrixXd m) { X = m; }
 
 void Model::setY(MatrixXd n) { y = n; };
 
