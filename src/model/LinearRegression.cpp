@@ -12,8 +12,7 @@ void LinearRegression::setL1_reg(float l1) { L1_reg = l1; };
 void LinearRegression::setL2_reg(float l2) { L2_reg = l2; };
 
 double LinearRegression::cost() {
-    float size = float(y.size());
-    return 0.5 * ((y - X * beta).squaredNorm() / size + L1_reg * beta.lpNorm<1>() + L2_reg * beta.norm())/X.rows();
+    return 0.5 * (y - X * beta).squaredNorm()/X.rows() + L1_reg * beta.lpNorm<1>() + L2_reg * beta.squaredNorm();
 };
 
 MatrixXd LinearRegression::derivative() {
@@ -31,6 +30,9 @@ LinearRegression::LinearRegression() {
 };
 
 MatrixXd LinearRegression::proximal_operator(VectorXd in, float lr) {
+    if (L1_reg == 0 && L2_reg == 0){
+        return in;
+    }
     if (L1_reg != 0 && L2_reg == 0){
         VectorXd sign = ((in.array()>0).matrix()).cast<double>();//sign
         sign += -1.0*((in.array()<0).matrix()).cast<double>();
@@ -39,14 +41,6 @@ MatrixXd LinearRegression::proximal_operator(VectorXd in, float lr) {
     }
     else if (L2_reg != 0){
         return in/(1+2*lr*L2_reg);
-//        if (in.norm() > L2_reg){
-//            double s = 1-L2_reg/in.norm();
-//            return s*in;
-//        }
-//        else {
-//            long s = in.size();
-//            return VectorXd::Zero(s);
-//        }
     }
     else{
         VectorXd sign = ((in.array()>0).matrix()).cast<double>();

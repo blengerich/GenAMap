@@ -32,7 +32,7 @@ MatrixXd Model::predict() { return X * beta; }
 
 MatrixXd Model::predict(MatrixXd X) { return X * beta; };
 
-double Model::cost() {return 0.0;};
+double Model::cost() {return 0.5*(y-X*beta).squaredNorm()/y.rows();};
 
 Model::Model() { };
 

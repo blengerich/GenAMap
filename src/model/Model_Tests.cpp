@@ -1,0 +1,259 @@
+//
+// Created by haohanwang on 2/20/16.
+//
+
+#include <stdio.h>
+#include "gtest/gtest.h"
+
+#include "Model.hpp"
+#include "LinearRegression.hpp"
+#include "TreeLasso.hpp"
+#include "MultiPopLasso.hpp"
+
+void TEST_VECTOR_NEAR(VectorXd a, VectorXd b, float v) {
+    long l = a.size();
+    ASSERT_EQ(l, b.size());
+    for (long i=0;i<l;i++){
+        EXPECT_NEAR(a(i), b(i), v);
+    }
+}
+
+void TEST_VECTOR_DOUBLE_EQ(VectorXd a, VectorXd b) {
+    long l = a.size();
+    ASSERT_EQ(l, b.size());
+    for (long i=0;i<l;i++){
+        EXPECT_DOUBLE_EQ(a(i), b(i));
+    }
+}
+
+void TEST_MATRIX_NEAR(MatrixXd m, MatrixXd n, float v) {
+    long r = m.rows();
+    long c = m.cols();
+    ASSERT_EQ(r, n.rows());
+    ASSERT_EQ(c, n.cols());
+    for (long i=0;i<r;i++){
+        TEST_VECTOR_NEAR(m.row(i), n.row(i), v);
+    }
+}
+
+void TEST_MATRIX_DOUBLE_EQ(MatrixXd m, MatrixXd n) {
+    long r = m.rows();
+    long c = m.cols();
+    ASSERT_EQ(r, n.rows());
+    ASSERT_EQ(c, n.cols());
+    for (long i=0;i<r;i++){
+        TEST_VECTOR_DOUBLE_EQ(m.row(i), n.row(i));
+    }
+}
+
+void TEST_TREE_NEAR(Tree * m, Tree * n, float v){
+    //TODO
+}
+
+
+TEST(MODEL_BASE, CostFunction){
+    MatrixXd X(10, 5);
+    X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
+    0.9058,    0.9706,    0.0357,    0.0318,    0.3816,
+    0.1270,    0.9572,    0.8491,    0.2769,    0.7655,
+    0.9134,    0.4854,    0.9340,    0.0462,    0.7952,
+    0.6324,    0.8003,    0.6787,    0.0971,    0.1869,
+    0.0975,    0.1419,    0.7577,    0.8235,    0.4898,
+    0.2785,    0.4218,    0.7431,    0.6948,    0.4456,
+    0.5469,    0.9157,    0.3922,    0.3171,    0.6463,
+    0.9575,    0.7922,    0.6555,    0.9502,    0.7094,
+    0.9649,    0.9595,    0.1712,    0.0344,    0.7547;
+    MatrixXd y(10, 1);
+    y << 0.4173,
+    0.0497,
+    0.9027,
+    0.9448,
+    0.4909,
+    0.4893,
+    0.3377,
+    0.9001,
+    0.3692,
+    0.1112;
+    Model m = Model();
+    m.setX(X);
+    m.setY(y);
+    MatrixXd beta(5, 1);
+    beta << -0.2106,
+    0.0919,
+    0.7380,
+    -0.3055,
+    0.4659;
+    m.updateBeta(beta);
+    double r = m.cost();
+    EXPECT_NEAR(r, 0.0152, 1e-3);
+}
+
+TEST(MODEL_BASE, Prediction){
+    MatrixXd X(10, 5);
+    X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
+    0.9058,    0.9706,    0.0357,    0.0318,    0.3816,
+    0.1270,    0.9572,    0.8491,    0.2769,    0.7655,
+    0.9134,    0.4854,    0.9340,    0.0462,    0.7952,
+    0.6324,    0.8003,    0.6787,    0.0971,    0.1869,
+    0.0975,    0.1419,    0.7577,    0.8235,    0.4898,
+    0.2785,    0.4218,    0.7431,    0.6948,    0.4456,
+    0.5469,    0.9157,    0.3922,    0.3171,    0.6463,
+    0.9575,    0.7922,    0.6555,    0.9502,    0.7094,
+    0.9649,    0.9595,    0.1712,    0.0344,    0.7547;
+    Model m = Model();
+    m.setX(X);
+    MatrixXd beta(5, 1);
+    beta << -0.2106,
+    0.0919,
+    0.7380,
+    -0.3055,
+    0.4659;
+    m.updateBeta(beta);
+    MatrixXd y(10, 1);
+    y << 0.3156,
+    0.0929,
+    0.9600,
+    0.8980,
+    0.4987,
+    0.5284,
+    0.5239,
+    0.4627,
+    0.3952,
+    0.3525;
+    MatrixXd p = m.predict();
+    TEST_MATRIX_NEAR(p, y, 1e-3);
+    p = m.predict(X);
+    TEST_MATRIX_NEAR(p, y, 1e-3);
+}
+
+TEST(LINEAR_REGRESSION, CostFunction){
+    MatrixXd X(10, 5);
+    X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
+    0.9058,    0.9706,    0.0357,    0.0318,    0.3816,
+    0.1270,    0.9572,    0.8491,    0.2769,    0.7655,
+    0.9134,    0.4854,    0.9340,    0.0462,    0.7952,
+    0.6324,    0.8003,    0.6787,    0.0971,    0.1869,
+    0.0975,    0.1419,    0.7577,    0.8235,    0.4898,
+    0.2785,    0.4218,    0.7431,    0.6948,    0.4456,
+    0.5469,    0.9157,    0.3922,    0.3171,    0.6463,
+    0.9575,    0.7922,    0.6555,    0.9502,    0.7094,
+    0.9649,    0.9595,    0.1712,    0.0344,    0.7547;
+    MatrixXd y(10, 1);
+    y << 0.4173,
+    0.0497,
+    0.9027,
+    0.9448,
+    0.4909,
+    0.4893,
+    0.3377,
+    0.9001,
+    0.3692,
+    0.1112;
+    LinearRegression lr = LinearRegression();
+    lr.setX(X);
+    lr.setY(y);
+    MatrixXd beta(5, 1);
+    beta << -0.2106,
+    0.0919,
+    0.7380,
+    -0.3055,
+    0.4659;
+    lr.updateBeta(beta);
+    double r = lr.cost();
+    EXPECT_NEAR(r, 0.0152, 1e-3);
+    double l1 = 0.1;
+    lr.setL1_reg(l1);
+    r = lr.cost();
+    EXPECT_NEAR(r, 0.0152+0.18119, 1e-3);
+    double l2 = 0.2;
+    lr.setL1_reg(0);
+    lr.setL2_reg(l2);
+    r = lr.cost();
+    EXPECT_NEAR(r, 0.0152+0.1816, 1e-3);
+    lr.setL1_reg(l1);
+    r = lr.cost();
+    EXPECT_NEAR(r, 0.0152+0.18119+0.1816, 1e-3);
+}
+
+TEST(LINEAR_REGRESSION, ProximalDerivative){
+    MatrixXd X(4, 3);
+    X << 0.7803,    0.0965,    0.5752,
+    0.3897,    0.1320,    0.0598,
+    0.2417,    0.9421,    0.2348,
+    0.4039,    0.9561,    0.3532;
+    MatrixXd y(4, 1);
+    y << 0.8212,
+    0.0154,
+    0.0430,
+    0.1690;
+    MatrixXd beta(3,1);
+    beta << 0.6491,
+    0.7317,
+    0.6477;
+    MatrixXd pd(3, 1);
+    pd << 0.8890,
+    1.9383,
+    0.6812;
+    LinearRegression lr = LinearRegression();
+    lr.setX(X);
+    lr.setY(y);
+    lr.updateBeta(beta);
+    MatrixXd r = lr.proximal_derivative();
+    TEST_MATRIX_NEAR(r, pd, 1e-3);
+}
+
+TEST(LINEAR_REGRESSION, ProximalOperator){
+    MatrixXd beta(3,1);
+    beta << -0.7491,
+    0.7317,
+    0.6477;
+    MatrixXd pd(3, 1);
+    pd << -0.0491,
+    0.0317,
+    0.0;
+    LinearRegression lr = LinearRegression();
+    lr.updateBeta(beta);
+    MatrixXd a = lr.proximal_operator(beta, 1);
+    TEST_MATRIX_NEAR(a, beta, 1e-3);
+    lr.setL1_reg(7);
+    a = lr.proximal_operator(beta, 0.1);
+    TEST_MATRIX_NEAR(a, pd, 0.1);
+}
+
+TEST(TREE_LASSO, CostFunction){
+    
+}
+
+TEST(TREE_LASSO, HierarchicalClustering){
+
+}
+
+TEST(TREE_LASSO, ProximalDerivative){
+
+}
+
+TEST(TREE_LASSO, ProximalOperator){
+
+}
+
+TEST(MULTI_POP_LASSO, CostFunction){
+
+}
+
+TEST(MULTI_POP_LASSO, Prediction){
+
+}
+
+TEST(MULTI_POP_LASSO, ProximalDerivative){
+
+}
+
+TEST(MULTI_POP_LASSO, ProximalOperator){
+
+}
+
+
+int main(int argc, char** argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}

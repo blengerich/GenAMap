@@ -17,15 +17,6 @@ cc_library(
 )
 
 cc_library(
-	name = "Lasso",
-	srcs = ["lasso.cpp"],
-	hdrs = ["lasso.hpp"],
-	copts = [],
-	deps = [],
-)
-
-
-cc_library(
 	name = "TreeLasso",
 	srcs = ["TreeLasso.cpp"],
 	hdrs = ["TreeLasso.hpp"],
@@ -38,4 +29,12 @@ cc_library(
 	hdrs = ["MultiPopLasso.hpp"],
 	deps = ["//model:Model",
 		"//Math:Math"]
+)
+
+cc_test(
+	name = "Model_Tests",
+	srcs = ["Model_Tests.cpp"],
+	copts = ["-Iexternal/gtest/include"],
+	deps = ["@gtest//:main", "Model", "LinearRegression", "TreeLasso", "MultiPopLasso"],
+	size = "small"
 )
