@@ -5,6 +5,7 @@
 #include "TreeLasso.hpp"
 #include <limits>
 #include <queue>
+#include <stack>
 
 Tree::Tree() {
     root = 0;
@@ -245,7 +246,7 @@ void TreeLasso::setThreshold(double thred) {
 
 TreeLasso::TreeLasso() {
     clusteringMethod = "single";
-    threshold = 0;
+    threshold = 1;
     mu = 0.01;
     T = 0;
 }
@@ -468,8 +469,8 @@ void TreeLasso::initGradientUpdate() {
     gIdx(0,0) = 1;
     long index = r-1;
     queue<treeNode*> nodes;
-    vector<double> Cweights;
-    vector<long> Cindex;
+    stack<double> Cweights;
+    stack<long> Cindex;
     nodes.push(T->getRoot());
     while (nodes.size()>0){
         treeNode* node = nodes.front();
@@ -477,9 +478,9 @@ void TreeLasso::initGradientUpdate() {
             if (node->weight!=0){
                 mTw(index, 0) = node->weight;
                 for (long j=0;j<node->trait.size();j++){
-                    mT(index, j) = 1;
-                    Cweights.push_back(node->weight);
-                    Cindex.push_back(j);
+                    mT(index, node->trait.at(j)) = 1;
+                    Cweights.push(node->weight);
+                    Cindex.push(node->trait.at(j));
                 }
                 index--;
             }
@@ -491,10 +492,13 @@ void TreeLasso::initGradientUpdate() {
     }
 
     C = MatrixXd::Zero(Cweights.size(), c);
-    for (long i=0;i<Cweights.size();i++){
-        C(i, Cindex.at(i)) = Cweights.at(i);
+    long tmpIndex = 0;
+    while (Cindex.size()!=0){
+        C(tmpIndex, Cindex.top()) = Cweights.top();
+        Cindex.pop();
+        Cweights.pop();
+        tmpIndex+=1;
     }
-
     for (long i=0;i<r;i++){
         int s =  (int)mT.row(i).sum();
         gIdx(i, 1) = gIdx(i, 0) + s - 1;
@@ -509,10 +513,9 @@ void TreeLasso::initGradientUpdate() {
         tau += mT.row(i)*(mTw(i,0)*mTw(i,0));
     }
 
-    std::ptrdiff_t i;
-    tauNorm = tau.maxCoeff(&i);
+    tauNorm = tau.maxCoeff();
 
-    double L1 = ((X.transpose()*X).eigenvalues()).real().maxCoeff(&i);
+    double L1 = ((X.transpose()*X).eigenvalues()).real().maxCoeff();
     L = L1 + lambda*lambda*tauNorm/mu;
 
     XY = X.transpose()*y;
@@ -540,6 +543,7 @@ MatrixXd TreeLasso::proximal_derivative() {
         for (long j=gIdx(i,0)-1;j<gIdx(i,1);j++){
             tmp += A.row(j).array().square().matrix();
         }
+        tmp = tmp.array().sqrt().matrix();
         for (long j=0;j<tmp.rows();j++){
             if (tmp(j) < 1) {tmp(j) = 1;}
         }
@@ -548,4 +552,8 @@ MatrixXd TreeLasso::proximal_derivative() {
         }
     }
     return X.transpose()*(X*beta)-XY+R.transpose()*C;
+}
+
+void TreeLasso::setMu(double m) {
+    mu = m;
 }

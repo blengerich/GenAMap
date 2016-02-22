@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include "gtest/gtest.h"
+#include <queue>
 
 #include "Model.hpp"
 #include "LinearRegression.hpp"
@@ -47,7 +48,45 @@ void TEST_MATRIX_DOUBLE_EQ(MatrixXd m, MatrixXd n) {
 }
 
 void TEST_TREE_NEAR(Tree * m, Tree * n, float v){
-    //TODO
+    queue<treeNode*> nm;
+    queue<treeNode*> nn;
+    treeNode * root1 = m->getRoot();
+    treeNode * root2 = n->getRoot();
+    nm.push(root1);
+    nn.push(root2);
+    while (nm.size()>0 && nn.size()>0){
+        treeNode* mt = nm.front();
+        treeNode* nt = nn.front();
+
+        vector<long> ms = mt->trait;
+        vector<long> ns = nt->trait;
+
+        ASSERT_DOUBLE_EQ(ms.size(), ns.size());
+
+        for (unsigned long i=0;i<ns.size();i++){
+            EXPECT_DOUBLE_EQ(ms.at(i), ns.at(i));
+        }
+
+        if (mt->children.size()==0){
+        }
+        else{
+            for (int i=0; i<mt->children.size();i++){
+                nm.push(mt->children[i]);
+            }
+        }
+        if (nt->children.size()==0){
+        }
+        else{
+            for (int i=0; i<nt->children.size();i++){
+                nn.push(nt->children[i]);
+            }
+        }
+        nm.pop();
+        nn.pop();
+    }
+
+    EXPECT_DOUBLE_EQ(nm.size(), 0);
+    EXPECT_DOUBLE_EQ(nn.size(), 0);
 }
 
 
@@ -253,12 +292,9 @@ TEST(TREE_LASSO, CostFunction){
     ch1.push_back(nd2);
     treeNode* mid1 = tr->buildParentFromChildren(ch1);
     treeNode* nd3 = tr->buildLeafNode(4);
-    vector<treeNode*> ch2;
-    ch2.push_back(nd3);
-    treeNode* mid2 = tr->buildParentFromChildren(ch2);
     vector<treeNode*> ch4;
+    ch4.push_back(nd3);
     ch4.push_back(mid1);
-    ch4.push_back(mid2);
     treeNode* mid4 = tr->buildParentFromChildren(ch4);
 
     treeNode* nd4 = tr->buildLeafNode(0);
@@ -267,12 +303,9 @@ TEST(TREE_LASSO, CostFunction){
     ch3.push_back(nd4);
     ch3.push_back(nd5);
     treeNode* mid3 = tr->buildParentFromChildren(ch3);
-    vector<treeNode*> ch5;
-    ch5.push_back(mid3);
-    treeNode * mid5 = tr->buildParentFromChildren(ch5);
     vector<treeNode*> ch6;
+    ch6.push_back(mid3);
     ch6.push_back(mid4);
-    ch6.push_back(mid5);
     treeNode * root = tr->buildParentFromChildren(ch6);
     tr->setRoot(root);
 
@@ -280,14 +313,134 @@ TEST(TREE_LASSO, CostFunction){
 
     double r = tl.cost();
     EXPECT_NEAR(r, 0, 1e-5);
+
+    tl.setThreshold(0.2);
+    tl.setTree(tr);
+    r = tl.cost();
+    EXPECT_NEAR(r, -5.18088, 1e-3);
 }
 
 TEST(TREE_LASSO, HierarchicalClustering){
+    MatrixXd X(4, 6);
+    X << 0.4509,    0.1890,    0.6256,    0.7757,    0.3063,    0.7948,
+    0.5470,    0.6868,    0.7802,    0.4868,    0.5085,    0.6443,
+    0.2963,    0.1835,    0.0811,    0.4359,    0.5108,    0.3786,
+    0.7447,    0.3685,    0.9294,    0.4468,    0.8176,    0.8116;
+    MatrixXd y(4, 5);
+    y << -1.3302,   -0.8198,    0.9233,    0.8666,    2.3260,
+    -1.0999,   -0.8959,    2.2639,    2.0579,   -0.2151,
+    -0.0032,    0.3647,    0.7551,    0.7000,   -0.6198,
+    -0.9786,   -0.8553,    1.6659,    1.5554,    0.9160;
 
+    // clustering relationship of y is (((2,3),4),(0,1))
+
+    MatrixXd beta(6, 5);
+    beta << 0,         0,    1.0000,    1.0000,         0,
+    0,         0,    2.5000,    2.2000,   -4.0000,
+    -1.5000,   -1.8000,         0,         0,    3.0000,
+    -0.9000,         0,         0,         0,    1.5000,
+    1.0000,     1.0000,         0,         0,   -2.2000,
+    0,         0,         0,         0,    0.9000;
+    TreeLasso tl = TreeLasso();
+    tl.setXY(X, y);
+    tl.updateBeta(beta);
+    tl.hierarchicalClustering();
+
+    Tree * rtr = tl.getTree();
+
+    Tree* tr = new Tree();
+    treeNode* nd1 = tr->buildLeafNode(2);
+    treeNode* nd2 = tr->buildLeafNode(3);
+    vector<treeNode*> ch1;
+    ch1.push_back(nd1);
+    ch1.push_back(nd2);
+    treeNode* mid1 = tr->buildParentFromChildren(ch1);
+    treeNode* nd3 = tr->buildLeafNode(4);
+    vector<treeNode*> ch4;
+    ch4.push_back(nd3);
+    ch4.push_back(mid1);
+    treeNode* mid4 = tr->buildParentFromChildren(ch4);
+
+    treeNode* nd4 = tr->buildLeafNode(0);
+    treeNode* nd5 = tr->buildLeafNode(1);
+    vector<treeNode*> ch3;
+    ch3.push_back(nd4);
+    ch3.push_back(nd5);
+    treeNode* mid3 = tr->buildParentFromChildren(ch3);
+    vector<treeNode*> ch6;
+    ch6.push_back(mid3);
+    ch6.push_back(mid4);
+    treeNode * root = tr->buildParentFromChildren(ch6);
+    tr->setRoot(root);
+
+    TEST_TREE_NEAR(tr, rtr, 1e-3);
 }
 
 TEST(TREE_LASSO, ProximalDerivative){
+    Tree* tr = new Tree();
+    treeNode* nd1 = tr->buildLeafNode(2);
+    treeNode* nd2 = tr->buildLeafNode(3);
+    vector<treeNode*> ch1;
+    ch1.push_back(nd1);
+    ch1.push_back(nd2);
+    treeNode* mid1 = tr->buildParentFromChildren(ch1);
+    treeNode* nd3 = tr->buildLeafNode(4);
+    vector<treeNode*> ch4;
+    ch4.push_back(nd3);
+    ch4.push_back(mid1);
+    treeNode* mid4 = tr->buildParentFromChildren(ch4);
 
+    treeNode* nd4 = tr->buildLeafNode(0);
+    treeNode* nd5 = tr->buildLeafNode(1);
+    vector<treeNode*> ch3;
+    ch3.push_back(nd4);
+    ch3.push_back(nd5);
+    treeNode* mid3 = tr->buildParentFromChildren(ch3);
+    vector<treeNode*> ch6;
+    ch6.push_back(mid3);
+    ch6.push_back(mid4);
+    treeNode * root = tr->buildParentFromChildren(ch6);
+    tr->setRoot(root);
+
+    MatrixXd X(4, 6);
+    X << 0.4509,    0.1890,    0.6256,    0.7757,    0.3063,    0.7948,
+    0.5470,    0.6868,    0.7802,    0.4868,    0.5085,    0.6443,
+    0.2963,    0.1835,    0.0811,    0.4359,    0.5108,    0.3786,
+    0.7447,    0.3685,    0.9294,    0.4468,    0.8176,    0.8116;
+    MatrixXd y(4, 5);
+    y << -1.3302,   -0.8198,    0.9233,    0.8666,    2.3260,
+    -1.0999,   -0.8959,    2.2639,    2.0579,   -0.2151,
+    -0.0032,    0.3647,    0.7551,    0.7000,   -0.6198,
+    -0.9786,   -0.8553,    1.6659,    1.5554,    0.9160;
+
+    // clustering relationship of y is (((2,3),4),(0,1))
+
+    MatrixXd beta(6, 5);
+    beta << 0,         0,    1.0000,    1.0000,         0,
+    0,         0,    2.5000,    2.2000,   -4.0000,
+    -1.5000,   -1.8000,         0,         0,    3.0000,
+    -0.9000,         0,         0,         0,    1.5000,
+    1.0000,     1.0000,         0,         0,   -2.2000,
+    0,         0,         0,         0,    0.9000;
+    TreeLasso tl = TreeLasso();
+    tl.setXY(X, y);
+    tl.updateBeta(beta);
+    tl.setMu(0.01);
+    tl.setLambda(10);
+    tl.setThreshold(1);
+    tl.setTree(tr);
+    tl.initGradientUpdate();
+
+    MatrixXd grad(6,5);
+    grad << -0.0000,    0.0001,    0.4421,    0.4420,   -0.0001,
+    -0.0000,    0.0000,    0.4017,    0.3535,   -0.1922,
+    -0.1601,   -0.1920,    0.0002,    0.0001,    0.2499,
+    -0.2500,    0.0001,    0.0001,    0.0001,    0.2498,
+    0.1768,    0.1768,    0.0001,   0.0001,   -0.2501,
+    -0.0000,    0.0001,    0.0002,    0.0001,    0.2498;
+
+    MatrixXd r = tl.proximal_derivative();
+    TEST_MATRIX_NEAR(r, grad, 1e-3);
 }
 
 TEST(TREE_LASSO, ProximalOperator){

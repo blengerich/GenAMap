@@ -89,6 +89,7 @@ public:
     void setXY(MatrixXd, MatrixXd);
     void setTree(Tree*);
     void setLambda(double);
+    void setMu(double);
     void initBeta();
 
     void initIterativeUpdate();
