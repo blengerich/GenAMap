@@ -494,7 +494,44 @@ TEST(MULTI_POP_LASSO, CostFunction){
 }
 
 TEST(MULTI_POP_LASSO, Prediction){
-
+    MatrixXd X (10, 2);
+    X << 0.8530,    0.4173,
+    0.6221,    0.0497,
+    0.3510,    0.9027,
+    0.5132,    0.9448,
+    0.4018,    0.4909,
+    0.0760,    0.4893,
+    0.2399,    0.3377,
+    0.1233,    0.9001,
+    0.1839,    0.3692,
+    0.2400,    0.1112;
+    MatrixXd y(10, 1);
+    y << 2.0367,
+    1.1691,
+    -0.7523,
+    -0.8764,
+    1.3248,
+    0.7427,
+    -0.3477,
+    1.3371,
+    0.7859,
+    0.5653;
+    MatrixXd beta(2, 2);
+    beta << 1.7803,    1.2417,
+    -0.6103,   -0.5961;
+    VectorXd Z(10);
+    Z << 0,     0,     1,     1,     0,     0,     1,     0,     0,     0;
+    MatrixXd fedInBeta(4, 1);
+    fedInBeta << 1.7803, -0.6103, 1.2417, -0.5961;
+    MultiPopLasso mpl = MultiPopLasso();
+    mpl.setXY(X, y);
+    mpl.setPopulation(Z);
+    mpl.setMu(0.1);
+    mpl.setLambda(0);
+    mpl.initTraining();
+    mpl.updateBeta(fedInBeta);
+    MatrixXd r = mpl.predict(X, Z);
+    TEST_MATRIX_NEAR(r, y, 1e-3);
 }
 
 TEST(MULTI_POP_LASSO, ProximalDerivative){

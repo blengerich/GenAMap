@@ -24,13 +24,6 @@ void MultiPopLasso::setPopulation(VectorXd pop) {
 
 double MultiPopLasso::cost() {
     initTraining();
-    cout << "----y----"<< endl;
-    cout << y << endl;
-    cout << "----X----"<< endl;
-    cout << X << endl;
-    cout << "----B----"<< endl;
-    cout << beta << endl;
-
     return 0.5 * (y - X * beta).squaredNorm() + lambda * groupPenalization();
 }
 
@@ -221,7 +214,7 @@ MatrixXd MultiPopLasso::getBeta() {
     MatrixXd r = MatrixXd::Zero(popNum, c);
     for (long i=0;i<popNum;i++){
         for (long j=0;j<c;j++){
-            r(i, j) = beta(i*popNum+j,0);
+            r(i, j) = beta(j*popNum+i,0);
         }
     }
     return r;
