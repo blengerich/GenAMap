@@ -66,7 +66,8 @@ void ProximalGradientDescent::run_accelerated(TreeLasso * model) {
     MatrixXd in;
     MatrixXd grad;
     model->initGradientUpdate();
-    while (epoch < maxIteration && residue > tolerance) {
+    double diff = tolerance*2;
+    while (epoch < maxIteration && diff > tolerance) {
         epoch++;
         progress = float(epoch) / maxIteration;
 
@@ -85,6 +86,7 @@ void ProximalGradientDescent::run_accelerated(TreeLasso * model) {
         if (residue < prev_residue){
             best_beta = beta;
         }
+        diff = abs(prev_residue - residue);
     }
     model->updateBeta(best_beta);
 }
@@ -101,9 +103,8 @@ void ProximalGradientDescent::run_accelerated(MultiPopLasso * model) {
     MatrixXd best_beta = model->getFormattedBeta();
     MatrixXd in;
     MatrixXd grad;
-    while (epoch < maxIteration && residue > tolerance) {
-        cout << "epoch " << epoch << endl;
-        cout << "residue " << residue <<  endl;
+    double diff = tolerance*2;
+    while (epoch < maxIteration && diff > tolerance) {
         epoch++;
         progress = float(epoch) / maxIteration;
 
@@ -120,9 +121,11 @@ void ProximalGradientDescent::run_accelerated(MultiPopLasso * model) {
         theta = theta_new;
         model->updateBeta(beta);
         residue = model->cost();
+        cout << "epoch: " << epoch << "residue: "<<residue <<endl;
         if (residue < prev_residue){
             best_beta = beta;
         }
+        diff = abs(prev_residue - residue);
     }
     model->updateBeta(best_beta);
 }
