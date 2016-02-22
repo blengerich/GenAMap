@@ -23,6 +23,14 @@ void MultiPopLasso::setPopulation(VectorXd pop) {
 }
 
 double MultiPopLasso::cost() {
+    initTraining();
+    cout << "----y----"<< endl;
+    cout << y << endl;
+    cout << "----X----"<< endl;
+    cout << X << endl;
+    cout << "----B----"<< endl;
+    cout << beta << endl;
+
     return 0.5 * (y - X * beta).squaredNorm() + lambda * groupPenalization();
 }
 
@@ -36,9 +44,12 @@ double MultiPopLasso::groupPenalization() {
 }
 
 void MultiPopLasso::initTraining() {
-    reArrangeData();
-    formatData();
-    initC();
+    if (!initTrainingFlag){
+        initTrainingFlag = true;
+        reArrangeData();
+        formatData();
+        initC();
+    }
 }
 
 void MultiPopLasso::reArrangeData() {
@@ -53,8 +64,8 @@ void MultiPopLasso::reArrangeData() {
     for (long i=0;i<popNum;i++){
         idx = getPopulationIndex(i);
         for (long j=0;j<idx.size();j++){
-            tmpX.row(count) = X.row(j);
-            tmpY.row(count) = y.row(j);
+            tmpX.row(count) = X.row(idx.at(j));
+            tmpY.row(count) = y.row(idx.at(j));
             tmpPop(count++) = i;
         }
     }
@@ -246,4 +257,11 @@ MatrixXd MultiPopLasso::predict(MatrixXd x, VectorXd pop){
         y.row(i) = x.row(i)*(b.row(long(pop(i))).transpose());
     }
     return y;
+}
+
+MultiPopLasso::MultiPopLasso() {
+    initTrainingFlag = false;
+    lambda = 0;
+    mu = 1;
+    gamma = 0;
 }

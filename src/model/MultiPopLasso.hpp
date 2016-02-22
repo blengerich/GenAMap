@@ -21,6 +21,7 @@ private:
     MatrixXd Z;
     long popNum;
     double L;
+    bool initTrainingFlag;
 
     VectorXi removeCols;
     MatrixXd C;
@@ -58,6 +59,8 @@ public:
     double getL();
     MatrixXd getBeta();
     MatrixXd getFormattedBeta();
+
+    MultiPopLasso();
 };
 
 
