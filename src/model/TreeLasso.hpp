@@ -49,6 +49,7 @@ private:
     MatrixXd mD_;
     MatrixXd XX;
     double lambda;
+    bool initGradientFlag;
 
     MatrixXd XY;
     MatrixXd mTw;

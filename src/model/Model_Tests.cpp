@@ -312,12 +312,18 @@ TEST(TREE_LASSO, CostFunction){
     tl.setTree(tr);
 
     double r = tl.cost();
-    EXPECT_NEAR(r, 0, 1e-5);
+    EXPECT_NEAR(r, 6.4982, 1e-3);
 
-    tl.setThreshold(0.2);
-    tl.setTree(tr);
-    r = tl.cost();
-    EXPECT_NEAR(r, -5.18088, 1e-3);
+    TreeLasso tl2 = TreeLasso();
+    tl2.setXY(X, y);
+    tl2.updateBeta(beta);
+    tl2.setMu(0.01);
+    tl2.setLambda(10);
+    tl2.setThreshold(0.5);
+    tl2.hierarchicalClustering();
+    tl2.initGradientUpdate();
+    r = tl2.cost();
+    EXPECT_NEAR(r, 1.77914, 1e-3);
 }
 
 TEST(TREE_LASSO, HierarchicalClustering){
@@ -441,10 +447,6 @@ TEST(TREE_LASSO, ProximalDerivative){
 
     MatrixXd r = tl.proximal_derivative();
     TEST_MATRIX_NEAR(r, grad, 1e-3);
-}
-
-TEST(TREE_LASSO, ProximalOperator){
-
 }
 
 TEST(MULTI_POP_LASSO, CostFunction){

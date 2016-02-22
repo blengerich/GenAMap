@@ -249,6 +249,7 @@ TreeLasso::TreeLasso() {
     threshold = 1;
     mu = 0.01;
     T = 0;
+    initGradientFlag = false;
 }
 
 TreeLasso::~TreeLasso() {
@@ -267,28 +268,45 @@ Tree *TreeLasso::getTree() {
 }
 
 double TreeLasso::cost() {
-    return (y - X * beta).squaredNorm() + penalty_cost();
+    return 0.5*(y - X * beta).squaredNorm() + penalty_cost();
 }
 
-double TreeLasso::penalty_cost(){
-    queue<treeNode*> nodes;
-    treeNode * root = T->getRoot();
-    nodes.push(root);
-    double r = 0.0;
-    while (nodes.size()>0){
-        treeNode* n = nodes.front();
-        if (n->children.size()==0){
-            r += n->weight*l1NormIndex(n->trait);
+//double TreeLasso::penalty_cost(){
+//    queue<treeNode*> nodes;
+//    treeNode * root = T->getRoot();
+//    nodes.push(root);
+//    double r = 0.0;
+//    while (nodes.size()>0){
+//        treeNode* n = nodes.front();
+//        if (n->children.size()==0){
+//            r += n->weight*l1NormIndex(n->trait);
+//        }
+//        else{
+//            r += n->weight*l2NormIndex(n->trait);
+//            for (int i=0; i<n->children.size();i++){
+//                nodes.push(n->children[i]);
+//            }
+//        }
+//        nodes.pop();
+//    }
+//    return r;
+//}
+
+double TreeLasso::penalty_cost() {
+    initGradientUpdate();
+    MatrixXd A = C*beta.transpose();
+    long c = A.cols();
+    double s = 0;
+    long v = gIdx.rows();
+    for (long i = 0;i<v;i++){
+        VectorXd tmp = VectorXd::Zero(c);
+        for (long j=gIdx(i,0)-1;j<gIdx(i,1);j++){
+            tmp += A.row(j).array().square().matrix();
         }
-        else{
-            r += n->weight*l2NormIndex(n->trait);
-            for (int i=0; i<n->children.size();i++){
-                nodes.push(n->children[i]);
-            }
-        }
-        nodes.pop();
+        tmp = tmp.array().sqrt().matrix();
+        s += tmp.sum();
     }
-    return r;
+    return s;
 }
 
 double TreeLasso::l1NormIndex(vector<long> traits) {
@@ -460,65 +478,68 @@ void TreeLasso::updateBeta(MatrixXd b) {
 }
 
 void TreeLasso::initGradientUpdate() {
-    long nodeNum = countNoneZeroNodes();
-    long c = T->getRoot()->trait.size();
-    long r = nodeNum - c;
-    mT = MatrixXd::Zero(r, c);
-    mTw = MatrixXd::Zero(r, 1);
-    gIdx = MatrixXi::Zero(r, 3);
-    gIdx(0,0) = 1;
-    long index = r-1;
-    queue<treeNode*> nodes;
-    stack<double> Cweights;
-    stack<long> Cindex;
-    nodes.push(T->getRoot());
-    while (nodes.size()>0){
-        treeNode* node = nodes.front();
-        if (node->children.size()>0){
-            if (node->weight!=0){
-                mTw(index, 0) = node->weight;
-                for (long j=0;j<node->trait.size();j++){
-                    mT(index, node->trait.at(j)) = 1;
-                    Cweights.push(node->weight);
-                    Cindex.push(node->trait.at(j));
+    if (!initGradientFlag){
+        initGradientFlag = true;
+        long nodeNum = countNoneZeroNodes();
+        long c = T->getRoot()->trait.size();
+        long r = nodeNum - c;
+        mT = MatrixXd::Zero(r, c);
+        mTw = MatrixXd::Zero(r, 1);
+        gIdx = MatrixXi::Zero(r, 3);
+        gIdx(0,0) = 1;
+        long index = r-1;
+        queue<treeNode*> nodes;
+        stack<double> Cweights;
+        stack<long> Cindex;
+        nodes.push(T->getRoot());
+        while (nodes.size()>0){
+            treeNode* node = nodes.front();
+            if (node->children.size()>0){
+                if (node->weight!=0){
+                    mTw(index, 0) = node->weight;
+                    for (long j=0;j<node->trait.size();j++){
+                        mT(index, node->trait.at(j)) = 1;
+                        Cweights.push(node->weight);
+                        Cindex.push(node->trait.at(j));
+                    }
+                    index--;
                 }
-                index--;
+                for (long i=0;i<node->children.size();i++){
+                    nodes.push(node->children[i]);
+                }
             }
-            for (long i=0;i<node->children.size();i++){
-                nodes.push(node->children[i]);
+            nodes.pop();
+        }
+
+        C = MatrixXd::Zero(Cweights.size(), c);
+        long tmpIndex = 0;
+        while (Cindex.size()!=0){
+            C(tmpIndex, Cindex.top()) = Cweights.top();
+            Cindex.pop();
+            Cweights.pop();
+            tmpIndex+=1;
+        }
+        for (long i=0;i<r;i++){
+            int s =  (int)mT.row(i).sum();
+            gIdx(i, 1) = gIdx(i, 0) + s - 1;
+            gIdx(i, 2) = s;
+            if (i+1<r){
+                gIdx(i+1, 0) = gIdx(i, 1) + 1;
             }
         }
-        nodes.pop();
-    }
 
-    C = MatrixXd::Zero(Cweights.size(), c);
-    long tmpIndex = 0;
-    while (Cindex.size()!=0){
-        C(tmpIndex, Cindex.top()) = Cweights.top();
-        Cindex.pop();
-        Cweights.pop();
-        tmpIndex+=1;
-    }
-    for (long i=0;i<r;i++){
-        int s =  (int)mT.row(i).sum();
-        gIdx(i, 1) = gIdx(i, 0) + s - 1;
-        gIdx(i, 2) = s;
-        if (i+1<r){
-            gIdx(i+1, 0) = gIdx(i, 1) + 1;
+        VectorXd tau = VectorXd::Zero(c);
+        for (long i=0; i<r;i++){
+            tau += mT.row(i)*(mTw(i,0)*mTw(i,0));
         }
+
+        tauNorm = tau.maxCoeff();
+
+        double L1 = ((X.transpose()*X).eigenvalues()).real().maxCoeff();
+        L = L1 + lambda*lambda*tauNorm/mu;
+
+        XY = X.transpose()*y;
     }
-
-    VectorXd tau = VectorXd::Zero(c);
-    for (long i=0; i<r;i++){
-        tau += mT.row(i)*(mTw(i,0)*mTw(i,0));
-    }
-
-    tauNorm = tau.maxCoeff();
-
-    double L1 = ((X.transpose()*X).eigenvalues()).real().maxCoeff();
-    L = L1 + lambda*lambda*tauNorm/mu;
-
-    XY = X.transpose()*y;
 }
 
 MatrixXd TreeLasso::proximal_operator(MatrixXd in, float l) {
