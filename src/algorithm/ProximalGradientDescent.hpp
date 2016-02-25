@@ -19,11 +19,11 @@ private:
 public:
     void setLearningRate(float);
     void setTolerance(float);
+
     void run(Model*);
     void run(LinearRegression*);
-
-    void run_accelerated(TreeLasso*);
-    void run_accelerated(MultiPopLasso*);
+    void run(TreeLasso*);
+    void run(MultiPopLasso*);
 
     ProximalGradientDescent();
 };

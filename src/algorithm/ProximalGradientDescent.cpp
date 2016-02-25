@@ -54,7 +54,7 @@ ProximalGradientDescent::ProximalGradientDescent() {
     prev_residue = numeric_limits<double>::max();
 }
 
-void ProximalGradientDescent::run_accelerated(TreeLasso * model) {
+void ProximalGradientDescent::run(TreeLasso * model) {
     int epoch = 0;
     double residue = model->cost();
     double theta = 1;
@@ -91,7 +91,7 @@ void ProximalGradientDescent::run_accelerated(TreeLasso * model) {
     model->updateBeta(best_beta);
 }
 
-void ProximalGradientDescent::run_accelerated(MultiPopLasso * model) {
+void ProximalGradientDescent::run(MultiPopLasso * model) {
     model->initTraining();
     int epoch = 0;
     double residue = model->cost();
