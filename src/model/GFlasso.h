@@ -43,11 +43,11 @@ private :
 public :
     //Constructor to initialize the correlation graph and the
     //regularisation parameters
-    void gflasso();
+    void Gflasso();
     // Only regularization params are given
-    void gflasso(double,double);
+    void Gflasso(double,double);
     // Regularization params along with corr coff. graph
-    void gflasso(MatrixXd,double,double);
+    void Gflasso(MatrixXd,double,double);
 
     // Methods to set and get various input variables of GFLASSO
     void train();
@@ -69,8 +69,8 @@ public :
     int get_flasso_type();
 
     // Cost function and supporting function
-    double gflasso_fusion_penalty(int );
-    double gflasso_cost_function(int );
+    double cost();
+    double gflasso_fusion_penalty();
 };
 
 #endif //GENAMAPV2_MASTER_GFLASSO_H

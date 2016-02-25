@@ -4,7 +4,7 @@
 #include "GFLasso.h"
 
 // Constructors with different parameters provided
-void Gflasso::gflasso() {
+void Gflasso::Gflasso() {
     corr_coff = MatrixXd::Random(MAX_TRAITS,MAX_TRAITS);
     corr_coff.setZero();
     lambda_flasso = 0.0;
@@ -12,7 +12,7 @@ void Gflasso::gflasso() {
     flasso_type = GcFlasso;
 }
 
-void Gflasso::gflasso(double lambda,double gamma){
+void Gflasso::Gflasso(double lambda,double gamma){
     corr_coff = MatrixXd::Random(MAX_TRAITS,MAX_TRAITS);
     corr_coff.setZero();
     lambda_flasso = lambda;
@@ -20,7 +20,7 @@ void Gflasso::gflasso(double lambda,double gamma){
     flasso_type = GcFlasso;
 }
 
-void Gflasso::gflasso(MatrixXd corr_coff,double lambda,double gamma){
+void Gflasso::Gflasso(MatrixXd corr_coff,double lambda,double gamma){
     this->corr_coff = corr_coff;
     gamma_flasso = gamma;
 }
@@ -95,7 +95,8 @@ void Gflasso::train(MatrixXd X,MatrixXd Y,MatrixXd corr_coeff,double lamdba,doub
     this->gamma_flasso = gamma;
 }
 
-double Gflasso::gflasso_fusion_penalty(int type){
+// Helper functions to calculate the Cost function
+double Gflasso::gflasso_fusion_penalty(){
 
     int num_rows = (this->corr_coff).rows();
     int num_cols = (this->corr_coff).cols(),idx=0,sign=1;
@@ -115,7 +116,7 @@ double Gflasso::gflasso_fusion_penalty(int type){
                 sign = 1;
 
             mul_factor=1;
-            if(type==GwFlasso) {
+            if(this->flasso_type==GwFlasso) {
                 mul_factor = corr_coff(start_node, end_node);
             }
 
@@ -126,12 +127,12 @@ double Gflasso::gflasso_fusion_penalty(int type){
     return total_sum;
 }
 
-// Cost function of gflasso
-double Gflasso::gflasso_cost_function(int type){
+// Cost function of GFlasso
+double Gflasso::cost(){
 
     return (
             (Y - X * beta).squaredNorm() +
             lambda_flasso*(beta.cwiseAbs().sum()) +
-            gamma_flasso*(gflasso_fusion_penalty(type))
+            gamma_flasso*(gflasso_fusion_penalty())
     );
 }
