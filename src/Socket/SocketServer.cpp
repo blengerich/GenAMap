@@ -15,7 +15,7 @@ int SocketServer::serve(int times) {
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons(portno);
-    if (bind(sockfd, (struct sockaddr *) &serv_addr,
+    if (::bind(sockfd, (struct sockaddr *) &serv_addr, // use ::bind for mac, use bind for linux
              sizeof(serv_addr)) < 0) {
         throw std::runtime_error("ERROR on binding");
     }

@@ -17,7 +17,7 @@
 #include <iostream>
 #include <algorithm>
 #include <pthread.h>
-#include <vector>s
+#include <vector>
 
 #include "json/JsonCoder.hpp"
 
