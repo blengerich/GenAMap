@@ -6,6 +6,7 @@
 #define GENAMAP_V2_ADAMULTILASSO_HPP
 
 #include "model/Model.hpp"
+#include <Math/Math.hpp>
 #include <iostream>
 
 class AdaMultiLasso : public Model{
@@ -18,12 +19,16 @@ private:
     VectorXd w;
     VectorXd v;
 
+    VectorXd theta;
+    VectorXd rho;
+
     double penalty_cost();
 
     bool initTrainingFlag;
     long taskNum;
 
     double L;
+    double mu;
     MatrixXd C;
 
     void initC();
@@ -40,8 +45,17 @@ public:
     VectorXd getW();
     VectorXd getV();
 
+    void initTheta();
+    void initRho();
+
     VectorXd getTheta();
     VectorXd getRho();
+
+    VectorXd getTheta_formatted();
+    VectorXd getRho_formatted();
+
+    MatrixXd getBeta();
+    MatrixXd getBeta_formatted();
 
     void setX(MatrixXd);
     void setY(MatrixXd);
@@ -51,6 +65,7 @@ public:
     void initTraining();
     MatrixXd proximal_derivative();
     MatrixXd proximal_operator(MatrixXd, float);
+    double getL();
 
     double cost();
 };
