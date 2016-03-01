@@ -37,6 +37,7 @@ private:
 //    MatrixXd project(MatrixXd);
 
     vector<long> getPopulationIndex(long);
+    void initC();
 
 public:
     void setXY(MatrixXd, MatrixXd);
@@ -52,7 +53,6 @@ public:
     MatrixXd predict(MatrixXd, VectorXd);
     void initTraining();
 
-    void initC();
     MatrixXd proximal_derivative();
     MatrixXd proximal_operator(MatrixXd, float);
 
