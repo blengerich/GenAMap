@@ -20,6 +20,14 @@ private:
 
     double penalty_cost();
 
+    bool initTrainingFlag;
+    long taskNum;
+
+    double L;
+    MatrixXd C;
+
+    void initC();
+
 public:
     AdaMultiLasso();
     void setLambda1(double);
@@ -39,6 +47,10 @@ public:
     void setY(MatrixXd);
     void setXY(MatrixXd, MatrixXd);
     void initBeta();
+
+    void initTraining();
+    MatrixXd proximal_derivative();
+    MatrixXd proximal_operator(MatrixXd, float);
 
     double cost();
 };

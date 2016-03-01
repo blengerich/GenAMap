@@ -9,6 +9,7 @@ using namespace std;
 AdaMultiLasso::AdaMultiLasso() {
     lambda1 = 0;
     lambda2 = 0;
+    initTrainingFlag = false;
 }
 
 void AdaMultiLasso::setLambda1(double d) {
@@ -83,7 +84,7 @@ void AdaMultiLasso::setY(MatrixXd xd) {
 void AdaMultiLasso::setXY(MatrixXd m, MatrixXd n) {
     X = m;
     y = n;
-    initBeta();
+    //initBeta();
 }
 
 void AdaMultiLasso::initBeta() {
@@ -106,3 +107,39 @@ double AdaMultiLasso::penalty_cost() {
     }
     return result;
 }
+
+
+void AdaMultiLasso::initTraining() {
+    if (initTrainingFlag == false){
+        initTrainingFlag = true;
+        // resize X and Y for single task
+        long n = X.rows();
+        long c = X.cols();
+        taskNum = y.cols();
+        MatrixXd tmpX = MatrixXd::Zero(n*taskNum, c);
+        MatrixXd tmpY = MatrixXd::Zero(n*taskNum, 1);
+        for (long i=0;i<n;i++){
+            for (long j=0;j<taskNum;j++){
+                tmpX.row(i*taskNum+j) = X.row(i);
+                tmpY(i*taskNum+j, 0) = y(i, j);
+            }
+        }
+        X = tmpX;
+        y = tmpY;
+        initBeta();
+        initC();
+    }
+}
+
+void AdaMultiLasso::initC() {
+    
+}
+
+MatrixXd AdaMultiLasso::proximal_derivative() {
+    return Model::proximal_derivative();
+}
+
+MatrixXd AdaMultiLasso::proximal_operator(MatrixXd xd, float d) {
+    return Model::proximal_operator(xd, d);
+}
+
