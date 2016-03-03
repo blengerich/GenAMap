@@ -4,7 +4,11 @@ cc_library(
     name = "Scheduler",
     srcs = ["Scheduler.cpp"],
     hdrs = ["Scheduler.hpp"],
-    deps = ["//algorithm:Algorithm"]
+	copts = ["-Iexternal/gtest/include"],
+    deps = ["@gtest//:main",
+		"//algorithm:Algorithm",
+		"//algorithm:ProximalGradientDescent",
+		"//algorithm:IterativeUpdate"]
 )
 
 cc_test(

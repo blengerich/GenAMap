@@ -3,8 +3,6 @@
 TOOLSET := target
 TARGET := addon
 DEFS_Debug := \
-	'-DNODE_GYP_MODULE_NAME=addon' \
-	'-D_DARWIN_USE_64_BIT_INODE=1' \
 	'-D_LARGEFILE_SOURCE' \
 	'-D_FILE_OFFSET_BITS=64' \
 	'-DBUILDING_NODE_EXTENSION' \
@@ -13,80 +11,58 @@ DEFS_Debug := \
 
 # Flags passed to all source files.
 CFLAGS_Debug := \
-	-O0 \
-	-gdwarf-2 \
-	-mmacosx-version-min=10.5 \
-	-arch x86_64 \
+	-fPIC \
 	-Wall \
-	-Wendif-labels \
-	-W \
-	-Wno-unused-parameter
+	-Wextra \
+	-Wno-unused-parameter \
+	-pthread \
+	-m64 \
+	-g \
+	-O0
 
 # Flags passed to only C files.
-CFLAGS_C_Debug := \
-	-fno-strict-aliasing
+CFLAGS_C_Debug :=
 
 # Flags passed to only C++ files.
 CFLAGS_CC_Debug := \
-	-std=gnu++0x \
 	-fno-rtti \
-	-fno-exceptions \
-	-fno-threadsafe-statics \
-	-fno-strict-aliasing
-
-# Flags passed to only ObjC files.
-CFLAGS_OBJC_Debug :=
-
-# Flags passed to only ObjC++ files.
-CFLAGS_OBJCC_Debug :=
+	-fno-exceptions
 
 INCS_Debug := \
-	-I/Users/blengerich/.node-gyp/5.6.0/include/node \
-	-I/Users/blengerich/.node-gyp/5.6.0/src \
-	-I/Users/blengerich/.node-gyp/5.6.0/deps/uv/include \
-	-I/Users/blengerich/.node-gyp/5.6.0/deps/v8/include
+	-I/usr/include/nodejs/src \
+	-I/usr/include/nodejs/deps/uv/include \
+	-I/usr/include/nodejs/deps/v8/include
 
 DEFS_Release := \
-	'-DNODE_GYP_MODULE_NAME=addon' \
-	'-D_DARWIN_USE_64_BIT_INODE=1' \
 	'-D_LARGEFILE_SOURCE' \
 	'-D_FILE_OFFSET_BITS=64' \
 	'-DBUILDING_NODE_EXTENSION'
 
 # Flags passed to all source files.
 CFLAGS_Release := \
-	-Os \
-	-gdwarf-2 \
-	-mmacosx-version-min=10.5 \
-	-arch x86_64 \
+	-fPIC \
 	-Wall \
-	-Wendif-labels \
-	-W \
-	-Wno-unused-parameter
+	-Wextra \
+	-Wno-unused-parameter \
+	-pthread \
+	-m64 \
+	-O2 \
+	-fno-strict-aliasing \
+	-fno-tree-vrp \
+	-fno-omit-frame-pointer
 
 # Flags passed to only C files.
-CFLAGS_C_Release := \
-	-fno-strict-aliasing
+CFLAGS_C_Release :=
 
 # Flags passed to only C++ files.
 CFLAGS_CC_Release := \
-	-std=gnu++0x \
 	-fno-rtti \
-	-fno-exceptions \
-	-fno-threadsafe-statics \
-	-fno-strict-aliasing
-
-# Flags passed to only ObjC files.
-CFLAGS_OBJC_Release :=
-
-# Flags passed to only ObjC++ files.
-CFLAGS_OBJCC_Release :=
+	-fno-exceptions
 
 INCS_Release := \
-	-I/Users/blengerich/.node-gyp/5.6.0/include/node \
-	-I/Users/blengerich/.node-gyp/5.6.0/src \
-	-I/Users/blengerich/.node-gyp/5.6.0/deps/uv/include \
-	-I/Users/blengerich/.node-gyp/5.6.0/deps/v8/include
+	-I/usr/include/nodejs/src \
+	-I/usr/include/nodejs/deps/uv/include \
+	-I/usr/include/nodejs/deps/v8/include
 
 OBJS := \
 	$(obj).target/$(TARGET)/addon.o
@@ -99,8 +75,6 @@ all_deps += $(OBJS)
 $(OBJS): TOOLSET := $(TOOLSET)
 $(OBJS): GYP_CFLAGS := $(DEFS_$(BUILDTYPE)) $(INCS_$(BUILDTYPE))  $(CFLAGS_$(BUILDTYPE)) $(CFLAGS_C_$(BUILDTYPE))
 $(OBJS): GYP_CXXFLAGS := $(DEFS_$(BUILDTYPE)) $(INCS_$(BUILDTYPE))  $(CFLAGS_$(BUILDTYPE)) $(CFLAGS_CC_$(BUILDTYPE))
-$(OBJS): GYP_OBJCFLAGS := $(DEFS_$(BUILDTYPE)) $(INCS_$(BUILDTYPE))  $(CFLAGS_$(BUILDTYPE)) $(CFLAGS_C_$(BUILDTYPE)) $(CFLAGS_OBJC_$(BUILDTYPE))
-$(OBJS): GYP_OBJCXXFLAGS := $(DEFS_$(BUILDTYPE)) $(INCS_$(BUILDTYPE))  $(CFLAGS_$(BUILDTYPE)) $(CFLAGS_CC_$(BUILDTYPE)) $(CFLAGS_OBJCC_$(BUILDTYPE))
 
 # Suffix rules, putting all outputs into $(obj).
 
@@ -118,44 +92,37 @@ $(obj).$(TOOLSET)/$(TARGET)/%.o: $(obj)/%.cc FORCE_DO_CMD
 # End of this set of suffix rules
 ### Rules for final target.
 LDFLAGS_Debug := \
-	-undefined dynamic_lookup \
-	-Wl,-search_paths_first \
-	-mmacosx-version-min=10.5 \
-	-arch x86_64 \
-	-L$(builddir)
-
-LIBTOOLFLAGS_Debug := \
-	-undefined dynamic_lookup \
-	-Wl,-search_paths_first
+	-pthread \
+	-rdynamic \
+	-m64
 
 LDFLAGS_Release := \
-	-undefined dynamic_lookup \
-	-Wl,-search_paths_first \
-	-mmacosx-version-min=10.5 \
-	-arch x86_64 \
-	-L$(builddir)
-
-LIBTOOLFLAGS_Release := \
-	-undefined dynamic_lookup \
-	-Wl,-search_paths_first
+	-pthread \
+	-rdynamic \
+	-m64
 
 LIBS :=
 
-$(builddir)/addon.node: GYP_LDFLAGS := $(LDFLAGS_$(BUILDTYPE))
-$(builddir)/addon.node: LIBS := $(LIBS)
-$(builddir)/addon.node: GYP_LIBTOOLFLAGS := $(LIBTOOLFLAGS_$(BUILDTYPE))
-$(builddir)/addon.node: TOOLSET := $(TOOLSET)
-$(builddir)/addon.node: $(OBJS) FORCE_DO_CMD
+$(obj).target/addon.node: GYP_LDFLAGS := $(LDFLAGS_$(BUILDTYPE))
+$(obj).target/addon.node: LIBS := $(LIBS)
+$(obj).target/addon.node: TOOLSET := $(TOOLSET)
+$(obj).target/addon.node: $(OBJS) FORCE_DO_CMD
 	$(call do_cmd,solink_module)
 
-all_deps += $(builddir)/addon.node
+all_deps += $(obj).target/addon.node
 # Add target alias
 .PHONY: addon
 addon: $(builddir)/addon.node
 
+# Copy this to the executable output path.
+$(builddir)/addon.node: TOOLSET := $(TOOLSET)
+$(builddir)/addon.node: $(obj).target/addon.node FORCE_DO_CMD
+	$(call do_cmd,copy)
+
+all_deps += $(builddir)/addon.node
 # Short alias for building this executable.
 .PHONY: addon.node
-addon.node: $(builddir)/addon.node
+addon.node: $(obj).target/addon.node $(builddir)/addon.node
 
 # Add executable to "all" target.
 .PHONY: all

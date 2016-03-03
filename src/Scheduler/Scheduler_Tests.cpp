@@ -13,12 +13,47 @@
 
 using namespace std;
 
+TEST(SchedulerTest, getNewJobNum) {
+	Scheduler* my_scheduler = Scheduler::Instance();
+	int job_num1 = my_scheduler->getNewJobNum();
+	EXPECT_GE(job_num1, 0);
+	int job_num2 = my_scheduler->getNewJobNum();
+	EXPECT_GT(job_num2, job_num1);
+	EXPECT_NE(job_num1, job_num2);
+
+}
+
+
+TEST(SchedulerTest, newAlgorithm) {
+	Scheduler* my_scheduler = Scheduler::Instance();
+	int job_num = my_scheduler->newAlgorithm(Scheduler::algorithm_type::proximal_gradient_descent);
+	EXPECT_GE(job_num, 0);
+}
+
+
+TEST(SchedulerTest, Train) {
+	Scheduler* my_scheduler = Scheduler::Instance();
+	int job_num = my_scheduler->newAlgorithm(Scheduler::algorithm_type::proximal_gradient_descent);
+	my_scheduler->train(job_num);
+}
+
+TEST(SchedulerTest, Train_Not_Found) {
+	Scheduler* my_scheduler = Scheduler::Instance();
+	my_scheduler->train(0);
+}
+
+
 TEST(SchedulerTest, Singleton_Test) {
 	Scheduler* my_scheduler = Scheduler::Instance();
 	Scheduler* my_scheduler2 = Scheduler::Instance();
-	EXPECT_EQ(my_scheduler, my_scheduler2);
+	ASSERT_EQ(my_scheduler, my_scheduler2);
 }
 
-TEST(SchedulerTest, Always_True) {
-    EXPECT_EQ(1,1);
+
+TEST(SchedulerTest, Cancel_Basic) {
+
+}
+
+TEST(SchedulerTest, Cancel_Not_Found) {
+
 }

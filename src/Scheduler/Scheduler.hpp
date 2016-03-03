@@ -10,9 +10,13 @@
 #define Scheduler_h
 
 #include <map>
+#include <queue>
 #include <vector>
+#include "gtest/gtest_prod.h"
 
 #include "algorithm/Algorithm.hpp"
+
+using namespace std;
 
 class Scheduler {
 /* Class to run jobs and get information about the currently running jobs.
@@ -23,36 +27,50 @@ class Scheduler {
 public:
 	static Scheduler* Instance();	// Singleton
 
-    bool train(int);
-    // trains the algorithm associated with the given jobNum
-    
-    bool cancel(int);
-    // cancels the algorithm associated with the given jobNum
 
-    double checkStatus(int);
+    enum algorithm_type {
+    	proximal_gradient_descent,
+    	iterative_update
+    };
+
+	int newAlgorithm(const algorithm_type& algorithm_name, const map<string, string>& options=map<string, string>());
+	// Creates a new algorithm in the queue.
+	// Returns the new job num or -1 on failure.
+
+    bool train(int job_num);
+    // trains the algorithm associated with the given jobNum
+    // returns True for success, false for failure.
+
+    bool cancel(int job_num);
+    // cancels the algorithm associated with the given jobNum
+    // Returns True for success, false on failure.
+
+    double checkStatus(int job_num);
     // Returns a status code for the given jobNum
     
-
     //std::string predict(int)
     // Not sure what this is for
-    
-    // Socket stuff
+    // Don't actually need socket stuff?
+
 
 protected:
 	// Singleton constructors must be protected or private
-	Scheduler(){};
+	Scheduler();
 	Scheduler(Scheduler const&){};
-	Scheduler& operator=(Scheduler const&){};
+	Scheduler& operator=(Scheduler const&);
 
 private:
+	int getNewJobNum();
+    FRIEND_TEST(SchedulerTest, getNewJobNum);
+
     static Scheduler* s_instance;	// Singleton
 
-    int maxJobNum;
-    int currentJobNum;
-    std::map<int, Algorithm*> algorithms;    // indexed by jobNum
-    
-    // Socket stuff
-    
+    int max_job_num;
+    int current_job_num;
+    //bool[] available_job_nums;
+    map<int, Algorithm*>* algorithms_map;    // indexed by jobNum
+    queue<Algorithm*>* algorithms_queue;
+  
 };
 
 

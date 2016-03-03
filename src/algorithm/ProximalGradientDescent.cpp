@@ -5,9 +5,19 @@
 #include "ProximalGradientDescent.hpp"
 #include <Eigen/Dense>
 #include <iostream>
+#include <map>
 
 using namespace Eigen;
 using namespace std;
+
+ProximalGradientDescent::ProximalGradientDescent(const map<string, string>& options) {
+    try {
+        setLearningRate(stof(options.find("learningRate")->second));
+    } catch (exception& e) {}
+    try {
+        setTolerance(stof(options.find("tolerance")->second));
+    } catch (exception& e) {}
+}
 
 void ProximalGradientDescent::setTolerance(float tol) {
     tolerance = tol;

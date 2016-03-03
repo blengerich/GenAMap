@@ -5,8 +5,12 @@
 #ifndef ALGORITHMS_ITERATIVEUPDATE_HPP
 #define ALGORITHMS_ITERATIVEUPDATE_HPP
 
+#include <map>
+
 #include "Algorithm.hpp"
 #include "../model/TreeLasso.hpp"
+
+using namespace std;
 
 class IterativeUpdate : public Algorithm{
 private:
@@ -19,6 +23,7 @@ public:
     void run(TreeLasso*);
 
     IterativeUpdate();
+    IterativeUpdate(const map<string, string>& options);
 };
 
 
