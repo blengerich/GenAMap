@@ -5,7 +5,7 @@
 #ifndef ALGORITHMS_ALGORITHM_HPP
 #define ALGORITHMS_ALGORITHM_HPP
 
-#include "../model/Model.hpp"
+#include "model/Model.hpp"
 
 class Algorithm {
 protected:

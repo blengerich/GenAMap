@@ -17,3 +17,14 @@ cc_library(
 		"//model:MultiPopLasso",
 		"//Math:Math"],
 )
+
+cc_library(
+	name = "IterativeUpdate",
+	srcs = ["IterativeUpdate.cpp"],
+	hdrs = ["IterativeUpdate.hpp"],
+	deps = ["//algorithm:Algorithm",
+		"//model:LinearRegression",
+		"//model:TreeLasso",
+		"//model:MultiPopLasso",
+		"//Math:Math"],
+)
