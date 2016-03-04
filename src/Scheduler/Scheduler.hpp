@@ -25,6 +25,12 @@ class Scheduler {
 	The first class on the C++ side.
 */
 
+/* TODO
+    Cancel jobs
+    Return results as JSON
+    Receive inputs as JSON
+*/
+
 public:
 	static Scheduler* Instance();	// Singleton
 
@@ -50,14 +56,7 @@ public:
     // Returns -1 on error.
 
     // TODO How is the result calculated?
-    // When to return the result? Is it getting polled by Node?
     // Should have a callback that pushes data to Node server in JSON format.
-    //Result* getResults(int job_num);
-
-    //std::string predict(int)
-    // Not sure what this is for
-    // Don't actually need socket stuff?
-
 
 protected:
 	// Singleton constructors must be protected or private
@@ -75,11 +74,8 @@ private:
     int n_running_threads;
     pthread_mutex_t n_running_threads_mutex;
 
-
-    //bool[] available_job_nums;
-    
     map<int, Algorithm*>* algorithms_map;
-    // indexed by jobNum
+    // tracks all algorithms (running, waiting, and completed). indexed by jobNum.
     
     queue<Algorithm*>* algorithms_queue;
     pthread_mutex_t algorithms_queue_mutex;
@@ -91,11 +87,6 @@ private:
 
     static void* train_thread(void* arg);
     // Spawns a new thread to be in charge of training.
-
-    //map<int, pthread_t*> threads;
-    // Threads that are currently running training jobs.
-    // Maps from pid to pthread_t.
-
 };
 
 
