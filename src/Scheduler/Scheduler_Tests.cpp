@@ -21,6 +21,11 @@ TEST(SchedulerTest, getNewJobNum) {
 	EXPECT_GT(job_num2, job_num1);
 	EXPECT_NE(job_num1, job_num2);
 
+	for (int i = 1; i < 100; i++) {
+		my_scheduler->getNewJobNum();
+	}
+	int job_num = my_scheduler->getNewJobNum();
+	EXPECT_EQ(job_num, 2);
 }
 
 
@@ -34,8 +39,9 @@ TEST(SchedulerTest, newAlgorithm) {
 TEST(SchedulerTest, Train) {
 	Scheduler* my_scheduler = Scheduler::Instance();
 	int job_num = my_scheduler->newAlgorithm(Scheduler::algorithm_type::proximal_gradient_descent);
-	my_scheduler->train(job_num);
+	EXPECT_EQ(true, my_scheduler->train(job_num));
 }
+
 
 TEST(SchedulerTest, Train_Not_Found) {
 	Scheduler* my_scheduler = Scheduler::Instance();
@@ -47,13 +53,4 @@ TEST(SchedulerTest, Singleton_Test) {
 	Scheduler* my_scheduler = Scheduler::Instance();
 	Scheduler* my_scheduler2 = Scheduler::Instance();
 	ASSERT_EQ(my_scheduler, my_scheduler2);
-}
-
-
-TEST(SchedulerTest, Cancel_Basic) {
-
-}
-
-TEST(SchedulerTest, Cancel_Not_Found) {
-
 }

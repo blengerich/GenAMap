@@ -10,6 +10,8 @@
 #define Scheduler_h
 
 #include <map>
+#include <mutex>
+#include <pthread.h>
 #include <queue>
 #include <vector>
 #include "gtest/gtest_prod.h"
@@ -23,10 +25,8 @@ class Scheduler {
 	The first class on the C++ side.
 */
 
-
 public:
 	static Scheduler* Instance();	// Singleton
-
 
     enum algorithm_type {
     	proximal_gradient_descent,
@@ -47,7 +47,13 @@ public:
 
     double checkStatus(int job_num);
     // Returns a status code for the given jobNum
-    
+    // Returns -1 on error.
+
+    // TODO How is the result calculated?
+    // When to return the result? Is it getting polled by Node?
+    // Should have a callback that pushes data to Node server in JSON format.
+    //Result* getResults(int job_num);
+
     //std::string predict(int)
     // Not sure what this is for
     // Don't actually need socket stuff?
@@ -60,17 +66,36 @@ protected:
 	Scheduler& operator=(Scheduler const&);
 
 private:
+    static Scheduler* s_instance;   // Singleton
+    const int kMaxThreads = 5;
+    int max_job_num;
+    int current_job_num;
+
+    // Need to track all jobs and currently running jobs.
+    int n_running_threads;
+    pthread_mutex_t n_running_threads_mutex;
+
+
+    //bool[] available_job_nums;
+    
+    map<int, Algorithm*>* algorithms_map;
+    // indexed by jobNum
+    
+    queue<Algorithm*>* algorithms_queue;
+    pthread_mutex_t algorithms_queue_mutex;
+    // Running jobs and jobs waiting for a thread
+
 	int getNewJobNum();
     FRIEND_TEST(SchedulerTest, getNewJobNum);
 
-    static Scheduler* s_instance;	// Singleton
 
-    int max_job_num;
-    int current_job_num;
-    //bool[] available_job_nums;
-    map<int, Algorithm*>* algorithms_map;    // indexed by jobNum
-    queue<Algorithm*>* algorithms_queue;
-  
+    static void* train_thread(void* arg);
+    // Spawns a new thread to be in charge of training.
+
+    //map<int, pthread_t*> threads;
+    // Threads that are currently running training jobs.
+    // Maps from pid to pthread_t.
+
 };
 
 
