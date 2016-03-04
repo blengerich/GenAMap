@@ -19,6 +19,22 @@ void DataBaseCommunicator::connect(string db, string user, string pwd) {
     }
 }
 
+
+void DataBaseCommunicator::connect() {
+    database = "genamap";
+    username = "root";
+    password = "needMOREsnow23";
+
+    try {
+        driver = get_driver_instance();
+        con = driver->connect("tcp://127.0.0.1:3306", username, password);
+        con->setSchema(database);
+    }
+    catch (sql::SQLException &e) {
+        cout << "MySQL Exception" << endl;
+    }
+}
+
 job_pack DataBaseCommunicator::getJob(int job_pk) {
     sql::Statement *stmt;
     sql::ResultSet *res;

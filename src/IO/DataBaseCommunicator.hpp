@@ -78,6 +78,7 @@ public:
     }
 
     void connect(string, string, string);
+    void connect();
 
     job_pack getJob(int);
     user_info getUser(string);
