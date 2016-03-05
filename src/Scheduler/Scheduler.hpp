@@ -11,6 +11,7 @@
 
 #include <map>
 #include <mutex>
+#include <node.h>
 #include <pthread.h>
 #include <queue>
 #include <vector>
@@ -19,6 +20,14 @@
 #include "algorithm/Algorithm.hpp"
 
 using namespace std;
+using namespace v8::Exception;
+using namespace v8::FunctionCallbackInfo;
+using namespace v8::Isolate;
+using namespace v8::Local;
+using namespace v8::Number;
+using namespace v8::Object;
+using namespace v8::String;
+using namespace v8::Value;
 
 class Scheduler {
 /* Class to run jobs and get information about the currently running jobs.
@@ -39,19 +48,20 @@ public:
     	iterative_update
     };
 
-	int newAlgorithm(const algorithm_type& algorithm_name, const map<string, string>& options=map<string, string>());
+	void newAlgorithm(const FunctionCallbackInfo<Value>& args);
+		//const algorithm_type& algorithm_name, const map<string, string>& options=map<string, string>());
 	// Creates a new algorithm in the queue.
 	// Returns the new job num or -1 on failure.
 
-    bool train(int job_num);
+    void trainAlgorithm(const FunctionCallbackInfo<Value>& args);
     // trains the algorithm associated with the given jobNum
     // returns True for success, false for failure.
 
-    bool cancel(int job_num);
+    //void cancelAlgorithm(int job_num);
     // cancels the algorithm associated with the given jobNum
     // Returns True for success, false on failure.
 
-    double checkStatus(int job_num);
+    void checkAlgorithm(const FunctionCallbackInfo<Value>& args);
     // Returns a status code for the given jobNum
     // Returns -1 on error.
 
