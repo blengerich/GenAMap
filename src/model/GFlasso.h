@@ -40,6 +40,11 @@ private :
     //Type of flasso
     int flasso_type;
 
+    //Smoothing Proximal Gradient Method
+    MatrixXd edge_vertex_matrix; // Dimension: Edge_size*Col(x)
+    int mau; // Smootheness parameter
+    MatrixXd alpha_matrix;
+
 public :
     //Constructor to initialize the correlation graph and the
     //regularisation parameters
@@ -67,10 +72,28 @@ public :
     double get_gamma();
     void set_flasso_type(int);
     int get_flasso_type();
+    void set_mau(double);
+    double get_mau();
 
-    // Cost function and supporting function
+    // Cost function and supporting functions
     double cost();
     double gflasso_fusion_penalty();
+
+    // Smoothing proximal Gradient descent functions
+
+    // Get number of edges in the given correlation coff matrix
+    int get_num_edges();
+
+    // Calculate the edge vertex matrix
+    void update_edge_vertex_matrix();
+
+    // Calculate the alpha matrix
+    void update_alpha_matrix();
+
+    // Calculate the gradient descent using the alpha and Edge vertex matrix
+    // along with other input parameters i.e. X, Y and Beta.
+    void gradient_descent();
 };
+
 
 #endif //GENAMAPV2_MASTER_GFLASSO_H
