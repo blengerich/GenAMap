@@ -5,7 +5,7 @@
 #define GENAMAPV2_GFLASSO_H
 
 #include <iostream>
-#include <Eigen/Dense>
+#include "Eigen/Dense"
 #include <vector>
 #include "model.hpp"
 
@@ -48,11 +48,11 @@ private :
 public :
     //Constructor to initialize the correlation graph and the
     //regularisation parameters
-    void Gflasso();
+    Gflasso();
     // Only regularization params are given
-    void Gflasso(double,double);
+    Gflasso(double,double);
     // Regularization params along with corr coff. graph
-    void Gflasso(MatrixXd,double,double);
+    Gflasso(MatrixXd,double,double);
 
     // Methods to set and get various input variables of GFLASSO
     void train();
@@ -92,7 +92,7 @@ public :
 
     // Calculate the gradient descent using the alpha and Edge vertex matrix
     // along with other input parameters i.e. X, Y and Beta.
-    void gradient_descent();
+    MatrixXd gradient_descent();
 };
 
 

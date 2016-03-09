@@ -4,7 +4,7 @@
 #include "GFLasso.h"
 
 // Constructors with different parameters provided
-void Gflasso::Gflasso() {
+Gflasso::Gflasso() {
     corr_coff = MatrixXd::Random(MAX_TRAITS,MAX_TRAITS);
     corr_coff.setZero();
     lambda_flasso = 0.0;
@@ -12,7 +12,7 @@ void Gflasso::Gflasso() {
     flasso_type = GcFlasso;
 }
 
-void Gflasso::Gflasso(double lambda,double gamma){
+Gflasso::Gflasso(double lambda,double gamma){
     corr_coff = MatrixXd::Random(MAX_TRAITS,MAX_TRAITS);
     corr_coff.setZero();
     lambda_flasso = lambda;
@@ -20,7 +20,7 @@ void Gflasso::Gflasso(double lambda,double gamma){
     flasso_type = GcFlasso;
 }
 
-void Gflasso::Gflasso(MatrixXd corr_coff,double lambda,double gamma){
+Gflasso::Gflasso(MatrixXd corr_coff,double lambda,double gamma){
     this->corr_coff = corr_coff;
     gamma_flasso = gamma;
     lambda_flasso = lambda;
@@ -107,8 +107,8 @@ void Gflasso::train(MatrixXd X,MatrixXd Y,MatrixXd corr_coeff,double lamdba,doub
 // Helper functions to calculate the Cost function
 double Gflasso::gflasso_fusion_penalty(){
 
-    int num_rows = corr_coff.rows(),num_cols = corr_coff.cols(),idx=0,sign=1,mul_factor = 1;
-    double total_sum = 0.0,temp_sum=0.0;
+    int num_rows = corr_coff.rows(),num_cols = corr_coff.cols(),sign=1,mul_factor = 1;
+    double total_sum = 0.0;
 
     // Go through each edge of the corr_coff matrix(graph)
     for(int start_node=0;start_node<num_rows;start_node++) {
@@ -156,7 +156,7 @@ double Gflasso::cost(){
  */
 int Gflasso::get_num_edges(){
 
-    int row=corr_coff.row(), col = corr_coff.col(),row_idx=0,col_idx=0,count=0;
+    int row=corr_coff.rows(), col = corr_coff.cols(),row_idx=0,col_idx=0,count=0;
 
     for(row_idx=0;row_idx<row;row_idx++) {
         for(col_idx=0;col_idx<col;col_idx++) {
@@ -179,14 +179,11 @@ int Gflasso::get_num_edges(){
 void Gflasso::update_edge_vertex_matrix(){
 
     // Initialize the matrix size based on the input parameters
-    this->edge_vertex_matrix = MatrixXd::Random(get_num_edges(),beta.row());
+    this->edge_vertex_matrix = MatrixXd::Random(this->get_num_edges(),beta.rows());
     edge_vertex_matrix.setZero();
 
     // For each edge, just fill only two values i.e the column corresponding to edge
-    int num_rows = (this->corr_coff).rows();
-    int num_cols = (this->corr_coff).cols(),idx=0,sign=1,present_row=0;
-    int mul_factor = 1;
-    double total_sum = 0.0,temp_sum=0.0;
+    int num_rows = (this->corr_coff).rows(),num_cols = (this->corr_coff).cols(),sign=1,present_row=0;
 
     // Go through each edge of the corr_coff matrix(graph)
     for(int start_node=0;start_node<num_rows;start_node++) {
@@ -202,7 +199,7 @@ void Gflasso::update_edge_vertex_matrix(){
 
             /* we have a edge now, fill one row of the edge vertex matrix */
             // Go through each column of this row and check if edge = col index
-            for(int i=0;i<beta.row();i++){
+            for(int i=0;i<beta.rows();i++){
 
                 if(i==start_node){
                     edge_vertex_matrix(present_row,i)=abs(corr_coff(start_node, end_node))*gamma_flasso;
@@ -220,12 +217,12 @@ void Gflasso::update_alpha_matrix(){
 
      // Alpha Matrix is S(CB/mau), where C is a edge_vertex matrix and B is the beta matrix
      // Mau is the smoothing parameter
-    alpha_matrix = MatrixXd::Random(get_num_edges(),beta.col());
+    alpha_matrix = MatrixXd::Random(get_num_edges(),beta.cols());
     alpha_matrix.setZero();
 
     alpha_matrix = edge_vertex_matrix*beta;
     alpha_matrix = alpha_matrix/mau;
-    int num_row = alpha_matrix.row(),num_col = alpha_matrix.col(),alpha_val=0;
+    int num_row = alpha_matrix.rows(),num_col = alpha_matrix.cols(),alpha_val=0;
 
     for(int row_idx=0;row_idx<num_row;row_idx++){
 
