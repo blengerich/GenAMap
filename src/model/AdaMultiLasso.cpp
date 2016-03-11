@@ -87,10 +87,6 @@ void AdaMultiLasso::updateRho() {
     }
 }
 
-VectorXd AdaMultiLasso::projection(VectorXd in) {
-    return NULL;
-}
-
 void AdaMultiLasso::initTheta() {
     w = VectorXd::Zero(snpsFeature1.rows());
     long c = snpsFeature1.cols();
@@ -108,8 +104,6 @@ void AdaMultiLasso::initRho() {
         rho(j) = (snpsFeature2.col(j)*v).sum();
     }
 }
-
-
 
 VectorXd AdaMultiLasso::getTheta() {
     long c = theta.size();
@@ -277,4 +271,6 @@ double AdaMultiLasso::getL() {
     return L;
 }
 
-
+VectorXd AdaMultiLasso::projection(VectorXd in) {
+    return NULL;
+}
