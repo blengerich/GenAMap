@@ -272,5 +272,5 @@ double AdaMultiLasso::getL() {
 }
 
 VectorXd AdaMultiLasso::projection(VectorXd in) {
-    return NULL;
+    return NULL;  // could be solved as an optimization problem, let's try to find a close form solution first. 
 }
