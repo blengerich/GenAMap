@@ -33,6 +33,14 @@ private:
 
     void initC();
 
+    VectorXd gradient_w();
+    VectorXd gradient_v();
+
+    void updateTheta();
+    void updateRho();
+
+    VectorXd projection(VectorXd);
+
 public:
     AdaMultiLasso();
     void setLambda1(double);

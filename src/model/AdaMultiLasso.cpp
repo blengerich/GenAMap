@@ -45,7 +45,36 @@ VectorXd AdaMultiLasso::getV() {
 }
 
 
+VectorXd AdaMultiLasso::gradient_w() {
+    return NULL;
+}
+
+VectorXd AdaMultiLasso::gradient_v() {
+    return NULL;
+}
+
+void AdaMultiLasso::updateTheta() {
+    long c = snpsFeature1.cols();
+    theta = VectorXd::Zero(c);
+    for (long j=0; j<c; j++){
+        theta(j) = (snpsFeature1.col(j)*w).sum();
+    }
+}
+
+void AdaMultiLasso::updateRho() {
+    long c = snpsFeature2.cols();
+    rho = VectorXd::Zero(c);
+    for (long j=0; j<c; j++){
+        rho(j) = (snpsFeature2.col(j)*v).sum();
+    }
+}
+
+VectorXd AdaMultiLasso::projection(VectorXd in) {
+    return NULL;
+}
+
 void AdaMultiLasso::initTheta() {
+    w = VectorXd::Zero(snpsFeature1.rows());
     long c = snpsFeature1.cols();
     theta = VectorXd::Zero(c);
     for (long j=0; j<c; j++){
@@ -54,12 +83,15 @@ void AdaMultiLasso::initTheta() {
 }
 
 void AdaMultiLasso::initRho() {
+    v = VectorXd::Zero(snpsFeature2.rows());
     long c = snpsFeature2.cols();
     rho = VectorXd::Zero(c);
     for (long j=0; j<c; j++){
         rho(j) = (snpsFeature2.col(j)*v).sum();
     }
 }
+
+
 
 VectorXd AdaMultiLasso::getTheta() {
     long c = theta.size();
@@ -219,3 +251,5 @@ MatrixXd AdaMultiLasso::proximal_operator(MatrixXd in, float lr) {
 double AdaMultiLasso::getL() {
     return L;
 }
+
+
