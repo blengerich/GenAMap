@@ -8,6 +8,7 @@
 #include "model/Model.hpp"
 #include <Math/Math.hpp>
 #include <iostream>
+#include <math.h>
 
 class AdaMultiLasso : public Model{
 private:
