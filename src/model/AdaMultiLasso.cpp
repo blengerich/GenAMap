@@ -272,5 +272,21 @@ double AdaMultiLasso::getL() {
 }
 
 VectorXd AdaMultiLasso::projection(VectorXd in) {
-    return NULL;  // could be solved as an optimization problem, let's try to find a close form solution first. 
+    // solve the projection as a constrained optimization problem, by solving lagrange dual
+    long l = in.size();
+    VectorXd x = VectorXd::Zero(l);
+    MatrixXd Q = MatrixXd::Identity(l,l);
+    VectorXd a = VectorXd::Ones(l);
+    VectorXd z = VectorXd::Zero(l);
+    int steps = 100;
+    int i = 0;
+    double l1 = 1e-3;
+    double l2 = 1e-3;
+    double lr = 1e-3;
+    VectorXd grad = VectorXd::Zero(l);
+    while (i<steps && (x*Q*x.transpose()-in.transpose()-x).sum()>1e-4){
+        grad = x*Q-in.transpose()+l1*a-l2*a;
+        x = x - lr * grad;
+    }
+    return x;
 }
