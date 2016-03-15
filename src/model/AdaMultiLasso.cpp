@@ -272,12 +272,13 @@ double AdaMultiLasso::getL() {
 }
 
 VectorXd AdaMultiLasso::projection(VectorXd in) {
+    // todo: some problem here, this method does not really work
     long l = in.size();
-    double s = in.sum() - 1;
+    double s = (in.sum() - 1)/2;
     VectorXd r = VectorXd::Zero(l);
     for (long i = 0; i<l;i++){
-        if (s/2 < in(i)){
-            r(i) = in(i) - s/2;
+        if (s < in(i)){
+            r(i) = in(i) - s;
         }
     }
     return r;
