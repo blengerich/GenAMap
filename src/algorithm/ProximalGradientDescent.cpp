@@ -168,6 +168,7 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
     MatrixXd beta_curr = model->getFormattedBeta(); //bx_new
     MatrixXd beta = model->getFormattedBeta();  //bw
     MatrixXd best_beta = model->getFormattedBeta();
+    MatrixXd beta_prev2 = model->getFormattedBeta();
     MatrixXd in;
     MatrixXd grad;
     double diff = tolerance*2;
@@ -186,6 +187,7 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
         epoch++;
         while (i1 < innerStep1){
             i1 ++ ;
+            beta_prev2 = model->getFormattedBeta();
             progress = float(epoch) / maxIteration;
             theta_new = 2.0/(epoch+2);
             grad = model->proximal_derivative();
@@ -195,9 +197,9 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
             beta_prev = beta_curr;
             theta = theta_new;
             model->updateBeta(beta);
-            if (checkVectorConvergence(beta, beta_prev, 0.01)){
-                break;
-            }
+//            if (checkVectorConvergence(beta, beta_prev2, 0.01)){
+//                break;
+//            }
         }
         while (i2 < innerStep2){
             i2 ++ ;
@@ -205,18 +207,28 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
             w_prev = model->getW();
             v_prev = model->getV();
             w_grad = model->gradient_w();
+//            cout << "------w_grad------"<<endl;
+//            cout << w_grad <<  endl;
             v_grad = model->gradient_v();
             w_update = w_prev - lr2*w_grad;
             v_update = v_prev - lr2*v_grad;
+//            cout << "------w_update------"<<endl;
+//            cout << w_update <<  endl;
             w_update = model->projection(w_update);
             v_update = model->projection(v_update);
+//            cout << "------w_proj------"<<endl;
+//            cout << w_update <<  endl;
             model->updateW(w_update);
             model->updateV(v_update);
             model->updateTheta_Rho();
-            if (checkVectorConvergence(w_prev, w_update, 0.01) &&  checkVectorConvergence(v_prev, v_update, 0.01)){
-                break;
-            }
+//            if (checkVectorConvergence(w_prev, w_update, 0.01) &&  checkVectorConvergence(v_prev, v_update, 0.01)){
+//                break;
+//            }
         }
+//        cout << "----beta----" << endl;
+//        cout << model->getFormattedBeta().transpose() << endl;
+//        cout << "----W----" << endl;
+//        cout << w_update.transpose() << endl;
         residue = model->cost();
         if (residue < prev_residue){
             best_beta = beta;
