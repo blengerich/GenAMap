@@ -44,6 +44,7 @@ public:
 
     void setSnpsFeature1(MatrixXd);
     void setSnpsFeature2(MatrixXd);
+    void setSnpsFeature(MatrixXd);
     MatrixXd getSnpsFeature1();
     MatrixXd getSnpsFeature2();
     VectorXd getW();
@@ -56,9 +57,7 @@ public:
 
     VectorXd getTheta();
     VectorXd getRho();
-
-    VectorXd getTheta_formatted();
-    VectorXd getRho_formatted();
+    void updateTheta_Rho();
 
     MatrixXd getBeta();
     MatrixXd getFormattedBeta();

@@ -139,12 +139,8 @@ void ProximalGradientDescent::run(MultiPopLasso * model) {
     while (epoch < maxIteration && diff > tolerance) {
         epoch++;
         progress = float(epoch) / maxIteration;
-
         theta_new = 2.0/(epoch+2);
-
         grad = model->proximal_derivative();
-
-        double L = model->getL();
         in = beta - 1/model->getL() * grad;
         beta_curr = model->proximal_operator(in, learningRate);
         beta = beta_curr + (1-theta)/theta * theta_new * (beta_curr-beta_prev);
@@ -193,7 +189,6 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
             progress = float(epoch) / maxIteration;
             theta_new = 2.0/(epoch+2);
             grad = model->proximal_derivative();
-            double L = model->getL();
             in = beta - 1/model->getL() * grad;
             beta_curr = model->proximal_operator(in, learningRate);
             beta = beta_curr + (1-theta)/theta * theta_new * (beta_curr-beta_prev);
@@ -217,6 +212,7 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
             v_update = model->projection(v_update);
             model->updateW(w_update);
             model->updateV(v_update);
+            model->updateTheta_Rho();
             if (checkVectorConvergence(w_prev, w_update, 0.01) &&  checkVectorConvergence(v_prev, v_update, 0.01)){
                 break;
             }
@@ -226,6 +222,7 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
             best_beta = beta;
         }
         diff = abs(prev_residue - residue);
+        cout << "epoch: " << epoch << "\t" << "residue: " << residue << endl;
     }
     model->updateBeta(best_beta);
 }
