@@ -45,6 +45,14 @@ VectorXd AdaMultiLasso::getV() {
 }
 
 
+void AdaMultiLasso::updateW(VectorXd xd) {
+    w = xd;
+}
+
+void AdaMultiLasso::updateV(VectorXd xd) {
+    v = xd;
+}
+
 VectorXd AdaMultiLasso::gradient_w() {
     long c = snpsFeature1.cols();
     long k = beta.cols();
@@ -147,7 +155,7 @@ MatrixXd AdaMultiLasso::getBeta() {
     return tmp;
 }
 
-MatrixXd AdaMultiLasso::getBeta_formatted() {
+MatrixXd AdaMultiLasso::getFormattedBeta() {
     return beta;
 }
 
@@ -266,20 +274,24 @@ MatrixXd AdaMultiLasso::proximal_operator(MatrixXd in, float lr) {
     return (in.array()*sign.array()).matrix();
 }
 
-
 double AdaMultiLasso::getL() {
     return L;
 }
 
 VectorXd AdaMultiLasso::projection(VectorXd in) {
-    // todo: some problem here, this method does not really work
-    long l = in.size();
-    double s = (in.sum() - 1)/2;
-    VectorXd r = VectorXd::Zero(l);
-    for (long i = 0; i<l;i++){
-        if (s < in(i)){
-            r(i) = in(i) - s;
+    VectorXd a = in;
+    sort(a.data(), a.data()+a.size());
+    long l = a.size();
+    double s = 0;
+    double I = 0;
+    double S = 0;
+    for (long i=0;i<l;i++){
+        s += a(i) - 1;
+        if (s < a(i)*(i+1)){
+            I = i;
         }
     }
+    double t = S/(I+1);
+    VectorXd r = ((in.array() - t).max(0)).matrix();
     return r;
 }

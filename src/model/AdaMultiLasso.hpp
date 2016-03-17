@@ -34,13 +34,8 @@ private:
 
     void initC();
 
-    VectorXd gradient_w();
-    VectorXd gradient_v();
-
     void updateTheta();
     void updateRho();
-
-    VectorXd projection(VectorXd);
 
 public:
     AdaMultiLasso();
@@ -53,6 +48,8 @@ public:
     MatrixXd getSnpsFeature2();
     VectorXd getW();
     VectorXd getV();
+    void updateW(VectorXd);
+    void updateV(VectorXd);
 
     void initTheta();
     void initRho();
@@ -64,7 +61,7 @@ public:
     VectorXd getRho_formatted();
 
     MatrixXd getBeta();
-    MatrixXd getBeta_formatted();
+    MatrixXd getFormattedBeta();
 
     void setX(MatrixXd);
     void setY(MatrixXd);
@@ -74,6 +71,9 @@ public:
     void initTraining();
     MatrixXd proximal_derivative();
     MatrixXd proximal_operator(MatrixXd, float);
+    VectorXd gradient_w();
+    VectorXd gradient_v();
+    VectorXd projection(VectorXd);
     double getL();
 
     double cost();
