@@ -5,10 +5,17 @@
 #ifndef ALGORITHMS_MULTIPOPLASSO_HPP
 #define ALGORITHMS_MULTIPOPLASSO_HPP
 
-#include "model/Model.hpp"
-#include "Math/Math.hpp"
 #include <iostream>
 #include <vector>
+
+#if BAZEL
+#include "model/Model.hpp"
+#include "Math/Math.hpp"
+#else
+#include "../model/Model.hpp"
+#include "../Math/Math.hpp"
+#endif
+
 
 using namespace std;
 

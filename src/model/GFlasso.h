@@ -7,7 +7,8 @@
 #include <iostream>
 #include <Eigen/Dense>
 #include <vector>
-#include "model.hpp"
+
+#include "Model.hpp"
 
 // Upper limit on number of Traits
 #define MAX_TRAITS 10

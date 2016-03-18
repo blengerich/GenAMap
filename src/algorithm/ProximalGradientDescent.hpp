@@ -4,10 +4,18 @@
 
 #include <map>
 
+#if BAZEL
 #include "algorithm/Algorithm.hpp"
 #include "model/LinearRegression.hpp"
 #include "model/TreeLasso.hpp"
 #include "model/MultiPopLasso.hpp"
+#else
+#include "Algorithm.hpp"
+#include "AlgorithmOptions.hpp"
+#include "../model/LinearRegression.hpp"
+#include "../model/TreeLasso.hpp"
+#include "../model/MultiPopLasso.hpp"
+#endif
 
 #ifndef ALGORITHMS_PROXIMALGRADIENTDESCENT_HPP
 #define ALGORITHMS_PROXIMALGRADIENTDESCENT_HPP
@@ -29,7 +37,7 @@ public:
     void run(MultiPopLasso*);
 
     ProximalGradientDescent();
-    ProximalGradientDescent(const map<string, string>& options);
+    ProximalGradientDescent(const AlgorithmOptions_t& options);
 };
 
 

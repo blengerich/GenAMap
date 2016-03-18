@@ -3,21 +3,31 @@
 //
 
 #include "ProximalGradientDescent.hpp"
+
 #include <Eigen/Dense>
 #include <iostream>
 #include <map>
 
+#include "AlgorithmOptions.hpp"
+
 using namespace Eigen;
 using namespace std;
 
-ProximalGradientDescent::ProximalGradientDescent(const map<string, string>& options) {
+
+ProximalGradientDescent::ProximalGradientDescent(const AlgorithmOptions_t& options) {
+    tolerance = options.tolerance;
+    learningRate = options.learning_rate;
+    prev_residue = numeric_limits<double>::max();
+}
+
+/*ProximalGradientDescent::ProximalGradientDescent(const map<string, string>& options) {
     try {
         setLearningRate(stof(options.find("learningRate")->second));
     } catch (exception& e) {}
     try {
         setTolerance(stof(options.find("tolerance")->second));
     } catch (exception& e) {}
-}
+}*/
 
 void ProximalGradientDescent::setTolerance(float tol) {
     tolerance = tol;

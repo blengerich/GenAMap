@@ -35,6 +35,8 @@ public:
 
     Model();
     Model(MatrixXd, VectorXd);
+
+    virtual ~Model(){};
 };
 
 

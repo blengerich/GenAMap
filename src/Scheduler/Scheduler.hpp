@@ -6,67 +6,59 @@
 //
 //
 
-#ifndef Scheduler_h
-#define Scheduler_h
+#ifndef Scheduler_hpp
+#define Scheduler_hpp
 
-#include <map>
+#include <unordered_map>
 #include <mutex>
-#include <node.h>
 #include <pthread.h>
 #include <queue>
 #include <vector>
+#include <v8.h>
 #include "gtest/gtest_prod.h"
 
+#if BAZEL
 #include "algorithm/Algorithm.hpp"
+#include "algorithm/AlgorithmOptions.hpp"
+#else
+#include "../algorithm/Algorithm.hpp"
+#include "../algorithm/AlgorithmOptions.hpp"
+#include "Job.hpp"
+#include "../model/ModelOptions.hpp"
+#endif
 
 using namespace std;
-using namespace v8::Exception;
-using namespace v8::FunctionCallbackInfo;
-using namespace v8::Isolate;
-using namespace v8::Local;
-using namespace v8::Number;
-using namespace v8::Object;
-using namespace v8::String;
-using namespace v8::Value;
 
 class Scheduler {
 /* Class to run jobs and get information about the currently running jobs.
 	The first class on the C++ side.
 */
 
-/* TODO
-    Cancel jobs
-    Return results as JSON
-    Receive inputs as JSON
-*/
-
 public:
-	static Scheduler* Instance();	// Singleton
+	int newAlgorithm(const AlgorithmOptions_t&);
+	// returns the algorithm's assigned ID, -1 for failure.
 
-    enum algorithm_type {
-    	proximal_gradient_descent,
-    	iterative_update
-    };
+	int newModel(const ModelOptions_t&);
+	// returns the model's assigned ID, -1 for failure.
 
-	void newAlgorithm(const FunctionCallbackInfo<Value>& args);
-		//const algorithm_type& algorithm_name, const map<string, string>& options=map<string, string>());
-	// Creates a new algorithm in the queue.
-	// Returns the new job num or -1 on failure.
+	int newJob(const JobOptions_t&);
+	// Assumes that algorithm and job have been created by this scheduler.
+	// Simply packages as a job and assigns an ID.
+	// Returns the job's assigned ID, -1 for failure.
 
-    void trainAlgorithm(const FunctionCallbackInfo<Value>& args);
-    // trains the algorithm associated with the given jobNum
-    // returns True for success, false for failure.
+	bool startJob(Isolate*, const Local<Function>&, const Local<Number>&);	// Returns true if successfully queued, false otherwise.
 
-    //void cancelAlgorithm(int job_num);
-    // cancels the algorithm associated with the given jobNum
-    // Returns True for success, false on failure.
+	double checkJob(const int);	// not entirely sure if string is the right type to return here (float for progress bar?)
 
-    void checkAlgorithm(const FunctionCallbackInfo<Value>& args);
-    // Returns a status code for the given jobNum
-    // Returns -1 on error.
+	// Cancels a potentially running Algorithm.
+	bool cancelJob(const int);
 
-    // TODO How is the result calculated?
-    // Should have a callback that pushes data to Node server in JSON format.
+	bool deleteAlgorithm(const int); // How to know if the user owns the algorithm?
+	bool deleteModel(const int);
+	bool deleteJob(const int);
+
+	static Scheduler* Instance();	// This class follows the singleton pattern.
+
 
 protected:
 	// Singleton constructors must be protected or private
@@ -75,29 +67,40 @@ protected:
 	Scheduler& operator=(Scheduler const&);
 
 private:
+
+	int getNewAlgorithmId();
+    // Generates and returns new job identifier. Failure is identified with -1.
+    FRIEND_TEST(SchedulerTest, getNewAlgorithmId);
+
+	int getNewModelId();
+    // Generates and returns new job identifier. Failure is identified with -1.
+    FRIEND_TEST(SchedulerTest, getNewModelId);
+
+	int getNewJobId();
+    // Generates and returns new job identifier. Failure is identified with -1.
+    FRIEND_TEST(SchedulerTest, getNewJobId);
+
+	
     static Scheduler* s_instance;   // Singleton
     const int kMaxThreads = 5;
-    int max_job_num;
-    int current_job_num;
 
-    // Need to track all jobs and currently running jobs.
-    int n_running_threads;
-    pthread_mutex_t n_running_threads_mutex;
+    const int kMaxAlgorithmId = 100;
+    int next_algorithm_id;
 
-    map<int, Algorithm*>* algorithms_map;
-    // tracks all algorithms (running, waiting, and completed). indexed by jobNum.
-    
-    queue<Algorithm*>* algorithms_queue;
-    pthread_mutex_t algorithms_queue_mutex;
-    // Running jobs and jobs waiting for a thread
+    const int kMaxModelId = 100;
+    int next_model_id;
 
-	int getNewJobNum();
-    FRIEND_TEST(SchedulerTest, getNewJobNum);
+    const int kMaxJobId = 100;
+    int next_job_id;
 
-
-    static void* train_thread(void* arg);
-    // Spawns a new thread to be in charge of training.
+    unordered_map<int, Algorithm*> algorithms_map;
+    unordered_map<int, Model*> models_map;
+    unordered_map<int, Job_t*> jobs_map;
+    // tracks all jobs (running, waiting, and completed). indexed by job_id.  
 };
 
+void trainAlgorithmThread(uv_work_t* req);
+void trainAlgorithmComplete(uv_work_t* req, int status);
 
-#endif /* Scheduler_h */
+
+#endif /* Scheduler_hpp */

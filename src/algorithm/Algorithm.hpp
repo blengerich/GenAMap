@@ -5,7 +5,11 @@
 #ifndef ALGORITHMS_ALGORITHM_HPP
 #define ALGORITHMS_ALGORITHM_HPP
 
+#if BAZEL
 #include "model/Model.hpp"
+#else
+#include "../model/Model.hpp"
+#endif
 
 class Algorithm {
 protected:
