@@ -21,6 +21,7 @@ Release/obj.target/scheduler/Scheduler.o: ../Scheduler.cpp \
  ../../algorithm/../model/MultiPopLasso.hpp \
  ../../algorithm/../model/../model/Model.hpp \
  ../../algorithm/../model/../Math/Math.hpp \
+ ../../algorithm/../model/AdaMultiLasso.hpp \
  ../../algorithm/IterativeUpdate.hpp ../../model/lasso.hpp \
  ../../Scheduler/Job.hpp
 ../Scheduler.cpp:
@@ -50,6 +51,7 @@ Release/obj.target/scheduler/Scheduler.o: ../Scheduler.cpp \
 ../../algorithm/../model/MultiPopLasso.hpp:
 ../../algorithm/../model/../model/Model.hpp:
 ../../algorithm/../model/../Math/Math.hpp:
+../../algorithm/../model/AdaMultiLasso.hpp:
 ../../algorithm/IterativeUpdate.hpp:
 ../../model/lasso.hpp:
 ../../Scheduler/Job.hpp:
