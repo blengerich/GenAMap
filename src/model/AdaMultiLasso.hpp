@@ -6,6 +6,7 @@
 #define GENAMAP_V2_ADAMULTILASSO_HPP
 
 #include <iostream>
+#include <math.h>
 
 #include "../Math/Math.hpp"
 #include "Model.hpp"
@@ -35,6 +36,9 @@ private:
 
     void initC();
 
+    void updateTheta();
+    void updateRho();
+
 public:
     AdaMultiLasso();
     void setLambda1(double);
@@ -42,22 +46,23 @@ public:
 
     void setSnpsFeature1(MatrixXd);
     void setSnpsFeature2(MatrixXd);
+    void setSnpsFeature(MatrixXd);
     MatrixXd getSnpsFeature1();
     MatrixXd getSnpsFeature2();
     VectorXd getW();
     VectorXd getV();
+    void updateW(VectorXd);
+    void updateV(VectorXd);
 
     void initTheta();
     void initRho();
 
     VectorXd getTheta();
     VectorXd getRho();
-
-    VectorXd getTheta_formatted();
-    VectorXd getRho_formatted();
+    void updateTheta_Rho();
 
     MatrixXd getBeta();
-    MatrixXd getBeta_formatted();
+    MatrixXd getFormattedBeta();
 
     void setX(MatrixXd);
     void setY(MatrixXd);
@@ -67,6 +72,9 @@ public:
     void initTraining();
     MatrixXd proximal_derivative();
     MatrixXd proximal_operator(MatrixXd, float);
+    VectorXd gradient_w();
+    VectorXd gradient_v();
+    VectorXd projection(VectorXd);
     double getL();
 
     double cost();

@@ -5,7 +5,7 @@
 #define GENAMAPV2_GFLASSO_H
 
 #include <iostream>
-#include <Eigen/Dense>
+#include "Eigen/Dense"
 #include <vector>
 
 #include "Model.hpp"
@@ -41,14 +41,19 @@ private :
     //Type of flasso
     int flasso_type;
 
+    //Smoothing Proximal Gradient Method
+    MatrixXd edge_vertex_matrix; // Dimension: Edge_size*Col(x)
+    int mau; // Smootheness parameter
+    MatrixXd alpha_matrix;
+
 public :
     //Constructor to initialize the correlation graph and the
     //regularisation parameters
-    void Gflasso();
+    Gflasso();
     // Only regularization params are given
-    void Gflasso(double,double);
+    Gflasso(double,double);
     // Regularization params along with corr coff. graph
-    void Gflasso(MatrixXd,double,double);
+    Gflasso(MatrixXd,double,double);
 
     // Methods to set and get various input variables of GFLASSO
     void train();
@@ -68,10 +73,28 @@ public :
     double get_gamma();
     void set_flasso_type(int);
     int get_flasso_type();
+    void set_mau(double);
+    double get_mau();
 
-    // Cost function and supporting function
+    // Cost function and supporting functions
     double cost();
     double gflasso_fusion_penalty();
+
+    // Smoothing proximal Gradient descent functions
+
+    // Get number of edges in the given correlation coff matrix
+    int get_num_edges();
+
+    // Calculate the edge vertex matrix
+    void update_edge_vertex_matrix();
+
+    // Calculate the alpha matrix
+    void update_alpha_matrix();
+
+    // Calculate the gradient descent using the alpha and Edge vertex matrix
+    // along with other input parameters i.e. X, Y and Beta.
+    MatrixXd gradient_descent();
 };
+
 
 #endif //GENAMAPV2_MASTER_GFLASSO_H
