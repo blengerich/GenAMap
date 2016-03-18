@@ -3,21 +3,31 @@
 //
 
 #include "ProximalGradientDescent.hpp"
+
 #include <Eigen/Dense>
 #include <iostream>
 #include <map>
 
+#include "AlgorithmOptions.hpp"
+
 using namespace Eigen;
 using namespace std;
 
-ProximalGradientDescent::ProximalGradientDescent(const map<string, string>& options) {
+
+ProximalGradientDescent::ProximalGradientDescent(const AlgorithmOptions_t& options) {
+    tolerance = options.tolerance;
+    learningRate = options.learning_rate;
+    prev_residue = numeric_limits<double>::max();
+}
+
+/*ProximalGradientDescent::ProximalGradientDescent(const map<string, string>& options) {
     try {
         setLearningRate(stof(options.find("learningRate")->second));
     } catch (exception& e) {}
     try {
         setTolerance(stof(options.find("tolerance")->second));
     } catch (exception& e) {}
-}
+}*/
 
 void ProximalGradientDescent::setTolerance(float tol) {
     tolerance = tol;
@@ -156,6 +166,8 @@ void ProximalGradientDescent::run(MultiPopLasso * model) {
     }
     model->updateBeta(best_beta);
 }
+<<<<<<< HEAD
+=======
 
 void ProximalGradientDescent::run(AdaMultiLasso *model) {
     // this is not just proximal gradient descent, also including iteratively updating beta and w, v
@@ -227,3 +239,4 @@ bool ProximalGradientDescent::checkVectorConvergence(VectorXd v1, VectorXd v2, d
     double r = (v1 - v2).squaredNorm();
     return (r < d);
 }
+>>>>>>> 82df6dfb2806762a27d9f11e60b19d5eb6cf96d2

@@ -5,10 +5,12 @@
 #ifndef GENAMAP_V2_ADAMULTILASSO_HPP
 #define GENAMAP_V2_ADAMULTILASSO_HPP
 
-#include "model/Model.hpp"
-#include <Math/Math.hpp>
 #include <iostream>
 #include <math.h>
+
+#include "../Math/Math.hpp"
+#include "Model.hpp"
+
 
 class AdaMultiLasso : public Model{
 private:
