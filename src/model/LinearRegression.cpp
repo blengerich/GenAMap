@@ -5,7 +5,22 @@
 #include "LinearRegression.hpp"
 #include <Eigen/Dense>
 
+#include "ModelOptions.hpp"
+
 using namespace Eigen;
+
+
+LinearRegression::LinearRegression() {
+    L1_reg = 0;
+    L2_reg = 0;
+};
+
+
+LinearRegression::LinearRegression(const ModelOptions_t& options) {
+    L1_reg = 0;
+    L2_reg = 0;
+}
+
 
 void LinearRegression::setL1_reg(float l1) { L1_reg = l1; };
 
@@ -22,11 +37,6 @@ MatrixXd LinearRegression::derivative() {
 
 MatrixXd LinearRegression::proximal_derivative() {
     return -1.0 * X.transpose() * (y - X * beta);
-};
-
-LinearRegression::LinearRegression() {
-    L1_reg = 0;
-    L2_reg = 0;
 };
 
 MatrixXd LinearRegression::proximal_operator(VectorXd in, float lr) {

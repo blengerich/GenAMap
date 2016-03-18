@@ -3,21 +3,31 @@
 //
 
 #include "ProximalGradientDescent.hpp"
+
 #include <Eigen/Dense>
 #include <iostream>
 #include <map>
 
+#include "AlgorithmOptions.hpp"
+
 using namespace Eigen;
 using namespace std;
 
-ProximalGradientDescent::ProximalGradientDescent(const map<string, string>& options) {
+
+ProximalGradientDescent::ProximalGradientDescent(const AlgorithmOptions_t& options) {
+    tolerance = options.tolerance;
+    learningRate = options.learning_rate;
+    prev_residue = numeric_limits<double>::max();
+}
+
+/*ProximalGradientDescent::ProximalGradientDescent(const map<string, string>& options) {
     try {
         setLearningRate(stof(options.find("learningRate")->second));
     } catch (exception& e) {}
     try {
         setTolerance(stof(options.find("tolerance")->second));
     } catch (exception& e) {}
-}
+}*/
 
 void ProximalGradientDescent::setTolerance(float tol) {
     tolerance = tol;
@@ -156,6 +166,8 @@ void ProximalGradientDescent::run(MultiPopLasso * model) {
     }
     model->updateBeta(best_beta);
 }
+<<<<<<< HEAD
+=======
 
 void ProximalGradientDescent::run(AdaMultiLasso *model) {
     // this is not just proximal gradient descent, also including iteratively updating beta and w, v
@@ -168,6 +180,7 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
     MatrixXd beta_curr = model->getFormattedBeta(); //bx_new
     MatrixXd beta = model->getFormattedBeta();  //bw
     MatrixXd best_beta = model->getFormattedBeta();
+    MatrixXd beta_prev2 = model->getFormattedBeta();
     MatrixXd in;
     MatrixXd grad;
     double diff = tolerance*2;
@@ -186,6 +199,7 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
         epoch++;
         while (i1 < innerStep1){
             i1 ++ ;
+            beta_prev2 = model->getFormattedBeta();
             progress = float(epoch) / maxIteration;
             theta_new = 2.0/(epoch+2);
             grad = model->proximal_derivative();
@@ -195,9 +209,6 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
             beta_prev = beta_curr;
             theta = theta_new;
             model->updateBeta(beta);
-            if (checkVectorConvergence(beta, beta_prev, 0.01)){
-                break;
-            }
         }
         while (i2 < innerStep2){
             i2 ++ ;
@@ -213,9 +224,6 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
             model->updateW(w_update);
             model->updateV(v_update);
             model->updateTheta_Rho();
-            if (checkVectorConvergence(w_prev, w_update, 0.01) &&  checkVectorConvergence(v_prev, v_update, 0.01)){
-                break;
-            }
         }
         residue = model->cost();
         if (residue < prev_residue){
@@ -231,3 +239,4 @@ bool ProximalGradientDescent::checkVectorConvergence(VectorXd v1, VectorXd v2, d
     double r = (v1 - v2).squaredNorm();
     return (r < d);
 }
+>>>>>>> 82df6dfb2806762a27d9f11e60b19d5eb6cf96d2

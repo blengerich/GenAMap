@@ -5,6 +5,8 @@
 #include "Model.hpp"
 #include <Eigen/Dense>
 
+#include "../model/ModelOptions.hpp"
+
 using namespace Eigen;
 
 #ifndef ALGORITHMS_LINEARREGRESSION_HPP
@@ -29,6 +31,7 @@ public:
     MatrixXd proximal_operator(VectorXd, float);
 
     LinearRegression();
+    LinearRegression(const ModelOptions_t& options);
 };
 
 

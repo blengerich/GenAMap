@@ -17,12 +17,12 @@ protected:
 public:
     void setX(MatrixXd);
     void setY(MatrixXd);
-    void initBeta(void);
+    void initBeta();
     void initBeta(MatrixXd);
     void updateBeta(MatrixXd);
-    MatrixXd getX(void);
-    MatrixXd getBeta(void);
-    MatrixXd getY(void);
+    MatrixXd getX();
+    MatrixXd getBeta();
+    MatrixXd getY();
 
     MatrixXd predict();
     MatrixXd predict(MatrixXd);
@@ -35,6 +35,8 @@ public:
 
     Model();
     Model(MatrixXd, VectorXd);
+
+    virtual ~Model(){};
 };
 
 
