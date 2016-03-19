@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <vector>
+#include <math.h>
 
 #if BAZEL
 #include "Eigen"
@@ -69,6 +70,8 @@ class LinearMixedModel: public Model{
     MatrixXd get_beta();
     double get_lambda();
     double get_sigma();
+    void set_S();
+    void set_U();
 
     // Parameters related to lambda variation
     void set_lambda_params(double, double, double);

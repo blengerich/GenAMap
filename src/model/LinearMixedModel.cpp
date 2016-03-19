@@ -12,6 +12,9 @@ LinearMixedModel::LinearMixedModel() {
     cout << "LMM: No input parameters provided !";
     n = 0;
     d = 0;
+    lambda_start_point = -10;
+    lambda_end_point = 10;
+    lambda_interval = 0.2;
 }
 
 // Methods to set the training data
@@ -26,6 +29,9 @@ void LinearMixedModel::train(MatrixXd X, MatrixXd Y){
     this->K= MatrixXd::Random(X.rows(),Y.rows());
     beta.setZeros();
     K.setZeros();
+
+    // Set the default params of Grid search 
+    set_lambda_params(10,-10,0.2);
 }
 
 void LinearMixedModel::train(MatrixXd X, MatrixXd Y, MatrixXd K){
@@ -38,6 +44,9 @@ void LinearMixedModel::train(MatrixXd X, MatrixXd Y, MatrixXd K){
     // Initialize beta and mau to some random values
     this->beta = MatrixXd::Random(X.cols(),Y.rows());
     this->mau = MatrixXd::Random(n,1);
+    
+    // Set the default params of Grid search
+    set_lambda_params(10,-10,0.2);
 }
 
 // Other getters and setter methods
@@ -70,6 +79,14 @@ double LinearMixedModel::get_lambda_start_value(){
 
 double LinearMixedModel::get_lambda_end_value(){
    return this->lambda_end_point;
+}
+
+void LinearMixedModel::set_U(MatrixXd U){
+   this->U = U;
+}
+
+void LinearMixedModel::set_S(MatrixXd S){
+  this->S = S;
 }
 
 // Decomposition of Similarity Matrix -> to be done later
@@ -124,13 +141,14 @@ double LinearMixedModel::get_log_likelihood_value(double lambda){
     double first_term = 0.0,second_term=0.0, third_term=0.0, ret_val =0.0;
     int n = this->get_num_samples();
 
-    first_term = (n)*log(2*3.14) + n;
+    first_term = (n)*log(2*M_PI) + n;
 
     for(int i=1;i<=n;i++){
         second_term += log( double(S(i,i) + lambda));
     }
 
     third_term = n*log(calculate_sigma(lambda)/n);
+    ret_val = first_term + second_term + third_term;
     ret_val = -1/2*ret_val;
     return ret_val;
 }
