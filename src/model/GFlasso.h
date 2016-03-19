@@ -5,9 +5,8 @@
 #define GENAMAPV2_GFLASSO_H
 
 #include <iostream>
-#include "Eigen/Dense"
 #include <vector>
-
+#include "Eigen/Dense"
 #include "Model.hpp"
 
 // Upper limit on number of Traits

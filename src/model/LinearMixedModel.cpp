@@ -6,6 +6,8 @@
  */
 #include "LinearMixedModel.hpp"
 
+using namespace Eigen;
+
 LinearMixedModel::LinearMixedModel() {
     cout << "LMM: No input parameters provided !";
     n = 0;
@@ -41,11 +43,9 @@ void LinearMixedModel::train(MatrixXd X, MatrixXd Y, MatrixXd K){
 // Other getters and setter methods
 
 void LinearMixedModel::set_lambda_params(double s, double e, double i){
-
 	this->lambda_start_point = s;
 	this->lambda_end_point = e;
 	this->lambda_interval = i;
-
 }
 
 void LinearMixedModel::set_lambda_start_value(double start_val){
@@ -141,16 +141,18 @@ double LinearMixedModel::get_log_likelihood_value(double lambda){
 void LinearMixedModel::find_max_log_likelihood(){
 
 	int start_val = this->get_lambda_start_value(), end_val = get_lambda_end_value();
-	int interval = this->get_lambda_interval(), max_likelihood =0.0;
-    int	temp_likehood=0.0,best_lambda=-1;
+	int interval = this->get_lambda_interval(), max_likelihood =0.0,current_log_likelihood;
+        int temp_likehood=0.0,best_lambda=-1;
 
 	/* Do Grid search on the likelihood function and see for which lambda, it is getting to
 	 * the maximum. Maximum likelihood means the most optimal solution.
 	 */
+        
 	for(int val = start_val;val<=end_val;val=val+interval){
+		current_log_likelihood = get_log_likelihood_value(val);
 
-		if(get_log_likelihood_value(val) >= max_likelihood){
-			max_likelihood = get_log_likelihood_value(val);
+		if(current_log_likelihood >= max_likelihood){
+			max_likelihood = current_log_likelihood;
 			best_lambda = val;
 		}
 	}
@@ -163,6 +165,3 @@ void LinearMixedModel::find_max_log_likelihood(){
 	this->sigma = calculate_sigma(best_lambda);
 	this->beta = calculate_beta(best_lambda);
 }
-
-
-

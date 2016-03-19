@@ -9,10 +9,17 @@
 #define SRC_MODEL_LINEARMIXEDMODEL_HPP_
 
 #include <iostream>
+#include <vector>
+
+#if BAZEL
 #include "Eigen"
 #include "Math/Math.hpp"
-#include <vector>
-#include "model.hpp"
+#include "Model.hpp"
+#else
+#include "../Eigen"
+#include "../Math/Math.hpp"
+#include "../model/Model.hpp"
+#endif
 
 #define MAX_TRAIS 10
 
