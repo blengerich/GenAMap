@@ -3,6 +3,7 @@
 //
 #include "GFLasso.h"
 
+using namespace Eigen;
 // Constructors with different parameters provided
 Gflasso::Gflasso() {
     corr_coff = MatrixXd::Random(MAX_TRAITS,MAX_TRAITS);
