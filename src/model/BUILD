@@ -31,10 +31,18 @@ cc_library(
 		"//Math:Math"]
 )
 
+cc_library(
+	name = "AdaMultiLasso",
+	srcs = ["AdaMultiLasso.cpp"],
+	hdrs = ["AdaMultiLasso.hpp"],
+	deps = ["//model:Model",
+		"//Math:Math"]
+)
+
 cc_test(
 	name = "Model_Tests",
 	srcs = ["Model_Tests.cpp"],
 	copts = ["-Iexternal/gtest/include"],
-	deps = ["@gtest//:main", "Model", "LinearRegression", "TreeLasso", "MultiPopLasso"],
+	deps = ["@gtest//:main", "Model", "LinearRegression", "TreeLasso", "MultiPopLasso", "AdaMultiLasso"],
 	size = "small"
 )

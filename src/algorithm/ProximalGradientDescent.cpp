@@ -133,6 +133,7 @@ void ProximalGradientDescent::run(TreeLasso * model) {
     model->updateBeta(best_beta);
 }
 
+
 void ProximalGradientDescent::run(MultiPopLasso * model) {
     model->initTraining();
     int epoch = 0;
@@ -229,6 +230,9 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
         }
         diff = abs(prev_residue - residue);
         cout << "epoch: " << epoch << "\t" << "residue: " << residue << endl;
+//        cout << "--------"<<endl;
+//        cout << beta << endl;
+//        cout << "--------"<<endl;
     }
     model->updateBeta(best_beta);
 }

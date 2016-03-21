@@ -9,6 +9,7 @@ using namespace std;
 AdaMultiLasso::AdaMultiLasso() {
     lambda1 = 0;
     lambda2 = 0;
+    mu = 1e-3;
     initTrainingFlag = false;
 }
 

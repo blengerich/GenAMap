@@ -1,7 +1,7 @@
 //
 // Created by aditya gautam on 2/22/16.
 //
-#include "GFLasso.h"
+#include "GFlasso.h"
 
 using namespace Eigen;
 // Constructors with different parameters provided

@@ -9,6 +9,8 @@
 #include "model/LinearRegression.hpp"
 #include "model/TreeLasso.hpp"
 #include "model/MultiPopLasso.hpp"
+#include "model/AdaMultiLasso.hpp"
+#include "model/GFlasso.h"
 #else
 #include "Algorithm.hpp"
 #include "AlgorithmOptions.hpp"
@@ -16,6 +18,7 @@
 #include "../model/TreeLasso.hpp"
 #include "../model/MultiPopLasso.hpp"
 #include "../model/AdaMultiLasso.hpp"
+#include "../model/GFlasso.h"
 #endif
 
 #ifndef ALGORITHMS_PROXIMALGRADIENTDESCENT_HPP
@@ -47,6 +50,7 @@ public:
     void run(TreeLasso*);
     void run(MultiPopLasso*);
     void run(AdaMultiLasso*);
+    void run(Gflasso*);
 
     ProximalGradientDescent();
     ProximalGradientDescent(const AlgorithmOptions_t& options);
