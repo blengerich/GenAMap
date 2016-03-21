@@ -166,8 +166,6 @@ void ProximalGradientDescent::run(MultiPopLasso * model) {
     }
     model->updateBeta(best_beta);
 }
-<<<<<<< HEAD
-=======
 
 void ProximalGradientDescent::run(AdaMultiLasso *model) {
     // this is not just proximal gradient descent, also including iteratively updating beta and w, v
@@ -239,4 +237,3 @@ bool ProximalGradientDescent::checkVectorConvergence(VectorXd v1, VectorXd v2, d
     double r = (v1 - v2).squaredNorm();
     return (r < d);
 }
->>>>>>> 82df6dfb2806762a27d9f11e60b19d5eb6cf96d2
