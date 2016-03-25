@@ -56,6 +56,14 @@ cc_library(
 		"//Math:Math"]
 )
 
+cc_library(
+	name = "AdaMultiLasso",
+	srcs = ["AdaMultiLasso.cpp"],
+	hdrs = ["AdaMultiLasso.hpp"],
+	deps = ["//model:Model",
+		"//Math:Math"]
+)
+
 cc_test(
 	name = "Model_Tests",
 	srcs = ["Model_Tests.cpp"],
@@ -65,6 +73,7 @@ cc_test(
 			"Model",
 			"LinearRegression",
 			"TreeLasso",
-			"MultiPopLasso"],
+			"MultiPopLasso", 
+			"AdaMultiLasso"],
 	size = "small"
 )

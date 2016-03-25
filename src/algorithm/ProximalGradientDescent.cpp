@@ -25,15 +25,6 @@ ProximalGradientDescent::ProximalGradientDescent(const AlgorithmOptions_t& optio
     prev_residue = numeric_limits<double>::max();
 }
 
-/*ProximalGradientDescent::ProximalGradientDescent(const map<string, string>& options) {
-    try {
-        setLearningRate(stof(options.find("learningRate")->second));
-    } catch (exception& e) {}
-    try {
-        setTolerance(stof(options.find("tolerance")->second));
-    } catch (exception& e) {}
-}*/
-
 void ProximalGradientDescent::setTolerance(float tol) {
     tolerance = tol;
 }
@@ -138,6 +129,7 @@ void ProximalGradientDescent::run(TreeLasso * model) {
     model->updateBeta(best_beta);
 }
 
+
 void ProximalGradientDescent::run(MultiPopLasso * model) {
     model->initTraining();
     int epoch = 0;
@@ -234,6 +226,9 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
         }
         diff = abs(prev_residue - residue);
         cout << "epoch: " << epoch << "\t" << "residue: " << residue << endl;
+//        cout << "--------"<<endl;
+//        cout << beta << endl;
+//        cout << "--------"<<endl;
     }
     model->updateBeta(best_beta);
 }
