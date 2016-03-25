@@ -17,8 +17,23 @@
 #include <stdio.h>
 #include <uv.h>
 
+#ifdef BAZEL
+#include "algorithm/ProximalGradientDescent.hpp"
+//#include "algorithm/IterativeUpdate.hpp"
+#include "algorithm/Algorithm.hpp"
+#include "algorithm/AlgorithmOptions.hpp"
+//#include "model/AdaMultiLasso.hpp"
+//#include "model/GFlasso.h"
+#include "model/lasso.hpp"
+//#include "model/LinearRegression.hpp"
+#include "model/Model.hpp"
+#include "model/ModelOptions.hpp"
+//#include "model/MultiPopLasso.hpp"
+//#include "model/TreeLasso.hpp"
+#include "Scheduler/Job.hpp"
+#else
 #include "../algorithm/ProximalGradientDescent.hpp"
-#include "../algorithm/IterativeUpdate.hpp"
+//#include "../algorithm/IterativeUpdate.hpp"
 #include "../algorithm/Algorithm.hpp"
 #include "../algorithm/AlgorithmOptions.hpp"
 //#include "../model/AdaMultiLasso.hpp"
@@ -30,7 +45,7 @@
 //#include "../model/MultiPopLasso.hpp"
 //#include "../model/TreeLasso.hpp"
 #include "../Scheduler/Job.hpp"
-
+#endif
 
 using namespace std;
 

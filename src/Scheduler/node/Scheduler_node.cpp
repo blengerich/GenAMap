@@ -12,13 +12,13 @@
 #include <uv.h>
 #include <v8.h>
 
-#include "../algorithm/ProximalGradientDescent.hpp"
-#include "../algorithm/IterativeUpdate.hpp"
-#include "../algorithm/Algorithm.hpp"
-#include "../algorithm/AlgorithmOptions.hpp"
-#include "../model/ModelOptions.hpp"
-#include "Job.hpp"
-#include "Scheduler.hpp"
+#include "../../algorithm/ProximalGradientDescent.hpp"
+#include "../../algorithm/IterativeUpdate.hpp"
+#include "../../algorithm/Algorithm.hpp"
+#include "../../algorithm/AlgorithmOptions.hpp"
+#include "../../model/ModelOptions.hpp"
+#include "../Job.hpp"
+#include "../Scheduler.hpp"
 
 using namespace std;
 using namespace v8;
@@ -86,11 +86,11 @@ void newJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 // Expects arguments function callback, int job_id
 void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
-
 	// Inspect arguments.
 	//assert(args.Length() >= 2, "Must give a callback and a job num to train.");
 
-	Scheduler::Instance()->startJob(isolate, Local<Function>::Cast(args[0]), Local<Number>::Cast(args[1]));
+	Scheduler::Instance()->startJob(
+		isolate, Local<Function>::Cast(args[0]), Local<Number>::Cast(args[1]));
 	args.GetReturnValue().Set(Undefined(isolate));
 }
 
@@ -169,6 +169,38 @@ void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	args.GetReturnValue().Set(retval);
 }
 
+void hello(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	Isolate* isolate = args.GetIsolate();
+  	args.GetReturnValue().Set(String::NewFromUtf8(isolate, "world"));
+}
+
+void Add(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = args.GetIsolate();
+
+  // Check the number of arguments passed.
+  if (args.Length() < 2) {
+    // Throw an Error that is passed back to JavaScript
+    isolate->ThrowException(Exception::TypeError(
+        String::NewFromUtf8(isolate, "Wrong number of arguments")));
+    return;
+  }
+
+  // Check the argument types
+  if (!args[0]->IsNumber() || !args[1]->IsNumber()) {
+    isolate->ThrowException(Exception::TypeError(
+        String::NewFromUtf8(isolate, "Wrong arguments")));
+    return;
+  }
+
+  // Perform the operation
+  double value = args[0]->NumberValue() + args[1]->NumberValue();
+  Local<Number> num = Number::New(isolate, value);
+
+  // Set the return value (using the passed in
+  // FunctionCallbackInfo<Value>&)
+  args.GetReturnValue().Set(num);
+}
+
 
 /////////////////////
 // Register with Node
@@ -181,6 +213,8 @@ void Init(Handle<Object> exports, Handle<Object> module) {
 	NODE_SET_METHOD(exports, "startJob", startJob);
 	NODE_SET_METHOD(exports, "checkJob", checkJob);
 	NODE_SET_METHOD(exports, "cancelJob", cancelJob);
+	NODE_SET_METHOD(exports, "hello", hello);
+	NODE_SET_METHOD(exports, "add", Add);
 }
 
 NODE_MODULE(scheduler, Init)

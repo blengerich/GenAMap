@@ -13,6 +13,9 @@
 
 using namespace std;
 
+
+// TODO
+/*
 TEST(SchedulerTest, getNewJobNum) {
 	Scheduler* my_scheduler = Scheduler::Instance();
 	int job_num1 = my_scheduler->getNewJobNum();
@@ -53,4 +56,4 @@ TEST(SchedulerTest, Singleton_Test) {
 	Scheduler* my_scheduler = Scheduler::Instance();
 	Scheduler* my_scheduler2 = Scheduler::Instance();
 	ASSERT_EQ(my_scheduler, my_scheduler2);
-}
+}*/

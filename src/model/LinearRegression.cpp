@@ -5,7 +5,8 @@
 #include "LinearRegression.hpp"
 #include <Eigen/Dense>
 
-#include "ModelOptions.hpp"
+
+#include "model/ModelOptions.hpp"
 
 using namespace Eigen;
 
