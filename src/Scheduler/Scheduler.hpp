@@ -13,13 +13,15 @@
 #include <mutex>
 #include <pthread.h>
 #include <queue>
-#include <vector>
 #include <v8.h>
+#include <vector>
 #include "gtest/gtest_prod.h"
 
 #if BAZEL
 #include "algorithm/Algorithm.hpp"
 #include "algorithm/AlgorithmOptions.hpp"
+#include "model/ModelOptions.hpp"
+#include "Scheduler/Job.hpp"
 #else
 #include "../algorithm/Algorithm.hpp"
 #include "../algorithm/AlgorithmOptions.hpp"
@@ -27,11 +29,11 @@
 #include "../model/ModelOptions.hpp"
 #endif
 
+
 using namespace std;
 
 class Scheduler {
 /* Class to run jobs and get information about the currently running jobs.
-	The first class on the C++ side.
 */
 
 public:
@@ -46,19 +48,22 @@ public:
 	// Simply packages as a job and assigns an ID.
 	// Returns the job's assigned ID, -1 for failure.
 
-	bool startJob(Isolate*, const Local<Function>&, const Local<Number>&);	// Returns true if successfully queued, false otherwise.
+	bool startJob(Isolate*, const Local<Function>&, const Local<Number>&);
+	// Returns true if successfully queued, false otherwise.
 
-	double checkJob(const int);	// not entirely sure if string is the right type to return here (float for progress bar?)
+	double checkJob(const int);
+	// Returns the progress of the job.
 
-	// Cancels a potentially running Algorithm.
 	bool cancelJob(const int);
+	// Cancels a potentially running job.
 
-	bool deleteAlgorithm(const int); // How to know if the user owns the algorithm?
+	// TODO: How to know if the user owns the algorithm?
+	bool deleteAlgorithm(const int);
 	bool deleteModel(const int);
 	bool deleteJob(const int);
 
-	static Scheduler* Instance();	// This class follows the singleton pattern.
-
+	static Scheduler* Instance();
+	// This class follows the singleton pattern.
 
 protected:
 	// Singleton constructors must be protected or private

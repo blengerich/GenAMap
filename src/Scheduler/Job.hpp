@@ -4,9 +4,13 @@
 #include <uv.h>
 #include <v8.h>
 
+#ifdef BAZEL
+#include "algorithm/Algorithm.hpp"
+#include "model/Model.hpp"
+#else
 #include "../algorithm/Algorithm.hpp"
 #include "../model/Model.hpp"
-
+#endif
 
 using namespace std;
 using namespace v8;

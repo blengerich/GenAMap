@@ -8,8 +8,13 @@
 #include <iostream>
 #include <math.h>
 
+#ifdef BAZEL
+#include "Math/Math.hpp"
+#include "model/Model.hpp"
+#else
 #include "../Math/Math.hpp"
 #include "Model.hpp"
+#endif
 
 
 class AdaMultiLasso : public Model{

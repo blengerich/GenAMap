@@ -6,6 +6,8 @@
 
 #if BAZEL
 #include "algorithm/Algorithm.hpp"
+#include "algorithm/AlgorithmOptions.hpp"
+#include "model/AdaMultiLasso.hpp"
 #include "model/LinearRegression.hpp"
 #include "model/TreeLasso.hpp"
 #include "model/MultiPopLasso.hpp"

@@ -8,7 +8,12 @@
 #include <iostream>
 #include <map>
 
+#ifdef BAZEL
+#include "algorithm/AlgorithmOptions.hpp"
+#include "model/AdaMultiLasso.hpp"
+#else
 #include "AlgorithmOptions.hpp"
+#endif
 
 using namespace Eigen;
 using namespace std;
@@ -19,15 +24,6 @@ ProximalGradientDescent::ProximalGradientDescent(const AlgorithmOptions_t& optio
     learningRate = options.learning_rate;
     prev_residue = numeric_limits<double>::max();
 }
-
-/*ProximalGradientDescent::ProximalGradientDescent(const map<string, string>& options) {
-    try {
-        setLearningRate(stof(options.find("learningRate")->second));
-    } catch (exception& e) {}
-    try {
-        setTolerance(stof(options.find("tolerance")->second));
-    } catch (exception& e) {}
-}*/
 
 void ProximalGradientDescent::setTolerance(float tol) {
     tolerance = tol;

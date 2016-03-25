@@ -13,10 +13,10 @@ DEFS_Debug := \
 # Flags passed to all source files.
 CFLAGS_Debug := \
 	-fPIC \
+	-pthread \
 	-Wall \
 	-Wextra \
 	-Wno-unused-parameter \
-	-pthread \
 	-m64 \
 	-Wall \
 	-std=c++11 \
@@ -29,13 +29,14 @@ CFLAGS_C_Debug :=
 # Flags passed to only C++ files.
 CFLAGS_CC_Debug := \
 	-fno-rtti \
-	-fno-exceptions
+	-fno-exceptions \
+	-std=gnu++0x
 
 INCS_Debug := \
-	-I/home/ben/.node-gyp/0.10.25/include/node \
-	-I/home/ben/.node-gyp/0.10.25/src \
-	-I/home/ben/.node-gyp/0.10.25/deps/uv/include \
-	-I/home/ben/.node-gyp/0.10.25/deps/v8/include
+	-I/home/ben/.node-gyp/5.9.1/include/node \
+	-I/home/ben/.node-gyp/5.9.1/src \
+	-I/home/ben/.node-gyp/5.9.1/deps/uv/include \
+	-I/home/ben/.node-gyp/5.9.1/deps/v8/include
 
 DEFS_Release := \
 	'-DNODE_GYP_MODULE_NAME=scheduler' \
@@ -46,16 +47,16 @@ DEFS_Release := \
 # Flags passed to all source files.
 CFLAGS_Release := \
 	-fPIC \
+	-pthread \
 	-Wall \
 	-Wextra \
 	-Wno-unused-parameter \
-	-pthread \
 	-m64 \
 	-Wall \
 	-std=c++11 \
-	-O2 \
-	-fno-strict-aliasing \
-	-fno-tree-vrp \
+	-O3 \
+	-ffunction-sections \
+	-fdata-sections \
 	-fno-omit-frame-pointer
 
 # Flags passed to only C files.
@@ -64,16 +65,17 @@ CFLAGS_C_Release :=
 # Flags passed to only C++ files.
 CFLAGS_CC_Release := \
 	-fno-rtti \
-	-fno-exceptions
+	-fno-exceptions \
+	-std=gnu++0x
 
 INCS_Release := \
-	-I/home/ben/.node-gyp/0.10.25/include/node \
-	-I/home/ben/.node-gyp/0.10.25/src \
-	-I/home/ben/.node-gyp/0.10.25/deps/uv/include \
-	-I/home/ben/.node-gyp/0.10.25/deps/v8/include
+	-I/home/ben/.node-gyp/5.9.1/include/node \
+	-I/home/ben/.node-gyp/5.9.1/src \
+	-I/home/ben/.node-gyp/5.9.1/deps/uv/include \
+	-I/home/ben/.node-gyp/5.9.1/deps/v8/include
 
 OBJS := \
-	$(obj).target/$(TARGET)/Scheduler.o \
+	$(obj).target/$(TARGET)/../Scheduler.o \
 	$(obj).target/$(TARGET)/Scheduler_node.o
 
 # Add to the list of files we specially track dependencies for.

@@ -6,16 +6,12 @@
 using namespace Eigen;
 // Constructors with different parameters provided
 Gflasso::Gflasso() {
-    corr_coff = MatrixXd::Random(MAX_TRAITS,MAX_TRAITS);
-    corr_coff.setZero();
     lambda_flasso = 0.0;
     gamma_flasso = 0.0;
     flasso_type = GcFlasso;
 }
 
 Gflasso::Gflasso(double lambda,double gamma){
-    corr_coff = MatrixXd::Random(MAX_TRAITS,MAX_TRAITS);
-    corr_coff.setZero();
     lambda_flasso = lambda;
     gamma_flasso = gamma;
     flasso_type = GcFlasso;
@@ -87,6 +83,7 @@ void Gflasso::train(MatrixXd X,MatrixXd Y){
 
     // Initialize beta to some random values
     this->beta = MatrixXd::Random(row,col);
+    this->beta.setZero();
 }
 
 // Training data provided along with initial beta estimation
@@ -246,7 +243,7 @@ void Gflasso::update_alpha_matrix(){
  * M is the number of features in the input variable
  * J is the number of features on the output variable.
  */
-MatrixXd Gflasso::gradient_descent(){
+MatrixXd Gflasso::gradient(){
 
     /* First calculate the Edge vertex and Alpha Matrix */
     update_edge_vertex_matrix();

@@ -5,6 +5,14 @@ cc_library(
 	srcs = ["Algorithm.cpp"],
 	hdrs = ["Algorithm.hpp"],
 	deps = ["//model:Model"],
+	copts = ["-DBAZEL"]
+)
+
+cc_library(
+	name = "AlgorithmOptions",
+	hdrs = ["AlgorithmOptions.hpp"], 
+	deps = [],
+	copts = ["-DBAZEL"]
 )
 
 cc_library(
@@ -12,10 +20,14 @@ cc_library(
 	srcs = ["ProximalGradientDescent.cpp"],
 	hdrs = ["ProximalGradientDescent.hpp"],
 	deps = ["//algorithm:Algorithm",
+		"//algorithm:AlgorithmOptions",
+		"//model:AdaMultiLasso",
+		"//model:GFlasso",
 		"//model:LinearRegression",
 		"//model:TreeLasso",
 		"//model:MultiPopLasso",
 		"//Math:Math"],
+	copts = ["-DBAZEL"]
 )
 
 cc_library(
@@ -23,8 +35,10 @@ cc_library(
 	srcs = ["IterativeUpdate.cpp"],
 	hdrs = ["IterativeUpdate.hpp"],
 	deps = ["//algorithm:Algorithm",
+		"//algorithm:AlgorithmOptions",
 		"//model:LinearRegression",
 		"//model:TreeLasso",
 		"//model:MultiPopLasso",
 		"//Math:Math"],
+	copts = ["-DBAZEL"]
 )

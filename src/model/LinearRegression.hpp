@@ -2,15 +2,20 @@
 // Created by haohanwang on 1/24/16.
 //
 
+#ifndef ALGORITHMS_LINEARREGRESSION_HPP
+#define ALGORITHMS_LINEARREGRESSION_HPP
+
+
 #include "Model.hpp"
 #include <Eigen/Dense>
 
+#ifdef BAZEL
+#include "model/ModelOptions.hpp"
+#else
 #include "../model/ModelOptions.hpp"
+#endif
 
 using namespace Eigen;
-
-#ifndef ALGORITHMS_LINEARREGRESSION_HPP
-#define ALGORITHMS_LINEARREGRESSION_HPP
 
 
 class LinearRegression : public virtual Model {
