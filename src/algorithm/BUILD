@@ -22,6 +22,7 @@ cc_library(
 	deps = ["//algorithm:Algorithm",
 		"//algorithm:AlgorithmOptions",
 		"//model:AdaMultiLasso",
+		"//model:GFlasso",
 		"//model:LinearRegression",
 		"//model:TreeLasso",
 		"//model:MultiPopLasso",

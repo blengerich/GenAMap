@@ -7,7 +7,12 @@
 #include <iostream>
 #include <vector>
 #include "Eigen/Dense"
-#include "Model.hpp"
+
+#ifdef BAZEL
+#include "model/Model.hpp"
+#else
+#include "../model/Model.hpp"
+#endif
 
 // Upper limit on number of Traits
 #define MAX_TRAITS 10

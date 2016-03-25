@@ -25,6 +25,12 @@ cc_library(
 )
 
 cc_library(
+	name = "GFlasso",
+	srcs = ["GFlasso.cpp"],
+	hdrs = ["GFlasso.h"],
+	deps = ["//model:Model"])
+
+cc_library(
 	name = "lasso",
 	hdrs = ["lasso.hpp"],
 	copts = ["-DBAZEL"]
@@ -52,14 +58,6 @@ cc_library(
 	srcs = ["MultiPopLasso.cpp"],
 	hdrs = ["MultiPopLasso.hpp"],
 	copts = ["-DBAZEL"],
-	deps = ["//model:Model",
-		"//Math:Math"]
-)
-
-cc_library(
-	name = "AdaMultiLasso",
-	srcs = ["AdaMultiLasso.cpp"],
-	hdrs = ["AdaMultiLasso.hpp"],
 	deps = ["//model:Model",
 		"//Math:Math"]
 )
