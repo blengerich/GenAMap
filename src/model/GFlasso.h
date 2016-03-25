@@ -7,15 +7,7 @@
 #include <iostream>
 #include <vector>
 #include "Eigen/Dense"
-
-#ifdef BAZEL
-#include "model/Model.hpp"
-#else
-#include "../model/Model.hpp"
-#endif
-
-// Upper limit on number of Traits
-#define MAX_TRAITS 10
+#include "Model.hpp"
 
 // GFlasso type
 #define GcFlasso 0
@@ -97,7 +89,7 @@ public :
 
     // Calculate the gradient descent using the alpha and Edge vertex matrix
     // along with other input parameters i.e. X, Y and Beta.
-    MatrixXd gradient_descent();
+    MatrixXd gradient();
 };
 
 
