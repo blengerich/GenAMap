@@ -38,14 +38,8 @@ class LinearMixedModel: public Model{
     // Dimensions of the data
     int n; // Number of samples
     int d; // Number of input features
-    
-    // Lambda interval and boundary dimensions
-    double lambda_start_point;
-    double lambda_end_point;
-    double lambda_interval;
-    
-    //Brent search params
-    double brent_tol_error;
+
+    //Search parameters
     
 public:
     
@@ -75,23 +69,9 @@ public:
     MatrixXd get_beta();
     double get_lambda();
     double get_sigma();
+    void set_lambda(double);
     void set_S(MatrixXd);
     void set_U(MatrixXd);
-    
-    // Parameters related to lambda variation
-    void set_lambda_params(double, double, double);
-    void set_lambda_start_value(double);
-    void set_lambda_end_value(double);
-    void set_lambda_interval(double);
-    void shift_lambda_window(double);
-    
-    double get_lambda_interval();
-    double get_lambda_start_value();
-    double get_lambda_end_value();
-    
-    // Brent search parameters
-    void set_brent_tol_err(double);
-    double get_brent_tol_err();
     
     // Functions to update the training data
     void train(MatrixXd,MatrixXd);
@@ -100,16 +80,13 @@ public:
     //Supporting functions
     
     // Final Objective of the LLM : Obtain beta matrix.
-    MatrixXd calculate_beta(double);
-    double calculate_sigma(double);
+    void calculate_beta(double);
+    void calculate_sigma(double);
     double get_log_likelihood_value(double);
-    void find_max_log_likelihood_grid_search();
+    void find_max_log_likelihood();
     
-    // Brent search related functions
-    void find_max_log_likelihood_brent_search();
+    // Search objective functions
     double f(double);
-    double brent_search(double,double,double,double,double,double,double &);
-    
 };
 
 #endif /* SRC_MODEL_LINEARMIXEDMODEL_HPP_ */

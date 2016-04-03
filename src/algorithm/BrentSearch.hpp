@@ -9,19 +9,11 @@
 
 #if BAZEL
 #include "algorithm/Algorithm.hpp"
-#include "model/LinearRegression.hpp"
-#include "model/TreeLasso.hpp"
-#include "model/MultiPopLasso.hpp"
-#include "model/AdaMultiLasso.hpp"
-#include "model/GFlasso.h"
+#include "model/LinearMixedModel.hpp"
 #else
 #include "Algorithm.hpp"
 #include "AlgorithmOptions.hpp"
-#include "../model/LinearRegression.hpp"
-#include "../model/TreeLasso.hpp"
-#include "../model/MultiPopLasso.hpp"
-#include "../model/AdaMultiLasso.hpp"
-#include "../model/GFlasso.h"
+#include "../model/LinearMixedModel.hpp"
 #endif
 
 using namespace std;
@@ -37,9 +29,11 @@ private :
     double t;
     double min_val; // Minimum value of the objective function
     double min_val_param; // Search parameter at which the value is minimum
+    double delta; // 2*Delta window will be set based on the optimal Grid Search result.
 
 public :
 
+    BrentSearch();
     // Setters and Getters
     void set_a(double);
     void set_b(double);
@@ -56,10 +50,10 @@ public :
     double get_t();
 
     // Pass the objective function pointer from the model
-    double f(double );
     vector<double> get_brent_params();
-    double brent_search(double,double,double,double,double,double,double &);
+    // Old Methods : double brent_search(double (*f)(double),double &);
 
+    void run(LinearMixedModel *);
 };
 
 #endif
