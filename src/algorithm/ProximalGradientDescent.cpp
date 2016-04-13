@@ -9,21 +9,18 @@
 #include <map>
 
 #ifdef BAZEL
-#include "algorithm/AlgorithmOptions.hpp"
+//#include "algorithm/AlgorithmOptions.hpp"
 #include "model/AdaMultiLasso.hpp"
+#include "model/Model.hpp"
+
 #else
-#include "AlgorithmOptions.hpp"
+#include "../model/AdaMultiLasso.hpp"
+#include "../model/Model.hpp"
 #endif
 
 using namespace Eigen;
 using namespace std;
 
-
-ProximalGradientDescent::ProximalGradientDescent(const AlgorithmOptions_t& options) {
-    tolerance = options.tolerance;
-    learningRate = options.learning_rate;
-    prev_residue = numeric_limits<double>::max();
-}
 
 void ProximalGradientDescent::setTolerance(float tol) {
     tolerance = tol;

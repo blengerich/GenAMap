@@ -10,16 +10,18 @@
 
 #include <exception>
 #include <iostream>
-#include <unordered_map>
 #include <node.h>
 #include <pthread.h>
 #include <queue>
 #include <stdio.h>
+#include <unordered_map>
+#include <unistd.h>
 #include <uv.h>
+#include <v8.h>
 
 #ifdef BAZEL
 #include "algorithm/ProximalGradientDescent.hpp"
-//#include "algorithm/IterativeUpdate.hpp"
+#include "algorithm/IterativeUpdate.hpp"
 #include "algorithm/Algorithm.hpp"
 #include "algorithm/AlgorithmOptions.hpp"
 //#include "model/AdaMultiLasso.hpp"
@@ -31,9 +33,10 @@
 //#include "model/MultiPopLasso.hpp"
 //#include "model/TreeLasso.hpp"
 #include "Scheduler/Job.hpp"
+
 #else
 #include "../algorithm/ProximalGradientDescent.hpp"
-//#include "../algorithm/IterativeUpdate.hpp"
+#include "../algorithm/IterativeUpdate.hpp"
 #include "../algorithm/Algorithm.hpp"
 #include "../algorithm/AlgorithmOptions.hpp"
 //#include "../model/AdaMultiLasso.hpp"
@@ -178,7 +181,7 @@ bool Scheduler::startJob(Isolate* isolate, const Local<Function>& callback, cons
 void trainAlgorithmThread(uv_work_t* req) {
 	// Running in worker thread.
 	Job_t* job = static_cast<Job_t*>(req->data);
-	
+	usleep(10000);
 	// Run algorithm here.
 	job->algorithm->run(job->model);
 	//job->results = job->algorithm->run(job->model);

@@ -20,6 +20,7 @@ CFLAGS_Debug := \
 	-m64 \
 	-Wall \
 	-std=c++11 \
+	-fexceptions \
 	-g \
 	-O0
 
@@ -28,15 +29,13 @@ CFLAGS_C_Debug :=
 
 # Flags passed to only C++ files.
 CFLAGS_CC_Debug := \
-	-fno-rtti \
-	-fno-exceptions \
 	-std=gnu++0x
 
 INCS_Debug := \
-	-I/home/ben/.node-gyp/5.9.1/include/node \
-	-I/home/ben/.node-gyp/5.9.1/src \
-	-I/home/ben/.node-gyp/5.9.1/deps/uv/include \
-	-I/home/ben/.node-gyp/5.9.1/deps/v8/include
+	-I/root/.node-gyp/5.10.0/include/node \
+	-I/root/.node-gyp/5.10.0/src \
+	-I/root/.node-gyp/5.10.0/deps/uv/include \
+	-I/root/.node-gyp/5.10.0/deps/v8/include
 
 DEFS_Release := \
 	'-DNODE_GYP_MODULE_NAME=scheduler' \
@@ -54,6 +53,7 @@ CFLAGS_Release := \
 	-m64 \
 	-Wall \
 	-std=c++11 \
+	-fexceptions \
 	-O3 \
 	-ffunction-sections \
 	-fdata-sections \
@@ -64,19 +64,30 @@ CFLAGS_C_Release :=
 
 # Flags passed to only C++ files.
 CFLAGS_CC_Release := \
-	-fno-rtti \
-	-fno-exceptions \
 	-std=gnu++0x
 
 INCS_Release := \
-	-I/home/ben/.node-gyp/5.9.1/include/node \
-	-I/home/ben/.node-gyp/5.9.1/src \
-	-I/home/ben/.node-gyp/5.9.1/deps/uv/include \
-	-I/home/ben/.node-gyp/5.9.1/deps/v8/include
+	-I/root/.node-gyp/5.10.0/include/node \
+	-I/root/.node-gyp/5.10.0/src \
+	-I/root/.node-gyp/5.10.0/deps/uv/include \
+	-I/root/.node-gyp/5.10.0/deps/v8/include
 
 OBJS := \
 	$(obj).target/$(TARGET)/../Scheduler.o \
-	$(obj).target/$(TARGET)/Scheduler_node.o
+	$(obj).target/$(TARGET)/Scheduler_node.o \
+	$(obj).target/$(TARGET)/../../algorithm/Algorithm.o \
+	$(obj).target/$(TARGET)/../../algorithm/IterativeUpdate.o \
+	$(obj).target/$(TARGET)/../../algorithm/ProximalGradientDescent.o \
+	$(obj).target/$(TARGET)/../../json/JsonCoder.o \
+	$(obj).target/$(TARGET)/../../json/jsoncpp.o \
+	$(obj).target/$(TARGET)/../../Math/Math.o \
+	$(obj).target/$(TARGET)/../../model/AdaMultiLasso.o \
+	$(obj).target/$(TARGET)/../../model/GFlasso.o \
+	$(obj).target/$(TARGET)/../../model/LinearMixedModel.o \
+	$(obj).target/$(TARGET)/../../model/LinearRegression.o \
+	$(obj).target/$(TARGET)/../../model/Model.o \
+	$(obj).target/$(TARGET)/../../model/MultiPopLasso.o \
+	$(obj).target/$(TARGET)/../../model/TreeLasso.o
 
 # Add to the list of files we specially track dependencies for.
 all_deps += $(OBJS)

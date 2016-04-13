@@ -8,12 +8,12 @@
 using namespace std;
 
 enum model_type {
-	linear_regression,
-	lasso,
-	ada_multi_lasso,
-	gf_lasso,
-	multi_pop_lasso,
-	tree_lasso
+	linear_regression = 1,
+	lasso = 2,
+	ada_multi_lasso = 3,
+	gf_lasso = 4,
+	multi_pop_lasso = 5,
+	tree_lasso = 6
 };
 
 struct ModelOptions_t {

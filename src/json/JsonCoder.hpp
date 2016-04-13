@@ -9,8 +9,14 @@
 #include <Eigen/Dense>
 #include <unordered_map>
 
+#ifdef BAZEL
 #include "json/json.h"
 #include "IO/DataBaseCommunicator.hpp"
+
+#else
+#include "json.h"
+#include "../IO/DataBaseCommunicator.hpp"
+#endif
 
 using namespace std;
 using namespace Eigen;

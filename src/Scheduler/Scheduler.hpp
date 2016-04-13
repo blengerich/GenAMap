@@ -9,15 +9,16 @@
 #ifndef Scheduler_hpp
 #define Scheduler_hpp
 
-#include <unordered_map>
+//#include <libplatform/libplatform.h>
 #include <mutex>
 #include <pthread.h>
 #include <queue>
+#include <unordered_map>
 #include <v8.h>
 #include <vector>
 #include "gtest/gtest_prod.h"
 
-#if BAZEL
+#ifdef BAZEL
 #include "algorithm/Algorithm.hpp"
 #include "algorithm/AlgorithmOptions.hpp"
 #include "model/ModelOptions.hpp"

@@ -25,6 +25,7 @@ using namespace v8;
 
 
 // Creates a new algorithm, but does not run it. Currently synchronous.
+// Arguments: JSON to be converted to AlgorithmOptions_t
 void newAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 
@@ -48,7 +49,8 @@ void newAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	args.GetReturnValue().Set(retval);
 }
 
-
+// Creates a new model, but does not run it. Synchronous.
+// Arguments: JSON to be converted to ModelOptions_t
 void newModel(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
@@ -64,7 +66,8 @@ void newModel(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	args.GetReturnValue().Set(retval);
 }
 
-
+// Creates a new job, but does not run it. Synchronous.
+// Arguments: JSON to be converted to JobOptions_t
 void newJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
@@ -83,7 +86,7 @@ void newJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 // Maybe begins the training of an algorithm, given the job number.
 // Asynchronous.
-// Expects arguments function callback, int job_id
+// Arguments: function callback, int job_id
 void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	// Inspect arguments.
@@ -96,6 +99,7 @@ void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 // Checks the status of an algorithm, given the algorithm's job number.
 // Currently synchronous.
+// Arguments: int job_id
 void checkJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 
@@ -120,6 +124,9 @@ void checkJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 
 // Cancels a potentially running Algorithm.
+// Synchronous.
+// Arguments: int job_id
+// Returns: boolean representing success.
 void cancelJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 
@@ -142,7 +149,8 @@ void cancelJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	args.GetReturnValue().Set(retval);
 }
 
-
+// Arguments: int alg_id
+// Returns: boolean for success
 void deleteAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	const int algorithm_id = (int)Local<Integer>::Cast(args[0])->Value();
@@ -151,7 +159,7 @@ void deleteAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	args.GetReturnValue().Set(retval);
 }
 
-
+// Arguments: int model_id
 void deleteModel(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	const int model_id = (int)Local<Integer>::Cast(args[0])->Value();
@@ -160,7 +168,7 @@ void deleteModel(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	args.GetReturnValue().Set(retval);
 }
 
-
+// Arguments: job_id
 void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	const int job_id = (int)Local<Integer>::Cast(args[0])->Value();
@@ -169,11 +177,7 @@ void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	args.GetReturnValue().Set(retval);
 }
 
-void hello(const v8::FunctionCallbackInfo<v8::Value>& args) {
-	Isolate* isolate = args.GetIsolate();
-  	args.GetReturnValue().Set(String::NewFromUtf8(isolate, "world"));
-}
-
+// Test function
 void Add(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
 
@@ -213,7 +217,9 @@ void Init(Handle<Object> exports, Handle<Object> module) {
 	NODE_SET_METHOD(exports, "startJob", startJob);
 	NODE_SET_METHOD(exports, "checkJob", checkJob);
 	NODE_SET_METHOD(exports, "cancelJob", cancelJob);
-	NODE_SET_METHOD(exports, "hello", hello);
+	NODE_SET_METHOD(exports, "deleteAlgorithm", deleteAlgorithm);
+	NODE_SET_METHOD(exports, "deleteModel", deleteModel);
+	NODE_SET_METHOD(exports, "deleteJob", deleteJob);
 	NODE_SET_METHOD(exports, "add", Add);
 }
 

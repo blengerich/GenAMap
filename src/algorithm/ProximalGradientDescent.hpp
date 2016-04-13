@@ -13,6 +13,7 @@
 #include "model/MultiPopLasso.hpp"
 #include "model/AdaMultiLasso.hpp"
 #include "model/GFlasso.h"
+
 #else
 #include "Algorithm.hpp"
 #include "AlgorithmOptions.hpp"
@@ -55,7 +56,11 @@ public:
     void run(Gflasso*);
 
     ProximalGradientDescent();
-    ProximalGradientDescent(const AlgorithmOptions_t& options);
+    ProximalGradientDescent(const AlgorithmOptions_t& options) {
+        tolerance = options.tolerance;
+        learningRate = options.learning_rate;
+        prev_residue = numeric_limits<double>::max();
+    };
 };
 
 

@@ -308,8 +308,8 @@ ifeq ($(strip $(foreach prefix,$(NO_LOAD),\
 endif
 
 quiet_cmd_regen_makefile = ACTION Regenerating $@
-cmd_regen_makefile = cd $(srcdir); /usr/local/lib/node_modules/node-gyp/gyp/gyp_main.py -fmake --ignore-environment "--toplevel-dir=." -I/home/ben/Dropbox/CMU/SAILING/GenAMap/GenAMapV2/src/Scheduler/node/build/config.gypi -I/usr/local/lib/node_modules/node-gyp/addon.gypi -I/home/ben/.node-gyp/5.9.1/include/node/common.gypi "--depth=." "-Goutput_dir=." "--generator-output=build" "-Dlibrary=shared_library" "-Dvisibility=default" "-Dnode_root_dir=/home/ben/.node-gyp/5.9.1" "-Dnode_gyp_dir=/usr/local/lib/node_modules/node-gyp" "-Dnode_lib_file=node.lib" "-Dmodule_root_dir=/home/ben/Dropbox/CMU/SAILING/GenAMap/GenAMapV2/src/Scheduler/node" binding.gyp
-Makefile: $(srcdir)/../../../../../../../../.node-gyp/5.9.1/include/node/common.gypi $(srcdir)/../../../../../../../../../../usr/local/lib/node_modules/node-gyp/addon.gypi $(srcdir)/build/config.gypi $(srcdir)/binding.gyp
+cmd_regen_makefile = cd $(srcdir); /usr/lib/node_modules/node-gyp/gyp/gyp_main.py -fmake --ignore-environment "--toplevel-dir=." -I/usr/src/genamap/src/Scheduler/node/build/config.gypi -I/usr/lib/node_modules/node-gyp/addon.gypi -I/root/.node-gyp/5.10.0/include/node/common.gypi "--depth=." "-Goutput_dir=." "--generator-output=build" "-Dlibrary=shared_library" "-Dvisibility=default" "-Dnode_root_dir=/root/.node-gyp/5.10.0" "-Dnode_gyp_dir=/usr/lib/node_modules/node-gyp" "-Dnode_lib_file=node.lib" "-Dmodule_root_dir=/usr/src/genamap/src/Scheduler/node" binding.gyp
+Makefile: $(srcdir)/../../../../../../root/.node-gyp/5.10.0/include/node/common.gypi $(srcdir)/../../../../../lib/node_modules/node-gyp/addon.gypi $(srcdir)/build/config.gypi $(srcdir)/binding.gyp
 	$(call do_cmd,regen_makefile)
 
 # "all" is a concatenation of the "all" targets from all the included

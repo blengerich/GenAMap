@@ -2,8 +2,14 @@
 // Created by haohanwang on 2/2/16.
 //
 
-#include "model/MultiPopLasso.hpp"
 #include <limits>
+
+#ifdef BAZEL
+#include "model/MultiPopLasso.hpp"
+
+#else
+#include "MultiPopLasso.hpp"
+#endif
 
 void MultiPopLasso::setXY(MatrixXd m, MatrixXd n) {
     X = m;

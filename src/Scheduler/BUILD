@@ -28,7 +28,10 @@ cc_library(
 cc_test(
     name = "Scheduler_Tests",
     srcs = ["Scheduler_Tests.cpp"],
-    copts = ["-Iexternal/gtest/include"],
+    copts = ["-Iexternal/gtest/include",
+            "-Itools/.node-gyp/5.9.1",
+            "-DBAZEL"],
+    linkopts = ["-lm"],
     deps = ["@gtest//:main",
             "//Scheduler:Scheduler"],
     size = "small"

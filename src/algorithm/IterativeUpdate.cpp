@@ -9,9 +9,10 @@
 using namespace std;
 
 IterativeUpdate::IterativeUpdate(const map<string, string>& options) {
-    try {
+    // TODO
+    /*try {
         setTolerance(stof(options.find("tolerance")->second));
-    } catch (exception& e) {}
+    } catch (exception& e) {}*/
 }
 
 void IterativeUpdate::setTolerance(double t) {tol = t;}
