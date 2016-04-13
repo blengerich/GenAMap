@@ -9,20 +9,19 @@
 #ifndef Scheduler_hpp
 #define Scheduler_hpp
 
-//#include <libplatform/libplatform.h>
 #include <mutex>
 #include <pthread.h>
 #include <queue>
 #include <unordered_map>
 #include <v8.h>
 #include <vector>
-#include "gtest/gtest_prod.h"
 
 #ifdef BAZEL
 #include "algorithm/Algorithm.hpp"
 #include "algorithm/AlgorithmOptions.hpp"
 #include "model/ModelOptions.hpp"
 #include "Scheduler/Job.hpp"
+#include "gtest/gtest_prod.h"
 #else
 #include "../algorithm/Algorithm.hpp"
 #include "../algorithm/AlgorithmOptions.hpp"
@@ -76,17 +75,19 @@ private:
 
 	int getNewAlgorithmId();
     // Generates and returns new job identifier. Failure is identified with -1.
-    FRIEND_TEST(SchedulerTest, getNewAlgorithmId);
 
 	int getNewModelId();
     // Generates and returns new job identifier. Failure is identified with -1.
-    FRIEND_TEST(SchedulerTest, getNewModelId);
 
 	int getNewJobId();
     // Generates and returns new job identifier. Failure is identified with -1.
-    FRIEND_TEST(SchedulerTest, getNewJobId);
 
-	
+    #ifdef BAZEL
+    FRIEND_TEST(SchedulerTest, getNewAlgorithmId);
+    FRIEND_TEST(SchedulerTest, getNewModelId);
+    FRIEND_TEST(SchedulerTest, getNewJobId);
+    #endif
+
     static Scheduler* s_instance;   // Singleton
     const int kMaxThreads = 5;
 

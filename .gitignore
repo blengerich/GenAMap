@@ -4,3 +4,4 @@ CMakeLists.txt
 .idea*
 .DS_Store
 src/main.cpp
+node/build/*
