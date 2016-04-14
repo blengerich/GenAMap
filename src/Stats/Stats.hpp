@@ -6,12 +6,11 @@
 
 using namespace Eigen;
 
-class Stats {
-public:
-
-    static double ChiSquaredTest(MatrixXd, MatrixXd);
-    static double ChiToPValue(double, int);
-
+namespace Stats {
+//public:
+    double ChiSquaredTest(MatrixXd, MatrixXd);
+    double ChiToPValue(double, int);
+    double WaldTest(double mle, double var, double candidate);
 };
 
 #endif //STATS_STATS_HPP
