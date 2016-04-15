@@ -20,10 +20,10 @@
 #include <v8.h>
 
 #ifdef BAZEL
-#include "algorithm/ProximalGradientDescent.hpp"
-#include "algorithm/IterativeUpdate.hpp"
 #include "algorithm/Algorithm.hpp"
 #include "algorithm/AlgorithmOptions.hpp"
+#include "algorithm/ProximalGradientDescent.hpp"
+#include "algorithm/IterativeUpdate.hpp"
 //#include "model/AdaMultiLasso.hpp"
 //#include "model/GFlasso.h"
 #include "model/lasso.hpp"
@@ -35,10 +35,10 @@
 #include "Scheduler/Job.hpp"
 
 #else
-#include "../algorithm/ProximalGradientDescent.hpp"
-#include "../algorithm/IterativeUpdate.hpp"
 #include "../algorithm/Algorithm.hpp"
 #include "../algorithm/AlgorithmOptions.hpp"
+#include "../algorithm/ProximalGradientDescent.hpp"
+#include "../algorithm/IterativeUpdate.hpp"
 //#include "../model/AdaMultiLasso.hpp"
 //#include "../model/GFlasso.h"
 #include "../model/lasso.hpp"

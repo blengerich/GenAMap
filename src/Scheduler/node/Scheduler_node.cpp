@@ -149,6 +149,7 @@ void cancelJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	args.GetReturnValue().Set(retval);
 }
 
+
 // Arguments: int alg_id
 // Returns: boolean for success
 void deleteAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args) {
@@ -159,6 +160,7 @@ void deleteAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	args.GetReturnValue().Set(retval);
 }
 
+
 // Arguments: int model_id
 void deleteModel(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
@@ -168,6 +170,7 @@ void deleteModel(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	args.GetReturnValue().Set(retval);
 }
 
+
 // Arguments: job_id
 void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
@@ -176,6 +179,7 @@ void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Handle<Boolean> retval = Boolean::New(isolate, success);
 	args.GetReturnValue().Set(retval);
 }
+
 
 // Test function
 void Add(const FunctionCallbackInfo<Value>& args) {
@@ -200,8 +204,7 @@ void Add(const FunctionCallbackInfo<Value>& args) {
   double value = args[0]->NumberValue() + args[1]->NumberValue();
   Local<Number> num = Number::New(isolate, value);
 
-  // Set the return value (using the passed in
-  // FunctionCallbackInfo<Value>&)
+  // Set the return value (using the passed in FunctionCallbackInfo<Value>&)
   args.GetReturnValue().Set(num);
 }
 

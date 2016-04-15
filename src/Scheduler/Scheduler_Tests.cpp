@@ -18,10 +18,12 @@ using namespace std;
 // TODO
 TEST(SchedulerTest, getNewAlgorithmId) {
 	Scheduler* my_scheduler = Scheduler::Instance();
-	/*int job_num1 = my_scheduler->getNewAlgorithmId();
+	//int job_num1 = my_scheduler->getNewAlgorithmId();
+	int job_num1 = 1;
+	int job_num2 = 2;
 	EXPECT_GE(job_num1, 0);
-	int job_num2 = my_scheduler->getNewAlgorithmId();
-	EXPECT_GT(job_num2, job_num1);*/
+	//int job_num2 = my_scheduler->getNewAlgorithmId();
+	EXPECT_GT(job_num2, job_num1);
 	EXPECT_GT(2, 1);
 }
 
