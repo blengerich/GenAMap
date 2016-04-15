@@ -5,3 +5,11 @@ CMakeLists.txt
 .DS_Store
 src/main.cpp
 node/build/*
+**/logs
+**/*.log
+**/npm-debug.log*
+**/node_modules/
+**/.npm
+**/.sh
+**/.tmp/
+src/frontend/test/

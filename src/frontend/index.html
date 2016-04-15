@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang = "en">
+	<head>
+		<meta charset = "utf-8">
+		<meta http-equiv = "X-UA-Compatible" content = "IE=edge">
+		<meta name= "viewport" content = "width=device-width, initial-scale=1">
+
+		<title> Matrix View Mockup </title>
+
+		  <!--Import stylesheets-->
+  	  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.min.css">
+  	  <link rel="stylesheet" href="styles/styles.css">
+      <link rel="stylesheet" href="styles/nouislider.css">
+
+		  <!--Import Google Icon Font-->
+      <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+	</head>
+
+	<body>
+		<div class="navbar-fixed">
+		    <nav class="grey darken-1">
+		    	<div class="nav-wrapper">
+		    		<a href="#" class="brand-logo"> Genamap </a>
+		    		<a href="#" data-activates="slide-out" class="button-collapse"><i class="material-icons">menu</i></a>
+		    		<ul class="right hide-on-med-and-down">
+        				<li><a href="#">Run Analysis</a></li>
+        				<li><a href="#">History</a></li>
+        				<li><a href="#">Activity</a></li>
+        				<li><a href="#">Help</a></li>
+        				<li><a href="#">Settings</a></li>
+      				</ul>
+      				<ul class="side-nav" id="slide-out">
+        				<li><a href="#">Run Analysis</a></li>
+        				<li><a href="#">History</a></li>
+        				<li><a href="#">Activity</a></li>
+        				<li><a href="#">Help</a></li>
+        				<li><a href="#">Settings</a></li>
+				    </ul>
+		        </div>
+		    </nav>
+		</div>	
+
+    <div class="holder">
+      <div id="chart"> </div>
+      <ul id="buttons">
+        <li> <a class="btn-floating btn-large waves-effect waves-light red" data-zoom="+1"><i class="material-icons">add</i></a> </li>
+        <li> <a class="btn-floating btn-large waves-effect waves-light red" data-zoom="-1"><i class="material-icons">remove</i></a> </li>
+        <li> <a class="btn-floating btn-large waves-effect waves-light red" id="reset" data-zoom="-8"><i class="material-icons">settings_backup_restore</i></a> </li>
+      </ul>
+    </div>
+
+    <footer class="toggle-footer">
+      <div clas="container">
+          <div class="row-toggle">
+            <div class="col l12 s12">
+              <a href="#" class="footbutt" id="more-toggle"> <span class="icon-text"> MORE </span> <i class="material-icons">keyboard_arrow_up </i> </a>
+            </div>
+          </div>
+      </div>
+    </footer>
+
+    <footer class="page-footer">
+     	<div class="container">
+          <div class="row-toggle">
+            <div class="col l12 s12">
+              <a href="#" class="footbutt" id="less-toggle"> <span class="icon-text"> LESS </span> <i class="material-icons">keyboard_arrow_down </i> </a>
+            </div>
+          </div>
+        	<div class="row footerButtons">
+          		<div class="col l3 s12">
+                <div id="slider"> </div>
+            		<p id="correlation"> Correlation Threshold </p>
+          		</div>
+          		<div class="col l3 s12 align-button">
+            		<a href="#" class="footbutt"> <i class="material-icons" id="plus"> add </i> </a> <span class="icon-text"> Create a Subset</span>
+          		</div>
+          		<div class="col l2 s12 align-button">
+          			<a href="#" class="footbutt"> <i class="material-icons" id="sort"> sort </i> </a> <span class="icon-text"> Sort </span>
+          		</div>
+          		<div class="col l4 s12 align-button">
+          			<a class="waves-effect waves-light btn" id="search"> Search for Trait or Marker </a>
+          		</div>
+        	</div>
+      	</div>
+    </footer>
+
+      <!--Javascript imports moved to bottom to not delay page loading -->
+      <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"> </script>
+      <script type="text/javascript" src="scripts/nouislider.js"> </script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/js/materialize.min.js"> </script>
+      <script type="text/javascript" src="scripts/scripts.js"> </script>
+      <script type="text/javascript" src="scripts/papaparse.min.js"></script>
+      <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+      <script>
+      $(document).ready(function() {
+          $(".button-collapse").sideNav();
+          InitChart();
+          var slider = document.getElementById('slider');
+
+          noUiSlider.create(slider, {
+                            start: 0 ,
+                            connect: "lower",
+                            range: {
+                              'min': [ 0 ],
+                              'max': [ 1 ]
+                            }
+          });
+
+          slider.noUiSlider.on('update', function() {
+            var threshold = slider.noUiSlider.get();
+            var cellList = document.getElementsByTagName("rect");
+            for (var i = 0; i < cellList.length; i++) {
+              if (cellList[i].getAttribute("value") < threshold) {
+                cellList[i].style.visibility = "hidden";
+              }
+              else {
+                cellList[i].style.visibility = "visible";
+              }
+            }
+          });
+
+          $('#more-toggle').on('click', function(){
+              $('.toggle-footer').toggleClass('active');
+              $('.page-footer').toggleClass('active');
+          });
+
+          $('#less-toggle').on('click', function(){
+              $('.page-footer').toggleClass('active');
+              $('.toggle-footer').toggleClass('active');
+          });
+
+          var windowHeight = $(window).height();
+
+          $('#buttons').css('top', windowHeight/2);
+
+          var svg = document.querySelector('svg');
+          trackMarquee(svg);
+
+      });
+    </script>
+
+  </body>
+</html>
+
+
