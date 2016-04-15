@@ -5,8 +5,12 @@
 #include "LinearRegression.hpp"
 #include <Eigen/Dense>
 
-
+#ifdef BAZEL
 #include "model/ModelOptions.hpp"
+
+#else
+#include "ModelOptions.hpp"
+#endif
 
 using namespace Eigen;
 

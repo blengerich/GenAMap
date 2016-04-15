@@ -2,7 +2,11 @@
 // Created by haohanwang on 1/26/16.
 //
 
+#ifdef BAZEL
 #include "json/JsonCoder.hpp"
+#else
+#include "JsonCoder.hpp"
+#endif
 
 string JsonCoder::encodeMainMessage(mainMessage m) {
     Json::Value root;

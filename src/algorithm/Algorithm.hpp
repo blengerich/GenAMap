@@ -5,8 +5,9 @@
 #ifndef ALGORITHMS_ALGORITHM_HPP
 #define ALGORITHMS_ALGORITHM_HPP
 
-#if BAZEL
+#ifdef BAZEL
 #include "model/Model.hpp"
+
 #else
 #include "../model/Model.hpp"
 #endif
@@ -19,8 +20,8 @@ public:
     Algorithm();
     void setMaxIteration(int);
 
-    double getProgress(void);
-    int getMaxIteration(void);
+    double getProgress();
+    int getMaxIteration();
     void run(Model*);
 };
 

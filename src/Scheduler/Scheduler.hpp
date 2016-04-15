@@ -9,10 +9,10 @@
 #ifndef Scheduler_hpp
 #define Scheduler_hpp
 
-#include <tr1/unordered_map>
-//#include <mutex>
+#include <mutex>
 #include <pthread.h>
 #include <queue>
+#include <unordered_map>
 #include <v8.h>
 #include <vector>
 
