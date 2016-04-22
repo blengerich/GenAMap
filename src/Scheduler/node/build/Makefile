@@ -42,7 +42,7 @@ all_deps :=
 
 CC.target ?= $(CC)
 CFLAGS.target ?= $(CPPFLAGS) $(CFLAGS)
-CXX.target ?= $(CXX)
+CXX.target ?= g++ -fPIC
 CXXFLAGS.target ?= $(CPPFLAGS) $(CXXFLAGS)
 LINK.target ?= $(LINK)
 LDFLAGS.target ?= $(LDFLAGS)

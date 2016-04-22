@@ -62,6 +62,8 @@ public:
 	bool deleteModel(const int);
 	bool deleteJob(const int);
 
+	bool getJob(const int);
+
 	static Scheduler* Instance();
 	// This class follows the singleton pattern.
 

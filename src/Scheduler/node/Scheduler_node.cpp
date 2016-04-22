@@ -66,6 +66,19 @@ void newModel(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	args.GetReturnValue().Set(retval);
 }
 
+// Sets the X matrix of a given model.
+// Arguments: model_num, JSON matrix
+void setX(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	Isolate* isolate = args.GetIsolate();
+	Local<Number>::Cast(args[1])
+}
+
+void setY(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	Isolate* isolate = args.GetIsolate();
+	Local<Number>::Cast(args[1])
+}
+
+
 // Creates a new job, but does not run it. Synchronous.
 // Arguments: JSON to be converted to JobOptions_t
 void newJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
@@ -91,9 +104,17 @@ void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	// Inspect arguments.
 	//assert(args.Length() >= 2, "Must give a callback and a job num to train.");
+	const int job_id = (int)Local<Number>::Cast(args[0])->Value();
+	Job_t* job = Scheduler::Instance()->getJob(job_id);
+	job->request.data = job;
+	job->callback.Reset(isolate, Local<Function>::Cast(args[0]));
+	job->job_id = job_id;
 
-	Scheduler::Instance()->startJob(
-		isolate, Local<Function>::Cast(args[0]), Local<Number>::Cast(args[1]));
+
+	/*Scheduler::Instance()->startJob(
+		isolate, , Local<Number>::Cast(args[1]));*/
+
+	uv_qeueue_work(uv_default_loop(), &job->requets, trainAlgorithmThread, trainAlgorithmComplete);
 	args.GetReturnValue().Set(Undefined(isolate));
 }
 
@@ -208,6 +229,36 @@ void Add(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(num);
 }
 
+// Runs in libuv thread spawned by trainAlgorithmAsync
+void trainAlgorithmThread(uv_work_t* req) {
+	// Running in worker thread.
+	Job_t* job = static_cast<Job_t*>(req->data);
+	usleep(10000);
+	// Run algorithm here.
+	job->algorithm->run(job->model);
+	//job->results = job->algorithm->run(job->model);
+}
+
+
+// Handles packaging of algorithm results to return to the frontend.
+// Called by libuv in event loop when async training completes.
+void trainAlgorithmComplete(uv_work_t* req, int status) {
+	// Runs in event loop when algorithm completes.
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope handleScope(isolate);
+
+	Job_t* job = static_cast<Job_t*>(req->data);
+	
+	// Pack up the data here to be returned to JS - unclear what the format is
+	Local<v8::Array> result_list = v8::Array::New(isolate);
+	Handle<Value> argv[] = { result_list };
+
+	// execute the callback
+	Local<Function>::New(isolate, job->callback)->Call(
+		isolate->GetCurrentContext()->Global(), 1, argv);
+	job->callback.Reset();
+	delete job;
+}
 
 /////////////////////
 // Register with Node
