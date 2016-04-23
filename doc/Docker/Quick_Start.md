@@ -10,10 +10,13 @@ Docker Quick Start
 * Create account for [DockerHub](https://hub.docker.com/)
 * Send username to me (@blengerich). I will add you as a collaborator on the Docker image. Once you have been added:
 * Start docker daemon (open Docker Quickstart Terminal for Mac). After you're done admiring the ASCII art, do the following:
+
 *       > docker login
         > docker pull blengerich/genamap
         ... (This will take a while)
+
 * To make sure it worked, try
+
 *       > docker run -ti blengerich/genamap
  This should output something about the test passing. 
 
@@ -34,6 +37,7 @@ Because Docker containers mask the ports from the host machine, it can be a litt
 
 If you want to add a dependency
 -----------
+
 *       > docker run -ti blengerich/genamap
         > root@[abc123deff]: install $dependency
         > exit
