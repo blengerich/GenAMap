@@ -5,9 +5,10 @@
 #ifndef ALGORITHMS_ALGORITHM_HPP
 #define ALGORITHMS_ALGORITHM_HPP
 
+#include <unordered_map>
+
 #ifdef BAZEL
 #include "model/Model.hpp"
-
 #else
 #include "../model/Model.hpp"
 #endif
@@ -18,6 +19,8 @@ protected:
     int maxIteration;
 public:
     Algorithm();
+    Algorithm(const unordered_map<string, string>);
+
     void setMaxIteration(int);
 
     double getProgress();

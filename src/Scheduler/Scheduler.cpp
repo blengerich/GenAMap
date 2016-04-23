@@ -33,7 +33,6 @@
 #include "model/MultiPopLasso.hpp"
 #include "model/TreeLasso.hpp"
 #include "Scheduler/Job.hpp"
-
 #else
 #include "../algorithm/Algorithm.hpp"
 #include "../algorithm/AlgorithmOptions.hpp"
@@ -117,7 +116,7 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 		case linear_regression:
 			my_model = new LinearRegression(options.options);
 			break;
-		case lasso:
+		/*case lasso:
 			my_model = new Lasso(options);
 			break;
 		case ada_multi_lasso:
@@ -131,7 +130,7 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 			break;
 		case tree_lasso:
 			my_model = new TreeLasso(options);
-			break;
+			break;*/
 		default:
 			return -1;
 	}
@@ -165,8 +164,24 @@ int Scheduler::newJob(const JobOptions_t& options) {
 
 
 // Moved to Scheduler_node as it uses v8
-/*bool Scheduler::startJob(Job_t* job, )
-bool Scheduler::startJob(Isolate* isolate, const Local<Function>& callback, const Local<Number>& job_id) {
+bool Scheduler::startJob(Job_t* job, void (*completion)(uv_work_t*, int)) {
+	uv_queue_work(uv_default_loop(), &job->request, trainAlgorithmThread, completion);
+	return true;
+}
+
+
+// Runs in libuv thread spawned by trainAlgorithmAsync
+void trainAlgorithmThread(uv_work_t* req) {
+	// Running in worker thread.
+	Job_t* job = static_cast<Job_t*>(req->data);
+	usleep(10000);
+	// Run algorithm here.
+	job->algorithm->run(job->model);
+	//job->results = job->algorithm->run(job->model);
+}
+
+
+/*bool Scheduler::startJob(Isolate* isolate, const Local<Function>& callback, const Local<Number>& job_id) {
 	// TODO: check job_id here
 	Job_t* job = Instance()->jobs_map[(int)job_id->Value()];
 	job->request.data = job;
@@ -216,7 +231,7 @@ bool Scheduler::deleteJob(const int job_id) {
 }
 
 
-bool Scheduler::getJob(const int job_id) {
+Job_t* Scheduler::getJob(const int job_id) {
 	return jobs_map[job_id];
 }
 

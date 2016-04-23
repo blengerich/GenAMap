@@ -7,7 +7,9 @@
 
 
 #include "Model.hpp"
+
 #include <Eigen/Dense>
+#include <unordered_map>
 
 #ifdef BAZEL
 #include "model/ModelOptions.hpp"
@@ -36,7 +38,7 @@ public:
     MatrixXd proximal_operator(VectorXd, float);
 
     LinearRegression();
-    LinearRegression(const ModelOptions_t& options);
+    LinearRegression(const unordered_map<string, string>& options);
 };
 
 

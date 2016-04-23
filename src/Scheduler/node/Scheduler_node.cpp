@@ -70,12 +70,12 @@ void newModel(const v8::FunctionCallbackInfo<v8::Value>& args) {
 // Arguments: model_num, JSON matrix
 void setX(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
-	Local<Number>::Cast(args[1])
+	Local<Number>::Cast(args[1]);
 }
 
 void setY(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
-	Local<Number>::Cast(args[1])
+	Local<Number>::Cast(args[1]);
 }
 
 
@@ -110,11 +110,10 @@ void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	job->callback.Reset(isolate, Local<Function>::Cast(args[0]));
 	job->job_id = job_id;
 
-
 	/*Scheduler::Instance()->startJob(
 		isolate, , Local<Number>::Cast(args[1]));*/
-
-	uv_qeueue_work(uv_default_loop(), &job->requets, trainAlgorithmThread, trainAlgorithmComplete);
+	Scheduler::Instance()->startJob(job, trainAlgorithmComplete);
+	//uv_qeueue_work(uv_default_loop(), &job->requets, trainAlgorithmThread, trainAlgorithmComplete);
 	args.GetReturnValue().Set(Undefined(isolate));
 }
 
@@ -230,14 +229,14 @@ void Add(const FunctionCallbackInfo<Value>& args) {
 }
 
 // Runs in libuv thread spawned by trainAlgorithmAsync
-void trainAlgorithmThread(uv_work_t* req) {
+/*void trainAlgorithmThread(uv_work_t* req) {
 	// Running in worker thread.
 	Job_t* job = static_cast<Job_t*>(req->data);
 	usleep(10000);
 	// Run algorithm here.
 	job->algorithm->run(job->model);
 	//job->results = job->algorithm->run(job->model);
-}
+}*/
 
 
 // Handles packaging of algorithm results to return to the frontend.
@@ -258,6 +257,7 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 		isolate->GetCurrentContext()->Global(), 1, argv);
 	job->callback.Reset();
 	delete job;
+	// Should call scheduler's delete job function here
 }
 
 /////////////////////

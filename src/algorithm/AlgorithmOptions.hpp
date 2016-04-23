@@ -14,7 +14,6 @@ enum algorithm_type {
 };
 
 struct AlgorithmOptions_t {
-	// TODO: algorithm constructors that accept this options type
 	algorithm_type type;
 	int max_iteration;
 	double tolerance;

@@ -4,16 +4,16 @@
 
 #include "LinearRegression.hpp"
 #include <Eigen/Dense>
+#include <unordered_map>
 
 #ifdef BAZEL
 #include "model/ModelOptions.hpp"
-
 #else
 #include "ModelOptions.hpp"
 #endif
 
 using namespace Eigen;
-
+using namespace std;
 
 LinearRegression::LinearRegression() {
     L1_reg = 0;
@@ -21,7 +21,7 @@ LinearRegression::LinearRegression() {
 };
 
 
-LinearRegression::LinearRegression(const ModelOptions_t& options) {
+LinearRegression::LinearRegression(const unordered_map<string, string>& options) {
     L1_reg = 0;
     L2_reg = 0;
 }

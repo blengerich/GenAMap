@@ -3,8 +3,10 @@
 //
 
 #include "Model.hpp"
+#include <unordered_map>
 
 using namespace Eigen;
+using namespace std;
 
 void Model::setX(MatrixXd m) { X = m; }
 
@@ -40,6 +42,10 @@ Model::Model(MatrixXd X, VectorXd y) {
     setX(X);
     setY(y);
     initBeta();
+}
+
+Model::Model(const unordered_map<string, string>& opts) {
+
 }
 
 MatrixXd Model::derivative() {

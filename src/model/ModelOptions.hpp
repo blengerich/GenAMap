@@ -3,9 +3,11 @@
 #ifndef MODEL_OPTIONS_HPP
 #define MODEL_OPTIONS_HPP
 
+#include <unordered_map>
 #include <v8.h>
 
 using namespace std;
+using namespace v8;
 
 enum model_type {
 	linear_regression = 1,
@@ -18,15 +20,27 @@ enum model_type {
 
 struct ModelOptions_t {
 	model_type type;
+	unordered_map<string, string> options;
 
-	/* TODO:
-		Add all the options that are required to build the various models
-		Write constructors for the models to accept the options struct
-	*/
-	ModelOptions_t(v8::Isolate* isolate, v8::Handle<v8::Object> options_v8) {
-		v8::Handle<v8::Value> type_handle = options_v8->Get(
-			v8::String::NewFromUtf8(isolate, "type"));
+
+	ModelOptions_t(Isolate* isolate, Handle<Object> options_v8) {
+		Handle<Value> type_handle = options_v8->Get(
+			String::NewFromUtf8(isolate, "type"));
 		type = (model_type)type_handle->IntegerValue();
+
+		// Convert v8 properties into a dictionary of options
+		Handle<Object> opts = options_v8->Get(
+			String::NewFromUtf8(isolate, "options")).As<Object>();
+		Local<v8::Array> props = opts->GetPropertyNames();
+
+		for (unsigned int i=0; i < props->Length(); i++) {
+			v8::String::Utf8Value param1(props->Get(Integer::New(isolate, i))->ToString());
+			string prop = std::string(*param1);
+
+			v8::String::Utf8Value param2(opts->Get(i)->ToString());
+			string val = std::string(*param2);
+			options.emplace(prop, val);
+		}
 	}
 };
 
