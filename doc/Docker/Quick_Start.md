@@ -9,7 +9,7 @@ Docker Quick Start
 * Restart your computer. Docker's weird like that.
 * Create account for [DockerHub](https://hub.docker.com/)
 * Send username to me (@blengerich). I will add you as a collaborator on the Docker image. Once you have been added:
-* Start docker daemon (open Docker Quickstart Terminal for Mac). After you're done admiring the ASCII art, do the following:
+* Start docker daemon (open Docker Quickstart Terminal for Mac). After you're done admiring the ASCII art, do the following (you may need root privileges) :
 
 *       > docker login
         > docker pull blengerich/genamap
