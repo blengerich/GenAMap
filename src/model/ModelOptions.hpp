@@ -35,11 +35,8 @@ struct ModelOptions_t {
 
 		for (unsigned int i=0; i < props->Length(); i++) {
 			v8::String::Utf8Value param1(props->Get(Integer::New(isolate, i))->ToString());
-			string prop = std::string(*param1);
-
 			v8::String::Utf8Value param2(opts->Get(i)->ToString());
-			string val = std::string(*param2);
-			options.emplace(prop, val);
+			options.emplace(string(*param1), string(*param2));
 		}
 	}
 };

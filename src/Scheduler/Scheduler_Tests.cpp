@@ -17,7 +17,6 @@
 using namespace std;
 
 
-// TODO
 TEST(SchedulerTest, getNewAlgorithmId) {
 	Scheduler* my_scheduler = Scheduler::Instance();
 	int job_num1 = my_scheduler->getNewAlgorithmId();

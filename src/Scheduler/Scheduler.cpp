@@ -22,8 +22,10 @@
 #ifdef BAZEL
 #include "algorithm/Algorithm.hpp"
 #include "algorithm/AlgorithmOptions.hpp"
-#include "algorithm/ProximalGradientDescent.hpp"
+#include "algorithm/BrentSearch.hpp"
+#include "algorithm/GridSearch.hpp"
 #include "algorithm/IterativeUpdate.hpp"
+#include "algorithm/ProximalGradientDescent.hpp"
 #include "model/AdaMultiLasso.hpp"
 #include "model/GFlasso.h"
 #include "model/lasso.hpp"
@@ -87,12 +89,18 @@ int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 	Algorithm* my_algorithm;
 	// Determine the type of algorithm to create.
 	switch(options.type) {
-		case proximal_gradient_descent:
-			my_algorithm = new ProximalGradientDescent(options);
+		/*case brent_search:
+			my_algorithm = new BrentSearch(options);
 			break;
-		/*case iterative_update:
+		case grid_search:
+			my_algorithm = new GridSearch(options);
+			break;
+		case iterative_update:
 			my_algorithm = new IterativeUpdate(options);
 			break;*/
+		case proximal_gradient_descent:
+			my_algorithm = new ProximalGradientDescent(options.options);
+			break;
 		default:
 			return -1;
 	}
@@ -113,17 +121,17 @@ int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 int Scheduler::newModel(const ModelOptions_t& options) {
 	Model* my_model;
 	switch(options.type) {
-		case linear_regression:
-			my_model = new LinearRegression(options.options);
+		case ada_multi_lasso:
+			my_model = new AdaMultiLasso(options.options);
 			break;
-		/*case lasso:
+		/*case gf_lasso:
+			my_model = new GFlasso(options);
+			break;
+		case lasso:
 			my_model = new Lasso(options);
 			break;
-		case ada_multi_lasso:
-			my_model = new AdaMultiLasso(options);
-			break;
-		case gf_lasso:
-			my_model = new GFlasso(options);
+		case linear_regression:
+			my_model = new LinearRegression(options.options);
 			break;
 		case multi_pop_lasso:
 			my_model = new MultiPopLasso(options);
@@ -179,20 +187,6 @@ void trainAlgorithmThread(uv_work_t* req) {
 	job->algorithm->run(job->model);
 	//job->results = job->algorithm->run(job->model);
 }
-
-
-/*bool Scheduler::startJob(Isolate* isolate, const Local<Function>& callback, const Local<Number>& job_id) {
-	// TODO: check job_id here
-	Job_t* job = Instance()->jobs_map[(int)job_id->Value()];
-	job->request.data = job;
-	job->callback.Reset(isolate, callback);
-	job->job_id = (int)job_id->Value();
-
-	// Start job async in a threadpool handled by libuv.
-	uv_queue_work(uv_default_loop(), &job->request, trainAlgorithmThread, trainAlgorithmComplete);
-
-	return true;
-}*/
 
 
 double Scheduler::checkJob(const int job_id) {

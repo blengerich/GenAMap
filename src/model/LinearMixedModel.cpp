@@ -6,6 +6,8 @@
  */
 #include "LinearMixedModel.hpp"
 
+#include <Eigen/Dense>
+
 using namespace Eigen;
 
 LinearMixedModel::LinearMixedModel() {
