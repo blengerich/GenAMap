@@ -11,5 +11,10 @@ for test in "${tests[@]}"; do
 		then result=1
 	fi
 done
+cd src/Scheduler/node
+node-gyp rebuild
+if [ $? -ne 0 ]
+	then result=1
+fi
 
 exit ${result}
