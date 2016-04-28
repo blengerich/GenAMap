@@ -39,7 +39,7 @@ private :
 
     //Smoothing Proximal Gradient Method
     MatrixXd edge_vertex_matrix; // Dimension: Edge_size*Col(x)
-    int mau; // Smootheness parameter
+    int mau; // Smootheness parameter  //todo: what is this?
     MatrixXd alpha_matrix;
 
 public :
@@ -90,6 +90,8 @@ public :
     // Calculate the gradient descent using the alpha and Edge vertex matrix
     // along with other input parameters i.e. X, Y and Beta.
     MatrixXd gradient();
+
+    Gflasso(const unordered_map<string, string>&);
 };
 
 

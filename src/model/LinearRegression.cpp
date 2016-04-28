@@ -5,6 +5,7 @@
 #include "LinearRegression.hpp"
 #include <Eigen/Dense>
 #include <unordered_map>
+#include <iostream>
 
 #ifdef BAZEL
 #include "model/ModelOptions.hpp"
@@ -22,8 +23,8 @@ LinearRegression::LinearRegression() {
 
 
 LinearRegression::LinearRegression(const unordered_map<string, string>& options) {
-    L1_reg = 0;
-    L2_reg = 0;
+    L1_reg = stof(options.at("lambda"));
+    L2_reg = stof(options.at("L2_lambda"));
 }
 
 

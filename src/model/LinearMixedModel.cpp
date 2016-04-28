@@ -16,6 +16,10 @@ LinearMixedModel::LinearMixedModel() {
     d = 0;
 }
 
+LinearMixedModel::LinearMixedModel(const unordered_map<string, string>& options){
+
+}
+
 // Methods to set the training data
 void LinearMixedModel::train(MatrixXd X, MatrixXd Y){
     

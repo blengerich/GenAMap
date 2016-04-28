@@ -16,8 +16,8 @@ AdaMultiLasso::AdaMultiLasso() {
 }
 
 AdaMultiLasso::AdaMultiLasso(const unordered_map<string, string>& opts) {
-    lambda1 = stod(opts.at("lambda1"));
-    lambda2 = stod(opts.at("lambda2"));
+    lambda1 = stod(opts.at("lambda"));
+    lambda2 = stod(opts.at("gamma"));
     mu = stod(opts.at("mu"));
     initTrainingFlag = false;
 }

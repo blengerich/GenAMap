@@ -43,6 +43,7 @@ public:
     
     // Constructor
     LinearMixedModel();
+    LinearMixedModel(const unordered_map<string, string>&);
     
     //Similary matrix and SVD
     MatrixXd K;
