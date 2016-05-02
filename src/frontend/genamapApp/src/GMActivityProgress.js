@@ -42,7 +42,7 @@ var GMActivityProgress = React.createClass({
     return {completed: 0};
   },
   componentDidMount: function () {
-    this.timer = setTimeout(() => this.progress(5), 1000);
+    this.timer = setTimeout(() => this.progress(this.getActivity()), 1000);
   },
   componentWillUnmount: function () {
     clearTimeout(this.timer);
@@ -53,17 +53,14 @@ var GMActivityProgress = React.createClass({
       clearTimeout(this.timer);
     } else {
       this.setState({completed});
-      this.getActivity(function (activity) {
-        const diff = Math.random() * 10;
-        this.timer = setTimeout(() => this.progress(completed + diff), 1000);  
-      });
+      this.timer = setTimeout(() => this.progress(this.getActivity()), 1000);
     }
   },
   getActivity: function () {
     GetRequest('/api/activity/' + this.props.id, {}, (activity) => {
-      
+      return activity.status;
     });
-  }
+  },
   render: function () {
     return (
       <List>

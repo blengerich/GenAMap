@@ -19,7 +19,9 @@ var GMApp = React.createClass({
     return {leftNavOpen: true, 
             rightNavOpen: false, 
             paddingLeft: settings.navWidth + settings.minPad,
-            paddingRight: settings.minPad
+            paddingRight: settings.minPad,
+            baseColor: "#5bc8df",
+            accentColor: "#fc5522",
            };
   },
   handleLeftIconTouch: function () {
@@ -37,6 +39,7 @@ var GMApp = React.createClass({
     this.setState({rightNavOpen: !this.state.rightNavOpen, paddingRight: padRight + 'px'});
   },
   render: function () {
+    var titleDisplay = this.state.leftNavOpen && this.state.rightNavOpen ? "hidden" : "visible"
     var childrenWithProps = React.Children.map(this.props.children, (child) => {
         return React.cloneElement(child, { left: this.state.paddingLeft,
                                            right: this.state.paddingRight,
@@ -52,8 +55,9 @@ var GMApp = React.createClass({
           handleLeftIconTouch={this.handleLeftIconTouch}
           handleRightIconTouch={this.handleRightIconTouch} 
           style={{paddingLeft: this.state.paddingLeft, 
-                  paddingRight: this.state.paddingRight
-                }} 
+                  paddingRight: this.state.paddingRight,
+                }}
+          titleDisplay={titleDisplay}
         />
         <GMLeftMenu 
           projectUrl={settings.projectUrl} 
