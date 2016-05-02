@@ -43,7 +43,6 @@ var styles = {
 
 var errorText = "This is a required field"
 
-
 var GMRunAnalysisDialog = React.createClass({
   getInitialState: function () {
     return {
@@ -146,7 +145,7 @@ var GMRunAnalysisDialog = React.createClass({
                        style={styles.scrollItem} 
                        disabled={this.isDisabled(algorithm.name)} 
                        handleChangeAlgorithm={this.onChangeAlgorithm} />
-    )); 
+    ));
     return (
       <div>
         <Dialog className="gm-dialog__run-analysis"
@@ -179,7 +178,6 @@ var GMRunAnalysisDialog = React.createClass({
               </select>
             </div>
             <div style={styles.scroll}>
-              {algorithmList}
               {algorithmList}
             </div>
           </form>
