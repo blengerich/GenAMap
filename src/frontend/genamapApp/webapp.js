@@ -5,7 +5,7 @@ var express = require('express'),
     os = require('os'),
     fs = require('fs'),
     PouchDB = require('pouchdb'),
-    Scheduler = require('../../GenAMap_V2/src/Scheduler/node/build/Release/scheduler');
+    Scheduler = require('../../Scheduler/node/build/Release/scheduler');
 
 
 var app = express();
