@@ -11,13 +11,13 @@
 #include <exception>
 #include <iostream>
 #include <node.h>
-#include <pthread.h>
-#include <queue>
+//#include <pthread.h>
+//#include <queue>
 #include <stdio.h>
 #include <unordered_map>
 #include <unistd.h>
 #include <uv.h>
-#include <v8.h>
+//#include <v8.h>
 
 #ifdef BAZEL
 #include "algorithm/Algorithm.hpp"
@@ -171,7 +171,6 @@ int Scheduler::newJob(const JobOptions_t& options) {
 }
 
 
-// Moved to Scheduler_node as it uses v8
 bool Scheduler::startJob(Job_t* job, void (*completion)(uv_work_t*, int)) {
 	uv_queue_work(uv_default_loop(), &job->request, trainAlgorithmThread, completion);
 	return true;

@@ -9,12 +9,12 @@
 #ifndef Scheduler_hpp
 #define Scheduler_hpp
 
-#include <mutex>
-#include <pthread.h>
-#include <queue>
+//#include <mutex>
+//#include <pthread.h>
+//#include <queue>
 #include <unordered_map>
 #include <uv.h>
-#include <v8.h>
+//#include <v8.h>
 #include <vector>
 
 #ifdef BAZEL
