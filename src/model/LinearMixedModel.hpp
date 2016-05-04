@@ -8,16 +8,18 @@
 #ifndef SRC_MODEL_LINEARMIXEDMODEL_HPP_
 #define SRC_MODEL_LINEARMIXEDMODEL_HPP_
 
-#include <cstdlib>
-#include <Eigen/Dense>
 #include <iostream>
-#include <math.h>
 #include <vector>
+#include <math.h>
+#include <cstdlib>
+#include <iostream>
 
-#ifdef BAZEL
+#if BAZEL
+#include "Eigen"
 #include "Math/Math.hpp"
 #include "Model.hpp"
 #else
+#include "../Eigen/Dense"
 #include "../Math/Math.hpp"
 #include "../model/Model.hpp"
 #endif
@@ -43,7 +45,6 @@ public:
     
     // Constructor
     LinearMixedModel();
-    LinearMixedModel(const unordered_map<string, string>&);
     
     //Similary matrix and SVD
     MatrixXd K;
@@ -83,6 +84,7 @@ public:
     void calculate_sigma(double);
     double get_log_likelihood_value(double);
     void find_max_log_likelihood();
+    void set_num_samples(int num_samples);
     
     // Search objective functions
     double f(double);
