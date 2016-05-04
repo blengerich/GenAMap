@@ -4,12 +4,21 @@
 
 #include "AdaMultiLasso.hpp"
 
+#include <unordered_map>
+
 using namespace std;
 
 AdaMultiLasso::AdaMultiLasso() {
     lambda1 = 0;
     lambda2 = 0;
     mu = 1e-3;
+    initTrainingFlag = false;
+}
+
+AdaMultiLasso::AdaMultiLasso(const unordered_map<string, string>& opts) {
+    lambda1 = stod(opts.at("lambda"));
+    lambda2 = stod(opts.at("gamma"));
+    mu = stod(opts.at("mu"));
     initTrainingFlag = false;
 }
 

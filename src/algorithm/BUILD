@@ -16,6 +16,24 @@ cc_library(
 )
 
 cc_library(
+	name = "BrentSearch",
+	srcs = ["BrentSearch.cpp"],
+	hdrs = ["BrentSearch.hpp"],
+	deps = ["//algorithm:Algorithm",
+			"//algorithm:AlgorithmOptions",
+			"//model:LinearMixedModel"],
+	copts = ["-DBAZEL"]
+)
+
+cc_library(
+	name = "GridSearch",
+	srcs = ["GridSearch.cpp"],
+	hdrs = ["GridSearch.hpp"],
+	deps = ["//algorithm:Algorithm",
+			"//model:LinearMixedModel"],
+	copts = ["-DBAZEL"])
+
+cc_library(
 	name = "ProximalGradientDescent",
 	srcs = ["ProximalGradientDescent.cpp"],
 	hdrs = ["ProximalGradientDescent.hpp"],

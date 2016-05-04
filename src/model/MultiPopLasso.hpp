@@ -68,6 +68,7 @@ public:
     MatrixXd getFormattedBeta();
 
     MultiPopLasso();
+    MultiPopLasso(const unordered_map<string, string>& options);
 };
 
 

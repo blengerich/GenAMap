@@ -245,9 +245,19 @@ void TreeLasso::setThreshold(double thred) {
 }
 
 TreeLasso::TreeLasso() {
+    lambda = 0;
     clusteringMethod = "single";
     threshold = 1;
     mu = 0.01;
+    T = 0;
+    initGradientFlag = false;
+}
+
+TreeLasso::TreeLasso(const unordered_map<string, string> &options) {
+    lambda = stod(options.at("lambda"));
+    clusteringMethod = options.at("clusteringMethod");
+    threshold = stod(options.at("threshold"));
+    mu = stod(options.at("mu"));
     T = 0;
     initGradientFlag = false;
 }
@@ -578,3 +588,4 @@ MatrixXd TreeLasso::proximal_derivative() {
 void TreeLasso::setMu(double m) {
     mu = m;
 }
+

@@ -7,8 +7,9 @@
 #include <cstdlib>
 #include <iostream>
 
-#if BAZEL
+#ifdef BAZEL
 #include "algorithm/Algorithm.hpp"
+#include "algorithm/AlgorithmOptions.hpp"
 #include "model/LinearMixedModel.hpp"
 #else
 #include "Algorithm.hpp"

@@ -8,18 +8,16 @@
 #ifndef SRC_MODEL_LINEARMIXEDMODEL_HPP_
 #define SRC_MODEL_LINEARMIXEDMODEL_HPP_
 
-#include <iostream>
-#include <vector>
-#include <math.h>
 #include <cstdlib>
+#include <Eigen/Dense>
 #include <iostream>
+#include <math.h>
+#include <vector>
 
-#if BAZEL
-#include "Eigen"
+#ifdef BAZEL
 #include "Math/Math.hpp"
 #include "Model.hpp"
 #else
-#include "../Eigen/Dense"
 #include "../Math/Math.hpp"
 #include "../model/Model.hpp"
 #endif
@@ -45,6 +43,7 @@ public:
     
     // Constructor
     LinearMixedModel();
+    LinearMixedModel(const unordered_map<string, string>&);
     
     //Similary matrix and SVD
     MatrixXd K;

@@ -264,3 +264,10 @@ MultiPopLasso::MultiPopLasso() {
     mu = 1;
     gamma = 0;
 }
+
+MultiPopLasso::MultiPopLasso(const unordered_map<string, string> &options) {
+    initTrainingFlag = false;
+    lambda = stod(options.at("lambda"));
+    mu = stod(options.at("mu"));
+    gamma = stod(options.at("gamma"));
+}

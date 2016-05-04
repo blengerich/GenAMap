@@ -32,6 +32,12 @@ void newModel(const v8::FunctionCallbackInfo<v8::Value>& args);
 // Arguments: JSON to be converted to ModelOptions_t
 
 
+void setX(const v8::FunctionCallbackInfo<v8::Value>& args);
+// Arguments: model_num, JSON Matrix
+
+void setY(const v8::FunctionCallbackInfo<v8::Value>& args);
+// Arguments: model_num, JSON Matrix
+
 void newJob(const v8::FunctionCallbackInfo<v8::Value>& args);
 // Arguments: JSON to be converted to JobOptions_t
 
@@ -68,7 +74,7 @@ void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args);
 // Invisible from Node
 /////////////////////////////////////////////////////
 
-void trainAlgorithmThread(uv_work_t* req);
+//void trainAlgorithmThread(uv_work_t* req);
 void trainAlgorithmComplete(uv_work_t* req, int status);
 
 

@@ -251,3 +251,10 @@ MatrixXd Gflasso::gradient(){
 
     return ( (X.transpose())*(X*beta - Y) + (edge_vertex_matrix.transpose()*alpha_matrix) );
 }
+
+Gflasso::Gflasso(const unordered_map<string, string> &options) {
+    lambda_flasso = stof(options.at("lambda"));
+    gamma_flasso = stof(options.at("gamma"));
+    flasso_type = stoi(options.at("flasso"));
+    mau = stoi(options.at("mu"));
+}

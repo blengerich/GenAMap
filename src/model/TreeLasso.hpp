@@ -115,6 +115,7 @@ public:
     MatrixXd proximal_operator(MatrixXd, float);
 
     TreeLasso();
+    TreeLasso(const unordered_map<string, string>&);
     ~TreeLasso();
 };
 

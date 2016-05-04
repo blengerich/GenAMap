@@ -6,12 +6,18 @@
  */
 #include "LinearMixedModel.hpp"
 
+#include <Eigen/Dense>
+
 using namespace Eigen;
 
 LinearMixedModel::LinearMixedModel() {
     cout << "LMM: No input parameters provided !" << endl;
     n = 0;
     d = 0;
+}
+
+LinearMixedModel::LinearMixedModel(const unordered_map<string, string>& options){
+
 }
 
 // Methods to set the training data

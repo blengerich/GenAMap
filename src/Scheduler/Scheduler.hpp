@@ -13,6 +13,7 @@
 #include <pthread.h>
 #include <queue>
 #include <unordered_map>
+#include <uv.h>
 #include <v8.h>
 #include <vector>
 
@@ -47,8 +48,9 @@ public:
 	// Assumes that algorithm and job have been created by this scheduler.
 	// Simply packages as a job and assigns an ID.
 	// Returns the job's assigned ID, -1 for failure.
-
-	bool startJob(Isolate*, const Local<Function>&, const Local<Number>&);
+	
+	bool startJob(Job_t*, void (*f)(uv_work_t*, int));
+	//bool startJob(Isolate*, const Local<Function>&, const Local<Number>&);
 	// Returns true if successfully queued, false otherwise.
 
 	double checkJob(const int);
@@ -61,6 +63,8 @@ public:
 	bool deleteAlgorithm(const int);
 	bool deleteModel(const int);
 	bool deleteJob(const int);
+
+	Job_t* getJob(const int);
 
 	static Scheduler* Instance();
 	// This class follows the singleton pattern.
@@ -107,7 +111,7 @@ private:
 };
 
 void trainAlgorithmThread(uv_work_t* req);
-void trainAlgorithmComplete(uv_work_t* req, int status);
+//void trainAlgorithmComplete(uv_work_t* req, int status);
 
 
 #endif /* Scheduler_hpp */

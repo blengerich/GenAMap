@@ -3,8 +3,10 @@
 //
 
 #include <Eigen/Dense>
+#include <unordered_map>
 
 using namespace Eigen;
+using namespace std;
 
 #ifndef ALGORITHMS_MODEL_HPP
 #define ALGORITHMS_MODEL_HPP
@@ -34,6 +36,7 @@ public:
     virtual double cost();
 
     Model();
+    Model(const unordered_map<string, string>&);
     Model(MatrixXd, VectorXd);
 
     virtual ~Model(){};

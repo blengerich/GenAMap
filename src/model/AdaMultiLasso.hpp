@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <unordered_map>
 
 #ifdef BAZEL
 #include "Math/Math.hpp"
@@ -46,6 +47,7 @@ private:
 
 public:
     AdaMultiLasso();
+    AdaMultiLasso(const unordered_map<string, string>&);
     void setLambda1(double);
     void setLambda2(double);
 
