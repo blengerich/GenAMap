@@ -16,7 +16,6 @@
     "browserify": "^13.0.0",
     "busboy": "^0.2.12",
     "classnames": "^2.2.3",
-    "d3": "^3.5.16",
     "ejs": "^2.4.1",
     "express": "^4.13.4",
     "gulp": "^3.9.0",
@@ -26,7 +25,6 @@
     "jsdom": "^8.0.4",
     "material-ui": "^0.14.4",
     "normalize.css": "^3.0.3",
-    "pouchdb": "^5.3.1",
     "react": "^0.14.6",
     "react-addons-css-transition-group": "^0.14.7",
     "react-dom": "^0.14.6",
@@ -34,7 +32,6 @@
     "react-tap-event-plugin": "^0.2.2",
     "react-toolbox": "^0.14.2",
     "sails-disk": "^0.10.9",
-    "socket.io": "^1.4.5",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.7.0",
     "waterline": "^0.11.0"

@@ -47,6 +47,8 @@ var DataList = React.createClass({
   },
   loadData: function (id) {
     GetRequest('api/data/' + id, {}, (response) => {
+      console.log("RESPONSE\n", response);
+      console.log("RESPONSE DATA\n", response.data);
       this.setState({data: response.data.split('\n'), name: response.file.name});
     });
   },
