@@ -7,9 +7,8 @@
 #include <cstdlib>
 #include <iostream>
 
-#ifdef BAZEL
+#if BAZEL
 #include "algorithm/Algorithm.hpp"
-#include "algorithm/AlgorithmOptions.hpp"
 #include "model/LinearMixedModel.hpp"
 #else
 #include "Algorithm.hpp"
@@ -42,6 +41,9 @@ public :
     void set_m(double);
     void set_e(double);
     void set_t(double);
+    void set_delta(double);
+    void set_min_cost_val(double);
+    void set_best_param_val(double);
 
     double get_a();
     double get_b();
@@ -49,11 +51,14 @@ public :
     double get_m();
     double get_e();
     double get_t();
+    double get_delta();
+    double get_min_cost_val();
+    double get_best_param_val();
 
-    // Pass the objective function pointer from the model
+    // Extract Brent search parameters from vector
     vector<double> get_brent_params();
-    // Old Methods : double brent_search(double (*f)(double),double &);
 
+    // Run LLM model object pointer
     void run(LinearMixedModel *);
 };
 
