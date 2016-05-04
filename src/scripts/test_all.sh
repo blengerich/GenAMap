@@ -1,4 +1,6 @@
 #!/bin/bash
+
+# Should be run from INSIDE a Docker container
 tests=(//Scheduler:Scheduler_Tests)
 result=0
 bazel=../depends/bazel_install/binary/bazel
