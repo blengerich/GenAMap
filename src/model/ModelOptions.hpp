@@ -22,7 +22,6 @@ struct ModelOptions_t {
 	model_type type;
 	unordered_map<string, string> options;
 
-
 	ModelOptions_t(Isolate* isolate, Handle<Object> options_v8) {
 		Handle<Value> type_handle = options_v8->Get(
 			String::NewFromUtf8(isolate, "type"));
@@ -39,6 +38,10 @@ struct ModelOptions_t {
 			options.emplace(string(*param1), string(*param2));
 		}
 	}
+
+	ModelOptions_t(model_type model, unordered_map<string, string> opts)
+	: type(model)
+	, options(opts){};
 };
 
 #endif // MODEL_OPTIONS_HPP

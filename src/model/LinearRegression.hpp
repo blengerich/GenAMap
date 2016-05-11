@@ -19,7 +19,6 @@
 
 using namespace Eigen;
 
-
 class LinearRegression : public virtual Model {
 private:
     float L1_reg;
