@@ -9,12 +9,9 @@
 #ifndef Scheduler_hpp
 #define Scheduler_hpp
 
-//#include <mutex>
-//#include <pthread.h>
-//#include <queue>
+#include <Eigen/Dense>
 #include <unordered_map>
 #include <uv.h>
-//#include <v8.h>
 #include <vector>
 
 #ifdef BAZEL
@@ -44,13 +41,19 @@ public:
 	int newModel(const ModelOptions_t&);
 	// returns the model's assigned ID, -1 for failure.
 
+	bool setX(const int, const Eigen::MatrixXd&);
+	// returns true on success, false otherwise.
+
+	bool setY(const int, const Eigen::MatrixXd&);
+	// returns true on success, false otherwise.
+	
+
 	int newJob(const JobOptions_t&);
 	// Assumes that algorithm and job have been created by this scheduler.
 	// Simply packages as a job and assigns an ID.
 	// Returns the job's assigned ID, -1 for failure.
 	
 	bool startJob(Job_t*, void (*f)(uv_work_t*, int));
-	//bool startJob(Isolate*, const Local<Function>&, const Local<Number>&);
 	// Returns true if successfully queued, false otherwise.
 
 	double checkJob(const int);

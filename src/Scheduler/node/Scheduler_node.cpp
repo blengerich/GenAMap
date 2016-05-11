@@ -26,7 +26,7 @@ using namespace v8;
 
 // Creates a new algorithm, but does not run it. Currently synchronous.
 // Arguments: JSON to be converted to AlgorithmOptions_t
-void newAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args) {
+void newAlgorithm(const FunctionCallbackInfo<Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 
 	if (args.Length() < 1) {
@@ -51,7 +51,7 @@ void newAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 // Creates a new model, but does not run it. Synchronous.
 // Arguments: JSON to be converted to ModelOptions_t
-void newModel(const v8::FunctionCallbackInfo<v8::Value>& args) {
+void newModel(const FunctionCallbackInfo<Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
 	const ModelOptions_t& options = ModelOptions_t(isolate, options_v8);
@@ -68,14 +68,40 @@ void newModel(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 // Sets the X matrix of a given model.
 // Arguments: model_num, JSON matrix
-void setX(const v8::FunctionCallbackInfo<v8::Value>& args) {
-	Isolate* isolate = args.GetIsolate();
-	Local<Number>::Cast(args[1]);
+void setX(const FunctionCallbackInfo<Value>& args) {
+	const int model_num = (int)Local<Number>::Cast(args[0])->Value();
+	Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
+
+	const unsigned int rows = ar->Length();
+	const unsigned int cols = Local<v8::Array>::Cast(ar->Get(0))->Length();
+	Eigen::MatrixXd Matrix(rows, cols);
+
+	for (unsigned int i=0; i<rows; i++) {
+		for (unsigned int j=0; j<cols; j++) {
+			Matrix(i,j) = (double)Local<v8::Array>::Cast(ar->Get(i))->Get(j)->NumberValue();
+		}
+	}
+
+	Scheduler::Instance()->setX(model_num, Matrix);
 }
 
-void setY(const v8::FunctionCallbackInfo<v8::Value>& args) {
-	Isolate* isolate = args.GetIsolate();
-	Local<Number>::Cast(args[1]);
+// Sets the Y matrix of a given model.
+// Arguments: model_num, JSON matrix
+void setY(const FunctionCallbackInfo<Value>& args) {
+	const int model_num = (int)Local<Number>::Cast(args[0])->Value();
+	Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
+
+	const unsigned int rows = ar->Length();
+	const unsigned int cols = Local<v8::Array>::Cast(ar->Get(0))->Length();
+	Eigen::MatrixXd Matrix(rows, cols);
+
+	for (unsigned int i=0; i<rows; i++) {
+		for (unsigned int j=0; j<cols; j++) {
+			Matrix(i,j) = (double)Local<v8::Array>::Cast(ar->Get(i))->Get(j)->NumberValue();
+		}
+	}
+
+	Scheduler::Instance()->setY(model_num, Matrix);
 }
 
 

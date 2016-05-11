@@ -50,6 +50,10 @@ struct JobOptions_t {
 		algorithm_id = algorithm_id_handle->IntegerValue();
 		model_id = model_id_handle->IntegerValue();
 	}
+
+	JobOptions_t(int algorithm, int model)
+	: algorithm_id(algorithm)
+	, model_id(model){};
 };
 
 #endif // JOB_HPP
