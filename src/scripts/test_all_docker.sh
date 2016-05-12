@@ -22,5 +22,6 @@ fi
 
 if [ $node_tests -eq 1 ]
 	then cd /usr/src/genamap/src/frontend/genamapApp
+	eval "npm install"
 	eval "mocha"
 fi
