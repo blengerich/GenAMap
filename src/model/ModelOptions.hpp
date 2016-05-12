@@ -33,8 +33,11 @@ struct ModelOptions_t {
 		Local<v8::Array> props = opts->GetPropertyNames();
 
 		for (unsigned int i=0; i < props->Length(); i++) {
-			v8::String::Utf8Value param1(props->Get(Integer::New(isolate, i))->ToString());
-			v8::String::Utf8Value param2(opts->Get(i)->ToString());
+			v8::String::Utf8Value param1(
+				props->Get(Integer::New(isolate, i))->ToString());
+
+			v8::String::Utf8Value param2(opts->Get(
+				v8::String::NewFromUtf8(isolate, *param1)->ToString()));
 			options.emplace(string(*param1), string(*param2));
 		}
 	}

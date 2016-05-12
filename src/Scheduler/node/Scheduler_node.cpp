@@ -33,15 +33,16 @@ void newAlgorithm(const FunctionCallbackInfo<Value>& args) {
 		isolate->ThrowException(Exception::TypeError(
 			String::NewFromUtf8(isolate, "Wrong number of arguments")));
 		return;
+
 	}
 
 	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
 	const AlgorithmOptions_t& options = AlgorithmOptions_t(isolate, options_v8);
-	
+
 	const int id = Scheduler::Instance()->newAlgorithm(options);
 	if (id < 0) {
 		isolate->ThrowException(Exception::Error(
-			String::NewFromUtf8(isolate, "Could not add another algorithm (algorithm map may be full).")));
+			String::NewFromUtf8(isolate, "Could not add another algorithm.")));
 		return;
 	}
 
@@ -58,7 +59,7 @@ void newModel(const FunctionCallbackInfo<Value>& args) {
 	const int id = Scheduler::Instance()->newModel(options);
 	if (id < 0) {
 		isolate->ThrowException(Exception::Error(
-			String::NewFromUtf8(isolate, "Could not add another model (model map may be full)")));
+			String::NewFromUtf8(isolate, "Could not add another model")));
 		return;
 	}
 
@@ -69,6 +70,7 @@ void newModel(const FunctionCallbackInfo<Value>& args) {
 // Sets the X matrix of a given model.
 // Arguments: model_num, JSON matrix
 void setX(const FunctionCallbackInfo<Value>& args) {
+	Isolate* isolate = args.GetIsolate();
 	const int model_num = (int)Local<Number>::Cast(args[0])->Value();
 	Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
 
@@ -82,12 +84,16 @@ void setX(const FunctionCallbackInfo<Value>& args) {
 		}
 	}
 
-	Scheduler::Instance()->setX(model_num, Matrix);
+	bool result = Scheduler::Instance()->setX(model_num, Matrix);
+	Local<Boolean> retval = Boolean::New(isolate, result);
+	args.GetReturnValue().Set(retval);
 }
 
 // Sets the Y matrix of a given model.
 // Arguments: model_num, JSON matrix
 void setY(const FunctionCallbackInfo<Value>& args) {
+	Isolate* isolate = args.GetIsolate();
+
 	const int model_num = (int)Local<Number>::Cast(args[0])->Value();
 	Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
 
@@ -100,8 +106,10 @@ void setY(const FunctionCallbackInfo<Value>& args) {
 			Matrix(i,j) = (double)Local<v8::Array>::Cast(ar->Get(i))->Get(j)->NumberValue();
 		}
 	}
-
-	Scheduler::Instance()->setY(model_num, Matrix);
+	
+	bool result = Scheduler::Instance()->setY(model_num, Matrix);
+	Local<Boolean> retval = Boolean::New(isolate, result);
+	args.GetReturnValue().Set(retval);	
 }
 
 
@@ -227,33 +235,6 @@ void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 }
 
 
-// Test function
-void Add(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
-
-  // Check the number of arguments passed.
-  if (args.Length() < 2) {
-    // Throw an Error that is passed back to JavaScript
-    isolate->ThrowException(Exception::TypeError(
-        String::NewFromUtf8(isolate, "Wrong number of arguments")));
-    return;
-  }
-
-  // Check the argument types
-  if (!args[0]->IsNumber() || !args[1]->IsNumber()) {
-    isolate->ThrowException(Exception::TypeError(
-        String::NewFromUtf8(isolate, "Wrong arguments")));
-    return;
-  }
-
-  // Perform the operation
-  double value = args[0]->NumberValue() + args[1]->NumberValue();
-  Local<Number> num = Number::New(isolate, value);
-
-  // Set the return value (using the passed in FunctionCallbackInfo<Value>&)
-  args.GetReturnValue().Set(num);
-}
-
 // Runs in libuv thread spawned by trainAlgorithmAsync
 /*void trainAlgorithmThread(uv_work_t* req) {
 	// Running in worker thread.
@@ -286,21 +267,3 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 	// Should call scheduler's delete job function here
 }
 
-/////////////////////
-// Register with Node
-/////////////////////
-
-void Init(Handle<Object> exports, Handle<Object> module) {
-	NODE_SET_METHOD(exports, "newAlgorithm", newAlgorithm);
-	NODE_SET_METHOD(exports, "newModel", newModel);
-	NODE_SET_METHOD(exports, "newJob", newJob);
-	NODE_SET_METHOD(exports, "startJob", startJob);
-	NODE_SET_METHOD(exports, "checkJob", checkJob);
-	NODE_SET_METHOD(exports, "cancelJob", cancelJob);
-	NODE_SET_METHOD(exports, "deleteAlgorithm", deleteAlgorithm);
-	NODE_SET_METHOD(exports, "deleteModel", deleteModel);
-	NODE_SET_METHOD(exports, "deleteJob", deleteJob);
-	NODE_SET_METHOD(exports, "add", Add);
-}
-
-NODE_MODULE(scheduler, Init)
