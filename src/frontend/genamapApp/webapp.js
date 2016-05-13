@@ -294,9 +294,11 @@ app.post('/api/run-analysis', function (req, res) {
     */
     var algorithmOptions = {
       type: req.body.algorithmType || getAlgorithmType(model.id) || 1,
-      max_iteration: req.body.max_iteration || 10,
-      tolerance: req.body.tolerance || 0.01,
-      learning_rate: req.body.learning_rate || 0.01,
+      options: {
+        //max_iteration: req.body.max_iteration || 10,
+        tolerance: req.body.tolerance || 0.01,
+        learning_rate: req.body.learning_rate || 0.01,  
+      }    
     };
     var algorithmId = Scheduler.newAlgorithm(algorithmOptions);
     if (algorithmId === -1) return res.json({msg: "error creating algorithm"});
@@ -315,8 +317,16 @@ app.post('/api/run-analysis', function (req, res) {
     */
     var modelOptions = {
       type: model.id || 1,
+      options: {
+        lambda: model.lambda || 0.05,
+        L2_lambda: model.L2_lambda || 0.01
+      }
     };
     var modelId = Scheduler.newModel(modelOptions);
+    if (modelId === -1) return res.json({msg: "error creating model"});
+    
+    /* TODO:Set X and Y here */
+
     /*
     jobOptions = {
       algorithm_id: int,
@@ -326,10 +336,10 @@ app.post('/api/run-analysis', function (req, res) {
     var jobId = Scheduler.newJob({algorithm_id: algorithmId, model_id: modelId});
     console.log("jobId", jobId);
 
-    Scheduler.startJob((results) => {
+    Scheduler.startJob(jobId, (results) => {
       console.log("results: ", results);
       activityDb.put(results);
-    }, jobId);
+    });
     // console.log(Scheduler.checkJob(jobId));
     // console.log(Scheduler.cancelJob(jobId));
     // console.log(Scheduler.deleteAlgorithm(algorithmId));

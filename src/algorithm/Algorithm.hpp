@@ -25,7 +25,9 @@ public:
 
     double getProgress();
     int getMaxIteration();
-    void run(Model*);
+    virtual void run(Model*){};
+
+    virtual ~Algorithm(){};
 };
 
 

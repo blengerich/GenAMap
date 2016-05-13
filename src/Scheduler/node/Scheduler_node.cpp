@@ -108,8 +108,7 @@ void setY(const FunctionCallbackInfo<Value>& args) {
 	}
 	
 	bool result = Scheduler::Instance()->setY(model_num, Matrix);
-	Local<Boolean> retval = Boolean::New(isolate, result);
-	args.GetReturnValue().Set(retval);	
+	args.GetReturnValue().Set(Boolean::New(isolate, result));	
 }
 
 
@@ -133,7 +132,7 @@ void newJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 // Maybe begins the training of an algorithm, given the job number.
 // Asynchronous.
-// Arguments: function callback, int job_id
+// Arguments: int job_id, function callback
 void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	// Inspect arguments.
@@ -141,14 +140,12 @@ void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	const int job_id = (int)Local<Number>::Cast(args[0])->Value();
 	Job_t* job = Scheduler::Instance()->getJob(job_id);
 	job->request.data = job;
-	job->callback.Reset(isolate, Local<Function>::Cast(args[0]));
+	job->callback.Reset(isolate, Local<Function>::Cast(args[1]));
 	job->job_id = job_id;
+	//cout << "starting job";
 
-	/*Scheduler::Instance()->startJob(
-		isolate, , Local<Number>::Cast(args[1]));*/
-	Scheduler::Instance()->startJob(job, trainAlgorithmComplete);
-	//uv_qeueue_work(uv_default_loop(), &job->requets, trainAlgorithmThread, trainAlgorithmComplete);
-	args.GetReturnValue().Set(Undefined(isolate));
+	bool result = Scheduler::Instance()->startJob(job, trainAlgorithmComplete);
+	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
 
 // Checks the status of an algorithm, given the algorithm's job number.
@@ -233,17 +230,6 @@ void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Handle<Boolean> retval = Boolean::New(isolate, success);
 	args.GetReturnValue().Set(retval);
 }
-
-
-// Runs in libuv thread spawned by trainAlgorithmAsync
-/*void trainAlgorithmThread(uv_work_t* req) {
-	// Running in worker thread.
-	Job_t* job = static_cast<Job_t*>(req->data);
-	usleep(10000);
-	// Run algorithm here.
-	job->algorithm->run(job->model);
-	//job->results = job->algorithm->run(job->model);
-}*/
 
 
 // Handles packaging of algorithm results to return to the frontend.

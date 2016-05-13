@@ -6,10 +6,14 @@
 
 #ifdef BAZEL
 #include "algorithm/Algorithm.hpp"
+#include "algorithm/AlgorithmOptions.hpp"
 #include "model/Model.hpp"
+#include "model/ModelOptions.hpp"
 #else
 #include "../algorithm/Algorithm.hpp"
+#include "../algorithm/AlgorithmOptions.hpp"
 #include "../model/Model.hpp"
+#include "../model/ModelOptions.hpp"
 #endif
 
 using namespace std;
@@ -24,16 +28,6 @@ struct Job_t {
 	//Results_t* results;	// Unclear how results should be packaged.
 };
 
-/*
-struct Work {
-	uv_work_t request;
-	Persistent<Function> callback;
-	int results;
-	Local<Number> job_num;
-	Algorithm* algorithm;
-	Model* model;
-};*/
-
 struct JobOptions_t {
 	int algorithm_id;
 	int model_id;
@@ -44,16 +38,15 @@ struct JobOptions_t {
 			v8::String::NewFromUtf8(isolate, "algorithm_id"));
 		v8::Handle<v8::Value> model_id_handle = options_v8->Get(
 			v8::String::NewFromUtf8(isolate, "model_id"));
-		//assert(algorithm_id_handle->IsInteger(), "Expected integer algorithm ID");
-		//assert(model_id_handle->IsInteger(), "Expected integer model ID");
-		
+
 		algorithm_id = algorithm_id_handle->IntegerValue();
 		model_id = model_id_handle->IntegerValue();
 	}
 
-	JobOptions_t(int algorithm, int model)
+	JobOptions_t(int algorithm, int model, model_type m, algorithm_type a)
 	: algorithm_id(algorithm)
 	, model_id(model){};
+
 };
 
 #endif // JOB_HPP

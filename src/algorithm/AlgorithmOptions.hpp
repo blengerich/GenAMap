@@ -12,9 +12,9 @@ using namespace v8;
 
 enum algorithm_type {
 	brent_search = 0,
-	grid_search = 1,
-	iterative_update = 2,
-    proximal_gradient_descent = 3,
+	proximal_gradient_descent = 1,
+	grid_search = 2,
+	iterative_update = 3,
 };
 
 struct AlgorithmOptions_t {

@@ -13,6 +13,7 @@
 #include <iostream>
 #include <node.h>
 #include <stdio.h>
+#include <typeinfo>
 #include <unordered_map>
 #include <unistd.h>
 #include <uv.h>
@@ -82,7 +83,7 @@ Scheduler* Scheduler::Instance() {
 /////////////////////////////////////////////////////////
 
 int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
-	Algorithm* my_algorithm;
+	//Algorithm* my_algorithm;
 	// Determine the type of algorithm to create.
 	switch(options.type) {
 		/*case brent_search:
@@ -95,22 +96,20 @@ int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 			my_algorithm = new IterativeUpdate(options);
 			break;*/
 		case algorithm_type::proximal_gradient_descent:
-			my_algorithm = new ProximalGradientDescent(options.options);
-			break;
-		default:
-			return -1;
+			ProximalGradientDescent* my_algorithm = new ProximalGradientDescent(options.options);
+			int id = getNewAlgorithmId();
+			if (id >= 0) {
+				algorithms_map[id] = my_algorithm;
+				return id;
+			} else {
+				delete my_algorithm;
+			}
+		//default:
+		//	return -1;
 	}
-
-	// Track it in this scheduler.
-	int id = getNewAlgorithmId();
-	if (id >= 0) {
-		algorithms_map[id] = my_algorithm;
-		return id;
-	}
-
-	if (my_algorithm) {
+	/*if (my_algorithm) {
 		delete my_algorithm;
-	}
+	}*/
 	return -1;
 }
 
@@ -200,10 +199,35 @@ bool Scheduler::startJob(Job_t* job, void (*completion)(uv_work_t*, int)) {
 void trainAlgorithmThread(uv_work_t* req) {
 	// Running in worker thread.
 	Job_t* job = static_cast<Job_t*>(req->data);
-	usleep(10000);
 	// Run algorithm here.
-	job->algorithm->run(job->model);
-	//job->results = job->algorithm->run(job->model);
+	
+	// TODO: as more algorithm/model types are created, add them here.
+	if (dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
+		//cout << "dynaic cast worked" << endl;
+		ProximalGradientDescent* alg = (ProximalGradientDescent*)(job->algorithm);
+		//cout << typeid(alg).name() << endl;
+		if (dynamic_cast<LinearRegression*>(job->model)) {
+			alg->run(dynamic_cast<LinearRegression*>(job->model));	
+		} /*else if (dynamic_cast<Lasso*>(job->model)) {
+			alg->run(dynamic_cast<Lasso*>(job->model));	
+		}*/ else if (dynamic_cast<AdaMultiLasso*>(job->model)) {
+			alg->run(dynamic_cast<AdaMultiLasso*>(job->model));
+		} /*else if (dynamic_cast<Gflasso*>(job->model)) {
+			alg->run(dynamic_cast<Gflasso*>(job->model));
+		}*/
+	} else if (dynamic_cast<IterativeUpdate*>(job->algorithm)) {
+		IterativeUpdate* alg = (IterativeUpdate*)(job->algorithm);
+		//cout << typeid(alg).name() << endl;
+		if (dynamic_cast<TreeLasso*>(job->model)) {
+			alg->run(dynamic_cast<TreeLasso*>(job->model));	
+		} /*else if (dynamic_cast<Lasso*>(job->model)) {
+			alg->run(dynamic_cast<Lasso*>(job->model));	
+		}*/ /*else if (dynamic_cast<AdaMultiLasso*>(job->model)) {
+			alg->run(dynamic_cast<AdaMultiLasso*>(job->model));
+		}*/ /*else if (dynamic_cast<Gflasso*>(job->model)) {
+			alg->run(dynamic_cast<Gflasso*>(job->model));
+		}*/
+	}
 }
 
 
