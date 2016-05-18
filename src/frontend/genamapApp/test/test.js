@@ -112,11 +112,18 @@ describe('Scheduler', function() {
 			'options': {'tolerance': '0.01', 'learning_rate': '0.1'}});
 		var job_id = backend.newJob({'model_id': model_id, 'algorithm_id': alg_id, 'model_type':1, 'algorithm_type':3});
 		
-		it('return true for good job start', function () {
-			assert.equal(true, 
-				backend.startJob(job_id, function() {/*empty callback*/} ));
-		});
 
+		/*it('return true for good job start', function () {
+			assert.equal(true, 
+				backend.startJob(job_id, function(results) {console.log(results)} ));
+		});*/
+
+		it('return true for good job start', function() {
+			assert.equal(true, backend.setX(model_id, [[0, 1], [1, 1]]));
+			assert.equal(true, backend.setY(model_id, [[0], [1]]));
+			assert.equal(true, 
+				backend.startJob(job_id, function(results) {console.log(results)} ));
+		});
 		//it('return false for bad options', function () {
 		//	assert.equal(false, 
 		//		backend.startJob(job_id+1, function() {/*empty callback*/} ));

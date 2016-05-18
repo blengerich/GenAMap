@@ -203,9 +203,11 @@ void trainAlgorithmThread(uv_work_t* req) {
 	
 	// TODO: as more algorithm/model types are created, add them here.
 	if (dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
-		//cout << "dynaic cast worked" << endl;
+		/*cout << job->model->getX().rows() << endl;
+		cout << job->model->getX().cols() << endl;
+		cout << job->model->getY().rows() << endl;
+		cout << job->model->getY().cols() << endl;*/
 		ProximalGradientDescent* alg = (ProximalGradientDescent*)(job->algorithm);
-		//cout << typeid(alg).name() << endl;
 		if (dynamic_cast<LinearRegression*>(job->model)) {
 			alg->run(dynamic_cast<LinearRegression*>(job->model));	
 		} /*else if (dynamic_cast<Lasso*>(job->model)) {
@@ -217,7 +219,6 @@ void trainAlgorithmThread(uv_work_t* req) {
 		}*/
 	} else if (dynamic_cast<IterativeUpdate*>(job->algorithm)) {
 		IterativeUpdate* alg = (IterativeUpdate*)(job->algorithm);
-		//cout << typeid(alg).name() << endl;
 		if (dynamic_cast<TreeLasso*>(job->model)) {
 			alg->run(dynamic_cast<TreeLasso*>(job->model));	
 		} /*else if (dynamic_cast<Lasso*>(job->model)) {

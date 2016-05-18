@@ -127,13 +127,13 @@ var s4 = function () {
     .substring(1);
 }
 
-app.get('/add/:x/:y', function (req, res) {
+/*app.get('/add/:x/:y', function (req, res) {
   return res.json({
     x: parseInt(req.params.x), 
     y: parseInt(req.params.y),
     answer: Scheduler.add(parseInt(req.params.x), parseInt(req.params.y))
   });
-});
+});*/
 
 app.get('/api/data/:id', function (req, res) {
   app.models.data.findOne({id: req.params.id}, function (err, model) {
@@ -185,6 +185,7 @@ app.post('/api/import-data', function (req, res) {
     data.filetype = fieldname;
     data.path = './.tmp/' + id + '.csv';
   });
+
   busboy.on('finish', function () {
     app.models.project.findOrCreate(projectObj).then(function (project) {
       for (data in dataList) {
@@ -325,8 +326,15 @@ app.post('/api/run-analysis', function (req, res) {
     var modelId = Scheduler.newModel(modelOptions);
     if (modelId === -1) return res.json({msg: "error creating model"});
     
-    /* TODO:Set X and Y here */
+	fs.readFile(model.path, 'utf8', function (error, data) {
+      console.log("data:", data);
+  	/*return res.json({file: model, data: data});*/
+	});
 
+    /* TODO:Set X and Y here */
+    console.log(Scheduler.setX(modelId, [[0, 1],[1, 1]]));
+    console.log(Scheduler.setY(modelId, [[0], [1]]));
+    
     /*
     jobOptions = {
       algorithm_id: int,
@@ -334,8 +342,8 @@ app.post('/api/run-analysis', function (req, res) {
     };
     */
     var jobId = Scheduler.newJob({algorithm_id: algorithmId, model_id: modelId});
-    console.log("jobId", jobId);
 
+    console.log("starting job")
     Scheduler.startJob(jobId, (results) => {
       console.log("results: ", results);
       activityDb.put(results);

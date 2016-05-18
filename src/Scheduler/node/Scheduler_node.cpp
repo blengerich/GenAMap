@@ -83,7 +83,7 @@ void setX(const FunctionCallbackInfo<Value>& args) {
 			Matrix(i,j) = (double)Local<v8::Array>::Cast(ar->Get(i))->Get(j)->NumberValue();
 		}
 	}
-
+	/*cout << "X: " << endl << Matrix << endl;*/
 	bool result = Scheduler::Instance()->setX(model_num, Matrix);
 	Local<Boolean> retval = Boolean::New(isolate, result);
 	args.GetReturnValue().Set(retval);
@@ -106,7 +106,7 @@ void setY(const FunctionCallbackInfo<Value>& args) {
 			Matrix(i,j) = (double)Local<v8::Array>::Cast(ar->Get(i))->Get(j)->NumberValue();
 		}
 	}
-	
+	/*cout << "Y: " << endl << Matrix << endl;*/
 	bool result = Scheduler::Instance()->setY(model_num, Matrix);
 	args.GetReturnValue().Set(Boolean::New(isolate, result));	
 }
@@ -142,7 +142,6 @@ void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	job->request.data = job;
 	job->callback.Reset(isolate, Local<Function>::Cast(args[1]));
 	job->job_id = job_id;
-	//cout << "starting job";
 
 	bool result = Scheduler::Instance()->startJob(job, trainAlgorithmComplete);
 	args.GetReturnValue().Set(Boolean::New(isolate, result));

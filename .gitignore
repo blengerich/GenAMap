@@ -12,3 +12,4 @@ src/main.cpp
 **/.npm
 **/.sh
 **/.tmp/
+**/genamapApp/activity/*
