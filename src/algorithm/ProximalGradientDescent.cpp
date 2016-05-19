@@ -64,6 +64,7 @@ void ProximalGradientDescent::run(Model *model) {
 
 void ProximalGradientDescent::run(LinearRegression *model) {
     int epoch = 0;
+    model->initBeta();
     double residue = model->cost();
     VectorXd grad;
     VectorXd in;
