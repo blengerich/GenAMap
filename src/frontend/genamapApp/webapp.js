@@ -5,7 +5,7 @@ var express = require('express'),
     os = require('os'),
     fs = require('fs'),
     PouchDB = require('pouchdb'),
-    Scheduler = require('../../GenAMap_V2/src/Scheduler/node/build/Release/scheduler');
+    Scheduler = require('../../Scheduler/node/build/Release/scheduler.node');
 
 
 var app = express();
@@ -327,6 +327,6 @@ orm.initialize(waterlineConfig, function(err, models) {
 
     var port = server.address().port || 'default port';
     console.log('Example app listening on port', port);
-    
+
   });
 });
