@@ -5,8 +5,7 @@ var express = require('express'),
     os = require('os'),
     fs = require('fs'),
     PouchDB = require('pouchdb'),
-    Scheduler = require('../../Scheduler/node/build/Release/scheduler.node');
-
+    Scheduler = require('../../Scheduler/node/build/Release/scheduler');
 
 var app = express();
 var orm = new Waterline();
@@ -117,6 +116,17 @@ orm.loadCollection(User);
 orm.loadCollection(Project);
 orm.loadCollection(Data);
 
+var guid = function () {
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
+
+var s4 = function () {
+  return Math.floor((1 + Math.random()) * 0x10000)
+    .toString(16)
+    .substring(1);
+}
+
 app.get('/add/:x/:y', function (req, res) {
   return res.json({
     x: parseInt(req.params.x), 
@@ -129,6 +139,8 @@ app.get('/api/data/:id', function (req, res) {
   app.models.data.findOne({id: req.params.id}, function (err, model) {
     if (err) return res.status(500).json({err: err});
     fs.readFile(model.path, 'utf8', function (error, data) {
+      console.log("model:", model);
+      console.log("data:", data);
       return res.json({file: model, data: data});
     });
   });
@@ -160,17 +172,18 @@ app.post('/api/import-data', function (req, res) {
         projectObj.species = val;
         break;
       default:
-        // console.log("Unhandled fieldname '" + fieldname + "' of value '" + val + "'");
+        console.log("Unhandled fieldname '" + fieldname + "' of value '" + val + "'");
     }
   });
   
   busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
-    var fstream = fs.createWriteStream('./.tmp/' + filename);
+    var id = guid();
+    var fstream = fs.createWriteStream('./.tmp/' + id + '.csv');
     var data;
     file.pipe(fstream);
     (fieldname === "markerFile") ? data = dataList.marker : data = dataList.trait
     data.filetype = fieldname;
-    data.path = filename;
+    data.path = './.tmp/' + id + '.csv';
   });
   busboy.on('finish', function () {
     app.models.project.findOrCreate(projectObj).then(function (project) {
@@ -188,24 +201,50 @@ app.post('/api/import-data', function (req, res) {
   
 });
 
+var ddoc = {
+  _id: '_design/activity_index',
+  views: {
+    running: {
+      map: function (doc) { emit(doc.status < 100); }.toString()
+    },
+    completed: {
+      map: function (doc) { emit(100 <= doc.status); }.toString()
+    }
+  }
+};
+
+activityDb.put(ddoc).then(function () {
+  console.log("success");
+}).catch(function (error) {
+  console.log("error: ", error);
+});
+
 var getActivityRunning = function () {
-  activityDb.get(1).then(function (doc) {
-    return doc;
+  activityDb.query('activity_index/running').then(function (res) {
+    console.log("query results: ", res);
+    return res;
+  }).catch(function (error) {
+    console.log("Error: ", error);
   });
 };
 
 var getActivityCompleted = function () {
-  activityDb.get(1).then(function (doc) {
-    return doc;
+  activityDb.query('activity_index/completed').then(function (res) {
+    return res;
+  }).catch(function (error) {
+    console.log("Error: ", error);
   });
 };
 
 var getActivityAll = function () {
-  // var activityRunning = getActivityRunning();
-  // var activityCompleted = getActivityCompleted();
-  // var activityAll = Array.prototype.push.apply(activityRunning, activityAll);
-  // return activityAll;
-  return {title: "jobName", test: "yes"};
+  activityDb.allDocs({
+    include_docs: true,
+    attachments: true
+  }).then(function (result) {
+    return result;
+  }).catch(function (err) {
+    console.log(err);
+  });
 };
 
 app.get('/api/activity/progress/:type', function (req, res) {
@@ -225,12 +264,22 @@ app.get('/api/activity/progress/:type', function (req, res) {
 });
 
 app.get('/api/activity/:id', function (req, res) {
-  var progress = Scheduler.checkJob(id);
-  return res.json();
+  return res.json({status: Scheduler.checkJob(id)});
 });
 
+var getAlgorithmType = function (id) {
+  var algorithmTypes = {
+    1: 1,
+    2: 1,
+    3: 1,
+    4: 1,
+    5: 1
+  };
+  return algorithmTypes[id];
+};
+
 app.post('/api/run-analysis', function (req, res) {
-    console.log(req.body);
+  req.body.algorithms.forEach( (model) => {
     /* 
     algorithmOptions = {
         type: algorithm_type,
@@ -244,10 +293,12 @@ app.post('/api/run-analysis', function (req, res) {
     };
     */
     var algorithmOptions = {
-      type: req.body.algorithmType || 1,
-      max_iteration: req.body.max_iteration || 10,
-      tolerance: req.body.tolerance || 0.01,
-      learning_rate: req.body.learning_rate || 0.01,
+      type: req.body.algorithmType || getAlgorithmType(model.id) || 1,
+      options: {
+        //max_iteration: req.body.max_iteration || 10,
+        tolerance: req.body.tolerance || 0.01,
+        learning_rate: req.body.learning_rate || 0.01,  
+      }    
     };
     var algorithmId = Scheduler.newAlgorithm(algorithmOptions);
     if (algorithmId === -1) return res.json({msg: "error creating algorithm"});
@@ -265,9 +316,17 @@ app.post('/api/run-analysis', function (req, res) {
     };
     */
     var modelOptions = {
-      type: req.body.modelType || 1,
+      type: model.id || 1,
+      options: {
+        lambda: model.lambda || 0.05,
+        L2_lambda: model.L2_lambda || 0.01
+      }
     };
     var modelId = Scheduler.newModel(modelOptions);
+    if (modelId === -1) return res.json({msg: "error creating model"});
+    
+    /* TODO:Set X and Y here */
+
     /*
     jobOptions = {
       algorithm_id: int,
@@ -275,18 +334,18 @@ app.post('/api/run-analysis', function (req, res) {
     };
     */
     var jobId = Scheduler.newJob({algorithm_id: algorithmId, model_id: modelId});
+    console.log("jobId", jobId);
 
-    var handleResults = function(results) {
-      console.log(results);
-      // Handle results of async call here.
-    }
-    console.log(Scheduler.startJob(handleResults, jobId));
-    console.log(Scheduler.checkJob(jobId));
-    console.log(Scheduler.cancelJob(jobId));
-    console.log(Scheduler.deleteAlgorithm(algorithmId));
-    console.log(Scheduler.deleteModel(modelId));
-    activityDb.put(job);
-    return res.json({job: job});
+    Scheduler.startJob(jobId, (results) => {
+      console.log("results: ", results);
+      activityDb.put(results);
+    });
+    // console.log(Scheduler.checkJob(jobId));
+    // console.log(Scheduler.cancelJob(jobId));
+    // console.log(Scheduler.deleteAlgorithm(algorithmId));
+    // console.log(Scheduler.deleteModel(modelId));
+  });
+  return res.json({status: true});
 });
 
 app.get('/api/projects', function (req, res) {
@@ -308,11 +367,22 @@ app.get('/api/species', function (req, res) {
 });
 
 app.get('/api/algorithms', function (req, res) {
-  return res.json([{name: "Lasso", id: 0},
-                   {name: "Multi Pop Lasso", id: 1},
-                   {name: "GfLasso", id: 2},
-                   {name: "Tree Lasso", id: 3},
-                   {name: "Ada Multi Task Lasso", id: 4}                   
+  /*
+  model_type = {
+    linear_regression: 1,
+    lasso: 2,
+    ada_multi_lasso: 3,
+    gf_lasso: 4,
+    multi_pop_lasso: 5,
+    tree_lasso: 6
+  };
+  */
+  return res.json([{name: "Linear Regression", id: 1},
+                   /*{name: "Lasso", id: 2},
+                   {name: "Ada Multi Lasso", id: 3},
+                   {name: "GF Lasso", id: 4},
+                   {name: "Multi Pop Lasso": 5},
+                   {name: "Tree Lasso", id: 6}*/
                   ]);
 });
 

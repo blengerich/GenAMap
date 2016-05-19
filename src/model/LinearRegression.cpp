@@ -16,6 +16,7 @@
 using namespace Eigen;
 using namespace std;
 
+
 LinearRegression::LinearRegression() {
     L1_reg = 0;
     L2_reg = 0;

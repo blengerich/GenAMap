@@ -8,22 +8,19 @@
 
 #include "Scheduler.hpp"
 
+#include <Eigen/Dense>
 #include <exception>
 #include <iostream>
 #include <node.h>
-//#include <pthread.h>
-//#include <queue>
 #include <stdio.h>
+#include <typeinfo>
 #include <unordered_map>
 #include <unistd.h>
 #include <uv.h>
-//#include <v8.h>
 
 #ifdef BAZEL
 #include "algorithm/Algorithm.hpp"
 #include "algorithm/AlgorithmOptions.hpp"
-#include "algorithm/BrentSearch.hpp"
-#include "algorithm/GridSearch.hpp"
 #include "algorithm/IterativeUpdate.hpp"
 #include "algorithm/ProximalGradientDescent.hpp"
 #include "model/AdaMultiLasso.hpp"
@@ -86,7 +83,7 @@ Scheduler* Scheduler::Instance() {
 /////////////////////////////////////////////////////////
 
 int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
-	Algorithm* my_algorithm;
+	//Algorithm* my_algorithm;
 	// Determine the type of algorithm to create.
 	switch(options.type) {
 		/*case brent_search:
@@ -98,23 +95,21 @@ int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 		case iterative_update:
 			my_algorithm = new IterativeUpdate(options);
 			break;*/
-		case proximal_gradient_descent:
-			my_algorithm = new ProximalGradientDescent(options.options);
-			break;
-		default:
-			return -1;
+		case algorithm_type::proximal_gradient_descent:
+			ProximalGradientDescent* my_algorithm = new ProximalGradientDescent(options.options);
+			int id = getNewAlgorithmId();
+			if (id >= 0) {
+				algorithms_map[id] = my_algorithm;
+				return id;
+			} else {
+				delete my_algorithm;
+			}
+		//default:
+		//	return -1;
 	}
-
-	// Track it in this scheduler.
-	int id = getNewAlgorithmId();
-	if (id >= 0) {
-		algorithms_map[id] = my_algorithm;
-		return id;
-	}
-
-	if (my_algorithm) {
+	/*if (my_algorithm) {
 		delete my_algorithm;
-	}
+	}*/
 	return -1;
 }
 
@@ -124,21 +119,21 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 		case ada_multi_lasso:
 			my_model = new AdaMultiLasso(options.options);
 			break;
-		/*case gf_lasso:
-			my_model = new GFlasso(options);
+		case gf_lasso:
+			my_model = new Gflasso(options.options);
 			break;
-		case lasso:
-			my_model = new Lasso(options);
-			break;
+		/*case lasso:
+			my_model = new Lasso(options.options);
+			break;*/
 		case linear_regression:
 			my_model = new LinearRegression(options.options);
 			break;
 		case multi_pop_lasso:
-			my_model = new MultiPopLasso(options);
+			my_model = new MultiPopLasso(options.options);
 			break;
 		case tree_lasso:
-			my_model = new TreeLasso(options);
-			break;*/
+			my_model = new TreeLasso(options.options);
+			break;
 		default:
 			return -1;
 	}
@@ -153,6 +148,24 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 	}
 }
 
+
+bool Scheduler::setX(const int model_id, const Eigen::MatrixXd& X) {
+	if (model_id >= 0 && model_id < kMaxModelId && models_map[model_id]) {
+		models_map[model_id]->setX(X);
+		return true;
+	}
+	return false;
+}
+
+bool Scheduler::setY(const int model_id, const Eigen::MatrixXd& Y) {
+	if (model_id >= 0 && model_id < kMaxModelId && models_map[model_id]) {
+		models_map[model_id]->setY(Y);
+		return true;
+	}
+	return false;
+}
+
+
 int Scheduler::newJob(const JobOptions_t& options) {
 	const int algorithm_id = options.algorithm_id;
 	const int model_id = options.model_id;
@@ -160,14 +173,19 @@ int Scheduler::newJob(const JobOptions_t& options) {
 	Job_t* my_job = new Job_t;
 	my_job->job_id = getNewJobId();
 	if (my_job->job_id >= 0) {
-		my_job->algorithm = algorithms_map.find(algorithm_id)->second;
-		my_job->model = models_map.find(model_id)->second;
-		jobs_map[my_job->job_id] = my_job;
-		return my_job->job_id;
-	} else {
-		delete my_job;
-		return -1;
+		unordered_map<int, Algorithm*>::iterator it = algorithms_map.find(algorithm_id);
+		if (it != algorithms_map.end()) {
+			my_job->algorithm = it->second;
+			unordered_map<int, Model*>::iterator it = models_map.find(model_id);
+			if (it != models_map.end()) {
+				my_job->model = it->second;
+				jobs_map[my_job->job_id] = my_job;
+				return my_job->job_id;
+			}
+		}	
 	}
+	delete my_job;
+	return -1;
 }
 
 
@@ -181,10 +199,35 @@ bool Scheduler::startJob(Job_t* job, void (*completion)(uv_work_t*, int)) {
 void trainAlgorithmThread(uv_work_t* req) {
 	// Running in worker thread.
 	Job_t* job = static_cast<Job_t*>(req->data);
-	usleep(10000);
 	// Run algorithm here.
-	job->algorithm->run(job->model);
-	//job->results = job->algorithm->run(job->model);
+	
+	// TODO: as more algorithm/model types are created, add them here.
+	if (dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
+		//cout << "dynaic cast worked" << endl;
+		ProximalGradientDescent* alg = (ProximalGradientDescent*)(job->algorithm);
+		//cout << typeid(alg).name() << endl;
+		if (dynamic_cast<LinearRegression*>(job->model)) {
+			alg->run(dynamic_cast<LinearRegression*>(job->model));	
+		} /*else if (dynamic_cast<Lasso*>(job->model)) {
+			alg->run(dynamic_cast<Lasso*>(job->model));	
+		}*/ else if (dynamic_cast<AdaMultiLasso*>(job->model)) {
+			alg->run(dynamic_cast<AdaMultiLasso*>(job->model));
+		} /*else if (dynamic_cast<Gflasso*>(job->model)) {
+			alg->run(dynamic_cast<Gflasso*>(job->model));
+		}*/
+	} else if (dynamic_cast<IterativeUpdate*>(job->algorithm)) {
+		IterativeUpdate* alg = (IterativeUpdate*)(job->algorithm);
+		//cout << typeid(alg).name() << endl;
+		if (dynamic_cast<TreeLasso*>(job->model)) {
+			alg->run(dynamic_cast<TreeLasso*>(job->model));	
+		} /*else if (dynamic_cast<Lasso*>(job->model)) {
+			alg->run(dynamic_cast<Lasso*>(job->model));	
+		}*/ /*else if (dynamic_cast<AdaMultiLasso*>(job->model)) {
+			alg->run(dynamic_cast<AdaMultiLasso*>(job->model));
+		}*/ /*else if (dynamic_cast<Gflasso*>(job->model)) {
+			alg->run(dynamic_cast<Gflasso*>(job->model));
+		}*/
+	}
 }
 
 

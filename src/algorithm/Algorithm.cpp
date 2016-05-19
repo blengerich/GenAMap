@@ -7,7 +7,6 @@
 #ifdef BAZEL
 #include "algorithm/Algorithm.hpp"
 #include "model/Model.hpp"
-
 #else
 #include "Algorithm.hpp"
 #include "../model/Model.hpp"
@@ -31,7 +30,7 @@ double Algorithm::getProgress() {
 void Algorithm::setMaxIteration(int m) {
 	maxIteration = m;
 }
-
+/*
 void Algorithm::run(Model*) {
 	cout<<"This algorithm is not implemented for current model"<<endl;
-}
+}*/
