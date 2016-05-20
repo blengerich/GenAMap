@@ -7,10 +7,10 @@ node_tests=1
 
 if [ $cpp_tests -eq 1 ]
 	then tests=(//Scheduler:Scheduler_Tests //model:Model_Tests)
-	bazel=/usr/src/genamap/depends/bazel_install/binary/bazel
-	flags="--spawn_strategy=standalone --test_output=all --color=yes --ignore_unsupported_sandboxing"
+	#bazel=/usr/src/genamap/depends/bazel_install/binary/bazel
+	flags="--test_verbose_timeout_warnings --spawn_strategy=standalone --test_output=all --color=yes --ignore_unsupported_sandboxing"
 	for test in "${tests[@]}"; do
-		cmd="${bazel} test $test ${flags}"
+		cmd="bazel test $test ${flags}"
 		eval "$cmd 2>&1"
 	done
 fi
