@@ -10,6 +10,7 @@
 #define Scheduler_hpp
 
 #include <Eigen/Dense>
+#include <memory>
 #include <unordered_map>
 #include <uv.h>
 #include <vector>
@@ -53,7 +54,7 @@ public:
 	// Simply packages as a job and assigns an ID.
 	// Returns the job's assigned ID, -1 for failure.
 	
-	bool startJob(Job_t*, void (*f)(uv_work_t*, int));
+	bool startJob(const int, void (*f)(uv_work_t*, int));
 	// Returns true if successfully queued, false otherwise.
 
 	double checkJob(const int);
@@ -68,6 +69,8 @@ public:
 	bool deleteJob(const int);
 
 	Job_t* getJob(const int);
+
+	MatrixXd getResult(const int);
 
 	static Scheduler* Instance();
 	// This class follows the singleton pattern.
@@ -107,9 +110,9 @@ private:
     const int kMaxJobId = 100;
     int next_job_id;
 
-    unordered_map<int, Algorithm*> algorithms_map;
-    unordered_map<int, Model*> models_map;
-    unordered_map<int, Job_t*> jobs_map;
+    unordered_map<int, unique_ptr<Algorithm>> algorithms_map;
+    unordered_map<int, unique_ptr<Model>> models_map;
+    unordered_map<int, unique_ptr<Job_t>> jobs_map;
     // tracks all jobs (running, waiting, and completed). indexed by job_id.  
 };
 

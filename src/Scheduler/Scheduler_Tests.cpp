@@ -6,9 +6,10 @@
 //
 //
 
-#include <Eigen/Dense>
-#include <stdio.h>
 #include "gtest/gtest.h"
+#include <Eigen/Dense>
+#include <memory>
+#include <stdio.h>
 #include <unordered_map>
 
 #include "Scheduler/Scheduler.hpp"
@@ -25,6 +26,7 @@ TEST(SchedulerTest, getNewAlgorithmId) {
 	int alg_num2 = my_scheduler->getNewAlgorithmId();
 	EXPECT_GT(alg_num2, alg_num1);
 }
+
 
 TEST(SchedulerTest, newAlgorithm) {
 	Scheduler* my_scheduler = Scheduler::Instance();
@@ -75,7 +77,7 @@ TEST(SchedulerTest, newJobAlgNotFound) {
 
 
 TEST(SchedulerTest, newJob) {
-	/*Scheduler* my_scheduler = Scheduler::Instance();
+	Scheduler* my_scheduler = Scheduler::Instance();
 	AlgorithmOptions_t alg_opts = AlgorithmOptions_t(
 		algorithm_type::proximal_gradient_descent, {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
 	int alg_num = my_scheduler->newAlgorithm(alg_opts);
@@ -83,14 +85,40 @@ TEST(SchedulerTest, newJob) {
 	int model_num = my_scheduler->newModel(model_opts);
 	JobOptions_t job_opts = JobOptions_t(alg_num, model_num);
 	int job_num1 = my_scheduler->newJob(job_opts);
-	EXPECT_GE(job_num1, 0);*/
+	EXPECT_GE(job_num1, 0);
+	if (my_scheduler->getJob(job_num1) && my_scheduler->getJob(job_num1)->model) {
+		cerr << "model not null" << endl;
+	} else {
+		cerr << "model null" << endl;
+	}
 }
 
+void NullFunc(uv_work_t* req, int status) {
+	cerr << status << endl;
+	cerr << "in NullFunc" << endl;
+};
 
 TEST(SchedulerTest, Train) {
-	//Scheduler* my_scheduler = Scheduler::Instance();
-	//int job_num = my_scheduler->newAlgorithm(Scheduler::algorithm_type::proximal_gradient_descent);
-	//EXPECT_EQ(true, my_scheduler->train(job_num));
+	Scheduler* my_scheduler = Scheduler::Instance();
+	ModelOptions_t model_opts = ModelOptions_t(linear_regression, {{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
+	int model_num1 = my_scheduler->newModel(model_opts);
+	AlgorithmOptions_t alg_opts = AlgorithmOptions_t(
+		algorithm_type::proximal_gradient_descent, {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
+	int alg_num1 = my_scheduler->newAlgorithm(alg_opts);
+	int job_num = my_scheduler->newJob(JobOptions_t(alg_num1, model_num1));
+
+	/*cout << "startingob" << endl;*/
+	if (my_scheduler->getJob(job_num) && my_scheduler->getJob(job_num)->model) {
+		cerr << "model not null" << endl;
+	} else {
+		cerr << "model null" << endl;
+	}
+	if (my_scheduler->getJob(job_num) && my_scheduler->getJob(job_num)->algorithm) {
+		cerr << "algorithm not null" << endl;
+	} else {
+		cerr << "algorithm null" << endl;
+	}
+	EXPECT_EQ(true, my_scheduler->startJob(job_num, NullFunc));
 }
 
 
@@ -114,11 +142,13 @@ TEST(SchedulerTest, SetX) {
 	m << 1, 2,
 		 3, 4,
 		 5, 6;
-	EXPECT_EQ(my_scheduler->setX(model_num, m), true);
+	cerr << "setX" << endl;
+	EXPECT_EQ(true, my_scheduler->setX(model_num, m));
 }
 
 
 TEST(SchedulerTest, SetY) {
+	cout << "starting setY" << endl;
 	Scheduler* my_scheduler = Scheduler::Instance();
 	ModelOptions_t model_opts = ModelOptions_t(linear_regression, {{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
 	int model_num = my_scheduler->newModel(model_opts);
@@ -126,5 +156,5 @@ TEST(SchedulerTest, SetY) {
 	m << 1, 2,
 		 3, 4,
 		 5, 6;
-	EXPECT_EQ(my_scheduler->setY(model_num, m), true);
+	EXPECT_EQ(true, my_scheduler->setY(model_num, m));
 }

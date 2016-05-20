@@ -18,7 +18,7 @@ enum model_type {
 	tree_lasso = 6
 };
 
-struct ModelOptions_t {
+typedef struct ModelOptions_t {
 	model_type type;
 	unordered_map<string, string> options;
 
@@ -45,6 +45,6 @@ struct ModelOptions_t {
 	ModelOptions_t(model_type model, unordered_map<string, string> opts)
 	: type(model)
 	, options(opts){};
-};
+} ModelOptions_t;
 
 #endif // MODEL_OPTIONS_HPP
