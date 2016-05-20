@@ -112,36 +112,29 @@ int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 }
 
 int Scheduler::newModel(const ModelOptions_t& options) {
-	//Model* my_model;
 	int id = getNewModelId();
 	if (id >= 0) {
 		switch(options.type) {
 			case ada_multi_lasso: {
-				AdaMultiLasso* my_model = new AdaMultiLasso(options.options);
-				models_map[id] = unique_ptr<Model>(my_model);
+				models_map[id] = unique_ptr<AdaMultiLasso>(new AdaMultiLasso(options.options));
 				break;
 			}
 			case gf_lasso: {
-				Gflasso* my_model = new Gflasso(options.options);
-				models_map[id] = unique_ptr<Model>(my_model);
+				models_map[id] = unique_ptr<Gflasso>(new Gflasso(options.options));
 				break;
 			}
 			/*case lasso:
 				my_model = new Lasso(options.options);
 				break;*/
 			case linear_regression: {
-				cerr << "linereg" << endl;
-				/*LinearRegression* my_model = ;*/
 				models_map[id] = unique_ptr<LinearRegression>(new LinearRegression(options.options));
 				break;
 			}
 			case multi_pop_lasso: {
-				MultiPopLasso* my_model = new MultiPopLasso(options.options);
-				models_map[id] = unique_ptr<Model>(my_model);
+				models_map[id] = unique_ptr<MultiPopLasso>(new MultiPopLasso(options.options));
 				break;
 			}
 			case tree_lasso: {
-				/*TreeLasso* my_model = ;*/
 				models_map[id] = unique_ptr<Model>(new TreeLasso(options.options));
 				break;
 			}
@@ -155,9 +148,7 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 
 
 bool Scheduler::setX(const int model_id, const Eigen::MatrixXd& X) {
-	cout << "trying to set X" << endl;
 	if (model_id >= 0 && model_id < kMaxModelId && models_map[model_id].get()) {
-		cout << "trying to set X" << endl;
 		models_map[model_id].get()->setX(X);
 		return true;
 	}
@@ -214,8 +205,6 @@ bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) 
 
 // Runs in libuv thread spawned by trainAlgorithmAsync
 void trainAlgorithmThread(uv_work_t* req) {
-	cerr << "inside thread" << endl;
-	// Running in worker thread.
 	Job_t* job = static_cast<Job_t*>(req->data);
 	if (!job) {
 		cerr << "Job must not be null" << endl;
@@ -226,17 +215,13 @@ void trainAlgorithmThread(uv_work_t* req) {
 	}
 	
 	// TODO: as more algorithm/model types are created, add them here.
-	/*Algorithm* alg;
-	Model* model;*/
 	if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
 		/*cout << "proximal_gradient_descent" << endl;*/
 		/*cout << job->model->getX().rows() << endl;
 		cout << job->model->getX().cols() << endl;
 		cout << job->model->getY().rows() << endl;
 		cout << job->model->getY().cols() << endl;*/
-		/*ProximalGradientDescent* alg = (ProximalGradientDescent*)(job->algorithm);*/
 		if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
-			/*cout << "running" << endl;*/
 			/*alg->run(dynamic_cast<LinearRegression*>(job->model));	*/
 			alg->run(model);
 		} /*else if (dynamic_cast<Lasso*>(job->model)) {
