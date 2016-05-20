@@ -3,13 +3,11 @@ sampleData/*
 CMakeLists.txt
 .idea*
 .DS_Store
-src/main.cpp
 **/node/build*
 **/logs
 **/*.log
 **/npm-debug.log*
 **/node_modules/
 **/.npm
-**/.sh
 **/.tmp/
 **/genamapApp/activity/*
