@@ -11,3 +11,4 @@ CMakeLists.txt
 **/.npm
 **/.tmp/
 **/genamapApp/activity/*
+.todos*
