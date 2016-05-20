@@ -216,11 +216,6 @@ void trainAlgorithmThread(uv_work_t* req) {
 	
 	// TODO: as more algorithm/model types are created, add them here.
 	if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
-		/*cout << "proximal_gradient_descent" << endl;*/
-		/*cout << job->model->getX().rows() << endl;
-		cout << job->model->getX().cols() << endl;
-		cout << job->model->getY().rows() << endl;
-		cout << job->model->getY().cols() << endl;*/
 		if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
 			/*alg->run(dynamic_cast<LinearRegression*>(job->model));	*/
 			alg->run(model);
@@ -247,20 +242,26 @@ void trainAlgorithmThread(uv_work_t* req) {
 
 
 
-double Scheduler::checkJob(const int job_id) {
-	return Instance()->jobs_map[job_id].get()->algorithm->getProgress();
+double Scheduler::checkJobProgress(const int job_id) {
+	if (ValidJobId(job_id) && jobs_map[job_id].get()->algorithm) {
+		return jobs_map[job_id].get()->algorithm->getProgress();
+	}
+	return -1;
 }
 
 
-bool Scheduler::cancelJob(const int job_num) {
+bool Scheduler::cancelJob(const int job_id) {
 	// TODO: How to cancel an algorithm while it's running?
-	// remove from maps and queues.
+	if (ValidJobId(job_id)) {
+		// Cancel
+		return true;
+	}
 	return false;
 }
 
 
 bool Scheduler::deleteAlgorithm(const int algorithm_id) {
-	// TODO: Safety checks here
+	// TODO: Safety checks here - How to ensure that no jobs refer to this algorithm? Reference count in algorithm object?
 	if (algorithms_map[algorithm_id]) {
 		algorithms_map[algorithm_id].reset();
 		algorithms_map.erase(algorithm_id);
@@ -272,7 +273,7 @@ bool Scheduler::deleteAlgorithm(const int algorithm_id) {
 
 
 bool Scheduler::deleteModel(const int model_id) {
-	// TODO: Safety checks
+	// TODO: Safety checks - How to ensure that no jobs refer to this algorithm? Reference count in algorithm obejct?
 	if (models_map[model_id]) {
 		models_map[model_id].reset();
 		models_map.erase(model_id);
@@ -285,14 +286,11 @@ bool Scheduler::deleteModel(const int model_id) {
 
 bool Scheduler::deleteJob(const int job_id) {
 	// TODO: safety checks
-	if (jobs_map[job_id] && jobs_map[job_id].get()) {
+	if (ValidJobId(job_id) && (checkJobProgress(job_id) == 0 || checkJobProgress(job_id) == 100)) {
 		jobs_map[job_id].reset();
-		jobs_map.erase(job_id);	
 		return true;
-	} else {
-		return false;
 	}
-	
+	return false;
 }
 
 
@@ -314,7 +312,7 @@ int Scheduler::getNewModelId() {
 	int retval = next_model_id;
 	for (int i = 1; i < s_instance->kMaxModelId; i++) {
 		int candidate_model_id = (s_instance->next_model_id + i) % s_instance->kMaxModelId;
-		if (s_instance->models_map.count(candidate_model_id) == 0) {
+		if (!ValidModelId(candidate_model_id)) {
 			s_instance->next_model_id = candidate_model_id;
 			return retval;
 		}
@@ -327,7 +325,7 @@ int Scheduler::getNewAlgorithmId() {
 	int retval = next_algorithm_id;
 	for (int i = 1; i < kMaxAlgorithmId; i++) {
 		int candidate_algorithm_id = (next_algorithm_id + i) % kMaxAlgorithmId;
-		if (algorithms_map.count(candidate_algorithm_id) == 0) {
+		if (!ValidAlgorithmId(candidate_algorithm_id)) {
 			next_algorithm_id = candidate_algorithm_id;
 			return retval;
 		}
@@ -340,10 +338,23 @@ int Scheduler::getNewJobId() {
 	int retval = next_job_id;
 	for (int i = 1; i < s_instance->kMaxJobId; i++) {
 		int candidate_job_id = (s_instance->next_job_id + i) % s_instance->kMaxJobId;
-		if (s_instance->jobs_map.count(candidate_job_id) == 0) {
+		if (!ValidJobId(candidate_job_id)) {
 			s_instance->next_job_id = candidate_job_id;
 			return retval;
 		}
 	}
 	return -1;
+}
+
+
+bool Scheduler::ValidAlgorithmId(const int id) {
+	return (id < kMaxAlgorithmId && algorithms_map[id] && algorithms_map[id].get());
+}
+
+bool Scheduler::ValidModelId(const int id) {
+	return (id < kMaxModelId && models_map[id] && models_map[id].get());
+}
+
+bool Scheduler::ValidJobId(const int id) {
+	return (id < kMaxJobId && jobs_map[id] && jobs_map[id].get());
 }

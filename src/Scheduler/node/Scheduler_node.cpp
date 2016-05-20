@@ -134,7 +134,20 @@ void newJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	// Inspect arguments.
-	//assert(args.Length() >= 2, "Must give a callback and a job num to train.");
+	if (args.Length() < 1) {
+		isolate->ThrowException(Exception::TypeError(
+			String::NewFromUtf8(isolate, "Must supply a job id to start.")));
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
+		return;
+	}
+
+	if (!args[0]->IsNumber()) {
+		isolate->ThrowException(Exception::TypeError(
+			String::NewFromUtf8(isolate, "Job id must be a number.")));
+		return;
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
+	}
+
 	const int job_id = (int)Local<Number>::Cast(args[0])->Value();
 	Job_t* job = Scheduler::Instance()->getJob(job_id);
 	job->callback.Reset(isolate, Local<Function>::Cast(args[1]));
@@ -157,11 +170,11 @@ void checkJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 		return;
 	}
 
-	if (!args[0]->IsNumber()) {
+	/*if (!(args[0]->IsNumber())) {
 		isolate->ThrowException(Exception::TypeError(
 			String::NewFromUtf8(isolate, "Job id must be a number.")));
 		return;
-	}
+	}*/
 
 	int job_id = (int)Local<Number>::Cast(args[0])->Value();
 	const double progress = Scheduler::Instance()->checkJob(job_id);

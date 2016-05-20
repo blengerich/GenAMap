@@ -57,7 +57,7 @@ public:
 	bool startJob(const int, void (*f)(uv_work_t*, int));
 	// Returns true if successfully queued, false otherwise.
 
-	double checkJob(const int);
+	double checkJobProgress(const int);
 	// Returns the progress of the job.
 
 	bool cancelJob(const int);
@@ -83,19 +83,24 @@ protected:
 
 private:
 
+	// Generates and returns new identifier. Failure is identified with -1.
 	int getNewAlgorithmId();
-    // Generates and returns new job identifier. Failure is identified with -1.
-
 	int getNewModelId();
-    // Generates and returns new job identifier. Failure is identified with -1.
-
 	int getNewJobId();
-    // Generates and returns new job identifier. Failure is identified with -1.
+    
+	// Checks whether an Id is currently being used. Returns true for currently in use, false otherwise.
+	bool ValidAlgorithmId(const int);
+	bool ValidModelId(const int);
+	bool ValidJobId(const int);
+
 
     #ifdef BAZEL
     FRIEND_TEST(SchedulerTest, getNewAlgorithmId);
     FRIEND_TEST(SchedulerTest, getNewModelId);
     FRIEND_TEST(SchedulerTest, getNewJobId);
+    FRIEND_TEST(SchedulerTest, ValidAlgorithmId);
+    FRIEND_TEST(SchedulerTest, ValidModelId);
+    FRIEND_TEST(SchedulerTest, ValidJobId);
     #endif
 
     static Scheduler* s_instance;   // Singleton
