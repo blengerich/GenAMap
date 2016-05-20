@@ -51,5 +51,5 @@ cc_test(
                 "-lz"],
     deps = ["@gtest//:main",
             "//Scheduler:Scheduler",],
-    size = "small"
+    size = "medium"
 )

@@ -71,14 +71,14 @@ void TEST_TREE_NEAR(Tree * m, Tree * n, float v){
         if (mt->children.size()==0){
         }
         else{
-            for (int i=0; i<mt->children.size();i++){
+            for (unsigned int i=0; i<mt->children.size();i++){
                 nm.push(mt->children[i]);
             }
         }
         if (nt->children.size()==0){
         }
         else{
-            for (int i=0; i<nt->children.size();i++){
+            for (unsigned int i=0; i < nt->children.size();i++){
                 nn.push(nt->children[i]);
             }
         }
@@ -647,11 +647,11 @@ TEST(ADA_MULTI_POP_LASSO, Projection){
     TEST_MATRIX_NEAR(m, n, 1e-3);
     m << 1, 1, 3, 0, 1;
     r << 0, 0, 1, 0, 0;
-    VectorXd n = aml.projection(m);
+    n = aml.projection(m);
     TEST_MATRIX_NEAR(m, n, 1e-3);
     m << -0.1, -0.4, 0.9, 1.0, 0.2;
     r << 0, 0, 0.45, 0.55, 0;
-    VectorXd n = aml.projection(m);
+    n = aml.projection(m);
     cout << n << endl;
 }
 
