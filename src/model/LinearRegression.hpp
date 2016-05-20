@@ -38,6 +38,7 @@ public:
 
     LinearRegression();
     LinearRegression(const unordered_map<string, string>& options);
+    ~LinearRegression();
 };
 
 

@@ -19,6 +19,7 @@
 #include "../../model/ModelOptions.hpp"
 #include "../Job.hpp"
 #include "../Scheduler.hpp"
+#include "../../json/JsonCoder.hpp"
 
 using namespace std;
 using namespace v8;
@@ -33,7 +34,6 @@ void newAlgorithm(const FunctionCallbackInfo<Value>& args) {
 		isolate->ThrowException(Exception::TypeError(
 			String::NewFromUtf8(isolate, "Wrong number of arguments")));
 		return;
-
 	}
 
 	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
@@ -83,7 +83,6 @@ void setX(const FunctionCallbackInfo<Value>& args) {
 			Matrix(i,j) = (double)Local<v8::Array>::Cast(ar->Get(i))->Get(j)->NumberValue();
 		}
 	}
-	/*cout << "X: " << endl << Matrix << endl;*/
 	bool result = Scheduler::Instance()->setX(model_num, Matrix);
 	Local<Boolean> retval = Boolean::New(isolate, result);
 	args.GetReturnValue().Set(retval);
@@ -106,7 +105,6 @@ void setY(const FunctionCallbackInfo<Value>& args) {
 			Matrix(i,j) = (double)Local<v8::Array>::Cast(ar->Get(i))->Get(j)->NumberValue();
 		}
 	}
-	/*cout << "Y: " << endl << Matrix << endl;*/
 	bool result = Scheduler::Instance()->setY(model_num, Matrix);
 	args.GetReturnValue().Set(Boolean::New(isolate, result));	
 }
@@ -139,11 +137,10 @@ void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	//assert(args.Length() >= 2, "Must give a callback and a job num to train.");
 	const int job_id = (int)Local<Number>::Cast(args[0])->Value();
 	Job_t* job = Scheduler::Instance()->getJob(job_id);
-	job->request.data = job;
 	job->callback.Reset(isolate, Local<Function>::Cast(args[1]));
 	job->job_id = job_id;
 
-	bool result = Scheduler::Instance()->startJob(job, trainAlgorithmComplete);
+	bool result = Scheduler::Instance()->startJob(job_id, trainAlgorithmComplete);
 	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
 
@@ -241,8 +238,13 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 	Job_t* job = static_cast<Job_t*>(req->data);
 	
 	// Pack up the data here to be returned to JS - unclear what the format is
-	Local<v8::Array> result_list = v8::Array::New(isolate);
-	Handle<Value> argv[] = { result_list };
+	/*Local<v8::Array> result_list = v8::Array::New(isolate);*/
+	const MatrixXd& result = job->model->getBeta();
+	
+	Local<v8::Array> obj = v8::Array::New(isolate);
+	// TODO: Fewer convserions to return a matrix
+	obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
+	Handle<Value> argv[] = { obj };
 
 	// execute the callback
 	Local<Function>::New(isolate, job->callback)->Call(

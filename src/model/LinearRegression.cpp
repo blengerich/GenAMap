@@ -26,8 +26,11 @@ LinearRegression::LinearRegression() {
 LinearRegression::LinearRegression(const unordered_map<string, string>& options) {
     L1_reg = stof(options.at("lambda"));
     L2_reg = stof(options.at("L2_lambda"));
-}
+};
 
+LinearRegression::~LinearRegression() {
+    cerr << "being deleted";
+};
 
 void LinearRegression::setL1_reg(float l1) { L1_reg = l1; };
 

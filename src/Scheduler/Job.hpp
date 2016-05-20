@@ -19,16 +19,16 @@
 using namespace std;
 using namespace v8;
 
-struct Job_t {
+typedef struct Job_t {
 	uv_work_t request;
 	Persistent<Function> callback;
 	int job_id;
 	Algorithm* algorithm;
 	Model* model;
 	//Results_t* results;	// Unclear how results should be packaged.
-};
+} Job_t;
 
-struct JobOptions_t {
+typedef struct JobOptions_t {
 	int algorithm_id;
 	int model_id;
 	//double priority;
@@ -43,10 +43,10 @@ struct JobOptions_t {
 		model_id = model_id_handle->IntegerValue();
 	}
 
-	JobOptions_t(int algorithm, int model, model_type m, algorithm_type a)
+	JobOptions_t(int algorithm, int model)
 	: algorithm_id(algorithm)
 	, model_id(model){};
 
-};
+} JobOptions_t;
 
 #endif // JOB_HPP

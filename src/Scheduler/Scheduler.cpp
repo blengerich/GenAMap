@@ -11,11 +11,12 @@
 #include <Eigen/Dense>
 #include <exception>
 #include <iostream>
+#include <memory>
 #include <node.h>
 #include <stdio.h>
 #include <typeinfo>
-#include <unordered_map>
 #include <unistd.h>
+#include <unordered_map>
 #include <uv.h>
 
 #ifdef BAZEL
@@ -51,7 +52,7 @@
 using namespace std;
 
 // Global static pointer used to ensure a single instance of this class.
-Scheduler* Scheduler::s_instance = NULL;
+Scheduler* Scheduler::s_instance;
 
 
 //////////////////////////////////////////
@@ -62,9 +63,9 @@ Scheduler::Scheduler()
 : next_algorithm_id(0)
 , next_model_id(0)
 , next_job_id(0) {
-	algorithms_map = std::unordered_map<int, Algorithm*>();
-	models_map = std::unordered_map<int, Model*>();
-	jobs_map = std::unordered_map<int, Job_t*>();
+	algorithms_map = std::unordered_map<int, unique_ptr<Algorithm>>();
+	models_map = std::unordered_map<int, unique_ptr<Model>>();
+	jobs_map = std::unordered_map<int, unique_ptr<Job_t>>();
 }
 
 Scheduler& Scheduler::operator=(Scheduler const& s) {
@@ -73,7 +74,7 @@ Scheduler& Scheduler::operator=(Scheduler const& s) {
 
 Scheduler* Scheduler::Instance() {	
 	if (!s_instance) {	// Singleton
-		s_instance = new Scheduler;
+		s_instance = new Scheduler();
 	}
 	return s_instance;
 }
@@ -84,82 +85,89 @@ Scheduler* Scheduler::Instance() {
 
 int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 	//Algorithm* my_algorithm;
+	int id = getNewAlgorithmId();
 	// Determine the type of algorithm to create.
-	switch(options.type) {
-		/*case brent_search:
-			my_algorithm = new BrentSearch(options);
-			break;
-		case grid_search:
-			my_algorithm = new GridSearch(options);
-			break;
-		case iterative_update:
-			my_algorithm = new IterativeUpdate(options);
-			break;*/
-		case algorithm_type::proximal_gradient_descent:
-			ProximalGradientDescent* my_algorithm = new ProximalGradientDescent(options.options);
-			int id = getNewAlgorithmId();
-			if (id >= 0) {
-				algorithms_map[id] = my_algorithm;
-				return id;
-			} else {
-				delete my_algorithm;
+	if (id >= 0) {
+		switch(options.type) {
+			/*case brent_search:
+				my_algorithm = new BrentSearch(options);
+				break;
+			case grid_search:
+				my_algorithm = new GridSearch(options);
+				break;
+			case iterative_update:
+				my_algorithm = new IterativeUpdate(options);
+				break;*/
+			case algorithm_type::proximal_gradient_descent: {
+				ProximalGradientDescent* my_algorithm = new ProximalGradientDescent(options.options);
+				algorithms_map[id] = unique_ptr<Algorithm>(my_algorithm);	
+				break;
 			}
-		//default:
-		//	return -1;
+			default:
+				return -1;
+		}
 	}
-	/*if (my_algorithm) {
-		delete my_algorithm;
-	}*/
-	return -1;
+
+	return id;
 }
 
 int Scheduler::newModel(const ModelOptions_t& options) {
-	Model* my_model;
-	switch(options.type) {
-		case ada_multi_lasso:
-			my_model = new AdaMultiLasso(options.options);
-			break;
-		case gf_lasso:
-			my_model = new Gflasso(options.options);
-			break;
-		/*case lasso:
-			my_model = new Lasso(options.options);
-			break;*/
-		case linear_regression:
-			my_model = new LinearRegression(options.options);
-			break;
-		case multi_pop_lasso:
-			my_model = new MultiPopLasso(options.options);
-			break;
-		case tree_lasso:
-			my_model = new TreeLasso(options.options);
-			break;
-		default:
-			return -1;
-	}
-
+	//Model* my_model;
 	int id = getNewModelId();
 	if (id >= 0) {
-		models_map[id] = my_model;
-		return id;
-	} else {
-		delete my_model;
-		return -1;
+		switch(options.type) {
+			case ada_multi_lasso: {
+				AdaMultiLasso* my_model = new AdaMultiLasso(options.options);
+				models_map[id] = unique_ptr<Model>(my_model);
+				break;
+			}
+			case gf_lasso: {
+				Gflasso* my_model = new Gflasso(options.options);
+				models_map[id] = unique_ptr<Model>(my_model);
+				break;
+			}
+			/*case lasso:
+				my_model = new Lasso(options.options);
+				break;*/
+			case linear_regression: {
+				cerr << "linereg" << endl;
+				/*LinearRegression* my_model = ;*/
+				models_map[id] = unique_ptr<LinearRegression>(new LinearRegression(options.options));
+				break;
+			}
+			case multi_pop_lasso: {
+				MultiPopLasso* my_model = new MultiPopLasso(options.options);
+				models_map[id] = unique_ptr<Model>(my_model);
+				break;
+			}
+			case tree_lasso: {
+				/*TreeLasso* my_model = ;*/
+				models_map[id] = unique_ptr<Model>(new TreeLasso(options.options));
+				break;
+			}
+			default:
+				return -1;
+		}
 	}
+
+	return id;
 }
 
 
 bool Scheduler::setX(const int model_id, const Eigen::MatrixXd& X) {
-	if (model_id >= 0 && model_id < kMaxModelId && models_map[model_id]) {
-		models_map[model_id]->setX(X);
+	cout << "trying to set X" << endl;
+	if (model_id >= 0 && model_id < kMaxModelId && models_map[model_id].get()) {
+		cout << "trying to set X" << endl;
+		models_map[model_id].get()->setX(X);
 		return true;
 	}
 	return false;
 }
 
+
 bool Scheduler::setY(const int model_id, const Eigen::MatrixXd& Y) {
-	if (model_id >= 0 && model_id < kMaxModelId && models_map[model_id]) {
-		models_map[model_id]->setY(Y);
+	if (model_id >= 0 && model_id < kMaxModelId && models_map[model_id].get()) {
+		models_map[model_id].get()->setY(Y);
 		return true;
 	}
 	return false;
@@ -170,16 +178,16 @@ int Scheduler::newJob(const JobOptions_t& options) {
 	const int algorithm_id = options.algorithm_id;
 	const int model_id = options.model_id;
 
-	Job_t* my_job = new Job_t;
+	Job_t* my_job = new Job_t();
 	my_job->job_id = getNewJobId();
 	if (my_job->job_id >= 0) {
-		unordered_map<int, Algorithm*>::iterator it = algorithms_map.find(algorithm_id);
+		unordered_map<int, unique_ptr<Algorithm>>::iterator it = algorithms_map.find(algorithm_id);
 		if (it != algorithms_map.end()) {
-			my_job->algorithm = it->second;
-			unordered_map<int, Model*>::iterator it = models_map.find(model_id);
+			my_job->algorithm = it->second.get();
+			unordered_map<int, unique_ptr<Model>>::iterator it = models_map.find(model_id);
 			if (it != models_map.end()) {
-				my_job->model = it->second;
-				jobs_map[my_job->job_id] = my_job;
+				my_job->model = it->second.get();
+				jobs_map[my_job->job_id] = unique_ptr<Job_t>(my_job);
 				return my_job->job_id;
 			}
 		}	
@@ -189,27 +197,48 @@ int Scheduler::newJob(const JobOptions_t& options) {
 }
 
 
-bool Scheduler::startJob(Job_t* job, void (*completion)(uv_work_t*, int)) {
-	uv_queue_work(uv_default_loop(), &job->request, trainAlgorithmThread, completion);
+bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) {
+	Job_t* job = getJob(job_id);
+	job->request.data = job;
+	if (!job) {
+		cerr << "Job must not be null" << endl;
+		return false;
+	} else if (!job->algorithm || !job->model) {
+		cerr << "Job must have an algorithm and a model" << endl;
+		return false;
+	}
+	uv_queue_work(uv_default_loop(), &(job->request), trainAlgorithmThread, completion);
 	return true;
 }
 
 
 // Runs in libuv thread spawned by trainAlgorithmAsync
 void trainAlgorithmThread(uv_work_t* req) {
+	cerr << "inside thread" << endl;
 	// Running in worker thread.
 	Job_t* job = static_cast<Job_t*>(req->data);
-	// Run algorithm here.
+	if (!job) {
+		cerr << "Job must not be null" << endl;
+		return;
+	} else if (!job->algorithm || !job->model) {
+		cerr << "Job must have an algorithm and a model" << endl;
+		return;
+	}
 	
 	// TODO: as more algorithm/model types are created, add them here.
-	if (dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
+	/*Algorithm* alg;
+	Model* model;*/
+	if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
+		/*cout << "proximal_gradient_descent" << endl;*/
 		/*cout << job->model->getX().rows() << endl;
 		cout << job->model->getX().cols() << endl;
 		cout << job->model->getY().rows() << endl;
 		cout << job->model->getY().cols() << endl;*/
-		ProximalGradientDescent* alg = (ProximalGradientDescent*)(job->algorithm);
-		if (dynamic_cast<LinearRegression*>(job->model)) {
-			alg->run(dynamic_cast<LinearRegression*>(job->model));	
+		/*ProximalGradientDescent* alg = (ProximalGradientDescent*)(job->algorithm);*/
+		if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+			/*cout << "running" << endl;*/
+			/*alg->run(dynamic_cast<LinearRegression*>(job->model));	*/
+			alg->run(model);
 		} /*else if (dynamic_cast<Lasso*>(job->model)) {
 			alg->run(dynamic_cast<Lasso*>(job->model));	
 		}*/ else if (dynamic_cast<AdaMultiLasso*>(job->model)) {
@@ -232,8 +261,9 @@ void trainAlgorithmThread(uv_work_t* req) {
 }
 
 
+
 double Scheduler::checkJob(const int job_id) {
-	return Instance()->jobs_map[job_id]->algorithm->getProgress();
+	return Instance()->jobs_map[job_id].get()->algorithm->getProgress();
 }
 
 
@@ -246,31 +276,50 @@ bool Scheduler::cancelJob(const int job_num) {
 
 bool Scheduler::deleteAlgorithm(const int algorithm_id) {
 	// TODO: Safety checks here
-	delete algorithms_map[algorithm_id];
-	algorithms_map.erase(algorithm_id);
-	return true;
+	if (algorithms_map[algorithm_id]) {
+		algorithms_map[algorithm_id].reset();
+		algorithms_map.erase(algorithm_id);
+		return true;
+	} else {
+		return false;
+	}
 }
 
 
 bool Scheduler::deleteModel(const int model_id) {
 	// TODO: Safety checks
-	delete models_map[model_id];
-	models_map.erase(model_id);
-	return true;
+	if (models_map[model_id]) {
+		models_map[model_id].reset();
+		models_map.erase(model_id);
+		return true;
+	} else {
+		return false;
+	}
 }
 
 
 bool Scheduler::deleteJob(const int job_id) {
 	// TODO: safety checks
-	delete jobs_map[job_id];
-	jobs_map.erase(job_id);
-	return true;
+	if (jobs_map[job_id] && jobs_map[job_id].get()) {
+		jobs_map[job_id].reset();
+		jobs_map.erase(job_id);	
+		return true;
+	} else {
+		return false;
+	}
+	
 }
 
 
 Job_t* Scheduler::getJob(const int job_id) {
-	return jobs_map[job_id];
+	return jobs_map[job_id].get();
 }
+
+
+MatrixXd Scheduler::getResult(const int job_id) {
+	return getJob(job_id)->model->getBeta();
+}
+
 
 ////////////////////////////////////////////////////////
 // Private Functions
@@ -291,10 +340,10 @@ int Scheduler::getNewModelId() {
 
 int Scheduler::getNewAlgorithmId() {
 	int retval = next_algorithm_id;
-	for (int i = 1; i < s_instance->kMaxAlgorithmId; i++) {
-		int candidate_algorithm_id = (s_instance->next_algorithm_id + i) % s_instance->kMaxAlgorithmId;
-		if (s_instance->algorithms_map.count(candidate_algorithm_id) == 0) {
-			s_instance->next_algorithm_id = candidate_algorithm_id;
+	for (int i = 1; i < kMaxAlgorithmId; i++) {
+		int candidate_algorithm_id = (next_algorithm_id + i) % kMaxAlgorithmId;
+		if (algorithms_map.count(candidate_algorithm_id) == 0) {
+			next_algorithm_id = candidate_algorithm_id;
 			return retval;
 		}
 	}

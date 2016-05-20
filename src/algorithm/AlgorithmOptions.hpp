@@ -17,7 +17,7 @@ enum algorithm_type {
 	iterative_update = 3,
 };
 
-struct AlgorithmOptions_t {
+typedef struct AlgorithmOptions_t {
 	algorithm_type type;
 	unordered_map<string, string> options;
 
@@ -45,6 +45,6 @@ struct AlgorithmOptions_t {
 	: type(t)
 	, options(opt) {}
 
-};
+} AlgorithmOptions_t;
 
 #endif // ALGORITHM_OPTIONS_HPP

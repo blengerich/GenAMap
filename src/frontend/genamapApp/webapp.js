@@ -281,6 +281,8 @@ var getAlgorithmType = function (id) {
 
 app.post('/api/run-analysis', function (req, res) {
   req.body.algorithms.forEach( (model) => {
+    // should be getting the Model ID here, then we can call API for data paths
+    /*app.get('/api/data/:id', function (req, res)*/
     /* 
     algorithmOptions = {
         type: algorithm_type,

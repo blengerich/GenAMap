@@ -1,5 +1,5 @@
 var assert = require('chai').assert;
-var backend = require('../../../Scheduler/node/build/Release/scheduler');
+var backend = require('../../../Scheduler/node/build/Release/scheduler.node');
 
 describe('Scheduler', function() {
 	describe('newAlgorithm', function() {
