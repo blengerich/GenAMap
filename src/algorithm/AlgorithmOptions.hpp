@@ -45,6 +45,8 @@ typedef struct AlgorithmOptions_t {
 	: type(t)
 	, options(opt) {}
 
+	AlgorithmOptions_t(){};
+
 } AlgorithmOptions_t;
 
 #endif // ALGORITHM_OPTIONS_HPP

@@ -38,7 +38,13 @@ private:
 
     bool checkVectorConvergence(VectorXd, VectorXd, double);
 
+    void setUpRun();
+    void finishRun();
+
 public:
+    ProximalGradientDescent();
+    ProximalGradientDescent(const unordered_map<string, string>&);
+
     void setLearningRate(float);
     void setTolerance(float);
     void setLearningRate2(float);
@@ -53,8 +59,7 @@ public:
     void run(AdaMultiLasso*);
     void run(Gflasso*);
 
-    ProximalGradientDescent();
-    ProximalGradientDescent(const unordered_map<string, string>&);
+    /*void stop();*/
 };
 
 

@@ -99,8 +99,7 @@ int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 				my_algorithm = new IterativeUpdate(options);
 				break;*/
 			case algorithm_type::proximal_gradient_descent: {
-				ProximalGradientDescent* my_algorithm = new ProximalGradientDescent(options.options);
-				algorithms_map[id] = unique_ptr<Algorithm>(my_algorithm);	
+				algorithms_map[id] = unique_ptr<ProximalGradientDescent>(new ProximalGradientDescent(options.options));	
 				break;
 			}
 			default:
@@ -148,7 +147,7 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 
 
 bool Scheduler::setX(const int model_id, const Eigen::MatrixXd& X) {
-	if (model_id >= 0 && model_id < kMaxModelId && models_map[model_id].get()) {
+	if (ValidModelId(model_id)) {
 		models_map[model_id].get()->setX(X);
 		return true;
 	}
@@ -157,7 +156,7 @@ bool Scheduler::setX(const int model_id, const Eigen::MatrixXd& X) {
 
 
 bool Scheduler::setY(const int model_id, const Eigen::MatrixXd& Y) {
-	if (model_id >= 0 && model_id < kMaxModelId && models_map[model_id].get()) {
+	if (ValidModelId(model_id)) {
 		models_map[model_id].get()->setY(Y);
 		return true;
 	}
@@ -170,8 +169,9 @@ int Scheduler::newJob(const JobOptions_t& options) {
 	const int model_id = options.model_id;
 
 	Job_t* my_job = new Job_t();
-	my_job->job_id = getNewJobId();
-	if (my_job->job_id >= 0) {
+	const int job_id = getNewJobId();
+	if (job_id >= 0) {
+		my_job->job_id = job_id;
 		unordered_map<int, unique_ptr<Algorithm>>::iterator it = algorithms_map.find(algorithm_id);
 		if (it != algorithms_map.end()) {
 			my_job->algorithm = it->second.get();
@@ -179,16 +179,21 @@ int Scheduler::newJob(const JobOptions_t& options) {
 			if (it != models_map.end()) {
 				my_job->model = it->second.get();
 				jobs_map[my_job->job_id] = unique_ptr<Job_t>(my_job);
-				return my_job->job_id;
+				return job_id;
 			}
 		}	
 	}
+
 	delete my_job;
 	return -1;
 }
 
 
 bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) {
+	if (!ValidJobId(job_id)) {
+		return false;
+	}
+
 	Job_t* job = getJob(job_id);
 	job->request.data = job;
 	if (!job) {
@@ -199,6 +204,7 @@ bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) 
 		return false;
 	}
 	uv_queue_work(uv_default_loop(), &(job->request), trainAlgorithmThread, completion);
+	usleep(10);	// TODO: fix this rare race condition (stopping job before the thread has started is bad) in a better way?
 	return true;
 }
 
@@ -216,20 +222,18 @@ void trainAlgorithmThread(uv_work_t* req) {
 	
 	// TODO: as more algorithm/model types are created, add them here.
 	if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
-		if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
-			/*alg->run(dynamic_cast<LinearRegression*>(job->model));	*/
-			alg->run(model);
-		} /*else if (dynamic_cast<Lasso*>(job->model)) {
-			alg->run(dynamic_cast<Lasso*>(job->model));	
-		}*/ else if (dynamic_cast<AdaMultiLasso*>(job->model)) {
-			alg->run(dynamic_cast<AdaMultiLasso*>(job->model));
-		} /*else if (dynamic_cast<Gflasso*>(job->model)) {
-			alg->run(dynamic_cast<Gflasso*>(job->model));
-		}*/
-	} else if (dynamic_cast<IterativeUpdate*>(job->algorithm)) {
-		IterativeUpdate* alg = (IterativeUpdate*)(job->algorithm);
-		if (dynamic_cast<TreeLasso*>(job->model)) {
-			alg->run(dynamic_cast<TreeLasso*>(job->model));	
+	    if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+	        alg->run(model);
+	    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+	        alg->run(model);
+	    } /*else if (dynamic_cast<Lasso*>(job->model)) {
+	        alg->run(dynamic_cast<Lasso*>(job->model)); 
+	    }*/ /*else if (dynamic_cast<Gflasso*>(job->model)) {
+	        alg->run(dynamic_cast<Gflasso*>(job->model));
+	    }*/ 
+	} else if (IterativeUpdate* alg = dynamic_cast<IterativeUpdate*>(job->algorithm)) {
+		if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+			alg->run(model);	
 		} /*else if (dynamic_cast<Lasso*>(job->model)) {
 			alg->run(dynamic_cast<Lasso*>(job->model));	
 		}*/ /*else if (dynamic_cast<AdaMultiLasso*>(job->model)) {
@@ -241,19 +245,21 @@ void trainAlgorithmThread(uv_work_t* req) {
 }
 
 
-
 double Scheduler::checkJobProgress(const int job_id) {
-	if (ValidJobId(job_id) && jobs_map[job_id].get()->algorithm) {
-		return jobs_map[job_id].get()->algorithm->getProgress();
+	if (ValidJobId(job_id) && getJob(job_id)->algorithm) {
+		return getJob(job_id)->algorithm->getProgress();
 	}
 	return -1;
 }
 
 
 bool Scheduler::cancelJob(const int job_id) {
-	// TODO: How to cancel an algorithm while it's running?
-	if (ValidJobId(job_id)) {
-		// Cancel
+	if (ValidJobId(job_id) && getJob(job_id)->algorithm) {
+		getJob(job_id)->algorithm->stop();	// TODO: switch to sending shutdown signal?
+		while(getJob(job_id)->algorithm->getIsRunning()) {
+			// TODO: stopping should be async with callback?
+			usleep(1000);
+		}
 		return true;
 	}
 	return false;
@@ -285,9 +291,10 @@ bool Scheduler::deleteModel(const int model_id) {
 
 
 bool Scheduler::deleteJob(const int job_id) {
-	// TODO: safety checks
-	if (ValidJobId(job_id) && (checkJobProgress(job_id) == 0 || checkJobProgress(job_id) == 100)) {
+	// TODO: check that user owns this job
+	if (cancelJob(job_id)) {
 		jobs_map[job_id].reset();
+		jobs_map.erase(job_id);
 		return true;
 	}
 	return false;
@@ -295,14 +302,13 @@ bool Scheduler::deleteJob(const int job_id) {
 
 
 Job_t* Scheduler::getJob(const int job_id) {
-	return jobs_map[job_id].get();
+	return ValidJobId(job_id) ? jobs_map[job_id].get() : NULL;
 }
 
 
 MatrixXd Scheduler::getResult(const int job_id) {
-	return getJob(job_id)->model->getBeta();
+	return ValidJobId(job_id) ? getJob(job_id)->model->getBeta() : MatrixXd();
 }
-
 
 ////////////////////////////////////////////////////////
 // Private Functions
@@ -310,10 +316,10 @@ MatrixXd Scheduler::getResult(const int job_id) {
 
 int Scheduler::getNewModelId() {
 	int retval = next_model_id;
-	for (int i = 1; i < s_instance->kMaxModelId; i++) {
-		int candidate_model_id = (s_instance->next_model_id + i) % s_instance->kMaxModelId;
+	for (int i = 1; i < kMaxModelId; i++) {
+		int candidate_model_id = (next_model_id + i) % kMaxModelId;
 		if (!ValidModelId(candidate_model_id)) {
-			s_instance->next_model_id = candidate_model_id;
+			next_model_id = candidate_model_id;
 			return retval;
 		}
 	}
@@ -336,10 +342,10 @@ int Scheduler::getNewAlgorithmId() {
 
 int Scheduler::getNewJobId() {
 	int retval = next_job_id;
-	for (int i = 1; i < s_instance->kMaxJobId; i++) {
-		int candidate_job_id = (s_instance->next_job_id + i) % s_instance->kMaxJobId;
+	for (int i = 1; i < kMaxJobId; i++) {
+		int candidate_job_id = (next_job_id + i) % kMaxJobId;
 		if (!ValidJobId(candidate_job_id)) {
-			s_instance->next_job_id = candidate_job_id;
+			next_job_id = candidate_job_id;
 			return retval;
 		}
 	}
@@ -348,13 +354,13 @@ int Scheduler::getNewJobId() {
 
 
 bool Scheduler::ValidAlgorithmId(const int id) {
-	return (id < kMaxAlgorithmId && algorithms_map[id] && algorithms_map[id].get());
+	return (id >= 0 && id < kMaxAlgorithmId && algorithms_map[id] && algorithms_map[id].get());
 }
 
 bool Scheduler::ValidModelId(const int id) {
-	return (id < kMaxModelId && models_map[id] && models_map[id].get());
+	return (id >= 0 && id < kMaxModelId && models_map[id] && models_map[id].get());
 }
 
 bool Scheduler::ValidJobId(const int id) {
-	return (id < kMaxJobId && jobs_map[id] && jobs_map[id].get());
+	return (id >= 0 && id < kMaxJobId && jobs_map[id] && jobs_map[id].get());
 }

@@ -170,12 +170,6 @@ void checkJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 		return;
 	}
 
-	/*if (!(args[0]->IsNumber())) {
-		isolate->ThrowException(Exception::TypeError(
-			String::NewFromUtf8(isolate, "Job id must be a number.")));
-		return;
-	}*/
-
 	int job_id = (int)Local<Number>::Cast(args[0])->Value();
 	const double progress = Scheduler::Instance()->checkJobProgress(job_id);
 	Local<Number> retval = Number::New(isolate, progress);
@@ -250,20 +244,19 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 
 	Job_t* job = static_cast<Job_t*>(req->data);
 	
-	// Pack up the data here to be returned to JS - unclear what the format is
-	/*Local<v8::Array> result_list = v8::Array::New(isolate);*/
+	// Pack up the data here to be returned to JS
 	const MatrixXd& result = job->model->getBeta();
-	
 	Local<v8::Array> obj = v8::Array::New(isolate);
-	// TODO: Fewer convserions to return a matrix
+	// TODO: Fewer convserions to return a matrix [Issue: https://github.com/blengerich/GenAMap_V2/issues/17]
 	obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
 	Handle<Value> argv[] = { obj };
-
+ 
 	// execute the callback
 	Local<Function>::New(isolate, job->callback)->Call(
 		isolate->GetCurrentContext()->Global(), 1, argv);
 	job->callback.Reset();
-	delete job;
+	Scheduler::Instance()->deleteJob(job->job_id);
+	/*delete job;*/
 	// Should call scheduler's delete job function here
 }
 

@@ -45,6 +45,9 @@ typedef struct ModelOptions_t {
 	ModelOptions_t(model_type model, unordered_map<string, string> opts)
 	: type(model)
 	, options(opts){};
+
+	ModelOptions_t(){};
+
 } ModelOptions_t;
 
 #endif // MODEL_OPTIONS_HPP

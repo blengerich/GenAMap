@@ -19,63 +19,78 @@
 using namespace std;
 
 
-TEST(SchedulerTest, Singleton) {
-	Scheduler* my_scheduler = Scheduler::Instance();
+class SchedulerTest : public testing::Test {
+protected:
+	virtual void SetUp() {
+		my_scheduler = Scheduler::Instance();
+		alg_opts = AlgorithmOptions_t(
+			proximal_gradient_descent,
+			{{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
+
+		model_opts = ModelOptions_t(
+			linear_regression,
+			{{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
+
+	}
+
+	virtual void TearDown() {
+
+	}
+
+	AlgorithmOptions_t alg_opts;
+	ModelOptions_t model_opts;
+	Scheduler* my_scheduler;
+};
+
+
+TEST_F(SchedulerTest, Singleton) {
 	Scheduler* my_scheduler2 = Scheduler::Instance();
 	ASSERT_EQ(my_scheduler, my_scheduler2);
 }
 
 
-TEST(SchedulerTest, getNewAlgorithmId) {
-	Scheduler* my_scheduler = Scheduler::Instance();
+TEST_F(SchedulerTest, getNewAlgorithmId) {
 	int alg_num1 = my_scheduler->getNewAlgorithmId();
 	EXPECT_GE(alg_num1, 0);
 	int alg_num2 = my_scheduler->getNewAlgorithmId();
 	EXPECT_GT(alg_num2, alg_num1);
 
+	// Since we aren't actually making any algorithms, we shouldn't run out of IDs.
 	for (int i = 0; i < 1000; i++) {
 		EXPECT_GE(my_scheduler->getNewAlgorithmId(), 0);
 	}
 }
 
 
-TEST(SchedulerTest, newAlgorithm) {
-	Scheduler* my_scheduler = Scheduler::Instance();
-	AlgorithmOptions_t alg_opts = AlgorithmOptions_t(
-		algorithm_type::proximal_gradient_descent, {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
+TEST_F(SchedulerTest, newAlgorithm) {
 	int alg_num1 = my_scheduler->newAlgorithm(alg_opts);
 	EXPECT_GE(alg_num1, 0);
+	// TODO: other checks to ensure the algorithm was constructed correctly [Issue: https://github.com/blengerich/GenAMap_V2/issues/15]
 
-	/*alg_opts = AlgorithmOptions_t(
-		algorithm_type::iterative_update, unordered_map<string, string>());
-	int job_num2 = my_scheduler->newAlgorithm(alg_opts);
-	EXPECT_GE(job_num2, job_num1);*/
+	// TODO: test other algorithm types here [Issue: https://github.com/blengerich/GenAMap_V2/issues/7]
 }
 
 
-TEST(SchedulerTest, getNewModelId) {
-	Scheduler* my_scheduler = Scheduler::Instance();
+TEST_F(SchedulerTest, getNewModelId) {
 	int model_num1 = my_scheduler->getNewModelId();
 	EXPECT_GE(model_num1, 0);
 	int model_num2 = my_scheduler->getNewModelId();
 	EXPECT_GT(model_num2, model_num1);
 
+	// Since we aren't actually making any models, we shouldn't run out of IDs.
 	for (int i = 0; i < 1000; i++) {
 		EXPECT_GE(my_scheduler->getNewModelId(), 0);
 	}
 }
 
 
-TEST(SchedulerTest, newModel) {
-	Scheduler* my_scheduler = Scheduler::Instance();
-	ModelOptions_t model_opts = ModelOptions_t(linear_regression, {{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
+TEST_F(SchedulerTest, newModel) {
 	int model_num1 = my_scheduler->newModel(model_opts);
 	EXPECT_GE(model_num1, 0);
 }
 
-TEST(SchedulerTest, SetX) {
-	Scheduler* my_scheduler = Scheduler::Instance();
-	ModelOptions_t model_opts = ModelOptions_t(linear_regression, {{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
+
+TEST_F(SchedulerTest, SetX) {
 	int model_num = my_scheduler->newModel(model_opts);
 	Eigen::MatrixXd m(2,3);
 	m << 1, 2,
@@ -85,9 +100,7 @@ TEST(SchedulerTest, SetX) {
 }
 
 
-TEST(SchedulerTest, SetY) {
-	Scheduler* my_scheduler = Scheduler::Instance();
-	ModelOptions_t model_opts = ModelOptions_t(linear_regression, {{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
+TEST_F(SchedulerTest, SetY) {
 	int model_num = my_scheduler->newModel(model_opts);
 	Eigen::MatrixXd m(2,3);
 	m << 1, 2,
@@ -96,8 +109,8 @@ TEST(SchedulerTest, SetY) {
 	EXPECT_EQ(true, my_scheduler->setY(model_num, m));
 }
 
-TEST(SchedulerTest, getNewJobId) {
-	Scheduler* my_scheduler = Scheduler::Instance();
+
+TEST_F(SchedulerTest, getNewJobId) {
 	int job_num1 = my_scheduler->getNewJobId();
 	EXPECT_GE(job_num1, 0);
 	int job_num2 = my_scheduler->getNewJobId();
@@ -109,22 +122,58 @@ TEST(SchedulerTest, getNewJobId) {
 }
 
 
-TEST(SchedulerTest, newJob) {
-	Scheduler* my_scheduler = Scheduler::Instance();
-	AlgorithmOptions_t alg_opts = AlgorithmOptions_t(
-		algorithm_type::proximal_gradient_descent, {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
+TEST_F(SchedulerTest, newJob) {
 	int alg_num = my_scheduler->newAlgorithm(alg_opts);
-	ModelOptions_t model_opts = ModelOptions_t(linear_regression, {{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
 	int model_num = my_scheduler->newModel(model_opts);
 	JobOptions_t job_opts = JobOptions_t(alg_num, model_num);
 	int job_num1 = my_scheduler->newJob(job_opts);
 	ASSERT_GE(job_num1, 0);
 }
 
+
+TEST_F(SchedulerTest, ValidAlgorithmId) {
+	ASSERT_FALSE(my_scheduler->ValidAlgorithmId(-1));
+	EXPECT_FALSE(my_scheduler->ValidAlgorithmId(my_scheduler->getNewAlgorithmId()));
+
+	int alg_num = my_scheduler->newAlgorithm(alg_opts);
+	ASSERT_TRUE(my_scheduler->ValidModelId(alg_num));
+}
+
+
+TEST_F(SchedulerTest, ValidModelId) {
+	ASSERT_FALSE(my_scheduler->ValidModelId(-1));
+	EXPECT_FALSE(my_scheduler->ValidModelId(my_scheduler->getNewModelId()));
+
+	int model_num1 = my_scheduler->newModel(model_opts);
+	ASSERT_TRUE(my_scheduler->ValidModelId(model_num1));
+}
+
+
+// TODO: extract jobs and models into "sample" jobs/model for quick setup/teardown. [Issue: https://github.com/blengerich/GenAMap_V2/issues/16]
+TEST_F(SchedulerTest, ValidJobId) {
+	ASSERT_FALSE(my_scheduler->ValidJobId(-1));
+	EXPECT_FALSE(my_scheduler->ValidJobId(my_scheduler->getNewJobId()));
+	
+	int alg_num = my_scheduler->newAlgorithm(alg_opts);
+	int model_num = my_scheduler->newModel(model_opts);
+	JobOptions_t job_opts = JobOptions_t(alg_num, model_num);
+	int job_num1 = my_scheduler->newJob(job_opts);
+	ASSERT_TRUE(my_scheduler->ValidJobId(job_num1));
+
+	my_scheduler->deleteJob(job_num1);
+	ASSERT_FALSE(my_scheduler->ValidJobId(job_num1));
+}
+
+
 void NullFunc(uv_work_t* req, int status) {};
 
-TEST(SchedulerTest, Train) {
-	Scheduler* my_scheduler = Scheduler::Instance();
+
+TEST_F(SchedulerTest, Train_Not_Found) {
+	ASSERT_FALSE(my_scheduler->startJob(-1, NullFunc));
+}
+
+
+TEST_F(SchedulerTest, Train) {
 	ModelOptions_t model_opts = ModelOptions_t(linear_regression, {{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
 	int model_num1 = my_scheduler->newModel(model_opts);
 	AlgorithmOptions_t alg_opts = AlgorithmOptions_t(
@@ -158,62 +207,12 @@ TEST(SchedulerTest, Train) {
 	int alg_num1 = my_scheduler->newAlgorithm(alg_opts);
 	int job_num = my_scheduler->newJob(JobOptions_t(alg_num1, model_num1));
 
-	if (!my_scheduler->getJob(job_num) || !my_scheduler->getJob(job_num)->model) {
-		cerr << "model null" << endl;
-	}
-	if (!my_scheduler->getJob(job_num) && !my_scheduler->getJob(job_num)->algorithm) {
-		cerr << "algorithm null" << endl;
-	}
 	ASSERT_EQ(true, my_scheduler->startJob(job_num, NullFunc));
 }
 
-
-TEST(SchedulerTest, ValidAlgorithmId) {
-	Scheduler* my_scheduler = Scheduler::Instance();
-	ASSERT_FALSE(Scheduler::Instance()->ValidAlgorithmId(-1));
-	EXPECT_FALSE(Scheduler::Instance()->ValidAlgorithmId(Scheduler::Instance()->getNewAlgorithmId()));
-	AlgorithmOptions_t alg_opts = AlgorithmOptions_t(
-		algorithm_type::proximal_gradient_descent, {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
-	int alg_num = my_scheduler->newAlgorithm(alg_opts);
-	ASSERT_TRUE(Scheduler::Instance()->ValidModelId(alg_num));
-}
-
-TEST(SchedulerTest, ValidModelId) {
-	Scheduler* my_scheduler = Scheduler::Instance();
-	ASSERT_FALSE(my_scheduler->ValidModelId(-1));
-	EXPECT_FALSE(my_scheduler->ValidModelId(Scheduler::Instance()->getNewModelId()));
-	ModelOptions_t model_opts = ModelOptions_t(linear_regression, {{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
-	int model_num1 = Scheduler::Instance()->newModel(model_opts);
-	ASSERT_TRUE(Scheduler::Instance()->ValidModelId(model_num1));
-}
-
-// TODO: extract jobs and models into "sample" jobs/model for quick setup/teardown.
-TEST(SchedulerTest, ValidJobId) {
-	Scheduler* my_scheduler = Scheduler::Instance();
-	ASSERT_FALSE(my_scheduler->ValidJobId(-1));
-	EXPECT_FALSE(my_scheduler->ValidJobId(my_scheduler->getNewJobId()));
-	
-	AlgorithmOptions_t alg_opts = AlgorithmOptions_t(
-		algorithm_type::proximal_gradient_descent, {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
-	int alg_num = my_scheduler->newAlgorithm(alg_opts);
-	ModelOptions_t model_opts = ModelOptions_t(linear_regression, {{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
-	int model_num = my_scheduler->newModel(model_opts);
-	JobOptions_t job_opts = JobOptions_t(alg_num, model_num);
-	int job_num1 = my_scheduler->newJob(job_opts);
-	ASSERT_TRUE(my_scheduler->ValidJobId(job_num1));
-
-	my_scheduler->deleteJob(job_num1);
-	ASSERT_FALSE(my_scheduler->ValidJobId(job_num1));
-}
-
-TEST(SchedulerTest, CheckJobProgress) {
-	Scheduler* my_scheduler = Scheduler::Instance();
+TEST_F(SchedulerTest, CheckJobProgress) {
 	EXPECT_EQ(my_scheduler->checkJobProgress(0), -1);
-
-	ModelOptions_t model_opts = ModelOptions_t(linear_regression, {{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
 	int model_num1 = my_scheduler->newModel(model_opts);
-	AlgorithmOptions_t alg_opts = AlgorithmOptions_t(
-		algorithm_type::proximal_gradient_descent, {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
 
     MatrixXd X(10, 5);
     X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
@@ -226,6 +225,7 @@ TEST(SchedulerTest, CheckJobProgress) {
     0.5469,    0.9157,    0.3922,    0.3171,    0.6463,
     0.9575,    0.7922,    0.6555,    0.9502,    0.7094,
     0.9649,    0.9595,    0.1712,    0.0344,    0.7547;
+
     MatrixXd y(10, 1);
     y << 0.4173,
     0.0497,
@@ -237,8 +237,8 @@ TEST(SchedulerTest, CheckJobProgress) {
     0.9001,
     0.3692,
     0.1112;
-    Scheduler::Instance()->setX(model_num1, X);
-    Scheduler::Instance()->setY(model_num1, y);
+    my_scheduler->setX(model_num1, X);
+    my_scheduler->setY(model_num1, y);
     
 	int alg_num1 = my_scheduler->newAlgorithm(alg_opts);
 	int job_num = my_scheduler->newJob(JobOptions_t(alg_num1, model_num1));
@@ -249,17 +249,8 @@ TEST(SchedulerTest, CheckJobProgress) {
 	double progress_2 = my_scheduler->checkJobProgress(job_num);
 	ASSERT_GE(progress_2, progress);
 
-	/*ASSERT_TRUE(my_scheduler->deleteJob(job_num));
-	ASSERT_EQ(my_scheduler->checkJobProgress(job_num), -1);*/
+	ASSERT_TRUE(my_scheduler->deleteJob(job_num));
+	ASSERT_EQ(my_scheduler->checkJobProgress(job_num), -1);
 }
 
-// TODO: can algorithms only be used for 1 job at a time?
 
-
-/*TEST(SchedulerTest, Train_Not_Found) {
-	Scheduler* my_scheduler = Scheduler::Instance();
-	//my_scheduler->train(0);
-}*/
-
-
-//} // Namespace

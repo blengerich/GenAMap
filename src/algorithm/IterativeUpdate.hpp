@@ -18,12 +18,13 @@ private:
     double prev_residue;
     double tol;
 public:
+    IterativeUpdate();
+    IterativeUpdate(const map<string, string>& options);
+
     void setTolerance(double);
 
     void run(TreeLasso*);
-
-    IterativeUpdate();
-    IterativeUpdate(const map<string, string>& options);
+    void stop();
 };
 
 
