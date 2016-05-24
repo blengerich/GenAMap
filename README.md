@@ -1,6 +1,6 @@
 # GenAMap Version 2
 
-[![Build Status](http://ec2-54-89-136-156.compute-1.amazonaws.com/buildStatus/icon?job=GenAMap_Backend)](http://ec2-54-89-136-156.compute-1.amazonaws.com/job/GenAMap_Backend/) <-- Click here to check out the build process (you will need to make an account to do anything, go [here](http://ec2-54-89-136-156.compute-1.amazonaws.com/) to create one)
+[![Build Status](http://ec2-54-89-136-156.compute-1.amazonaws.com/buildStatus/icon?job=GenAMap_Backend)](http://ec2-54-89-136-156.compute-1.amazonaws.com/job/GenAMap_Backend/) <-- (Must be logged in to view, go [here](http://ec2-54-89-136-156.compute-1.amazonaws.com/) to create an account)
 
 ## Documentation:
 See [docs](https://github.com/blengerich/GenAMap_V2/tree/master/doc).
