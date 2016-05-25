@@ -42,3 +42,20 @@ TEST(ChiSquared, IntegrationTest) {
     EXPECT_GE(0.0455+1e-5, Stats::ChiToPValue(Stats::ChiSquaredTest(observed, expected), 1));
     EXPECT_LE(0.0445-1e-5, Stats::ChiToPValue(Stats::ChiSquaredTest(observed, expected), 1));
 }
+
+TEST(FisherExactTest, BasicTest) {
+    MatrixXd X = MatrixXd::Constant(1, 1);
+    EXPECT_EQ(1, Stats::FisherExactTest(X));
+    MatrixXd m(2, 2);
+    m(0, 0) = 1;
+    m(0, 1) = 1;
+    m(1, 0) = 1;
+    m(0, 1) = 1;
+    EXPECT_GE(0.66, Stats::FisherExactTest(m));
+    EXPECT_LE(0.67, Stats::FisherExactTest(m));
+}
+
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}
