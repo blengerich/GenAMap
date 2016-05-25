@@ -32,7 +32,6 @@ function HELP {
   echo "${REV}-n${NORM}  --Sets the value for the ${BOLD}name of the docker container${NORM}. Default is ${BOLD}${OPT_NAME}${NORM}. Name specified in gulp command needs to be the same as the name in the node command."
   echo -e "${REV}-h${NORM}  --Displays this help message. No further functions are performed."\\n
   echo -e "Example: ${BOLD}$SCRIPT -p 8000 -t tag1 -n foo node${NORM}"\\n
-  exit 1
 }
 
 function DOCKER {
@@ -41,22 +40,21 @@ function DOCKER {
 
 function RUN {
   docker run --name ${OPT_NAME} -ti --rm -p ${OPT_PORT}:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap:${OPT_IMAGE_TAG}
-  exit 1
-}
-
-function NODE {
-  open "http://${IP}:${OPT_PORT}" && docker run --name ${OPT_NAME} -ti --rm -p ${OPT_PORT}:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap:${OPT_IMAGE_TAG} /bin/bash -c "cd /usr/src/genamap/src/frontend/genamapApp && node webapp.js"
-  exit 1
 }
 
 function NODEGYP {
   docker run --name ${OPT_NAME} -ti --rm -p ${OPT_PORT}:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap:${OPT_IMAGE_TAG} /bin/bash -c "cd /usr/src/genamap/src/Scheduler/node && node-gyp rebuild"
-  exit 1
+}
+
+function NODE {
+  if [ ! -f ./src/Scheduler/node/build/Release/scheduler.node ]; then
+    NODEGYP
+  fi
+  open "http://${IP}:${OPT_PORT}" && docker run --name ${OPT_NAME} -ti --rm -p ${OPT_PORT}:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap:${OPT_IMAGE_TAG} /bin/bash -c "cd /usr/src/genamap/src/frontend/genamapApp && nodemon -L webapp.js"
 }
 
 function GULP {
   docker exec ${OPT_NAME} /bin/bash -c "cd /usr/src/genamap/src/frontend/genamapApp; gulp watch" && docker attach ${OPT_NAME}
-  exit 1
 }
 
 ### Start getopts code ###
@@ -107,16 +105,22 @@ while [ $# -ne 0 ]; do
   COMMAND=$1
   if [ "$COMMAND" == "docker" ]; then
     DOCKER
+    exit 1
   elif [ "$COMMAND" == "run" ]; then
     RUN
+    exit 1
   elif [ "$COMMAND" == "nodegyp" ]; then
     NODEGYP
+    exit 1
   elif [ "$COMMAND" == "node" ]; then
     NODE
+    exit 1
   elif [ "$COMMAND" == "gulp" ]; then
     GULP
+    exit 1
   else
     HELP
+    exit 1
   fi
   shift  #Move on to next command
 done

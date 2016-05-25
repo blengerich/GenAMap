@@ -1,17 +1,20 @@
+body { margin: 0; }
+
 /***********************************/
 /*        Side Menu Projects       */
 /***********************************/
 .gm-project__container {
-          display: block;
-          color: rgba(255, 255, 255, 0.56);
-          font-weight: 500;
-          margin: 0;
-          text-decoration: none;
-          font-size: 14px;
-          line-height: 24px;
-          letter-spacing: 0;
-          opacity: .87;
-        }
+  display: block;
+  color: rgba(255, 255, 255, 0.56);
+  font-weight: 500;
+  margin: 0;
+  text-decoration: none;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0;
+  opacity: .87;
+}
+
 .gm-project__title {
   display: flex !important;
   flex-direction: row;

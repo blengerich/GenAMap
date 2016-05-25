@@ -22,10 +22,11 @@ To run the node app (with CLI):
 * If the webpage is showing an error, wait a few seconds and refresh the page. The node command takes a few seconds to run the site so it is not available instantly.
 If you also need to gulp (update the source files) (with CLI):
 * Open another terminal window
-* Go to the GenAMap_V2 folder and run the genamap gulp command
-  $ cd GenAMap_V2
-  $ genamap docker            (starts the Docker daemon)
-  $ genamap gulp              (runs gulp in the image)
+* Install gulp on your local machine
+  $ npm install -g gulp
+* Go to the GenAMap_V2 folder and run gulp
+  $ cd GenAMap_V2/src/frontend/genamappApp
+  $ gulp watch
 
 To run the node app (without CLI):
 * Open Docker Quickstart Terminal
