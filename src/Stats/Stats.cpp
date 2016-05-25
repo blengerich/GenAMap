@@ -34,9 +34,9 @@ double Stats::FisherExactTest(MatrixXd X) {
    double NFac = boost::math::factorial<double>(N);
    MatrixXd rowSums = X.rowwise().sum();
    MatrixXd colSums = X.colwise().sum();
-   MatrixXd comFacs = X.unaryExpr(std::ptr_fun(boost::math::factorial));
-   MatrixXd rFacs = rowSums.unaryExpr(std::ptr_fun(boost::math::factorial));
-   MatrixXd cFacs = colSums.unaryExpr(std::ptr_fun(boost::math::factorial));
+   MatrixXd comFacs = X.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
+   MatrixXd rFacs = rowSums.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
+   MatrixXd cFacs = colSums.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
    double rowsFacs = rFacs.prod();
    double colsFacs = cFacs.prod();
    double componentFacs = comFacs.prod();
