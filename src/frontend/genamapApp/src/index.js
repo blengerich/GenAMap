@@ -1,8 +1,7 @@
 import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'react-redux'
-import { Router, Route, browserHistory } from 'react-router'
-import { syncHistoryWithStore } from 'react-router-redux'
+import { Router, Route, hashHistory } from 'react-router'
 import injectTapEventPlugin from 'react-tap-event-plugin'
 injectTapEventPlugin()
 
@@ -14,11 +13,10 @@ import GMMatrixVisualization from './components/GMMatrixVisualization'
 import GMLoginContainer from './components/GMLoginContainer'
 
 const store = configureStore()
-const history = syncHistoryWithStore(browserHistory, store)
 
 render(
   <Provider store={store}>
-    <Router history={history}>
+    <Router history={hashHistory}>
       <Route path='/login' component={GMLoginContainer} />
       <Route path='/' component={requireAuthentication(GMAppContainer)}>
         <Route path='data/:id' component={GMDataList} />

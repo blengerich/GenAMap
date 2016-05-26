@@ -1,8 +1,7 @@
-// import { browserHistory } from 'react-router'
-import { push } from 'react-router-redux'
-
 import { GetRequest, FilePostRequest, PostRequest } from '../components/Requests'
 import config from '../../config'
+
+var request = require('request')
 
 /*
  * action types
@@ -248,18 +247,5 @@ export function logoutUser () {
     dispatch(requestLogout())
     window.localStorage.removeItem('id_token')
     dispatch(receiveLogout())
-  }
-}
-
-function redirect () {
-  return {
-    type: 'REDIRECT'
-  }
-}
-
-export function redirectToLogin (next) {
-  return (dispatch) => {
-    push(config.api.loginUrl + '?next=' + next)
-    dispatch(redirect())
   }
 }

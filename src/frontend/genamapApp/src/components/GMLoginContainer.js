@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { login } from '../actions'
+import { loginUser } from '../actions'
 import GMLogin from './GMLogin'
 
 const mapStateToProps = (state) => ({
@@ -9,7 +9,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   onLoginClick: (creds) => {
-    dispatch(login(creds))
+    dispatch(loginUser(creds))
   }
 })
 

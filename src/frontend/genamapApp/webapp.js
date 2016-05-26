@@ -20,10 +20,11 @@ var activityDb = new PouchDB('activity')
 app.engine('.html', require('ejs').renderFile)
 app.use(express.static('static'))
 app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use('/bearcat/', expressjwt({ secret: config.secret }))
 
 function createToken (user) {
-  return jwt.sign(omit(user, 'password'), config.secret, { expiresInMinutes: 60 * 5 })
+  return jwt.sign(omit(user, 'password'), config.secret, { expiresIn: '5h' })
 }
 
 app.post('/sessions/create', function (req, res) {
@@ -31,7 +32,7 @@ app.post('/sessions/create', function (req, res) {
   const password = req.body.password
 
   if (!username || !password) {
-    return res.status(400).send('You must send the username and the password')
+    return res.status(400).send({message: 'You must send the username and the password'})
   }
 
   // const user = getUserFromDB(username, password)
