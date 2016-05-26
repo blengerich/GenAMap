@@ -42,3 +42,7 @@ double Stats::FisherExactTest(MatrixXd X) {
    double componentFacs = comFacs.prod();
    return rowsFacs*colsFacs/(NFac*componentFacs);
 }
+
+double Stats::BonCorrection(double pVal, int number) {
+  return pVal/number;
+}
