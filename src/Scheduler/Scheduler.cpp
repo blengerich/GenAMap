@@ -84,7 +84,6 @@ Scheduler* Scheduler::Instance() {
 /////////////////////////////////////////////////////////
 
 int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
-	//Algorithm* my_algorithm;
 	int id = getNewAlgorithmId();
 	// Determine the type of algorithm to create.
 	if (id >= 0) {
@@ -147,8 +146,8 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 
 
 bool Scheduler::setX(const int model_id, const Eigen::MatrixXd& X) {
-	if (ValidModelId(model_id)) {
-		models_map[model_id].get()->setX(X);
+	if (getModel(model_id)) {
+		getModel(model_id)->setX(X);
 		return true;
 	}
 	return false;
@@ -156,8 +155,8 @@ bool Scheduler::setX(const int model_id, const Eigen::MatrixXd& X) {
 
 
 bool Scheduler::setY(const int model_id, const Eigen::MatrixXd& Y) {
-	if (ValidModelId(model_id)) {
-		models_map[model_id].get()->setY(Y);
+	if (getModel(model_id)) {
+		getModel(model_id)->setY(Y);
 		return true;
 	}
 	return false;
@@ -172,16 +171,14 @@ int Scheduler::newJob(const JobOptions_t& options) {
 	const int job_id = getNewJobId();
 	if (job_id >= 0) {
 		my_job->job_id = job_id;
-		unordered_map<int, unique_ptr<Algorithm>>::iterator it = algorithms_map.find(algorithm_id);
-		if (it != algorithms_map.end()) {
-			my_job->algorithm = it->second.get();
-			unordered_map<int, unique_ptr<Model>>::iterator it = models_map.find(model_id);
-			if (it != models_map.end()) {
-				my_job->model = it->second.get();
+		if (getAlgorithm(algorithm_id)) {
+			my_job->algorithm = getAlgorithm(algorithm_id);
+			if (getModel(model_id)) {
+				my_job->model = getModel(model_id);
 				jobs_map[my_job->job_id] = unique_ptr<Job_t>(my_job);
 				return job_id;
 			}
-		}	
+		}
 	}
 
 	delete my_job;
@@ -204,7 +201,7 @@ bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) 
 		return false;
 	}
 	uv_queue_work(uv_default_loop(), &(job->request), trainAlgorithmThread, completion);
-	usleep(10);	// TODO: fix this rare race condition (stopping job before the thread has started is bad) in a better way?
+	usleep(10);	// TODO: fix this rare race condition (stopping job before the worker thread has started is bad) in a better way? [Issue: https://github.com/blengerich/GenAMap_V2/issues/27]
 	return true;
 }
 
@@ -220,7 +217,7 @@ void trainAlgorithmThread(uv_work_t* req) {
 		return;
 	}
 	
-	// TODO: as more algorithm/model types are created, add them here.
+	// TODO: as more algorithm/model types are created, add them here. [Issue: https://github.com/blengerich/GenAMap_V2/issues/25]
 	if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
 	    if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
 	        alg->run(model);
@@ -255,9 +252,9 @@ double Scheduler::checkJobProgress(const int job_id) {
 
 bool Scheduler::cancelJob(const int job_id) {
 	if (ValidJobId(job_id) && getJob(job_id)->algorithm) {
-		getJob(job_id)->algorithm->stop();	// TODO: switch to sending shutdown signal?
+		getJob(job_id)->algorithm->stop();	// TODO: switch to sending shutdown signal? [Issue: https://github.com/blengerich/GenAMap_V2/issues/21]
 		while(getJob(job_id)->algorithm->getIsRunning()) {
-			// TODO: stopping should be async with callback?
+			// TODO: stopping should be async with callback? [Issue: https://github.com/blengerich/GenAMap_V2/issues/26]
 			usleep(1000);
 		}
 		return true;
@@ -267,8 +264,8 @@ bool Scheduler::cancelJob(const int job_id) {
 
 
 bool Scheduler::deleteAlgorithm(const int algorithm_id) {
-	// TODO: Safety checks here - How to ensure that no jobs refer to this algorithm? Reference count in algorithm object?
-	if (algorithms_map[algorithm_id]) {
+	// TODO: Safety checks here - How to ensure that no jobs refer to this algorithm? Reference count in algorithm object? [Issue: https://github.com/blengerich/GenAMap_V2/issues/22]
+	if (getAlgorithm(algorithm_id)) {
 		algorithms_map[algorithm_id].reset();
 		algorithms_map.erase(algorithm_id);
 		return true;
@@ -279,7 +276,7 @@ bool Scheduler::deleteAlgorithm(const int algorithm_id) {
 
 
 bool Scheduler::deleteModel(const int model_id) {
-	// TODO: Safety checks - How to ensure that no jobs refer to this algorithm? Reference count in algorithm obejct?
+	// TODO: Safety checks - How to ensure that no jobs refer to this algorithm? Reference count in algorithm obejct? [Issue: https://github.com/blengerich/GenAMap_V2/issues/24]
 	if (models_map[model_id]) {
 		models_map[model_id].reset();
 		models_map.erase(model_id);
@@ -291,13 +288,23 @@ bool Scheduler::deleteModel(const int model_id) {
 
 
 bool Scheduler::deleteJob(const int job_id) {
-	// TODO: check that user owns this job
+	// TODO: check that user owns this job [Issue: https://github.com/blengerich/GenAMap_V2/issues/23]
 	if (cancelJob(job_id)) {
 		jobs_map[job_id].reset();
 		jobs_map.erase(job_id);
 		return true;
 	}
 	return false;
+}
+
+
+Algorithm* Scheduler::getAlgorithm(const int algorithm_id) {
+	return ValidAlgorithmId(algorithm_id) ? algorithms_map[algorithm_id].get() : NULL;
+}
+
+
+Model* Scheduler::getModel(const int model_id) {
+	return ValidModelId(model_id) ? models_map[model_id].get() : NULL;
 }
 
 

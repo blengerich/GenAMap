@@ -244,7 +244,7 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 
 	Job_t* job = static_cast<Job_t*>(req->data);
 	
-	// Pack up the data here to be returned to JS
+	// Pack up the data to be returned to JS
 	const MatrixXd& result = job->model->getBeta();
 	Local<v8::Array> obj = v8::Array::New(isolate);
 	// TODO: Fewer convserions to return a matrix [Issue: https://github.com/blengerich/GenAMap_V2/issues/17]
@@ -256,7 +256,5 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 		isolate->GetCurrentContext()->Global(), 1, argv);
 	job->callback.Reset();
 	Scheduler::Instance()->deleteJob(job->job_id);
-	/*delete job;*/
-	// Should call scheduler's delete job function here
 }
 
