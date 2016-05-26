@@ -4,24 +4,50 @@ var bodyParser = require('body-parser')
 var Busboy = require('busboy')
 var fs = require('fs')
 var PouchDB = require('pouchdb')
-var jwt = require('express-jwt')
+var expressjwt = require('express-jwt')
 var async = require('async')
 var diskAdapter = require('sails-disk')
+var jwt = require('jsonwebtoken')
+var omit = require('lodash.omit')
 
+var config = require('./config')
 var Scheduler = require('../../Scheduler/node/build/Release/scheduler')
 
 var app = express()
 var orm = new Waterline()
 var activityDb = new PouchDB('activity')
-var jwtCheck = jwt({
-  secret: new Buffer('-VReLsDLsyAK-YPFL69IQp2KYvguj8E3eNdbt0a9UkhGB5xrBXeJ-YwFYAx2kAsW', 'base64'),
-  audience: '9Lsc3VQq4Mwn4nJfALqu90Sc083yfQU3'
-})
 
 app.engine('.html', require('ejs').renderFile)
 app.use(express.static('static'))
 app.use(bodyParser.json())
-app.use('/bearcat/', jwtCheck)
+app.use('/bearcat/', expressjwt({ secret: config.secret }))
+
+function createToken (user) {
+  return jwt.sign(omit(user, 'password'), config.secret, { expiresInMinutes: 60 * 5 })
+}
+
+app.post('/sessions/create', function (req, res) {
+  const username = req.body.username
+  const password = req.body.password
+
+  if (!username || !password) {
+    return res.status(400).send('You must send the username and the password')
+  }
+
+  // const user = getUserFromDB(username, password)
+
+  // if (!user) {
+  //   return res.status(401).send({message: 'The username or password don\'t match', user: user});
+  // }
+
+  // if (user.password !== req.body.password) {
+  //   return res.status(401).send('The username or password don\'t match');
+  // }
+
+  res.status(201).send({
+    id_token: createToken({username: 'user', password: 'password'})
+  })
+})
 
 var waterlineConfig = {
   adapters: {

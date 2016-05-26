@@ -27,4 +27,3 @@ const GMProjectMenuContainer = connect(
 )(GMProjectMenu)
 
 export default GMProjectMenuContainer
-

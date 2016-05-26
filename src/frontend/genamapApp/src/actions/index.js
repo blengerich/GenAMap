@@ -1,5 +1,7 @@
-import { GetRequest, FilePostRequest, PostRequest } from '../components/Requests'
+// import { browserHistory } from 'react-router'
+import { push } from 'react-router-redux'
 
+import { GetRequest, FilePostRequest, PostRequest } from '../components/Requests'
 import config from '../../config'
 
 /*
@@ -194,19 +196,34 @@ function loginError (message) {
   }
 }
 
-export function loginUser (credentials) {
-  const lock = new Auth0Lock('9Lsc3VQq4Mwn4nJfALqu90Sc083yfQU3', 'genamap.auth0.com')
+export function loginUser (creds) {
+  let config = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `username=${creds.username}&password=${creds.password}`
+  }
 
-  return (dispatch) => {
-    lock.show((err, profile, token) => {
-      if (err) {
-        dispatch(lockFailure(err))
-        return
-      }
-      window.localStorage.setItem('profile', JSON.stringify(profile))
-      window.localStorage.setItem('id_token', token)
-      dispatch(lockSuccess(profile, token))
-    })
+  return dispatch => {
+    // We dispatch requestLogin to kickoff the call to the API
+    dispatch(requestLogin(creds))
+    return window.fetch('/sessions/create', config)
+      .then(response =>
+        response.json()
+        .then(user => ({ user, response }))
+      ).then(({ user, response }) => {
+        if (!response.ok) {
+          // If there was a problem, we want to
+          // dispatch the error condition
+          dispatch(loginError(user.message))
+          return Promise.reject(user)
+        } else {
+          // If login was successful, set the token in local storage
+          window.localStorage.setItem('id_token', user.id_token)
+
+          // Dispatch the success action
+          dispatch(receiveLogin(user))
+        }
+      }).catch(err => console.log('Error: ', err))
   }
 }
 
@@ -234,23 +251,15 @@ export function logoutUser () {
   }
 }
 
-function showLock () {
+function redirect () {
   return {
-    type: SHOW_LOCK
+    type: 'REDIRECT'
   }
 }
 
-function lockSuccess (profile, token) {
-  return {
-    type: LOCK_SUCCESS,
-    profile,
-    token
-  }
-}
-
-function lockFailure (error) {
-  return {
-    type: LOCK_FAILURE,
-    error
+export function redirectToLogin (next) {
+  return (dispatch) => {
+    push(config.api.loginUrl + '?next=' + next)
+    dispatch(redirect())
   }
 }
