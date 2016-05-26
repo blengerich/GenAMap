@@ -12,3 +12,4 @@ CMakeLists.txt
 **/.tmp/
 **/genamapApp/activity/*
 .todos*
+**/frontend/build/*
