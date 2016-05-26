@@ -71,7 +71,6 @@ void AdaMultiLasso::updateV(VectorXd xd) {
 VectorXd AdaMultiLasso::gradient_w() {
     long c = snpsFeature1.cols();
     long k = beta.cols();
-    long s = theta.size();
 //    updateTheta();
     VectorXd grad = VectorXd::Zero(c);
     for (long j=0;j<c;j++){
@@ -84,7 +83,6 @@ VectorXd AdaMultiLasso::gradient_w() {
 VectorXd AdaMultiLasso::gradient_v() {
     long c = snpsFeature2.cols();
     long k = beta.cols();
-    long s = rho.size();
 //    updateRho();
     VectorXd grad = VectorXd::Zero(c);
     for (long j=0;j<c;j++){
@@ -284,7 +282,6 @@ VectorXd AdaMultiLasso::projection(VectorXd in) {
     VectorXd a = in;
     sort(a.data(), a.data()+a.size());
     long l = a.size();
-    double s = 0;
     double I = 0;
     double S = 0;
     for (long i=0;i<l;i++){
