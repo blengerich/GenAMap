@@ -6,8 +6,7 @@ rebuild_node=1
 node_tests=1
 
 if [ $cpp_tests -eq 1 ]
-	then tests=(//Scheduler:Scheduler_Tests)
-	#bazel=/usr/src/genamap/depends/bazel_install/binary/bazel
+	then tests=(//Stats:Stats_Tests //Scheduler:Scheduler_Tests)
 	flags="--test_verbose_timeout_warnings --spawn_strategy=standalone --test_output=all --color=yes --ignore_unsupported_sandboxing"
 	for test in "${tests[@]}"; do
 		cmd="bazel test $test ${flags}"

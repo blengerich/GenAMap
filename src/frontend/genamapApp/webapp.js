@@ -265,7 +265,7 @@ app.get('/api/activity/progress/:type', function (req, res) {
 });
 
 app.get('/api/activity/:id', function (req, res) {
-  return res.json({status: Scheduler.checkJob(id)});
+  return res.json({status: Scheduler.checkJob(req.params.id)});
 });
 
 var getAlgorithmType = function (id) {
@@ -328,14 +328,14 @@ app.post('/api/run-analysis', function (req, res) {
     var modelId = Scheduler.newModel(modelOptions);
     if (modelId === -1) return res.json({msg: "error creating model"});
     
-	fs.readFile(model.path, 'utf8', function (error, data) {
+	/*fs.readFile(model.path, 'utf8', function (error, data) {
       console.log("data:", data);
-  	/*return res.json({file: model, data: data});*/
-	});
+  	return res.json({file: model, data: data});
+	});*/
 
-    /* TODO:Set X and Y here */
-    console.log(Scheduler.setX(modelId, [[0, 1],[1, 1]]));
-    console.log(Scheduler.setY(modelId, [[0], [1]]));
+    /* TODO:Set X and Y here */ [Issue: https://github.com/blengerich/GenAMap_V2/issues/18]
+    Scheduler.setX(modelId, [[0, 1],[1, 1]]);
+    Scheduler.setY(modelId, [[0], [1]]);
     
     /*
     jobOptions = {
@@ -345,15 +345,11 @@ app.post('/api/run-analysis', function (req, res) {
     */
     var jobId = Scheduler.newJob({algorithm_id: algorithmId, model_id: modelId});
 
-    console.log("starting job")
     Scheduler.startJob(jobId, (results) => {
+      // Handle results here - How to display in matrix view??
       console.log("results: ", results);
       activityDb.put(results);
     });
-    // console.log(Scheduler.checkJob(jobId));
-    // console.log(Scheduler.cancelJob(jobId));
-    // console.log(Scheduler.deleteAlgorithm(algorithmId));
-    // console.log(Scheduler.deleteModel(modelId));
   });
   return res.json({status: true});
 });

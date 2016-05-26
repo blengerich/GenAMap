@@ -75,7 +75,6 @@ void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args);
 // Invisible from Node
 /////////////////////////////////////////////////////
 
-//void trainAlgorithmThread(uv_work_t* req);
 void trainAlgorithmComplete(uv_work_t* req, int status);
 
 

@@ -63,11 +63,13 @@ public:
 	bool cancelJob(const int);
 	// Cancels a potentially running job.
 
-	// TODO: How to know if the user owns the algorithm?
+	// TODO: How to know if the user owns the algorithm? [Issue: https://github.com/blengerich/GenAMap_V2/issues/28]
 	bool deleteAlgorithm(const int);
 	bool deleteModel(const int);
 	bool deleteJob(const int);
 
+	Model* getModel(const int);
+	Algorithm* getAlgorithm(const int);
 	Job_t* getJob(const int);
 
 	MatrixXd getResult(const int);
@@ -122,7 +124,5 @@ private:
 };
 
 void trainAlgorithmThread(uv_work_t* req);
-//void trainAlgorithmComplete(uv_work_t* req, int status);
-
 
 #endif /* Scheduler_hpp */
