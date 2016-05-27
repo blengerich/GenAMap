@@ -65,9 +65,12 @@ int LinearMixedModel::get_num_samples() {
     return this->n;
 }
 
-// Decomposition of Similarity Matrix -> to be done later
+// Decomposition of Similarity Matrix ->
+// K = U*S*transpose(U)
 void LinearMixedModel::decomposition(){
-    
+    JacobiSVD<MatrixXd> svd(this->K, ComputeThinU | ComputeThinV);
+    S = svd.singularValues();
+    U = svd.matrixU();
 }
 
 // This method will give Beta matrix as a function of the Lambda Matrix.
@@ -80,7 +83,7 @@ void LinearMixedModel::calculate_beta(double lambda){
     MatrixXd U_trans_X = U_trans*X; // n*d
     MatrixXd U_trans_Y = U_trans*Y; // n*1
     MatrixXd U_X_trans = (U_trans_X).transpose(); // d*n
-    MatrixXd S_lambda_inv = (S + lambda*Id).cwiseInverse(); // n*n
+    MatrixXd S_lambda_inv = (S + lambda*Id).Inverse(); // n*n
 
     int r=0,c=0;
     /*
@@ -91,7 +94,7 @@ void LinearMixedModel::calculate_beta(double lambda){
     MatrixXd first_term = MatrixXd::Random(d,d); // d*d
     MatrixXd second_term = MatrixXd::Random(d,1); // d*1
     
-    first_term = ((U_X_trans*S_lambda_inv)*U_trans_X).cwiseInverse();
+    first_term = ((U_X_trans*S_lambda_inv)*U_trans_X).Inverse();
     /*
     std::cout << " First term " ;
     for(r=0;r<first_term.rows();r++)
@@ -133,11 +136,8 @@ void LinearMixedModel::calculate_sigma(double lambda){
         ret_val += temp_val;
         //std::cout << "Sigma cal: ret_val  = " << ret_val << std::endl;
     }
-    
-    ret_val = ret_val/double(n);
-    ret_val = sqrt(ret_val);
 
-    this->sigma = ret_val;
+    this->sigma = ret_val/double(n);
     //std::cout << " Sigma val = " << ret_val << std::endl;
 
     return ;
@@ -173,7 +173,7 @@ double LinearMixedModel::get_log_likelihood_value(double lambda){
         third_term = 0.0;
     }else {
         //std::cout << "this->sigma/n = " << this->sigma/n << std::endl;
-        third_term = n * log(this->sigma / n);
+        third_term = n * log(this->sigma);
     }
 
     ret_val = first_term + second_term + third_term;

@@ -9,6 +9,7 @@
 #define SRC_MODEL_LINEARMIXEDMODEL_HPP_
 
 #include <Eigen/Dense>
+#include <Eigen/SVD>
 #include <iostream>
 #include <vector>
 #include <math.h>
