@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { toggleLeftNav, toggleRightNav } from '../actions'
+import { toggleLeftNav, toggleRightNav, logoutUser } from '../actions'
 import GMApp from './GMApp'
 
 const mapStateToProps = (state) => {
@@ -16,14 +16,16 @@ const mapDispatchToProps = (dispatch) => {
     },
     rightIconTouch: () => {
       dispatch(toggleRightNav())
+    },
+    logout: () => {
+      dispatch(logoutUser())
     }
   }
 }
 
-const LoggedInContainer = connect(
+const GMAppContainer = connect(
   mapStateToProps,
   mapDispatchToProps
 )(GMApp)
 
-export default LoggedInContainer
-
+export default GMAppContainer

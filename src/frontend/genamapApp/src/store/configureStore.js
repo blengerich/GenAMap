@@ -3,10 +3,11 @@ import thunk from 'redux-thunk'
 import DevTools from '../components/DevTools'
 
 import genamapReducer from '../reducers'
+import saver from '../middleware'
 
 const enhancer = compose(
   // Middleware you want to use in development:
-  applyMiddleware(thunk),
+  applyMiddleware(thunk, saver),
   // Required! Enable Redux DevTools with the monitors you chose
   DevTools.instrument()
 )

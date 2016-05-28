@@ -35,7 +35,7 @@ class Login extends Component {
     const username = this.refs.username
     const password = this.refs.password
     const creds = { username: username.value.trim(), password: password.value.trim() }
-    this.props.onLoginClick(creds)
+    this.props.onLoginClick(creds, this.props.location.search)
   }
 
 }

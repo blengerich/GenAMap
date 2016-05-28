@@ -3,7 +3,6 @@ var Waterline = require('waterline')
 var bodyParser = require('body-parser')
 var Busboy = require('busboy')
 var fs = require('fs')
-var PouchDB = require('pouchdb')
 var expressjwt = require('express-jwt')
 var async = require('async')
 var diskAdapter = require('sails-disk')
@@ -15,7 +14,6 @@ var Scheduler = require('../../Scheduler/node/build/Release/scheduler')
 
 var app = express()
 var orm = new Waterline()
-var activityDb = new PouchDB('activity')
 
 app.engine('.html', require('ejs').renderFile)
 app.use(express.static('static'))
@@ -50,7 +48,7 @@ app.post('/sessions/create', function (req, res) {
   })
 })
 
-var waterlineConfig = {
+const waterlineConfig = {
   adapters: {
     'default': diskAdapter,
     disk: diskAdapter
@@ -68,7 +66,7 @@ var waterlineConfig = {
 
 }
 
-var User = Waterline.Collection.extend({
+const User = Waterline.Collection.extend({
   tableName: 'user',
   connection: 'myLocalDisk',
 
@@ -92,7 +90,7 @@ var User = Waterline.Collection.extend({
   }
 })
 
-var Project = Waterline.Collection.extend({
+const Project = Waterline.Collection.extend({
   tableName: 'project',
   connection: 'myLocalDisk',
 
@@ -116,7 +114,7 @@ var Project = Waterline.Collection.extend({
   }
 })
 
-var File = Waterline.Collection.extend({
+const File = Waterline.Collection.extend({
   tableName: 'file',
   connection: 'myLocalDisk',
 
@@ -145,9 +143,26 @@ var File = Waterline.Collection.extend({
   }
 })
 
+const State = Waterline.Collection.extend({
+  tableName: 'state',
+  connection: 'myLocalDisk',
+
+  attributes: {
+    state: {
+      type: 'string',
+      required: true
+    },
+    user: {
+      model: 'user',
+      requred: false
+    }
+  }
+})
+
 orm.loadCollection(User)
 orm.loadCollection(Project)
 orm.loadCollection(File)
+orm.loadCollection(State)
 
 var guid = function () {
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
@@ -160,7 +175,7 @@ var s4 = function () {
     .substring(1)
 }
 
-/*app.get('/add/:x/:y', function (req, res) {
+/* app.get('/add/:x/:y', function (req, res) {
   return res.json({
     x: parseInt(req.params.x),
     y: parseInt(req.params.y),
@@ -169,7 +184,7 @@ var s4 = function () {
 });*/
 
 app.get('/api/data/:id', function (req, res) {
-  app.models.data.findOne({id: req.params.id}, function (err, model) {
+  app.models.file.findOne({id: req.params.id}, function (err, model) {
     if (err) return res.status(500).json({err: err})
     fs.readFile(model.path, 'utf8', function (error, data) {
       if (error) throw error
@@ -179,7 +194,7 @@ app.get('/api/data/:id', function (req, res) {
 })
 
 app.delete('/api/data/:id', function (req, res) {
-  app.models.data.destroy({id: req.params.id}).exec(function (err) {
+  app.models.file.destroy({id: req.params.id}).exec(function (err) {
     if (err) return res.status(500).json({err: err})
     return res.status(200)
   })
@@ -246,69 +261,6 @@ app.post('/api/import-data', function (req, res) {
   req.pipe(busboy)
 })
 
-var ddoc = {
-  _id: '_design/activity_index',
-  views: {
-    running: {
-      map: function (doc) { emit (doc.status < 100) }.toString() // eslint-disable-line
-    },
-    completed: {
-      map: function (doc) { emit (100 <= doc.status) }.toString() // eslint-disable-line
-    }
-  }
-}
-
-activityDb.put(ddoc).then(function () {
-  console.log('success')
-}).catch(function (error) {
-  if (error) throw error
-})
-
-var getActivityRunning = function () {
-  activityDb.query('activity_index/running').then(function (res) {
-    console.log('query results: ', res)
-    return res
-  }).catch(function (error) {
-    if (error) throw error
-  })
-}
-
-var getActivityCompleted = function () {
-  activityDb.query('activity_index/completed').then(function (res) {
-    return res
-  }).catch(function (error) {
-    if (error) throw error
-  })
-}
-
-var getActivityAll = function () {
-  activityDb.allDocs({
-    include_docs: true,
-    attachments: true
-  }).then(function (result) {
-    return result
-  }).catch(function (err) {
-    if (err) throw err
-  })
-}
-
-app.get('/api/activity/progress/:type', function (req, res) {
-  switch (req.params.type) {
-    case 'running':
-      return res.json(getActivityRunning())
-    case 'all':
-      return res.json(getActivityAll())
-    case 'completed':
-      return res.json(getActivityCompleted())
-    default:
-      return res.json({msg: 'error'})
-  }
-})
-
-app.get('/api/activity/:id', function (req, res) {
-  return res.json({status: Scheduler.checkJob(req.params.id)});
-});
-
 var getAlgorithmType = function (id) {
   var algorithmTypes = {
     1: 1,
@@ -323,7 +275,7 @@ var getAlgorithmType = function (id) {
 app.post('/api/run-analysis', function (req, res) {
   req.body.algorithms.forEach((model) => {
     // should be getting the Model ID here, then we can call API for data paths
-    /*app.get('/api/data/:id', function (req, res)*/
+    /* app.get('/api/data/:id', function (req, res)*/
     /*
     algorithmOptions = {
         type: algorithm_type,
@@ -339,14 +291,14 @@ app.post('/api/run-analysis', function (req, res) {
     const algorithmOptions = {
       type: req.body.algorithmType || getAlgorithmType(model.id) || 1,
       options: {
-        //max_iteration: req.body.max_iteration || 10,
+        // max_iteration: req.body.max_iteration || 10,
         tolerance: req.body.tolerance || 0.01,
-        learning_rate: req.body.learning_rate || 0.01,  
-      }    
+        learning_rate: req.body.learning_rate || 0.01
+      }
     }
     const algorithmId = Scheduler.newAlgorithm(algorithmOptions)
-    if (algorithmId === -1) return res.json({msg: "error creating algorithm"})
-    
+    if (algorithmId === -1) return res.json({msg: 'error creating algorithm'})
+
     /*
     modelOptions = {
       type: model_type,
@@ -368,17 +320,17 @@ app.post('/api/run-analysis', function (req, res) {
       }
     }
     const modelId = Scheduler.newModel(modelOptions)
-    if (modelId === -1) return res.json({msg: "error creating model"})
-    
-	/*fs.readFile(model.path, 'utf8', function (error, data) {
-      console.log("data:", data);
-  	return res.json({file: model, data: data});
-	});*/
+    if (modelId === -1) return res.json({msg: 'error creating model'})
 
-    /* TODO:Set X and Y here */ [Issue: https://github.com/blengerich/GenAMap_V2/issues/18]
-    Scheduler.setX(modelId, [[0, 1],[1, 1]])
+    /* fs.readFile(model.path, 'utf8', function (error, data) {
+        console.log("data:", data);
+    	return res.json({file: model, data: data});
+  	});*/
+
+    /* TODO:Set X and Y here [Issue: https://github.com/blengerich/GenAMap_V2/issues/18] */
+    Scheduler.setX(modelId, [[0, 1], [1, 1]])
     Scheduler.setY(modelId, [[0], [1]])
-  
+
     /*
     jobOptions = {
       algorithm_id: int,
@@ -390,7 +342,6 @@ app.post('/api/run-analysis', function (req, res) {
 
     Scheduler.startJob((results) => {
       console.log('results: ', results)
-      activityDb.put(results)
     }, jobId)
     // console.log(Scheduler.checkJob(jobId));
     // console.log(Scheduler.cancelJob(jobId));
@@ -429,13 +380,38 @@ app.get('/api/algorithms', function (req, res) {
     tree_lasso: 6
   };
   */
-  return res.json([{name: 'Linear Regression', id: 1}
-                   /* {name: "Lasso", id: 2},
-                   {name: "Ada Multi Lasso", id: 3},
-                   {name: "GF Lasso", id: 4},
-                   {name: "Multi Pop Lasso": 5},
-                   {name: "Tree Lasso", id: 6} */
-                  ])
+  return res.json([
+    {name: 'Linear Regression', id: 1}
+    /* {name: "Lasso", id: 2},
+    {name: "Ada Multi Lasso", id: 3},
+    {name: "GF Lasso", id: 4},
+    {name: "Multi Pop Lasso": 5},
+    {name: "Tree Lasso", id: 6} */
+  ])
+})
+
+app.post('/api/save', function (req, res) {
+  const user = req.body.auth.user
+  app.models.state.update({ user: user }, { state: JSON.stringify(req.body) })
+  .exec(function (updateErr, updatedState) {
+    if (updateErr || updatedState.length === 0) {
+      app.models.state.create({ state: JSON.stringify(req.body), user: user })
+      .exec(function (createErr, createdState) {
+        if (createErr) return res.status(500).json({ createErr })
+        console.log("CREATED STATE: ", createdState)
+        return res.json(createdState)
+      })
+    }
+    console.log("UPDATED STATE: ", updatedState)
+    return res.json(updatedState)
+  })
+})
+
+app.get('/api/save/:user', function (req, res) {
+  app.models.state.findOne({ user: req.params.user }).exec(function (err, model) {
+    if (err) return res.status(500).json({ err })
+    return res.json(model)
+  })
 })
 
 orm.initialize(waterlineConfig, function (err, models) {

@@ -3,7 +3,6 @@ import React, { PropTypes, Component } from 'react'
 import GMTopMenu from './GMTopMenu'
 import GMLeftMenu from './GMLeftMenu'
 import GMRightMenu from './GMRightMenu'
-import DevTools from './DevTools'
 import config from '../../config'
 
 class GMApp extends Component {
@@ -21,22 +20,16 @@ class GMApp extends Component {
     return (this.props.leftNavOpen && this.props.rightNavOpen) ? 'hidden' : 'visible'
   }
 
-  componentDidMount () {
-    // this.props.lock.getProfile(this.props.idToken, function (err, profile) {
-    //   if (err) {
-    //     console.log('Error loading the profile: ', err)
-    //     return
-    //   }
-    //   this.setState({ profile })
-    // }.bind(this))
-  }
-
   handleLeftIconTouch () {
     this.props.leftIconTouch()
   }
 
   handleRightIconTouch () {
     this.props.rightIconTouch()
+  }
+
+  handleLogoutButton () {
+    this.props.logout()
   }
 
   render () {
@@ -46,16 +39,16 @@ class GMApp extends Component {
     }
     return (
       <div>
-        <DevTools />
         <GMTopMenu
           handleLeftIconTouch={this.handleLeftIconTouch.bind(this)}
           handleRightIconTouch={this.handleRightIconTouch.bind(this)}
+          handleLogoutButton={this.handleLogoutButton.bind(this)}
           style={padding}
           visibility={this.getVisibility()}
         />
         <GMLeftMenu open={this.props.leftNavOpen} width={config.ui.navWidth} />
         <GMRightMenu open={this.props.rightNavOpen} width={config.ui.navWidth} />
-        <main className='gm-layout__content' style={padding}>
+        <main style={padding}>
           {this.props.children}
         </main>
       </div>
@@ -68,7 +61,7 @@ GMApp.propTypes = {
   rightNavOpen: PropTypes.bool.isRequired,
   leftIconTouch: PropTypes.func.isRequired,
   rightIconTouch: PropTypes.func.isRequired,
-  lock: PropTypes.object
+  logout: PropTypes.func.isRequired
 }
 
 export default GMApp

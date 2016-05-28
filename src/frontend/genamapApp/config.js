@@ -8,7 +8,8 @@ const config = {
     runAnalysisUrl: '/api/run-analysis',
     dataUrl: '/api/data/',
     initialStateUrl: '/api/projects',
-    loginUrl: '/login'
+    loginUrl: '/login',
+    saveUrl: '/api/save'
   },
   ui: {
     navWidth: 300,

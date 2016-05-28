@@ -1,7 +1,7 @@
+import { hashHistory } from 'react-router'
+
 import { GetRequest, FilePostRequest, PostRequest } from '../components/Requests'
 import config from '../../config'
-
-var request = require('request')
 
 /*
  * action types
@@ -30,6 +30,7 @@ export const LOGOUT_FAILURE = 'LOGOUT_FAILURE'
 export const SHOW_LOCK = 'SHOW_LOCK'
 export const LOCK_SUCCESS = 'LOCK_SUCCESS'
 export const LOCK_FAILURE = 'LOCK_FAILURE'
+export const REDIRECT = 'REDIRECT'
 
 /*
  * action creators
@@ -196,7 +197,7 @@ function loginError (message) {
 }
 
 export function loginUser (creds) {
-  let config = {
+  let requestLogin = {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: `username=${creds.username}&password=${creds.password}`
@@ -205,7 +206,7 @@ export function loginUser (creds) {
   return dispatch => {
     // We dispatch requestLogin to kickoff the call to the API
     dispatch(requestLogin(creds))
-    return window.fetch('/sessions/create', config)
+    return window.fetch('/sessions/create', requestLogin)
       .then(response =>
         response.json()
         .then(user => ({ user, response }))
@@ -218,11 +219,23 @@ export function loginUser (creds) {
         } else {
           // If login was successful, set the token in local storage
           window.localStorage.setItem('id_token', user.id_token)
-
           // Dispatch the success action
           dispatch(receiveLogin(user))
+          return Promise.resolve(user)
         }
       }).catch(err => console.log('Error: ', err))
+  }
+}
+
+export function requestState (user) {
+  let requestState = {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' }
+  }
+
+  return dispatch => {
+    dispatch(requestState(user))
+    return window.fetch('/api/save/' + user, requestState)
   }
 }
 
@@ -247,5 +260,29 @@ export function logoutUser () {
     dispatch(requestLogout())
     window.localStorage.removeItem('id_token')
     dispatch(receiveLogout())
+    dispatch(redirectToLogin())
+  }
+}
+
+export function redirectTo (url) {
+  return (dispatch) => {
+    hashHistory.push(url)
+    dispatch(redirect(url))
+  }
+}
+
+function redirect (url) {
+  return {
+    type: REDIRECT,
+    url
+  }
+}
+
+export function redirectToLogin (next) {
+  return (dispatch) => {
+    const to = (!next)
+      ? config.api.loginUrl
+      : config.api.loginUrl + '?next=' + next
+    dispatch(redirectTo(to))
   }
 }

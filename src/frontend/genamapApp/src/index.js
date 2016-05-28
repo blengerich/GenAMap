@@ -7,6 +7,7 @@ injectTapEventPlugin()
 
 import configureStore from './store/configureStore'
 import { requireAuthentication } from './components/AuthenticatedComponent'
+import { addDevTools } from './components/WithDevTools'
 import GMAppContainer from './components/GMAppContainer'
 import GMDataList from './components/GMDataList'
 import GMMatrixVisualization from './components/GMMatrixVisualization'
@@ -17,8 +18,8 @@ const store = configureStore()
 render(
   <Provider store={store}>
     <Router history={hashHistory}>
-      <Route path='/login' component={GMLoginContainer} />
-      <Route path='/' component={requireAuthentication(GMAppContainer)}>
+      <Route path='/login' component={addDevTools(GMLoginContainer)} />
+      <Route path='/' component={addDevTools(requireAuthentication(GMAppContainer))}>
         <Route path='data/:id' component={GMDataList} />
         <Route path='visualization/matrix' component={GMMatrixVisualization} />
       </Route>

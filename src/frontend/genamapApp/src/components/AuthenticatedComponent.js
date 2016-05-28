@@ -1,8 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { redirectToLogin } from '../actions'
-import { hashHistory } from 'react-router'
-import config from '../../config'
 
 export function requireAuthentication (Component) {
   class AuthenticatedComponent extends React.Component {
@@ -18,9 +16,7 @@ export function requireAuthentication (Component) {
     checkAuth () {
       if (!this.props.isAuthenticated) {
         const redirectAfterLogin = this.props.location.pathname
-        hashHistory.push(config.api.loginUrl + '?next=' + redirectAfterLogin)
-
-        // this.props.redirectToLogin(redirectAfterLogin)
+        this.props.redirectToLogin(redirectAfterLogin)
       }
     }
 
