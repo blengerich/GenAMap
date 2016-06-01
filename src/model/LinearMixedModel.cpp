@@ -73,10 +73,9 @@ void LinearMixedModel::decomposition(){
     U = svd.matrixU();
 }
 
-// This method will give Beta matrix as a function of the Lambda Matrix.
 
+// This method will give Beta matrix as a function of the Lambda Matrix.
 void LinearMixedModel::calculate_beta(double lambda){
-    
     MatrixXd Id(n,n); // n*n
     Id.setIdentity(n,n);
     MatrixXd U_trans = U.transpose(); // n*n
@@ -85,39 +84,19 @@ void LinearMixedModel::calculate_beta(double lambda){
     MatrixXd U_X_trans = (U_trans_X).transpose(); // d*n
     MatrixXd S_lambda_inv = (S + lambda*Id).inverse(); // n*n
 
-    /*int r=0,c=0;
-    for(r=0;r<S_lambda_inv.rows();r++)
-        for(c=0;c<S_lambda_inv.cols();c++)
-            std::cout << S_lambda_inv(r,c) << " ";
-    */
     MatrixXd first_term = MatrixXd::Random(d,d); // d*d
     MatrixXd second_term = MatrixXd::Random(d,1); // d*1
     
     first_term = ((U_X_trans*S_lambda_inv)*U_trans_X).inverse();
-    /*
-    std::cout << " First term " ;
-    for(r=0;r<first_term.rows();r++)
-        for(c=0;c<first_term.cols();c++)
-            std::cout << first_term(r,c) << " ";
-    */
     second_term = (U_X_trans*S_lambda_inv)*U_trans_Y;
 
     beta = first_term*second_term;
-    /*
-    std::cout << " Beta matrix : " ;
-
-    for(r=0;r<beta.rows();r++)
-        for(c=0;c<beta.cols();c++)
-            std::cout << beta(r,c) << " ";
-    */
+    
     return ;
 }
 
 // This method will give the value of sigma as a function of beta and lambda.
 void LinearMixedModel::calculate_sigma(double lambda){
-
-    //std::cout << "Calculate_sigma : lambda = " << lambda << std::endl;
-
     double ret_val=0.0,temp_val=0.0;
     this->calculate_beta(lambda);
     MatrixXd U_tran_Y = U.transpose()*Y; // n*1
@@ -129,16 +108,11 @@ void LinearMixedModel::calculate_sigma(double lambda){
     for(int i=0;i<n;i++){
         temp_val = U_tran_Y(i,0) - U_tran_X_beta(i,0);
         temp_val = temp_val/(double(S(i,i) + lambda));
-        //std::cout << "Sigma cal : S(" << i << "," << i << ") = " << S(i,i) << std::endl;
-        //std::cout << "lambda = " << lambda << std::endl;
         temp_val *= temp_val;
         ret_val += temp_val;
-        //std::cout << "Sigma cal: ret_val  = " << ret_val << std::endl;
     }
 
     this->sigma = ret_val/double(n);
-    //std::cout << " Sigma val = " << ret_val << std::endl;
-
     return ;
 }
 
@@ -152,8 +126,6 @@ double LinearMixedModel::get_log_likelihood_value(double lambda){
     int n = this->get_num_samples();
     
     first_term = (n)*log(2*M_PI) + n;
-    //std::cout << " Get LogLikelihood : lambda =  " << lambda << std::endl;
-    
     for(int i=0;i<n;i++){
 
         // Check if the term is less then zero or not, if yes skip it as it will be inf.
@@ -162,8 +134,6 @@ double LinearMixedModel::get_log_likelihood_value(double lambda){
                 i << std::endl;
             continue;
         }
-
-        //std::cout << " S val = " << S(i,i) + lambda << std::endl;
         second_term += log( double(S(i,i) + lambda) );
     }
 
@@ -171,14 +141,11 @@ double LinearMixedModel::get_log_likelihood_value(double lambda){
     if(sigma <= 0.0){
         third_term = 0.0;
     }else {
-        //std::cout << "this->sigma/n = " << this->sigma/n << std::endl;
         third_term = n * log(this->sigma);
     }
 
     ret_val = first_term + second_term + third_term;
     ret_val = -1.0/2.0*ret_val;
-    //std::cout << "LMM : first_term " << first_term  << " second term " << second_term <<
-    //" third term " << third_term << " ret val " <<  ret_val << std::endl;
     return ret_val;
 
 }
@@ -195,6 +162,5 @@ double LinearMixedModel::get_log_likelihood_value(double lambda){
  Name is kept to be f for simplicity.
  */
 double LinearMixedModel::f(double lambda){
-    //std::cout << "f func ... lambda = " << lambda << std::endl;
     return -1.0*(this->get_log_likelihood_value(lambda));
 }
