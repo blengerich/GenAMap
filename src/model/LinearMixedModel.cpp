@@ -83,10 +83,9 @@ void LinearMixedModel::calculate_beta(double lambda){
     MatrixXd U_trans_X = U_trans*X; // n*d
     MatrixXd U_trans_Y = U_trans*Y; // n*1
     MatrixXd U_X_trans = (U_trans_X).transpose(); // d*n
-    MatrixXd S_lambda_inv = (S + lambda*Id).Inverse(); // n*n
+    MatrixXd S_lambda_inv = (S + lambda*Id).inverse(); // n*n
 
-    int r=0,c=0;
-    /*
+    /*int r=0,c=0;
     for(r=0;r<S_lambda_inv.rows();r++)
         for(c=0;c<S_lambda_inv.cols();c++)
             std::cout << S_lambda_inv(r,c) << " ";
@@ -94,7 +93,7 @@ void LinearMixedModel::calculate_beta(double lambda){
     MatrixXd first_term = MatrixXd::Random(d,d); // d*d
     MatrixXd second_term = MatrixXd::Random(d,1); // d*1
     
-    first_term = ((U_X_trans*S_lambda_inv)*U_trans_X).Inverse();
+    first_term = ((U_X_trans*S_lambda_inv)*U_trans_X).inverse();
     /*
     std::cout << " First term " ;
     for(r=0;r<first_term.rows();r++)

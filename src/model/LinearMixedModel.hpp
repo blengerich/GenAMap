@@ -20,7 +20,6 @@
 #include "Math/Math.hpp"
 #include "Model.hpp"
 #else
-//#include "../Eigen/Dense"
 #include "../Math/Math.hpp"
 #include "../model/Model.hpp"
 #endif
