@@ -47831,7 +47831,7 @@ ReactDOM.render(React.createElement(
     { path: '/', component: GMApp },
     React.createElement(Route, { path: '/', component: DataList }),
     React.createElement(Route, { path: '/data/:id', component: DataList }),
-    React.createElement(Route, { path: '/visualization/matrix', component: GMMatrixVisualization }),
+    React.createElement(Route, { path: '/visualization/matrix/:id', component: GMMatrixVisualization }),
     React.createElement(Route, { path: '*', component: NoMatch })
   )
 ), document.getElementById('gm-app'));
@@ -48057,9 +48057,58 @@ var DataTable = React.createClass({
   render: function render() {
     var dataPoints = this.props.data.map(function (datapoint, i, array) {
       datapoint = datapoint.split(',');
-      return React.createElement(TableRow, { key: i, selectable: false }, React.createElement(TableRowColumn, null, datapoint[0]), React.createElement(TableRowColumn, null, datapoint[1]), React.createElement(TableRowColumn, null, datapoint[2]));
+      return React.createElement(
+        TableRow,
+        { key: i, selectable: false },
+        React.createElement(
+          TableRowColumn,
+          null,
+          datapoint[0]
+        ),
+        React.createElement(
+          TableRowColumn,
+          null,
+          datapoint[1]
+        ),
+        React.createElement(
+          TableRowColumn,
+          null,
+          datapoint[2]
+        )
+      );
     });
-    return React.createElement(Table, { selectable: false }, React.createElement(TableHeader, { displaySelectAll: false, adjustForCheckbox: false }, React.createElement(TableRow, null, React.createElement(TableHeaderColumn, null, 'Trait'), React.createElement(TableHeaderColumn, null, 'Marker'), React.createElement(TableHeaderColumn, null, 'Correlation'))), React.createElement(TableBody, { displayRowCheckbox: false }, dataPoints));
+    return React.createElement(
+      Table,
+      { selectable: false },
+      React.createElement(
+        TableHeader,
+        { displaySelectAll: false, adjustForCheckbox: false },
+        React.createElement(
+          TableRow,
+          null,
+          React.createElement(
+            TableHeaderColumn,
+            null,
+            'Trait'
+          ),
+          React.createElement(
+            TableHeaderColumn,
+            null,
+            'Marker'
+          ),
+          React.createElement(
+            TableHeaderColumn,
+            null,
+            'Correlation'
+          )
+        )
+      ),
+      React.createElement(
+        TableBody,
+        { displayRowCheckbox: false },
+        dataPoints
+      )
+    );
   }
 });
 
@@ -48085,7 +48134,16 @@ var DataList = React.createClass({
     this.loadData(nextProps.params.id);
   },
   render: function render() {
-    return React.createElement('div', { className: 'dataList' }, React.createElement('h1', null, this.state.name), React.createElement(DataTable, { data: this.state.data }));
+    return React.createElement(
+      'div',
+      { className: 'dataList' },
+      React.createElement(
+        'h1',
+        null,
+        this.state.name
+      ),
+      React.createElement(DataTable, { data: this.state.data })
+    );
   }
 });
 
@@ -48892,6 +48950,7 @@ module.exports = GMMatrixToolbar;
 
 var React = require('react');
 
+var D3Chart = require('./d3Chart');
 var GMMatrixToolbar = require('./GMMatrixToolbar');
 
 var GMMatrixVisualization = React.createClass({
@@ -48902,9 +48961,13 @@ var GMMatrixVisualization = React.createClass({
       'div',
       null,
       React.createElement(
-        'p',
-        null,
-        'Put your HTML here'
+        'div',
+        { className: 'Matrix' },
+        React.createElement(
+          'div',
+          { id: 'chart' },
+          React.createElement(D3Chart, null)
+        )
       ),
       React.createElement(GMMatrixToolbar, {
         left: this.props.left - this.props.minPad,
@@ -48916,7 +48979,7 @@ var GMMatrixVisualization = React.createClass({
 
 module.exports = GMMatrixVisualization;
 
-},{"./GMMatrixToolbar":385,"react":372}],387:[function(require,module,exports){
+},{"./GMMatrixToolbar":385,"./d3Chart":394,"react":372}],387:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -48974,7 +49037,7 @@ var GMProjectContent = React.createClass({
         nestedLevel: 1 },
       React.createElement(
         Link,
-        { to: "/data/" + this.props.data.id },
+        { to: "/visualization/matrix/" + this.props.data.id },
         this.props.data.name
       )
     );
@@ -49564,32 +49627,61 @@ var GMTopMenu = React.createClass({
   },
   render: function render() {
     var logosrc = "images/" + this.state.logos[this.state.logoIndex];
-    return React.createElement('div', null, React.createElement(AppBar, { title: '', style: this.props.style,
-      onLeftIconButtonTouchTap: this.props.handleLeftIconTouch }, React.createElement(Avatar, { src: logosrc, style: { alignSelf: "center", border: "none", order: 0 } }), React.createElement('h1', { style: { whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        margin: 0,
-        marginLeft: "10px",
-        paddingTop: 0,
-        letterSpacing: 0,
-        fontFamily: "comfortaaregular",
-        fontSize: "22px",
-        fontWeight: 400,
-        color: "#ffffff",
-        lineHeight: "64px",
-        flex: 1,
-        visibility: this.props.titleDisplay,
-        transition: "visibility 0s linear 0.05s"
-      } }, 'genamap'), React.createElement(FlatButton, { style: styles.appBarLink, label: 'Run Analysis', onClick: this.handleRunAnalysisButton }), React.createElement(FlatButton, { style: styles.appBarLink, label: 'History' }), React.createElement(FlatButton, { style: styles.appBarLink, label: 'Activity', onClick: this.handleActivityButton }), React.createElement(FlatButton, { style: styles.appBarLink, label: 'Help' }), React.createElement(FlatButton, { style: styles.appBarLink, label: 'Settings', onClick: this.handleSettingsButton }), React.createElement(IconButton, { style: styles.appBarIcon, touch: true, onClick: this.props.handleRightIconTouch }, React.createElement(FontIcon, { color: styles.appBarLink.color, className: 'material-icons' }, 'menu'))), React.createElement(GMRunAnalysisDialog, { open: this.state.dialogOpen,
-      projectUrl: this.props.projectUrl,
-      algorithmUrl: this.props.algorithmUrl,
-      onClose: this.onDialogClose,
-      submit: this.runAnalysis }), React.createElement(GMActivity, { open: this.state.activityOpen,
-      anchorEl: this.state.anchorEl,
-      onActivityClose: this.onActivityClose,
-      anchorOrigin: this.state.anchorOrigin,
-      targetOrigin: this.state.targetOrigin,
-      onRequestClose: this.handleRequestClose }));
+    return React.createElement(
+      'div',
+      null,
+      React.createElement(
+        AppBar,
+        { title: '', style: this.props.style,
+          onLeftIconButtonTouchTap: this.props.handleLeftIconTouch },
+        React.createElement(Avatar, { src: logosrc, style: { alignSelf: "center", border: "none", order: 0 } }),
+        React.createElement(
+          'h1',
+          { style: { whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              margin: 0,
+              marginLeft: "10px",
+              paddingTop: 0,
+              letterSpacing: 0,
+              fontFamily: "comfortaaregular",
+              fontSize: "22px",
+              fontWeight: 400,
+              color: "#ffffff",
+              lineHeight: "64px",
+              flex: 1,
+              visibility: this.props.titleDisplay,
+              transition: "visibility 0s linear 0.05s"
+            } },
+          'genamap'
+        ),
+        React.createElement(FlatButton, { style: styles.appBarLink, label: 'Run Analysis', onClick: this.handleRunAnalysisButton }),
+        React.createElement(FlatButton, { style: styles.appBarLink, label: 'History' }),
+        React.createElement(FlatButton, { style: styles.appBarLink, label: 'Activity', onClick: this.handleActivityButton }),
+        React.createElement(FlatButton, { style: styles.appBarLink, label: 'Help' }),
+        React.createElement(FlatButton, { style: styles.appBarLink, label: 'Settings', onClick: this.handleSettingsButton }),
+        React.createElement(
+          IconButton,
+          { style: styles.appBarIcon, touch: true, onClick: this.props.handleRightIconTouch },
+          React.createElement(
+            FontIcon,
+            { color: styles.appBarLink.color, className: 'material-icons' },
+            'menu'
+          )
+        )
+      ),
+      React.createElement(GMRunAnalysisDialog, { open: this.state.dialogOpen,
+        projectUrl: this.props.projectUrl,
+        algorithmUrl: this.props.algorithmUrl,
+        onClose: this.onDialogClose,
+        submit: this.runAnalysis }),
+      React.createElement(GMActivity, { open: this.state.activityOpen,
+        anchorEl: this.state.anchorEl,
+        onActivityClose: this.onActivityClose,
+        anchorOrigin: this.state.anchorOrigin,
+        targetOrigin: this.state.targetOrigin,
+        onRequestClose: this.handleRequestClose })
+    );
   }
 });
 
@@ -49720,4 +49812,98 @@ var Requests = {
 
 module.exports = Requests;
 
-},{}]},{},[375]);
+},{}],394:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+
+var Graph = function Graph() {
+
+  var fileLocation = 'images/test_node_small.csv';
+
+  var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+  var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+  var leftMargin = 0.1 * windowWidth;
+  var rightMargin = 0.1 * windowWidth;
+  var traitMargin = 0.12 * windowWidth;
+  var cellWidth = 10;
+  var cellHeight = 10;
+
+  var margin = { top: 0, right: rightMargin, bottom: 50, left: 0 };
+
+  //Fill whole right side
+  //width = windowWidth
+
+  //Equal margins on both sides
+  //width = windowWidth-100
+
+  var width = windowWidth / 1.5;
+  var height = windowHeight / 1.5;
+
+  var svg = d3.select("#chart").append("svg").attr("width", width).attr("height", height).attr("id", "matrixHolder").append("g").attr("id", "overallMatrix").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  d3.csv(fileLocation, function (d) {
+    console.log("Data parsed correctly", d);
+    return {
+      MarkerName: d.Marker,
+      TraitName: d.Trait,
+      Marker: d.Marker.replace(/\D/g, ''),
+      Trait: d.Trait.replace(/\D/g, ''),
+      value: +d.Correlation
+    };
+  }, function (error, data) {
+
+    var colors = ["#ffffd9", "#edf8b1", "#c7e9b4", "#7fcdbb", "#41b6c4", "#1d91c0", "#225ea8", "#253494", "#081d58"];
+
+    var colorScale = d3.scale.quantile().domain([0, 1]).range(colors);
+
+    var cards = svg.selectAll(".dots").data(data, function (d) {
+      return d.Marker + ':' + d.Trait;
+    });
+
+    cards.append("title");
+
+    cards.enter().append("rect").attr("x", function (d) {
+      return (d.Trait - 1) * cellWidth;
+    }).attr("y", function (d) {
+      return (d.Marker - 1) * cellHeight;
+    }).attr("rx", 4).attr("ry", 4).attr("class", "cell").attr("width", cellWidth).attr("height", cellHeight).attr("value", function (d) {
+      return d.value;
+    }).on('mouseover', function (d) {
+      var trait = d.Trait;
+      var marker = d.Marker;
+      var correlation = d.value;
+      hoverOnCell(d, trait, marker, correlation);
+      d3.select(d3.event.target).classed("highlight", true);
+    }).on('mouseout', function (d) {
+      hoverOutCell();
+      d3.select(d3.event.target).classed("highlight", false);
+    });
+
+    cards.transition().duration(100).style("fill", function (d) {
+      return colorScale(d.value);
+    });
+
+    cards.exit().remove();
+  });
+};
+
+var D3Chart = React.createClass({
+  displayName: 'D3Chart',
+
+  getInitialState: function getInitialState() {
+    return {
+      points: Graph()
+    };
+  },
+
+  render: function render() {
+    return React.createElement('div', { className: 'Main' }, this.state.points);
+  }
+
+});
+
+module.exports = D3Chart;
+
+},{"react":372}]},{},[375]);

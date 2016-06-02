@@ -40,7 +40,7 @@ var GMProjectContent = React.createClass({
                 leftIcon={<FontIcon className="material-icons">assessment</FontIcon>} 
                 rightIconButton={rightIconMenu}
                 nestedLevel={1}>
-        <Link to={"/data/" + this.props.data.id}>{this.props.data.name}</Link>
+        <Link to={"/visualization/matrix/" + this.props.data.id}>{this.props.data.name}</Link>
       </ListItem>
     );
   }

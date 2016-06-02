@@ -26,7 +26,7 @@ ReactDOM.render(
       <Route path="/" component={GMApp}>
         <Route path="/" component={DataList} />
         <Route path="/data/:id" component={DataList} />
-        <Route path="/visualization/matrix" component={GMMatrixVisualization} />
+        <Route path="/visualization/matrix/:id" component={GMMatrixVisualization} />
         <Route path="*" component={NoMatch} />
       </Route>
     </Router>
