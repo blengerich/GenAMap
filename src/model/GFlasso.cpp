@@ -282,7 +282,7 @@ MatrixXd Gflasso::gradient(){
 
 
 /* Lipschitz Constant to be used in the SPG to get the optimal values of beta matrix*/
-float Gflasso::get_L() {
+float Gflasso::getL() {
 
     MatrixXd X = this->get_X();
     return ((X.transpose()*X).eigenvalues()).real().maxCoeff() + edge_vertex_matrix.squaredNorm()/mau;

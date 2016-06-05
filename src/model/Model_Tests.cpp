@@ -624,7 +624,7 @@ beta <<0.5781,
     aml.setSnpsFeature(F);
     aml.setLambda1(lambda);
     aml.setLambda2(lambda2);
-    aml.initTraining();    
+    aml.initTraining();
     aml.updateBeta(beta);
     double c = aml.cost();
     EXPECT_NEAR(c, 0.421, 1e-3);
