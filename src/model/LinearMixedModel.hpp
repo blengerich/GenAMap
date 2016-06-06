@@ -40,67 +40,46 @@ private :
     int n; // Number of samples
     int d; // Number of input features
 
-    //Search parameters
+    //Similary matrix and SVD
+    MatrixXd K;
+    MatrixXd S;
+    MatrixXd U;
+    void decomposition();
+
+    MatrixXd beta; // d*1
+    MatrixXd mau;  // Coeff matrix of similarity matrix.
+    double lambda_optimized; // Value at which log likelihood is max
+    double sigma;
+    bool initFlag;
 
 public:
 
     // Constructor
     LinearMixedModel();
-
-    //Similary matrix and SVD
-    MatrixXd K;
-
-    void decomposition();
-
-    // Matrixs formed after the decomposition of similarity matrix.
-    // Dimension of both is n*n
-    MatrixXd S;
-    MatrixXd U;
-
-    // Parameters to estimate
-    MatrixXd beta; // d*1
-    MatrixXd mau;  // Coeff matrix of similarity matrix.
-    double lambda_optimized; // Value at which log likelihood is max
-    double sigma;
+    LinearMixedModel(const unordered_map<string, string>& options);
 
     //Setters and Getters
     int get_num_samples();
-
     int get_X_features();
-
-    // Basic parameters
-    MatrixXd get_beta();
-
     double get_lambda();
-
     double get_sigma();
-
     void set_lambda(double);
-
     void set_S(MatrixXd);
-
     void set_U(MatrixXd);
-
-    // Functions to update the training data
-    void train(MatrixXd, MatrixXd);
-
-    void train(MatrixXd, MatrixXd, MatrixXd);
-
+    void setXY(MatrixXd, MatrixXd);
+    void setXYK(MatrixXd, MatrixXd, MatrixXd);
+    void setUS(MatrixXd, MatrixXd);
     //Supporting functions
-
     // Final Objective of the LLM : Obtain beta matrix.
     void calculate_beta(double);
-
     void calculate_sigma(double);
-
     double get_log_likelihood_value(double);
-
     void find_max_log_likelihood();
 
     void set_num_samples(int num_samples);
-
     // Search objective functions
     double f(double);
+    void init();
 };
 
 #endif /* SRC_MODEL_LINEARMIXEDMODEL_HPP_ */

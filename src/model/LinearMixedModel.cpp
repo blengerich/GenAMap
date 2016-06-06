@@ -9,27 +9,31 @@
 using namespace Eigen;
 
 LinearMixedModel::LinearMixedModel() {
-    std::cout << "LMM: Setting default values of n and d to 2" << std::endl;
-    n = 2;
-    d = 2;
+    K = MatrixXd::Zero(1,1);
+    S = MatrixXd::Zero(1,1);
+    initFlag = false;
+}
+
+LinearMixedModel::LinearMixedModel(const unordered_map<string, string> &options) {
+    K = MatrixXd::Zero(1,1);
+    S = MatrixXd::Zero(1,1);
+    initFlag = false;
 }
 
 // Methods to set the training data
-void LinearMixedModel::train(MatrixXd X, MatrixXd Y) {
-
-    cout << "LMM: Training set X and Y are provided !" << endl;
+void LinearMixedModel::setXY(MatrixXd X, MatrixXd Y) {
+//    cout << "LMM: Training set X and Y are provided !" << endl;
     this->X = X; // Input
     this->Y = Y; // Output
 
     this->beta = MatrixXd::Random(X.cols(), Y.rows());
-    this->K = MatrixXd::Random(X.rows(), Y.rows());
-    beta.setZero();
-    K.setZero();
+    this->K = X*X.transpose();
+//    beta.setZero();
+//    K.setZero();
 }
 
-void LinearMixedModel::train(MatrixXd X, MatrixXd Y, MatrixXd K) {
-
-    cout << "LMM: Training set X,Y and K are provided !" << endl;
+void LinearMixedModel::setXYK(MatrixXd X, MatrixXd Y, MatrixXd K) {
+//    cout << "LMM: Training set X,Y and K are provided !" << endl;
     this->X = X;
     this->Y = Y;
     this->K = K; // Matrix that needs to be decomposed
@@ -46,6 +50,12 @@ void LinearMixedModel::set_U(MatrixXd U) {
 }
 
 void LinearMixedModel::set_S(MatrixXd S) {
+    this->S = S;
+}
+
+
+void LinearMixedModel::setUS(MatrixXd U, MatrixXd S) {
+    this->U = U;
     this->S = S;
 }
 
@@ -76,6 +86,7 @@ void LinearMixedModel::decomposition() {
 
 // This method will give Beta matrix as a function of the Lambda Matrix.
 void LinearMixedModel::calculate_beta(double lambda) {
+    init();
     MatrixXd Id(n, n); // n*n
     Id.setIdentity(n, n);
     MatrixXd U_trans = U.transpose(); // n*n
@@ -97,6 +108,7 @@ void LinearMixedModel::calculate_beta(double lambda) {
 
 // This method will give the value of sigma as a function of beta and lambda.
 void LinearMixedModel::calculate_sigma(double lambda) {
+    init();
     double ret_val = 0.0, temp_val = 0.0;
     this->calculate_beta(lambda);
     MatrixXd U_tran_Y = U.transpose() * Y; // n*1
@@ -121,7 +133,7 @@ void LinearMixedModel::calculate_sigma(double lambda) {
    is maximum or error(cost function) is minimum.
 */
 double LinearMixedModel::get_log_likelihood_value(double lambda) {
-
+    init();
     double first_term = 0.0, second_term = 0.0, third_term = 0.0, ret_val = 0.0;
     int n = this->get_num_samples();
 
@@ -162,5 +174,20 @@ double LinearMixedModel::get_log_likelihood_value(double lambda) {
  Name is kept to be f for simplicity.
  */
 double LinearMixedModel::f(double lambda) {
+    init();
     return -1.0 * (this->get_log_likelihood_value(lambda));
+}
+
+void LinearMixedModel::init() {
+    MatrixXd tmp = MatrixXd::Zero(1,1);
+    if (!initFlag){
+        if (K.rows() == 1){
+            K = X*X.transpose();
+            decomposition();
+        }
+        else if (S.rows() == 1){
+            decomposition();
+        }
+        initFlag = true;
+    }
 }
