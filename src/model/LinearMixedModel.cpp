@@ -28,6 +28,8 @@ void LinearMixedModel::setXY(MatrixXd X, MatrixXd Y) {
 
     this->beta = MatrixXd::Random(X.cols(), Y.rows());
     this->K = X*X.transpose();
+    this->n = get_num_samples();
+    this->d = X.cols();
 //    beta.setZero();
 //    K.setZero();
 }
@@ -37,6 +39,8 @@ void LinearMixedModel::setXYK(MatrixXd X, MatrixXd Y, MatrixXd K) {
     this->X = X;
     this->Y = Y;
     this->K = K; // Matrix that needs to be decomposed
+    this->n = get_num_samples();
+    this->d = X.cols();
 
     // Initialize beta and mau to some random values
     this->beta = MatrixXd::Random(X.cols(), Y.rows());
@@ -71,16 +75,20 @@ void  LinearMixedModel::set_num_samples(int num_samples) {
     this->n = num_samples;
 }
 
-int LinearMixedModel::get_num_samples() {
-    return this->n;
+long LinearMixedModel::get_num_samples() {
+    return this->X.rows();
 }
 
 // Decomposition of Similarity Matrix ->
 // K = U*S*transpose(U)
 void LinearMixedModel::decomposition() {
     JacobiSVD<MatrixXd> svd(this->K, ComputeThinU | ComputeThinV);
-    S = svd.singularValues();
+    MatrixXd tmpS = svd.singularValues();
     U = svd.matrixU();
+    S = MatrixXd::Zero(tmpS.rows(), tmpS.rows());
+    for (long i = 0; i<tmpS.rows(); i++){
+        S(i, i) = tmpS(i, 0);
+    }
 }
 
 
@@ -95,11 +103,11 @@ void LinearMixedModel::calculate_beta(double lambda) {
     MatrixXd U_X_trans = (U_trans_X).transpose(); // d*n
     MatrixXd S_lambda_inv = (S + lambda * Id).inverse(); // n*n
 
-    MatrixXd first_term = MatrixXd::Random(d, d); // d*d
-    MatrixXd second_term = MatrixXd::Random(d, 1); // d*1
+//    MatrixXd first_term = MatrixXd::Random(d, d); // d*d
+//    MatrixXd second_term = MatrixXd::Random(d, 1); // d*1
 
-    first_term = ((U_X_trans * S_lambda_inv) * U_trans_X).inverse();
-    second_term = (U_X_trans * S_lambda_inv) * U_trans_Y;
+    MatrixXd first_term = ((U_X_trans * S_lambda_inv) * U_trans_X).inverse();
+    MatrixXd second_term = (U_X_trans * S_lambda_inv) * U_trans_Y;
 
     beta = first_term * second_term;
 
@@ -115,7 +123,7 @@ void LinearMixedModel::calculate_sigma(double lambda) {
     MatrixXd U_tran_X = U.transpose() * X; // n*d
     MatrixXd U_tran_X_beta = U_tran_X * beta;
 
-    int n = U_tran_X.rows();
+    long n = U_tran_X.rows();
 
     for (int i = 0; i < n; i++) {
         temp_val = U_tran_Y(i, 0) - U_tran_X_beta(i, 0);
@@ -135,7 +143,7 @@ void LinearMixedModel::calculate_sigma(double lambda) {
 double LinearMixedModel::get_log_likelihood_value(double lambda) {
     init();
     double first_term = 0.0, second_term = 0.0, third_term = 0.0, ret_val = 0.0;
-    int n = this->get_num_samples();
+    long n = this->get_num_samples();
 
     first_term = (n) * log(2 * M_PI) + n;
     for (int i = 0; i < n; i++) {
@@ -190,4 +198,12 @@ void LinearMixedModel::init() {
         }
         initFlag = true;
     }
+}
+
+MatrixXd LinearMixedModel::getBeta() {
+    return beta;
+}
+
+double LinearMixedModel::getSigma() {
+    return sigma;
 }

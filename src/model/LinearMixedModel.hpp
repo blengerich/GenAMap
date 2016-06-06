@@ -37,8 +37,8 @@ private :
     MatrixXd Y;
 
     // Dimensions of the data
-    int n; // Number of samples
-    int d; // Number of input features
+    long n; // Number of samples
+    long d; // Number of input features
 
     //Similary matrix and SVD
     MatrixXd K;
@@ -59,16 +59,17 @@ public:
     LinearMixedModel(const unordered_map<string, string>& options);
 
     //Setters and Getters
-    int get_num_samples();
-    int get_X_features();
+    long get_num_samples();
+    long get_X_features();
     double get_lambda();
-    double get_sigma();
+    double getSigma();
     void set_lambda(double);
     void set_S(MatrixXd);
     void set_U(MatrixXd);
     void setXY(MatrixXd, MatrixXd);
     void setXYK(MatrixXd, MatrixXd, MatrixXd);
     void setUS(MatrixXd, MatrixXd);
+    MatrixXd getBeta();
     //Supporting functions
     // Final Objective of the LLM : Obtain beta matrix.
     void calculate_beta(double);
