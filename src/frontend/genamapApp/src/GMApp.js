@@ -16,8 +16,8 @@ const settings = {
 
 var GMApp = React.createClass({
   getInitialState: function () {
-    return {leftNavOpen: true, 
-            rightNavOpen: false, 
+    return {leftNavOpen: true,
+            rightNavOpen: false,
             paddingLeft: settings.navWidth + settings.minPad,
             paddingRight: settings.minPad,
             baseColor: "#5bc8df",
@@ -41,38 +41,40 @@ var GMApp = React.createClass({
   render: function () {
     var titleDisplay = this.state.leftNavOpen && this.state.rightNavOpen ? "hidden" : "visible"
     var childrenWithProps = React.Children.map(this.props.children, (child) => {
+        console.log(child);
         return React.cloneElement(child, { left: this.state.paddingLeft,
                                            right: this.state.paddingRight,
                                            minPad: settings.minPad
                                           });
     });
+
     return (
       <div>
-        <GMTopMenu 
-          projectUrl={settings.projectUrl} 
+        <GMTopMenu
+          projectUrl={settings.projectUrl}
           algorithmUrl={settings.algorithmUrl}
           runAnalysisUrl={settings.runAnalysisUrl}
           handleLeftIconTouch={this.handleLeftIconTouch}
-          handleRightIconTouch={this.handleRightIconTouch} 
-          style={{paddingLeft: this.state.paddingLeft, 
+          handleRightIconTouch={this.handleRightIconTouch}
+          style={{paddingLeft: this.state.paddingLeft,
                   paddingRight: this.state.paddingRight,
                 }}
           titleDisplay={titleDisplay}
         />
-        <GMLeftMenu 
-          projectUrl={settings.projectUrl} 
+        <GMLeftMenu
+          projectUrl={settings.projectUrl}
           speciesUrl={settings.speciesUrl}
           importDataUrl={settings.importDataUrl}
-          open={this.state.leftNavOpen} 
+          open={this.state.leftNavOpen}
           width={settings.navWidth}
         />
-        <GMRightMenu 
+        <GMRightMenu
           open={this.state.rightNavOpen}
-          width={settings.navWidth} 
+          width={settings.navWidth}
         />
-        <main 
-          className="gm-layout__content" 
-          style={{paddingLeft: this.state.paddingLeft, 
+        <main
+          className="gm-layout__content"
+          style={{paddingLeft: this.state.paddingLeft,
                   paddingRight: this.state.paddingRight,
                 }}
         >
