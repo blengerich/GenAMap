@@ -1,7 +1,7 @@
 var React = require('react');
+var ReactDOM = require('react-dom');
 
 var Graph = function() {
-
 	var fileLocation = 'images/test_node_small.csv';
 
 	var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
@@ -45,60 +45,61 @@ var Graph = function() {
             };
         },
 
-	function(error, data) {
+		function(error, data) {
+			var colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"];
 
-		var colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"];
+        	var colorScale = d3.scale.quantile()
+		        .domain([0, 1])
+                .range(colors);
 
-        var colorScale = d3.scale.quantile()
-                                .domain([0, 1])
-                                .range(colors);
+    		var cards = svg.selectAll(".dots")
+             	.data(data, function(d) { return d.Marker+':'+d.Trait;});
 
-        var cards = svg.selectAll(".dots")
-                      .data(data, function(d) { return d.Marker+':'+d.Trait;});
+        	cards.append("title");
 
-        cards.append("title");
+        	cards.enter().append("rect")
+                .attr("x", function(d) { return (d.Trait - 1) * cellWidth; })
+                .attr("y", function(d) { return (d.Marker - 1) * cellHeight; })
+                .attr("rx", 4)
+                .attr("ry", 4)
+                .attr("class", "cell")
+                .attr("width", cellWidth)
+                .attr("height", cellHeight)
+                .attr("value", function(d) { return d.value })
+                .on('mouseover', function(d) {
+                    var trait = d.Trait;
+                    var marker = d.Marker;
+                    var correlation = d.value;
+                    hoverOnCell(d, trait, marker, correlation)
+                    d3.select(d3.event.target).classed("highlight", true);
+                })
+                .on('mouseout', function(d) {
+                    hoverOutCell();
+                    d3.select(d3.event.target).classed("highlight", false);
+                });
 
-        cards.enter().append("rect")
-                        .attr("x", function(d) { return (d.Trait - 1) * cellWidth; })
-                        .attr("y", function(d) { return (d.Marker - 1) * cellHeight; })
-                        .attr("rx", 4)
-                        .attr("ry", 4)
-                        .attr("class", "cell")
-                        .attr("width", cellWidth)
-                        .attr("height", cellHeight)
-                        .attr("value", function(d) { return d.value })
-                        .on('mouseover', function(d) {
-                            var trait = d.Trait;
-                            var marker = d.Marker;
-                            var correlation = d.value;
-                            hoverOnCell(d, trait, marker, correlation)
-                            d3.select(d3.event.target).classed("highlight", true);
-                        })
-                        .on('mouseout', function(d) {
-                            hoverOutCell();
-                            d3.select(d3.event.target).classed("highlight", false);
-                        });
+        	cards.transition().duration(100)
+            	.style("fill", function(d) { return colorScale(d.value); });
 
-        cards.transition().duration(100)
-            .style("fill", function(d) { return colorScale(d.value); });
-          
-        cards.exit().remove();
-	});  
+        	cards.exit().remove();
+		}
+	);
 };
 
 
 var D3Chart = React.createClass({
+	componentDidMount() {
+		Graph();
+	},
 
 	getInitialState: function() {
 		return {
-			points: Graph()
-		}
+		};
 	},
 
 	render: function() {
 		return (
-			<div className="Main">
-				{this.state.points}
+			<div id="chart">
 			</div>
 		);
 	}
