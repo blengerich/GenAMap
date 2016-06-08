@@ -3,6 +3,7 @@
  *
  *  Created on: Mar 17, 2016
  *      Author: Aditya Gautam (agautam1@andrew.cmu.edu)
+ *      EDITED BY: Liuyu Jin (liuyuj@andrew.cmu.edu)
  */
 #include "LinearMixedModel.hpp"
 
@@ -15,59 +16,81 @@ LinearMixedModel::LinearMixedModel() {
 }
 
 // Methods to set the training data
-void LinearMixedModel::train(MatrixXd X, MatrixXd Y){
+void LinearMixedModel::train(MatrixXd new_X, MatrixXd new_Y){
     
     cout << "LMM: Training set X and Y are provided !" << endl;
-    this->X = X; // Input
-    this->Y = Y; // Output
+    X = new_X; // Input
+    Y = new_Y; // Output
     
-    this->beta = MatrixXd::Random(X.cols(),Y.rows());
-    this->K= MatrixXd::Random(X.rows(),Y.rows());
+    beta = MatrixXd::Random(X.cols(),Y.rows());
+    K= MatrixXd::Random(X.rows(),Y.rows());
     beta.setZero();
     K.setZero();
 }
 
-void LinearMixedModel::train(MatrixXd X, MatrixXd Y, MatrixXd K){
+void LinearMixedModel::train(MatrixXd new_X, MatrixXd new_Y, MatrixXd new_K){
     
     cout << "LMM: Training set X,Y and K are provided !" << endl;
-    this->X = X;
-    this->Y = Y;
-    this->K = K; // Matrix that needs to be decomposed
+    X = new_X;
+    Y = new_Y;
+    K = new_K; // Matrix that needs to be decomposed
     
     // Initialize beta and mau to some random values
-    this->beta = MatrixXd::Random(X.cols(),Y.rows());
-    this->mau = MatrixXd(n,1);
+    beta = MatrixXd::Random(X.cols(),Y.rows());
+    mau = MatrixXd(n,1);
 }
 
 // Other getters and setter methods
 // K = U*S*transpose(U)
-void LinearMixedModel::set_U(MatrixXd U){
-    this->U = U;
+void LinearMixedModel::set_U(MatrixXd new_U){
+    U = new_U;
 }
 
-void LinearMixedModel::set_S(MatrixXd S){
-    this->S = S;
+void LinearMixedModel::set_S(MatrixXd new_S){
+    S = new_S;
 }
 
 void LinearMixedModel::set_lambda(double val) {
-    this->lambda_optimized = val;
+    lambda_optimized = val;
+}
+
+MatrixXd LinearMixedModel::get_beta(){
+    return beta;
+}
+
+double LinearMixedModel::get_sigma(){
+    return sigma;
 }
 
 double LinearMixedModel::get_lambda() {
-    return this->lambda_optimized;
+    return lambda_optimized;
 }
 
 void  LinearMixedModel::set_num_samples(int num_samples){
-    this->n = num_samples;
+    n = num_samples;
 }
 
 int LinearMixedModel::get_num_samples() {
-    return this->n;
+    return n;
 }
 
 // Decomposition of Similarity Matrix -> to be done later
 void LinearMixedModel::decomposition(){
     
+}
+
+MatrixXd get_betaVar(double lambda){
+    MatrixXd Id(n,n); // n*n
+    Id.setIdentity(n,n);
+    MatrixXd U_trans = U.transpose(); // n*n
+    MatrixXd U_trans_X = U_trans*X; // n*d  //XX
+    MatrixXd U_trans_Y = U_trans*Y; // n*1
+    MatrixXd U_X_trans = (U_trans_X).transpose(); // d*n
+    MatrixXd S_lambda_inv = (S + lambda*Id).cwiseInverse(); // n*n
+    MatrixXd betaVar = MatrixXd::Random(d,d); // d*d
+    betaVar = ((U_X_trans*S_lambda_inv)*U_trans_X).cwiseInverse();
+    return betaVar;
+
 }
 
 // This method will give Beta matrix as a function of the Lambda Matrix.
@@ -77,7 +100,7 @@ void LinearMixedModel::calculate_beta(double lambda){
     MatrixXd Id(n,n); // n*n
     Id.setIdentity(n,n);
     MatrixXd U_trans = U.transpose(); // n*n
-    MatrixXd U_trans_X = U_trans*X; // n*d
+    MatrixXd U_trans_X = U_trans*X; // n*d  //XX
     MatrixXd U_trans_Y = U_trans*Y; // n*1
     MatrixXd U_X_trans = (U_trans_X).transpose(); // d*n
     MatrixXd S_lambda_inv = (S + lambda*Id).cwiseInverse(); // n*n
@@ -88,10 +111,8 @@ void LinearMixedModel::calculate_beta(double lambda){
         for(c=0;c<S_lambda_inv.cols();c++)
             std::cout << S_lambda_inv(r,c) << " ";
     */
-    MatrixXd first_term = MatrixXd::Random(d,d); // d*d
+    MatrixXd betaVar = get_betaVar(lambda);
     MatrixXd second_term = MatrixXd::Random(d,1); // d*1
-    
-    first_term = ((U_X_trans*S_lambda_inv)*U_trans_X).cwiseInverse();
     /*
     std::cout << " First term " ;
     for(r=0;r<first_term.rows();r++)
@@ -100,7 +121,7 @@ void LinearMixedModel::calculate_beta(double lambda){
     */
     second_term = (U_X_trans*S_lambda_inv)*U_trans_Y;
 
-    beta = first_term*second_term;
+    beta = betaVar*second_term;
     /*
     std::cout << " Beta matrix : " ;
 
@@ -117,7 +138,7 @@ void LinearMixedModel::calculate_sigma(double lambda){
     //std::cout << "Calculate_sigma : lambda = " << lambda << std::endl;
 
     double ret_val=0.0,temp_val=0.0;
-    this->calculate_beta(lambda);
+    calculate_beta(lambda);
     MatrixXd U_tran_Y = U.transpose()*Y; // n*1
     MatrixXd U_tran_X = U.transpose()*X; // n*d
     MatrixXd U_tran_X_beta = U_tran_X*beta;
@@ -137,7 +158,7 @@ void LinearMixedModel::calculate_sigma(double lambda){
     ret_val = ret_val/double(n);
     ret_val = sqrt(ret_val);
 
-    this->sigma = ret_val;
+    sigma = ret_val;
     //std::cout << " Sigma val = " << ret_val << std::endl;
 
     return ;
@@ -150,7 +171,7 @@ void LinearMixedModel::calculate_sigma(double lambda){
 double LinearMixedModel::get_log_likelihood_value(double lambda){
     
     double first_term = 0.0,second_term=0.0, third_term=0.0, ret_val =0.0;
-    int n = this->get_num_samples();
+    int n = get_num_samples();
     
     first_term = (n)*log(2*M_PI) + n;
     //std::cout << " Get LogLikelihood : lambda =  " << lambda << std::endl;
@@ -197,5 +218,6 @@ double LinearMixedModel::get_log_likelihood_value(double lambda){
  */
 double LinearMixedModel::f(double lambda){
     //std::cout << "f func ... lambda = " << lambda << std::endl;
-    return -1.0*(this->get_log_likelihood_value(lambda));
+    return -1.0*(get_log_likelihood_value(lambda));
 }
+

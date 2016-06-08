@@ -13,6 +13,8 @@ namespace Stats {
     double WaldTest(double mle, double var, double candidate);
     double FisherExactTest(MatrixXd);
     double BonCorrection(double, int);
+    double get_ts(double beta, double var, double sigma);
+    double get_qs(double ts, int N, int q);
 };
 
 #endif //STATS_STATS_HPP
