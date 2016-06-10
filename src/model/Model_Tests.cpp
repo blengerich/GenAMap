@@ -11,6 +11,7 @@
 #include "TreeLasso.hpp"
 #include "MultiPopLasso.hpp"
 #include "AdaMultiLasso.hpp"
+#include "LinearMixedModel.hpp"
 
 void TEST_VECTOR_NEAR(VectorXd a, VectorXd b, float v) {
     long l = a.size();
@@ -71,14 +72,14 @@ void TEST_TREE_NEAR(Tree * m, Tree * n, float v){
         if (mt->children.size()==0){
         }
         else{
-            for (int i=0; i<mt->children.size();i++){
+            for (unsigned int i=0; i<mt->children.size();i++){
                 nm.push(mt->children[i]);
             }
         }
         if (nt->children.size()==0){
         }
         else{
-            for (int i=0; i<nt->children.size();i++){
+            for (unsigned int i=0; i < nt->children.size();i++){
                 nn.push(nt->children[i]);
             }
         }
@@ -583,38 +584,38 @@ TEST(MULTI_POP_LASSO, ProximalDerivative){
 }
 
 TEST(ADA_MULTI_POP_LASSO, Cost_function){
-    MatrixXd X(4, 6);
-    X << -0.0168,   -0.0169,   -0.0146,    0.0192,   -0.0124,   -0.0092,
+MatrixXd X(4, 6);
+X << -0.0168,   -0.0169,   -0.0146,    0.0192,   -0.0124,   -0.0092,
 -0.0052,    0.0243,    0.0010,   -0.0105,    0.0167,    0.0155,
 0.0106,   0.0004,   -0.0138,    0.0228,   -0.0112,    0.0017,
 -0.0139,   -0.0212,    0.0112,   -0.0040,   -0.0067,    0.0211;
-    MatrixXd y(4, 2);
-    y << -0.0302,   -0.0165,
+MatrixXd y(4, 2);
+y << -0.0302,   -0.0165,
 -0.0349,   -0.0138,
 -0.0061,   -0.0078,
 -0.0403,   -0.0011;
 
-    MatrixXd F(6, 3);
-    F << 0.1379,    0.3861,    0.1493,
+MatrixXd F(6, 3);
+F << 0.1379,    0.3861,    0.1493,
 0.6021,    0.5081,    0.0918,
 0.1245,    0.7462,    0.0504,
 0.1753,    0.2069,    0.2135,
 0.3099,    0.1689,    0.4061,
 0.1875,    0.4087,    0.2685;
 
-    MatrixXd beta(12, 1);
-    beta <<0.5781,
-    0.0879,
-    0,
-    0,
-    0,
-    0,
-    0.4382,
-    0,
-    0,
-    -0.4788,
-    -0.0186,
-    0.7621;
+MatrixXd beta(12, 1);
+beta <<0.5781,
+0.0879,
+0,
+0,
+0,
+0,
+0.4382,
+0,
+0,
+-0.4788,
+-0.0186,
+0.7621;
 
     double lambda = 0.1;
     double lambda2 = 0.1;
@@ -624,6 +625,7 @@ TEST(ADA_MULTI_POP_LASSO, Cost_function){
     aml.setSnpsFeature(F);
     aml.setLambda1(lambda);
     aml.setLambda2(lambda2);
+    aml.initTraining();
     aml.updateBeta(beta);
     double c = aml.cost();
     EXPECT_NEAR(c, 0.421, 1e-3);
@@ -644,17 +646,140 @@ TEST(ADA_MULTI_POP_LASSO, Projection){
     m << 0.1, 0.5, 0.8, 0.9, 1.1;
     r << 0, 0, 0.2, 0.3, 0.5;
     VectorXd n = aml.projection(m);
-    TEST_MATRIX_NEAR(m, n, 1e-3);
+    TEST_MATRIX_NEAR(r, n, 1e-3);
     m << 1, 1, 3, 0, 1;
     r << 0, 0, 1, 0, 0;
-    VectorXd n = aml.projection(m);
-    TEST_MATRIX_NEAR(m, n, 1e-3);
+    n = aml.projection(m);
+    TEST_MATRIX_NEAR(r, n, 1e-3);
     m << -0.1, -0.4, 0.9, 1.0, 0.2;
     r << 0, 0, 0.45, 0.55, 0;
-    VectorXd n = aml.projection(m);
-    cout << n << endl;
+    n = aml.projection(m);
+    TEST_MATRIX_NEAR(r, n, 1e-3);
 }
 
+
+TEST(LinearMixedModel, Objective){
+LinearMixedModel lmm = LinearMixedModel();
+MatrixXd X(10, 5);
+X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
+0.9058,    0.9706,    0.0357,    0.0318,    0.3816,
+0.1270,    0.9572,    0.8491,    0.2769,    0.7655,
+0.9134,    0.4854,    0.9340,    0.0462,    0.7952,
+0.6324,    0.8003,    0.6787,    0.0971,    0.1869,
+0.0975,    0.1419,    0.7577,    0.8235,    0.4898,
+0.2785,    0.4218,    0.7431,    0.6948,    0.4456,
+0.5469,    0.9157,    0.3922,    0.3171,    0.6463,
+0.9575,    0.7922,    0.6555,    0.9502,    0.7094,
+0.9649,    0.9595,    0.1712,    0.0344,    0.7547;
+MatrixXd y(10, 1);
+y << 0.4173,
+0.0497,
+0.9027,
+0.9448,
+0.4909,
+0.4893,
+0.3377,
+0.9001,
+0.3692,
+0.1112;
+MatrixXd beta(5, 1);
+beta << -0.2106,
+0.0919,
+0.7380,
+-0.3055,
+0.4659;
+lmm.setXY(X, y);
+lmm.updateBeta(beta);
+double lambda = 0.5;
+double r = lmm.f(lambda);
+EXPECT_NEAR(r, 3.87016, 0.001);
+lambda = 0;
+r = lmm.f(lambda);
+EXPECT_NEAR(r, 262.619, 0.001);
+}
+
+
+TEST(LinearMixedModel, Beta){
+LinearMixedModel lmm = LinearMixedModel();
+MatrixXd X(10, 5);
+X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
+0.9058,    0.9706,    0.0357,    0.0318,    0.3816,
+0.1270,    0.9572,    0.8491,    0.2769,    0.7655,
+0.9134,    0.4854,    0.9340,    0.0462,    0.7952,
+0.6324,    0.8003,    0.6787,    0.0971,    0.1869,
+0.0975,    0.1419,    0.7577,    0.8235,    0.4898,
+0.2785,    0.4218,    0.7431,    0.6948,    0.4456,
+0.5469,    0.9157,    0.3922,    0.3171,    0.6463,
+0.9575,    0.7922,    0.6555,    0.9502,    0.7094,
+0.9649,    0.9595,    0.1712,    0.0344,    0.7547;
+MatrixXd y(10, 1);
+y << 0.4173,
+0.0497,
+0.9027,
+0.9448,
+0.4909,
+0.4893,
+0.3377,
+0.9001,
+0.3692,
+0.1112;
+MatrixXd beta(5, 1);
+beta << -0.2106,
+0.0919,
+0.7380,
+-0.3055,
+0.4659;
+lmm.setXY(X, y);
+//    lmm.updateBeta(beta);
+double lambda = 0.0001;
+lmm.calculate_beta(lambda);
+MatrixXd r = lmm.getBeta();
+TEST_MATRIX_NEAR(r, beta, 0.001);
+}
+
+TEST(LinearMixedModel, Sigma){
+LinearMixedModel lmm = LinearMixedModel();
+MatrixXd X(10, 5);
+X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
+0.9058,    0.9706,    0.0357,    0.0318,    0.3816,
+0.1270,    0.9572,    0.8491,    0.2769,    0.7655,
+0.9134,    0.4854,    0.9340,    0.0462,    0.7952,
+0.6324,    0.8003,    0.6787,    0.0971,    0.1869,
+0.0975,    0.1419,    0.7577,    0.8235,    0.4898,
+0.2785,    0.4218,    0.7431,    0.6948,    0.4456,
+0.5469,    0.9157,    0.3922,    0.3171,    0.6463,
+0.9575,    0.7922,    0.6555,    0.9502,    0.7094,
+0.9649,    0.9595,    0.1712,    0.0344,    0.7547;
+MatrixXd y(10, 1);
+y << 0.4173,
+0.0497,
+0.9027,
+0.9448,
+0.4909,
+0.4893,
+0.3377,
+0.9001,
+0.3692,
+0.1112;
+MatrixXd beta(5, 1);
+beta << -0.2106,
+0.0919,
+0.7380,
+-0.3055,
+0.4659;
+lmm.setXY(X, y);
+//    lmm.updateBeta(beta);
+double lambda = 1;
+lmm.calculate_sigma(lambda);
+double r = lmm.getSigma();
+EXPECT_NEAR(r, 0.0304, 0.001);
+lmm.calculate_sigma(0.001);
+r = lmm.getSigma();
+EXPECT_NEAR(r, 30414.9, 0.1);
+lmm.calculate_sigma(1000);
+r = lmm.getSigma();
+EXPECT_NEAR(r, 0, 0.001);
+}
 
 
 int main(int argc, char** argv) {

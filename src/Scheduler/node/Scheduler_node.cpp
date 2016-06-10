@@ -19,6 +19,7 @@
 #include "../../model/ModelOptions.hpp"
 #include "../Job.hpp"
 #include "../Scheduler.hpp"
+#include "../../json/JsonCoder.hpp"
 
 using namespace std;
 using namespace v8;
@@ -26,7 +27,7 @@ using namespace v8;
 
 // Creates a new algorithm, but does not run it. Currently synchronous.
 // Arguments: JSON to be converted to AlgorithmOptions_t
-void newAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args) {
+void newAlgorithm(const FunctionCallbackInfo<Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 
 	if (args.Length() < 1) {
@@ -37,11 +38,11 @@ void newAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
 	const AlgorithmOptions_t& options = AlgorithmOptions_t(isolate, options_v8);
-	
+
 	const int id = Scheduler::Instance()->newAlgorithm(options);
 	if (id < 0) {
 		isolate->ThrowException(Exception::Error(
-			String::NewFromUtf8(isolate, "Could not add another algorithm (algorithm map may be full).")));
+			String::NewFromUtf8(isolate, "Could not add another algorithm.")));
 		return;
 	}
 
@@ -51,14 +52,14 @@ void newAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 // Creates a new model, but does not run it. Synchronous.
 // Arguments: JSON to be converted to ModelOptions_t
-void newModel(const v8::FunctionCallbackInfo<v8::Value>& args) {
+void newModel(const FunctionCallbackInfo<Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
 	const ModelOptions_t& options = ModelOptions_t(isolate, options_v8);
 	const int id = Scheduler::Instance()->newModel(options);
 	if (id < 0) {
 		isolate->ThrowException(Exception::Error(
-			String::NewFromUtf8(isolate, "Could not add another model (model map may be full)")));
+			String::NewFromUtf8(isolate, "Could not add another model")));
 		return;
 	}
 
@@ -68,14 +69,44 @@ void newModel(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 // Sets the X matrix of a given model.
 // Arguments: model_num, JSON matrix
-void setX(const v8::FunctionCallbackInfo<v8::Value>& args) {
+void setX(const FunctionCallbackInfo<Value>& args) {
 	Isolate* isolate = args.GetIsolate();
-	Local<Number>::Cast(args[1]);
+	const int model_num = (int)Local<Number>::Cast(args[0])->Value();
+	Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
+
+	const unsigned int rows = ar->Length();
+	const unsigned int cols = Local<v8::Array>::Cast(ar->Get(0))->Length();
+	Eigen::MatrixXd Matrix(rows, cols);
+
+	for (unsigned int i=0; i<rows; i++) {
+		for (unsigned int j=0; j<cols; j++) {
+			Matrix(i,j) = (double)Local<v8::Array>::Cast(ar->Get(i))->Get(j)->NumberValue();
+		}
+	}
+	bool result = Scheduler::Instance()->setX(model_num, Matrix);
+	Local<Boolean> retval = Boolean::New(isolate, result);
+	args.GetReturnValue().Set(retval);
 }
 
-void setY(const v8::FunctionCallbackInfo<v8::Value>& args) {
+// Sets the Y matrix of a given model.
+// Arguments: model_num, JSON matrix
+void setY(const FunctionCallbackInfo<Value>& args) {
 	Isolate* isolate = args.GetIsolate();
-	Local<Number>::Cast(args[1]);
+
+	const int model_num = (int)Local<Number>::Cast(args[0])->Value();
+	Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
+
+	const unsigned int rows = ar->Length();
+	const unsigned int cols = Local<v8::Array>::Cast(ar->Get(0))->Length();
+	Eigen::MatrixXd Matrix(rows, cols);
+
+	for (unsigned int i=0; i<rows; i++) {
+		for (unsigned int j=0; j<cols; j++) {
+			Matrix(i,j) = (double)Local<v8::Array>::Cast(ar->Get(i))->Get(j)->NumberValue();
+		}
+	}
+	bool result = Scheduler::Instance()->setY(model_num, Matrix);
+	args.GetReturnValue().Set(Boolean::New(isolate, result));	
 }
 
 
@@ -99,22 +130,31 @@ void newJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 // Maybe begins the training of an algorithm, given the job number.
 // Asynchronous.
-// Arguments: function callback, int job_id
+// Arguments: int job_id, function callback
 void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	// Inspect arguments.
-	//assert(args.Length() >= 2, "Must give a callback and a job num to train.");
+	if (args.Length() < 1) {
+		isolate->ThrowException(Exception::TypeError(
+			String::NewFromUtf8(isolate, "Must supply a job id to start.")));
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
+		return;
+	}
+
+	if (!args[0]->IsNumber()) {
+		isolate->ThrowException(Exception::TypeError(
+			String::NewFromUtf8(isolate, "Job id must be a number.")));
+		return;
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
+	}
+
 	const int job_id = (int)Local<Number>::Cast(args[0])->Value();
 	Job_t* job = Scheduler::Instance()->getJob(job_id);
-	job->request.data = job;
-	job->callback.Reset(isolate, Local<Function>::Cast(args[0]));
+	job->callback.Reset(isolate, Local<Function>::Cast(args[1]));
 	job->job_id = job_id;
 
-	/*Scheduler::Instance()->startJob(
-		isolate, , Local<Number>::Cast(args[1]));*/
-	Scheduler::Instance()->startJob(job, trainAlgorithmComplete);
-	//uv_qeueue_work(uv_default_loop(), &job->requets, trainAlgorithmThread, trainAlgorithmComplete);
-	args.GetReturnValue().Set(Undefined(isolate));
+	bool result = Scheduler::Instance()->startJob(job_id, trainAlgorithmComplete);
+	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
 
 // Checks the status of an algorithm, given the algorithm's job number.
@@ -130,14 +170,8 @@ void checkJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 		return;
 	}
 
-	if (!args[0]->IsNumber()) {
-		isolate->ThrowException(Exception::TypeError(
-			String::NewFromUtf8(isolate, "Job id must be a number.")));
-		return;
-	}
-
 	int job_id = (int)Local<Number>::Cast(args[0])->Value();
-	const double progress = Scheduler::Instance()->checkJob(job_id);
+	const double progress = Scheduler::Instance()->checkJobProgress(job_id);
 	Local<Number> retval = Number::New(isolate, progress);
 	args.GetReturnValue().Set(retval);
 }
@@ -201,44 +235,6 @@ void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 }
 
 
-// Test function
-void Add(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = args.GetIsolate();
-
-  // Check the number of arguments passed.
-  if (args.Length() < 2) {
-    // Throw an Error that is passed back to JavaScript
-    isolate->ThrowException(Exception::TypeError(
-        String::NewFromUtf8(isolate, "Wrong number of arguments")));
-    return;
-  }
-
-  // Check the argument types
-  if (!args[0]->IsNumber() || !args[1]->IsNumber()) {
-    isolate->ThrowException(Exception::TypeError(
-        String::NewFromUtf8(isolate, "Wrong arguments")));
-    return;
-  }
-
-  // Perform the operation
-  double value = args[0]->NumberValue() + args[1]->NumberValue();
-  Local<Number> num = Number::New(isolate, value);
-
-  // Set the return value (using the passed in FunctionCallbackInfo<Value>&)
-  args.GetReturnValue().Set(num);
-}
-
-// Runs in libuv thread spawned by trainAlgorithmAsync
-/*void trainAlgorithmThread(uv_work_t* req) {
-	// Running in worker thread.
-	Job_t* job = static_cast<Job_t*>(req->data);
-	usleep(10000);
-	// Run algorithm here.
-	job->algorithm->run(job->model);
-	//job->results = job->algorithm->run(job->model);
-}*/
-
-
 // Handles packaging of algorithm results to return to the frontend.
 // Called by libuv in event loop when async training completes.
 void trainAlgorithmComplete(uv_work_t* req, int status) {
@@ -248,33 +244,17 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 
 	Job_t* job = static_cast<Job_t*>(req->data);
 	
-	// Pack up the data here to be returned to JS - unclear what the format is
-	Local<v8::Array> result_list = v8::Array::New(isolate);
-	Handle<Value> argv[] = { result_list };
-
+	// Pack up the data to be returned to JS
+	const MatrixXd& result = job->model->getBeta();
+	Local<v8::Array> obj = v8::Array::New(isolate);
+	// TODO: Fewer convserions to return a matrix [Issue: https://github.com/blengerich/GenAMap_V2/issues/17]
+	obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
+	Handle<Value> argv[] = { obj };
+ 
 	// execute the callback
 	Local<Function>::New(isolate, job->callback)->Call(
 		isolate->GetCurrentContext()->Global(), 1, argv);
 	job->callback.Reset();
-	delete job;
-	// Should call scheduler's delete job function here
+	Scheduler::Instance()->deleteJob(job->job_id);
 }
 
-/////////////////////
-// Register with Node
-/////////////////////
-
-void Init(Handle<Object> exports, Handle<Object> module) {
-	NODE_SET_METHOD(exports, "newAlgorithm", newAlgorithm);
-	NODE_SET_METHOD(exports, "newModel", newModel);
-	NODE_SET_METHOD(exports, "newJob", newJob);
-	NODE_SET_METHOD(exports, "startJob", startJob);
-	NODE_SET_METHOD(exports, "checkJob", checkJob);
-	NODE_SET_METHOD(exports, "cancelJob", cancelJob);
-	NODE_SET_METHOD(exports, "deleteAlgorithm", deleteAlgorithm);
-	NODE_SET_METHOD(exports, "deleteModel", deleteModel);
-	NODE_SET_METHOD(exports, "deleteJob", deleteJob);
-	NODE_SET_METHOD(exports, "add", Add);
-}
-
-NODE_MODULE(scheduler, Init)

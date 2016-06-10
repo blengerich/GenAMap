@@ -18,10 +18,9 @@ enum model_type {
 	tree_lasso = 6
 };
 
-struct ModelOptions_t {
+typedef struct ModelOptions_t {
 	model_type type;
 	unordered_map<string, string> options;
-
 
 	ModelOptions_t(Isolate* isolate, Handle<Object> options_v8) {
 		Handle<Value> type_handle = options_v8->Get(
@@ -34,11 +33,21 @@ struct ModelOptions_t {
 		Local<v8::Array> props = opts->GetPropertyNames();
 
 		for (unsigned int i=0; i < props->Length(); i++) {
-			v8::String::Utf8Value param1(props->Get(Integer::New(isolate, i))->ToString());
-			v8::String::Utf8Value param2(opts->Get(i)->ToString());
+			v8::String::Utf8Value param1(
+				props->Get(Integer::New(isolate, i))->ToString());
+
+			v8::String::Utf8Value param2(opts->Get(
+				v8::String::NewFromUtf8(isolate, *param1)->ToString()));
 			options.emplace(string(*param1), string(*param2));
 		}
 	}
-};
+
+	ModelOptions_t(model_type model, unordered_map<string, string> opts)
+	: type(model)
+	, options(opts){};
+
+	ModelOptions_t(){};
+
+} ModelOptions_t;
 
 #endif // MODEL_OPTIONS_HPP

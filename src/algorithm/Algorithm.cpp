@@ -7,7 +7,6 @@
 #ifdef BAZEL
 #include "algorithm/Algorithm.hpp"
 #include "model/Model.hpp"
-
 #else
 #include "Algorithm.hpp"
 #include "../model/Model.hpp"
@@ -18,6 +17,8 @@ using namespace std;
 Algorithm::Algorithm() {
 	progress = 0;
 	maxIteration=1000;
+	isRunning = false;
+	shouldStop = false;
 }
 
 int Algorithm::getMaxIteration() {
@@ -32,6 +33,15 @@ void Algorithm::setMaxIteration(int m) {
 	maxIteration = m;
 }
 
+bool Algorithm::getIsRunning() {
+	return isRunning;
+}
+
+void Algorithm::stop() {
+	shouldStop = true;
+}
+
+/*
 void Algorithm::run(Model*) {
 	cout<<"This algorithm is not implemented for current model"<<endl;
-}
+}*/

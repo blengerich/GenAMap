@@ -11,6 +11,8 @@ namespace Stats {
     double ChiSquaredTest(MatrixXd, MatrixXd);
     double ChiToPValue(double, int);
     double WaldTest(double mle, double var, double candidate);
+    double FisherExactTest(MatrixXd);
+    double BonCorrection(double, int);
 };
 
 #endif //STATS_STATS_HPP

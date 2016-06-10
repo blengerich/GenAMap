@@ -17,6 +17,8 @@ class Algorithm {
 protected:
     double progress;
     int maxIteration;
+    bool isRunning;
+    bool shouldStop;
 public:
     Algorithm();
     Algorithm(const unordered_map<string, string>);
@@ -24,8 +26,15 @@ public:
     void setMaxIteration(int);
 
     double getProgress();
+    bool getIsRunning();
     int getMaxIteration();
-    void run(Model*);
+    void stop();
+    
+    virtual void run(Model*){};
+    
+
+
+    virtual ~Algorithm(){};
 };
 
 
