@@ -46,7 +46,7 @@ class GMApp extends Component {
           style={padding}
           visibility={this.getVisibility()}
         />
-        <GMLeftMenu open={this.props.leftNavOpen} width={config.ui.navWidth} />
+        <GMLeftMenu open={this.props.leftNavOpen} width={config.ui.navWidth} user={this.props.user} />
         <GMRightMenu open={this.props.rightNavOpen} width={config.ui.navWidth} />
         <main style={padding}>
           {this.props.children}

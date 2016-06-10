@@ -15,7 +15,7 @@ var GMUser = React.createClass({
   render: function () {
     return (
       <AppBar
-        title={!this.props.user ? 'a@a.com' : this.props.user.email}
+        title={this.props.user}
         showMenuIconButton={false}
         iconElementRight={
           <IconMenu iconButtonElement={iconButtonElement}>

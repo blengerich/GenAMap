@@ -6,7 +6,7 @@ import TableHeader from 'material-ui/lib/table/table-header'
 import TableRowColumn from 'material-ui/lib/table/table-row-column'
 import TableBody from 'material-ui/lib/table/table-body'
 
-import { GetRequest } from './Requests'
+import fetch from './fetch'
 import config from '../../config'
 
 const GMDataTable = React.createClass({
@@ -48,16 +48,27 @@ const GMDataList = React.createClass({
     this.loadData(this.props.params.id)
   },
   loadData: function (id) {
-    GetRequest(config.api.dataUrl + id, {}, (response) => {
-      const data = response.data.split('\n')
+    let dataRequest = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+
+    fetch(`${config.api.dataUrl}/${id}`, dataRequest)
+    .then(response => {
+      if (!response.ok) Promise.reject(response.json())
+      return response.json()
+    }).then(json => {
+      const data = json.data.split('\n')
       const headers = data[0].split(',')
       data.splice(0, 1)
       this.setState({
-        title: response.file.name,
+        title: json.file.name,
         data,
         headers
       })
-    })
+    }).catch(err => console.log('Error: ', err))
   },
   componentWillReceiveProps: function (nextProps) {
     this.loadData(nextProps.params.id)

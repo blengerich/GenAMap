@@ -3,14 +3,32 @@ var Waterline = require('waterline')
 var bodyParser = require('body-parser')
 var Busboy = require('busboy')
 var fs = require('fs')
+var path = require('path')
 var expressjwt = require('express-jwt')
 var async = require('async')
 var diskAdapter = require('sails-disk')
-var jwt = require('jsonwebtoken')
 var omit = require('lodash.omit')
+var mkdirp = require('mkdirp')
+require('es6-promise').polyfill()
+require('isomorphic-fetch')
 
 var config = require('./config')
 var Scheduler = require('../../Scheduler/node/build/Release/scheduler')
+var jwt = require('jsonwebtoken')
+
+const getTokenContent = (token) => {
+  try {
+    const decoded = jwt.verify(token, config.secret)
+    return decoded
+  } catch (error) {
+    return
+  }
+}
+const extractFromToken = (token, param) => {
+  const tokenContent = getTokenContent(token)
+  return tokenContent[param]
+}
+const createToken = (content) => jwt.sign(content, config.secret, { expiresIn: '5h' })
 
 var app = express()
 var orm = new Waterline()
@@ -19,34 +37,7 @@ app.engine('.html', require('ejs').renderFile)
 app.use(express.static('static'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use('/bearcat/', expressjwt({ secret: config.secret }))
-
-function createToken (user) {
-  return jwt.sign(omit(user, 'password'), config.secret, { expiresIn: '5h' })
-}
-
-app.post('/sessions/create', function (req, res) {
-  const username = req.body.username
-  const password = req.body.password
-
-  if (!username || !password) {
-    return res.status(400).send({message: 'You must send the username and the password'})
-  }
-
-  // const user = getUserFromDB(username, password)
-
-  // if (!user) {
-  //   return res.status(401).send({message: 'The username or password don\'t match', user: user});
-  // }
-
-  // if (user.password !== req.body.password) {
-  //   return res.status(401).send('The username or password don\'t match');
-  // }
-
-  res.status(201).send({
-    id_token: createToken({username: 'user', password: 'password'})
-  })
-})
+app.use('/api/', expressjwt({ secret: config.secret }))
 
 const waterlineConfig = {
   adapters: {
@@ -71,6 +62,14 @@ const User = Waterline.Collection.extend({
   connection: 'myLocalDisk',
 
   attributes: {
+    id: {
+      type: 'text',
+      primaryKey: true,
+      unique: true,
+      defaultsTo: function () {
+        return guid()
+      }
+    },
     username: {
       type: 'string',
       required: true
@@ -86,6 +85,11 @@ const User = Waterline.Collection.extend({
     organization: {
       type: 'int',
       required: false
+    },
+    toJSON: function () {
+      var obj = this.toObject()
+      delete obj.password
+      return obj
     }
   }
 })
@@ -183,7 +187,55 @@ var s4 = function () {
   });
 });*/
 
-app.get('/api/data/:id', function (req, res) {
+app.post(config.api.createAccountUrl, function (req, res) {
+  const username = req.body.username
+  const password = req.body.password
+  const initialState = {}
+
+  if (!username || !password) {
+    return res.status(400).send({message: 'You must send the username and password'})
+  }
+
+  app.models.user.findOne({ username }).exec(function (err, foundUser) {
+    if (err) console.log(err)
+    if (foundUser) {
+      return res.status(400).send({message: 'Please choose another username'})
+    }
+    app.models.user.create({ username, password }).exec(function (err, createdUser) {
+      if (err) return res.status(500).json({ err, from: 'createdUser' })
+      app.models.state.create({ state: JSON.stringify(initialState), user: createdUser.id }).exec(function (err, createdState) {
+        if (err) return res.status(500).json({ err, from: 'createdState' })
+        return res.json(createdUser)
+      })
+    })
+  })
+})
+
+app.post(config.api.createSessionUrl, function (req, res) {
+  const username = req.body.username
+  const password = req.body.password
+
+  if (!username || !password) {
+    return res.status(400).send({message: 'You must send the username and the password'})
+  }
+
+  app.models.user.findOne({ username }).exec(function (err, user) {
+    if (err) console.log(err)
+    if (!user) {
+      return res.status(401).send({message: 'The username or password don\'t match', user: user})
+    }
+
+    if (user.password !== req.body.password) {
+      return res.status(401).send({message: 'The username or password don\'t match'})
+    }
+
+    return res.status(201).send({
+      id_token: createToken(omit(user, 'password'))
+    })
+  })
+})
+
+app.get(`${config.api.dataUrl}/:id`, function (req, res) {
   app.models.file.findOne({id: req.params.id}, function (err, model) {
     if (err) return res.status(500).json({err: err})
     fs.readFile(model.path, 'utf8', function (error, data) {
@@ -193,18 +245,19 @@ app.get('/api/data/:id', function (req, res) {
   })
 })
 
-app.delete('/api/data/:id', function (req, res) {
+app.delete(`${config.api.dataUrl}/:id`, function (req, res) {
   app.models.file.destroy({id: req.params.id}).exec(function (err) {
     if (err) return res.status(500).json({err: err})
     return res.status(200)
   })
 })
 
-app.post('/api/import-data', function (req, res) {
+app.post(config.api.importDataUrl, function (req, res) {
   var busboy = new Busboy({ headers: req.headers })
   var projectId // eslint-disable-line no-unused-vars
   var projectObj = {}
   var dataList = { marker: {}, trait: {} }
+  const userId = extractUserIdFromHeader(req.headers)
 
   busboy.on('field', function (fieldname, val, fieldnameTruncated,
                               valTruncated, encoding, mimetype) {
@@ -231,12 +284,16 @@ app.post('/api/import-data', function (req, res) {
 
   busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
     const id = guid()
-    const fstream = fs.createWriteStream('./.tmp/' + id + '.csv')
+    const folderPath = path.join('./.tmp', userId)
+    const fileName = `${id}.csv`
+    const fullPath = path.join(folderPath, fileName)
+    mkdirp.sync(folderPath)
+    const fstream = fs.createWriteStream(fullPath)
     var data
     file.pipe(fstream);
     (fieldname === 'markerFile') ? data = dataList.marker : data = dataList.trait
     data.filetype = fieldname
-    data.path = './.tmp/' + id + '.csv'
+    data.path = fullPath
   })
   busboy.on('finish', function () {
     app.models.project.findOrCreate(projectObj).exec(function (err, project) {
@@ -272,7 +329,7 @@ var getAlgorithmType = function (id) {
   return algorithmTypes[id]
 }
 
-app.post('/api/run-analysis', function (req, res) {
+app.post(config.api.runAnalysisUrl, function (req, res) {
   req.body.algorithms.forEach((model) => {
     // should be getting the Model ID here, then we can call API for data paths
     /* app.get('/api/data/:id', function (req, res)*/
@@ -390,27 +447,41 @@ app.get('/api/algorithms', function (req, res) {
   ])
 })
 
-app.post('/api/save', function (req, res) {
-  const user = req.body.auth.user
-  app.models.state.update({ user: user }, { state: JSON.stringify(req.body) })
+function extractTokenFromHeader (header) {
+  return header.replace('Bearer', '').trim()
+}
+
+function extractUserIdFromHeader (header) {
+  const token = extractTokenFromHeader(header.authorization)
+  const userId = extractFromToken(token, 'id')
+  return userId
+}
+
+app.post(config.api.saveUrl, function (req, res) {
+  const userId = extractUserIdFromHeader(req.headers)
+  app.models.state.update({ user: userId }, { state: JSON.stringify(req.body) })
   .exec(function (updateErr, updatedState) {
     if (updateErr || updatedState.length === 0) {
-      app.models.state.create({ state: JSON.stringify(req.body), user: user })
+      app.models.state.create({ state: JSON.stringify(req.body), user: userId })
       .exec(function (createErr, createdState) {
         if (createErr) return res.status(500).json({ createErr })
-        console.log("CREATED STATE: ", createdState)
         return res.json(createdState)
       })
     }
-    console.log("UPDATED STATE: ", updatedState)
-    return res.json(updatedState)
+    if (updatedState.length > 1) console.log('Whoops, more than one state saved for a user')
+    return res.json(updatedState[0])
   })
 })
 
-app.get('/api/save/:user', function (req, res) {
-  app.models.state.findOne({ user: req.params.user }).exec(function (err, model) {
+// app.get(`${config.api.userUrl}/:userId`, function (req, res) {
+// })
+
+app.get(`${config.api.saveUrl}/:userId`, function (req, res) {
+  app.models.state.findOne({ user: req.params.userId }).exec(function (err, model) {
     if (err) return res.status(500).json({ err })
-    return res.json(model)
+    if (!model) return res.status(500).json({ message: 'user state does not exist' })
+    const userState = JSON.parse(model.state)
+    return res.json(userState)
   })
 })
 

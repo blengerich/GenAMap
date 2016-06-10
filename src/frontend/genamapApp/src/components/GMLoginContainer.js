@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { loginUser, redirectTo } from '../actions'
+import { loginUser, redirectTo, createAccount } from '../actions'
 import GMLogin from './GMLogin'
 
 const parseQuery = (query) => {
@@ -18,8 +18,8 @@ const getParam = (queryObject, name) => {
 }
 
 const mapStateToProps = (state) => ({
-  errorMessage: state.auth.errorMessage,
-  isAuthenticated: state.auth.isAuthenticated
+  errorMessage: state.userData.auth.errorMessage,
+  isAuthenticated: state.userData.auth.isAuthenticated
 })
 
 const mapDispatchToProps = (dispatch) => ({
@@ -33,6 +33,12 @@ const mapDispatchToProps = (dispatch) => ({
           : getParam(p, 'next')
         dispatch(redirectTo(nextUrl))
       }
+    })
+  },
+  onCreateAccountClick: (creds) => {
+    const createAccountPromise = dispatch(createAccount(creds))
+    createAccountPromise.then(account => {
+      console.log("ACCOUNT", account)
     })
   }
 })

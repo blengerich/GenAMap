@@ -8,7 +8,7 @@ const GMLeftMenu = React.createClass({
   render: function () {
     return (
       <LeftNav open={this.props.open} width={this.props.width}>
-        <GMUser />
+        <GMUser user={this.props.user} />
         <GMProjectMenuContainer />
       </LeftNav>
     )

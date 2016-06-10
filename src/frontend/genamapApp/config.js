@@ -6,10 +6,13 @@ const config = {
     algorithmUrl: '/api/algorithms',
     importDataUrl: '/api/import-data',
     runAnalysisUrl: '/api/run-analysis',
-    dataUrl: '/api/data/',
+    dataUrl: '/api/data',
     initialStateUrl: '/api/projects',
     loginUrl: '/login',
-    saveUrl: '/api/save'
+    saveUrl: '/api/save',
+    createSessionUrl: '/sessions/create',
+    createAccountUrl: '/user/create',
+    getActivityUrl: '/activity'
   },
   ui: {
     navWidth: 300,

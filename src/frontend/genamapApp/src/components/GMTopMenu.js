@@ -7,8 +7,8 @@ import Avatar from 'material-ui/lib/avatar'
 
 import GMRunAnalysisDialog from './GMRunAnalysisDialog'
 import GMActivities from './GMActivities'
-import { PostRequest } from './Requests'
 import config from '../../config'
+import fetch from './fetch'
 
 const styles = {
   appBar: {
@@ -65,7 +65,22 @@ var GMTopMenu = React.createClass({
     this.setState({dialogOpen: false})
   },
   runAnalysis: function (runAnalysisRequest) {
-    PostRequest(this.props.runAnalysisUrl, runAnalysisRequest, (processedData) => {
+    let request = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: runAnalysisRequest
+    }
+
+    fetch(this.props.runAnalysisUrl, request)
+    .then(response => {
+      if (!response.ok) {
+        console.log('Could not run analysis', response.json())
+      } else {
+        return response.json()
+      }
+    }).then(processedData => {
       console.log(processedData)
     })
   },

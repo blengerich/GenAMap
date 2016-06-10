@@ -1,7 +1,8 @@
 import { hashHistory } from 'react-router'
 
-import { GetRequest, FilePostRequest, PostRequest } from '../components/Requests'
+import fetch from '../components/fetch'
 import config from '../../config'
+import { removeToken, extractFromToken, setToken } from '../middleware/token'
 
 /*
  * action types
@@ -31,6 +32,10 @@ export const SHOW_LOCK = 'SHOW_LOCK'
 export const LOCK_SUCCESS = 'LOCK_SUCCESS'
 export const LOCK_FAILURE = 'LOCK_FAILURE'
 export const REDIRECT = 'REDIRECT'
+export const USER_STATE_SUCCESS = 'USER_STATE_SUCCESS'
+export const USER_STATE_FAILURE = 'USER_STATE_FAILURE'
+export const LOAD_INITIAL_PROJECTS = 'LOAD_INITIAL_PROJECTS'
+export const LOAD_INITIAL_ACTIVITIES = 'LOAD_INITIAL_ACTIVITIES'
 
 /*
  * action creators
@@ -43,11 +48,35 @@ function importDataReceive (data) {
   }
 }
 
+function createFormData (form) {
+  let formData = new window.FormData()
+  for (var i = 0; i < form.length; i++) {
+    if (form.elements[i].id) {
+      if (form.elements[i].type === 'file') {
+        formData.append(form.elements[i].id, form.elements[i].files[0])
+      } else {
+        formData.append(form.elements[i].id, form.elements[i].value)
+      }
+    }
+  }
+  return formData
+}
+
 export function importData (form) {
+  let importDataRequest = {
+    method: 'POST',
+    body: createFormData(form)
+  }
+
   return (dispatch) => {
-    return FilePostRequest(config.api.importDataUrl, form, (data) => {
+    return fetch(config.api.importDataUrl, importDataRequest)
+    .then(response => {
+      if (!response.ok) Promise.reject('Could not import data')
+      return response.json()
+    }).then(data => {
       dispatch(importDataReceive(data))
-    })
+      Promise.resolve(data)
+    }).catch(err => console.log(err))
   }
 }
 
@@ -66,12 +95,21 @@ function runAnalysisReceive (data) {
 }
 
 export function runAnalysis (data) {
+  let request = {
+    method: 'POST',
+    body: data
+  }
+
   console.log('DATA: ', data)
   return (dispatch) => {
     dispatch(runAnalysisRequest(data))
-    return PostRequest(this.props.runAnalysisUrl, data, (processedData) => {
+    return fetch(this.props.runAnalysisUrl, request)
+    .then(response => {
+      if (!response.ok) Promise.reject(response.json())
+      return response.json()
+    }).then(processedData => {
       dispatch(runAnalysisReceive(processedData))
-    })
+    }).catch(err => console.log('Error: ', err))
   }
 }
 
@@ -149,7 +187,7 @@ export function receiveUpdateActivity (activity, response) {
 function fetchUpdateActivity (activity) {
   return (dispatch) => {
     dispatch(requestUpdateActivity(activity))
-    GetRequest(config.api.updateActivityURL + activity, {}, (response) => {
+    fetch(`${config.api.getActivityUrl}/${activity}`, {}, (response) => {
       dispatch(receiveUpdateActivity(activity, response))
     })
   }
@@ -162,9 +200,10 @@ function shouldUpdateActivity (state, activity) {
 export function fetchUpdateActivityIfNeeded (activity) {
   return (dispatch, getState) => {
     if (shouldUpdateActivity(getState(), activity)) {
+      Promise.reject(activity)
       return dispatch(fetchUpdateActivity(activity))
     } else {
-      return Promise.resolve()
+      Promise.resolve()
     }
   }
 }
@@ -173,8 +212,7 @@ function requestLogin (credentials) {
   return {
     type: LOGIN_REQUEST,
     isFetching: true,
-    isAuthenticated: false,
-    credentials
+    isAuthenticated: false
   }
 }
 
@@ -182,8 +220,7 @@ function receiveLogin (user) {
   return {
     type: LOGIN_SUCCESS,
     isFetching: false,
-    isAuthenticated: true,
-    id_token: user.id_token
+    isAuthenticated: true
   }
 }
 
@@ -196,46 +233,134 @@ function loginError (message) {
   }
 }
 
+function loadInitialProjects (data) {
+  console.log("projects: ", data)
+  return {
+    type: LOAD_INITIAL_PROJECTS,
+    data
+  }
+}
+
+function loadInitialActivities (data) {
+  console.log("activities: ", data)
+  return {
+    type: LOAD_INITIAL_ACTIVITIES,
+    data
+  }
+}
+
+function receiveUserState (state) {
+  return dispatch => {
+    dispatch(loadInitialProjects(state.userData.projects))
+    dispatch(loadInitialActivities(state.userData.activities))
+  }
+}
+
+function userStateError () {
+  return {
+    type: USER_STATE_FAILURE
+  }
+}
+
 export function loginUser (creds) {
-  let requestLogin = {
+  let loginRequest = {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: `username=${creds.username}&password=${creds.password}`
   }
 
   return dispatch => {
-    // We dispatch requestLogin to kickoff the call to the API
     dispatch(requestLogin(creds))
-    return window.fetch('/sessions/create', requestLogin)
-      .then(response =>
-        response.json()
-        .then(user => ({ user, response }))
-      ).then(({ user, response }) => {
-        if (!response.ok) {
-          // If there was a problem, we want to
-          // dispatch the error condition
-          dispatch(loginError(user.message))
-          return Promise.reject(user)
-        } else {
-          // If login was successful, set the token in local storage
-          window.localStorage.setItem('id_token', user.id_token)
-          // Dispatch the success action
-          dispatch(receiveLogin(user))
-          return Promise.resolve(user)
-        }
-      }).catch(err => console.log('Error: ', err))
+    return fetch(config.api.createSessionUrl, loginRequest)
+    .then(response => {
+      if (!response.ok) {
+        dispatch(loginError(response.json().message))
+        Promise.reject('Could not login user')
+      }
+      return response.json()
+    }).then(user => {
+      setToken(user.id_token)
+      dispatch(receiveLogin(user))
+      dispatch(getUserState(user.id_token))
+      return user
+    }).catch(err => console.log('Error: ', err))
   }
 }
 
-export function requestState (user) {
-  let requestState = {
+export function setInitialUserState (token) {
+  return dispatch => {
+    let initialUserStatePromise = dispatch(getUserState(token))
+    initialUserStatePromise.then(state => {
+      console.log('initialUserState: ', state)
+      dispatch(receiveUserState(state))
+    })
+  }
+}
+
+export function getUserState (token) {
+  let getUserStateRequest = {
     method: 'GET',
-    headers: { 'Content-Type': 'application/json' }
+    headers: {
+      'Content-Type': 'application/json'
+    }
   }
 
   return dispatch => {
-    dispatch(requestState(user))
-    return window.fetch('/api/save/' + user, requestState)
+    const userId = extractFromToken(token, 'id')
+    return fetch(`${config.api.saveUrl}/${userId}`, getUserStateRequest)
+    .then(response => {
+      if (response.ok) {
+        return response.json()
+      } else {
+        dispatch(userStateError())
+        Promise.reject({error: 'Could not get state'})
+      }
+    }).then(state => state
+    ).catch(error => {
+      console.log('error', error)
+    })
+  }
+}
+
+function requestCreateAccount (creds) {
+  return {
+    type: 'REQUEST_CREATE_ACCOUNT'
+  }
+}
+
+function receiveCreateAccount (account) {
+  return {
+    type: 'RECEIVE_CREATE_ACCOUNT'
+  }
+}
+
+function createAccountError (message) {
+  return {
+    type: 'ERROR_CREATE_ACCOUNT'
+  }
+}
+
+export function createAccount (creds) {
+  let createAccountRequest = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `username=${creds.username}&password=${creds.password}`
+  }
+
+  return dispatch => {
+    dispatch(requestCreateAccount(creds))
+    return fetch(config.api.createAccountUrl, createAccountRequest)
+    .then(response => {
+      if (response.ok) {
+        return response.json()
+      } else {
+        dispatch(createAccountError(response.json().message))
+        Promise.reject(response.json().message)
+      }
+    }).then(account => {
+      dispatch(receiveCreateAccount(account))
+      Promise.resolve(account)
+    }).catch(err => console.log('Error: ', err))
   }
 }
 
@@ -258,7 +383,7 @@ function receiveLogout () {
 export function logoutUser () {
   return (dispatch) => {
     dispatch(requestLogout())
-    window.localStorage.removeItem('id_token')
+    removeToken()
     dispatch(receiveLogout())
     dispatch(redirectToLogin())
   }

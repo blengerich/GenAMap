@@ -19,10 +19,10 @@ class Login extends Component {
           className={'form-control'}
           placeholder={'Password'}
         />
-        <button
-          onClick={(event) => this.handleClick(event)}
-          className='btn btn-primary'
-        >
+        <button onClick={(event) => this.handleCreateAccountClick(event)}>
+          Create Account
+        </button>
+        <button onClick={(event) => this.handleLoginClick(event)}>
           Login
         </button>
 
@@ -31,17 +31,25 @@ class Login extends Component {
     )
   }
 
-  handleClick (event) {
+  handleLoginClick (event) {
     const username = this.refs.username
     const password = this.refs.password
     const creds = { username: username.value.trim(), password: password.value.trim() }
     this.props.onLoginClick(creds, this.props.location.search)
   }
 
+  handleCreateAccountClick (event) {
+    const username = this.refs.username
+    const password = this.refs.password
+    const creds = { username: username.value.trim(), password: password.value.trim() }
+    this.props.onCreateAccountClick(creds)
+  }
+
 }
 
 Login.propTypes = {
   onLoginClick: PropTypes.func.isRequired,
+  onCreateAccountClick: PropTypes.func.isRequired,
   errorMessage: PropTypes.string
 }
 

@@ -14,9 +14,9 @@ const getCompletedActivities = (activities) => {
 
 const mapStateToProps = (state) => {
   return {
-    runningActivities: getRunningActivities(state.activities),
-    completedActivities: getCompletedActivities(state.activities),
-    allActivities: state.activities
+    runningActivities: getRunningActivities(state.userwData.activities),
+    completedActivities: getCompletedActivities(state.userData.activities),
+    allActivities: state.user.activities
   }
 }
 

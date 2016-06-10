@@ -3,8 +3,7 @@ import { deleteFile, importData, renameFile } from '../actions'
 import GMProjectMenu from './GMProjectMenu'
 
 const mapStateToProps = (state) => ({
-  projects: state.projects,
-  species: state.species
+  projects: state.userData.projects
 })
 
 const mapDispatchToProps = (dispatch) => ({

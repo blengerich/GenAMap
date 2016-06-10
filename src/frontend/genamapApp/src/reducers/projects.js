@@ -1,4 +1,4 @@
-import { IMPORT_DATA_RECEIVE } from '../actions'
+import { IMPORT_DATA_RECEIVE, LOAD_INITIAL_PROJECTS } from '../actions'
 
 const project = (state, action) => {
   switch (action.type) {
@@ -24,6 +24,9 @@ const projects = (state = [], action) => {
         ...state,
         project(undefined, action)
       ]
+    case LOAD_INITIAL_PROJECTS:
+      console.log("reducing project data", action.data)
+      return [...action.data]
     //
     // case RUN_ANALYSIS:
     //   return state.map((e, i) => e)

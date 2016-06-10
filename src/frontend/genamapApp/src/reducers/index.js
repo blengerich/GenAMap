@@ -1,15 +1,11 @@
 import { combineReducers } from 'redux'
 
-import activities from './activities'
-import auth from './auth'
-import projects from './projects'
 import ui from './ui'
+import userData from './userData'
 
 const genamapReducer = combineReducers({
-  activities,
-  auth,
-  projects,
-  ui
+  ui,
+  userData
 })
 
 export default genamapReducer

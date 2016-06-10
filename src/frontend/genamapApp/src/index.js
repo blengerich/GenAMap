@@ -1,8 +1,10 @@
+import jwt from 'jsonwebtoken'
 import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'react-redux'
 import { Router, Route, hashHistory } from 'react-router'
 import injectTapEventPlugin from 'react-tap-event-plugin'
+
 injectTapEventPlugin()
 
 import configureStore from './store/configureStore'
@@ -12,8 +14,13 @@ import GMAppContainer from './components/GMAppContainer'
 import GMDataList from './components/GMDataList'
 import GMMatrixVisualization from './components/GMMatrixVisualization'
 import GMLoginContainer from './components/GMLoginContainer'
+import { setInitialUserState } from './actions'
+import { getToken, verifyToken, removeToken } from './middleware/token'
 
 const store = configureStore()
+
+const token = getToken()
+verifyToken(token) ? store.dispatch(setInitialUserState(token)) : removeToken()
 
 render(
   <Provider store={store}>

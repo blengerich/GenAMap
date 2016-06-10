@@ -1,5 +1,5 @@
 import { ADD_ACTIVITY, RUN_ANALYSIS, DELETE_PROJECT,
-         CANCEL_ACTIVITY, PAUSE_ACTIVITY } from '../actions'
+         CANCEL_ACTIVITY, PAUSE_ACTIVITY, LOAD_INITIAL_ACTIVITIES } from '../actions'
 
 const activity = (state, action) => {
   switch (action.type) {
@@ -37,6 +37,9 @@ const activities = (state = [], action) => {
       return state.map((e, i) => e)
     case DELETE_PROJECT:
       return state.filter((e, i) => i !== action.index)
+    case LOAD_INITIAL_ACTIVITIES:
+      console.log("reducing activity data", action.data)
+      return action.data
     default:
       return state
   }
