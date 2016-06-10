@@ -94927,10 +94927,30 @@ function toggleRightNav() {
   };
 }
 
-function deleteFile(file) {
+function receiveDeleteFile(file, project) {
   return {
     type: DELETE_FILE,
-    file: file
+    file: file,
+    project: project
+  };
+}
+
+function deleteFile(file) {
+  var request = {
+    method: 'DELETE'
+  };
+
+  return function (dispatch) {
+    return (0, _fetch2.default)(_config2.default.api.dataUrl + '/' + file, request).then(function (response) {
+      if (!response.ok) {
+        console.log('Could not delete file');
+        Promise.reject(response.json());
+      } else {
+        return response.json();
+      }
+    }).then(function (response) {
+      dispatch(receiveDeleteFile(response.file, response.project));
+    });
   };
 }
 
@@ -94989,7 +95009,13 @@ function receiveUpdateActivity(activity, response) {
 function fetchUpdateActivity(activity) {
   return function (dispatch) {
     dispatch(requestUpdateActivity(activity));
-    (0, _fetch2.default)(_config2.default.api.getActivityUrl + '/' + activity, {}, function (response) {
+    return (0, _fetch2.default)(_config2.default.api.getActivityUrl + '/' + activity).then(function (response) {
+      if (!response.ok) {
+        console.log('Could not fetch activity for activity ', activity);
+      } else {
+        return response.json();
+      }
+    }).then(function (response) {
       dispatch(receiveUpdateActivity(activity, response));
     });
   };
@@ -95036,7 +95062,6 @@ function loginError(message) {
 }
 
 function loadInitialProjects(data) {
-  console.log("projects: ", data);
   return {
     type: LOAD_INITIAL_PROJECTS,
     data: data
@@ -95044,7 +95069,6 @@ function loadInitialProjects(data) {
 }
 
 function loadInitialActivities(data) {
-  console.log("activities: ", data);
   return {
     type: LOAD_INITIAL_ACTIVITIES,
     data: data
@@ -95094,7 +95118,6 @@ function setInitialUserState(token) {
   return function (dispatch) {
     var initialUserStatePromise = dispatch(getUserState(token));
     initialUserStatePromise.then(function (state) {
-      console.log('initialUserState: ', state);
       dispatch(receiveUserState(state));
     });
   };
@@ -96829,7 +96852,8 @@ var GMProjectContent = _react2.default.createClass({
           _fontIcon2.default,
           { className: 'material-icons' },
           'mode_edit'
-        )
+        ),
+        disabled: true
       }),
       _react2.default.createElement(_divider2.default, null),
       starMenuItem
@@ -98131,15 +98155,23 @@ var genamapReducer = (0, _redux.combineReducers)({
 exports.default = genamapReducer;
 
 },{"./ui":1046,"./userData":1047,"redux":987}],1045:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _actions = require("../actions");
+var _actions = require('../actions');
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+function _toConsumableArray(arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+      arr2[i] = arr[i];
+    }return arr2;
+  } else {
+    return Array.from(arr);
+  }
+}
 
 var project = function project(state, action) {
   switch (action.type) {
@@ -98147,12 +98179,11 @@ var project = function project(state, action) {
       var project = action.data.project;
       project.files = action.data.files;
       return project;
-    // case RUN_ANALYSIS:
-    //   return {
-    //     id: action.id,
-    //     text: action.text,
-    //     completed: false
-    //   }
+    case _actions.DELETE_FILE:
+      var updatedFiles = state.files.filter(function (file) {
+        return file.id !== action.file;
+      });
+      return Object.assign({}, state, { files: updatedFiles });
     default:
       return state;
   }
@@ -98166,15 +98197,11 @@ var projects = function projects() {
     case _actions.IMPORT_DATA_RECEIVE:
       return [].concat(_toConsumableArray(state), [project(undefined, action)]);
     case _actions.LOAD_INITIAL_PROJECTS:
-      console.log("reducing project data", action.data);
-      return [].concat(_toConsumableArray(action.data));
-    //
-    // case RUN_ANALYSIS:
-    //   return state.map((e, i) => e)
-    //
-    // case DELETE_PROJECT:
-    //   return state.filter((e, i) => i !== action.index)
-    //
+      return action.data;
+    case _actions.DELETE_FILE:
+      return state.map(function (p) {
+        return p.id === action.project ? project(p, action) : p;
+      });
     default:
       return state;
   }

@@ -45,6 +45,7 @@ const GMProjectContent = React.createClass({
           primaryText={'Rename ' + this.props.data.name}
           onTouchTap={this.handleRenameFile}
           leftIcon={<FontIcon className='material-icons'>mode_edit</FontIcon>}
+          disabled={true}
         />
         <Divider />
         {starMenuItem}

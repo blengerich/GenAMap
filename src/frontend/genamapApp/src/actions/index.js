@@ -125,10 +125,31 @@ export function toggleRightNav () {
   }
 }
 
-export function deleteFile (file) {
+function receiveDeleteFile (file, project) {
   return {
     type: DELETE_FILE,
-    file
+    file,
+    project
+  }
+}
+
+export function deleteFile (file) {
+  let request = {
+    method: 'DELETE'
+  }
+
+  return dispatch => {
+    return fetch(`${config.api.dataUrl}/${file}`, request)
+    .then(response => {
+      if (!response.ok) {
+        console.log('Could not delete file')
+        Promise.reject(response.json())
+      } else {
+        return response.json()
+      }
+    }).then(response => {
+      dispatch(receiveDeleteFile(response.file, response.project))
+    })
   }
 }
 
@@ -187,7 +208,14 @@ export function receiveUpdateActivity (activity, response) {
 function fetchUpdateActivity (activity) {
   return (dispatch) => {
     dispatch(requestUpdateActivity(activity))
-    fetch(`${config.api.getActivityUrl}/${activity}`, {}, (response) => {
+    return fetch(`${config.api.getActivityUrl}/${activity}`)
+    .then(response => {
+      if (!response.ok) {
+        console.log('Could not fetch activity for activity ', activity)
+      } else {
+        return response.json()
+      }
+    }).then(response => {
       dispatch(receiveUpdateActivity(activity, response))
     })
   }
@@ -234,7 +262,6 @@ function loginError (message) {
 }
 
 function loadInitialProjects (data) {
-  console.log("projects: ", data)
   return {
     type: LOAD_INITIAL_PROJECTS,
     data
@@ -242,7 +269,6 @@ function loadInitialProjects (data) {
 }
 
 function loadInitialActivities (data) {
-  console.log("activities: ", data)
   return {
     type: LOAD_INITIAL_ACTIVITIES,
     data
@@ -291,7 +317,6 @@ export function setInitialUserState (token) {
   return dispatch => {
     let initialUserStatePromise = dispatch(getUserState(token))
     initialUserStatePromise.then(state => {
-      console.log('initialUserState: ', state)
       dispatch(receiveUserState(state))
     })
   }

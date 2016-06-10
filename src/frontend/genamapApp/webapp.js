@@ -246,9 +246,12 @@ app.get(`${config.api.dataUrl}/:id`, function (req, res) {
 })
 
 app.delete(`${config.api.dataUrl}/:id`, function (req, res) {
-  app.models.file.destroy({id: req.params.id}).exec(function (err) {
+  app.models.file.findOne({id: req.params.id}).exec(function (err, file) {
     if (err) return res.status(500).json({err: err})
-    return res.status(200)
+    app.models.file.destroy({id: req.params.id}).exec(function (err) {
+      if (err) return res.status(500).json({err: err})
+      return res.json({file: file.id, project: file.project})
+    })
   })
 })
 

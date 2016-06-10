@@ -38,7 +38,6 @@ const activities = (state = [], action) => {
     case DELETE_PROJECT:
       return state.filter((e, i) => i !== action.index)
     case LOAD_INITIAL_ACTIVITIES:
-      console.log("reducing activity data", action.data)
       return action.data
     default:
       return state
