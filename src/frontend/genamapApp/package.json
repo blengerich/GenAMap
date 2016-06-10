@@ -21,15 +21,10 @@
     "body-parser": "^1.15.1",
     "browserify": "^13.0.1",
     "busboy": "^0.2.12",
-<<<<<<< 207d104c0e69955dd649cb7929fbb0f89b2c765f
-    "chai": "^3.5.0",
-    "classnames": "^2.2.3",
-    "ejs": "^2.4.1",
-=======
+    "chai": "^3.5.0",    
     "classnames": "^2.2.5",
     "ejs": "^2.4.2",
     "es6-promise": "^3.2.1",
->>>>>>> Switch to Redux architecture and add user authentication
     "express": "^4.13.4",
     "express-jwt": "^3.4.0",
     "isomorphic-fetch": "^2.2.1",
