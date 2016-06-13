@@ -4,6 +4,10 @@ var D3Chart = require('./d3Chart');
 var GMMatrixToolbar = require('./GMMatrixToolbar');
 
 var GMMatrixVisualization = React.createClass({
+    componentDidMount() {
+        console.log(this.props);
+    },
+
   render: function () {
     return (
       <div>

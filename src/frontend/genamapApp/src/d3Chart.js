@@ -1,4 +1,5 @@
 var React = require('react');
+var ReactDOM = require('react-dom');
 
 function hoverOnCell(d, trait, marker, correlation) {
 
@@ -244,8 +245,7 @@ var Graph = function() {
                 .attr("transform", "translate(" + 0 + "," + 0 + ")")
 
     var overlay = d3.select("#map-background");
-};
-
+}
 
 var D3Chart = React.createClass({
 
@@ -261,8 +261,7 @@ var D3Chart = React.createClass({
 
 	render: function() {
 		return (
-			<div className="Main">
-				{this.state.points}
+			<div id="chart">
 			</div>
 		);
 	}
