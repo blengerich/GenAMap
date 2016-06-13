@@ -49040,31 +49040,42 @@ var GMApp = React.createClass({
       return React.cloneElement(child, { minPad: settings.minPad });
     });
 
-    return React.createElement('div', null, React.createElement(GMTopMenu, {
-      projectUrl: settings.projectUrl,
-      algorithmUrl: settings.algorithmUrl,
-      runAnalysisUrl: settings.runAnalysisUrl,
-      handleLeftIconTouch: this.handleLeftIconTouch,
-      handleRightIconTouch: this.handleRightIconTouch,
-      style: { paddingLeft: this.state.paddingLeft,
-        paddingRight: this.state.paddingRight
-      },
-      titleDisplay: titleDisplay
-    }), React.createElement(GMLeftMenu, {
-      projectUrl: settings.projectUrl,
-      speciesUrl: settings.speciesUrl,
-      importDataUrl: settings.importDataUrl,
-      open: this.state.leftNavOpen,
-      width: settings.navWidth
-    }), React.createElement(GMRightMenu, {
-      open: this.state.rightNavOpen,
-      width: settings.navWidth
-    }), React.createElement('main', {
-      className: 'gm-layout__content',
-      style: { paddingLeft: settings.minPad,
-        paddingRight: settings.minPad
-      }
-    }, childrenWithProps));
+    return React.createElement(
+      'div',
+      null,
+      React.createElement(GMTopMenu, {
+        projectUrl: settings.projectUrl,
+        algorithmUrl: settings.algorithmUrl,
+        runAnalysisUrl: settings.runAnalysisUrl,
+        handleLeftIconTouch: this.handleLeftIconTouch,
+        handleRightIconTouch: this.handleRightIconTouch,
+        style: { paddingLeft: this.state.paddingLeft,
+          paddingRight: this.state.paddingRight
+        },
+        titleDisplay: titleDisplay
+      }),
+      React.createElement(GMLeftMenu, {
+        projectUrl: settings.projectUrl,
+        speciesUrl: settings.speciesUrl,
+        importDataUrl: settings.importDataUrl,
+        open: this.state.leftNavOpen,
+        width: settings.navWidth
+      }),
+      React.createElement(GMRightMenu, {
+        open: this.state.rightNavOpen,
+        width: settings.navWidth
+      }),
+      React.createElement(
+        'main',
+        {
+          className: 'gm-layout__content',
+          style: { paddingLeft: settings.minPad,
+            paddingRight: settings.minPad
+          }
+        },
+        childrenWithProps
+      )
+    );
   }
 });
 
@@ -49448,29 +49459,66 @@ var GMMatrixToolbar = React.createClass({
     });
   },
   render: function render() {
-    return React.createElement('div', null, React.createElement(FlatButton, { label: 'Toggle Toolbar', onTouchTap: this.handleToggle }), React.createElement(GMToolbar, {
-      open: this.state.open,
-      height: 100,
-      left: this.props.left,
-      right: this.props.right
-    }, React.createElement(Slider, { style: styles.slider }), React.createElement(FlatButton, {
-      label: 'Switch visualization',
-      icon: React.createElement(FontIcon, { className: 'material-icons' }, 'show_chart'),
-      onTouchTap: this.openVizMenu,
-      style: styles.action
-    }), React.createElement(Popover, {
-      open: this.state.vizMenuOpen,
-      anchorEl: this.state.vizMenuAnchor,
-      onRequestClose: this.closeVizMenu
-    }, React.createElement(Menu, null, React.createElement(MenuItem, { primaryText: 'Matrix View' }), React.createElement(MenuItem, { primaryText: 'Dendrogram' }), React.createElement(MenuItem, { primaryText: 'Manhattan Plot' }), React.createElement(MenuItem, { primaryText: 'Population Analysis' }))), React.createElement(FlatButton, {
-      label: 'Create a subset',
-      icon: React.createElement(FontIcon, { className: 'material-icons' }, 'add'),
-      style: styles.action
-    }), React.createElement(FlatButton, {
-      label: 'Sort',
-      icon: React.createElement(FontIcon, { className: 'material-icons' }, 'sort'),
-      style: styles.action
-    }), React.createElement(GMProjectSearch, null)));
+    return React.createElement(
+      'div',
+      null,
+      React.createElement(FlatButton, { label: 'Toggle Toolbar', onTouchTap: this.handleToggle }),
+      React.createElement(
+        GMToolbar,
+        {
+          open: this.state.open,
+          height: 100,
+          left: this.props.left,
+          right: this.props.right
+        },
+        React.createElement(Slider, { style: styles.slider }),
+        React.createElement(FlatButton, {
+          label: 'Switch visualization',
+          icon: React.createElement(
+            FontIcon,
+            { className: 'material-icons' },
+            'show_chart'
+          ),
+          onTouchTap: this.openVizMenu,
+          style: styles.action
+        }),
+        React.createElement(
+          Popover,
+          {
+            open: this.state.vizMenuOpen,
+            anchorEl: this.state.vizMenuAnchor,
+            onRequestClose: this.closeVizMenu
+          },
+          React.createElement(
+            Menu,
+            null,
+            React.createElement(MenuItem, { primaryText: 'Matrix View' }),
+            React.createElement(MenuItem, { primaryText: 'Dendrogram' }),
+            React.createElement(MenuItem, { primaryText: 'Manhattan Plot' }),
+            React.createElement(MenuItem, { primaryText: 'Population Analysis' })
+          )
+        ),
+        React.createElement(FlatButton, {
+          label: 'Create a subset',
+          icon: React.createElement(
+            FontIcon,
+            { className: 'material-icons' },
+            'add'
+          ),
+          style: styles.action
+        }),
+        React.createElement(FlatButton, {
+          label: 'Sort',
+          icon: React.createElement(
+            FontIcon,
+            { className: 'material-icons' },
+            'sort'
+          ),
+          style: styles.action
+        }),
+        React.createElement(GMProjectSearch, null)
+      )
+    );
   }
 });
 
@@ -49488,10 +49536,54 @@ var GMMatrixVisualization = React.createClass({
     displayName: 'GMMatrixVisualization',
 
     render: function render() {
-        return React.createElement('div', null, React.createElement('div', { className: 'Matrix' }, React.createElement('div', { id: 'chart', style: { "marginTop": "25px" } }, React.createElement(D3Chart, null)), React.createElement('div', { className: 'buttonContainer' }, React.createElement('li', { className: 'zoomButton' }, React.createElement('a', { id: 'zoom-in', 'data-zoom': '+1' }, 'Zoom In')), React.createElement('li', { className: 'zoomButton' }, React.createElement('a', { id: 'zoom-out', 'data-zoom': '-1' }, 'Zoom Out')), React.createElement('li', { className: 'zoomButton' }, React.createElement('a', { id: 'reset', 'data-zoom': '-8' }, 'Reset')))), React.createElement(GMMatrixToolbar, {
-            left: this.props.minPad,
-            right: this.props.minPad
-        }));
+        return React.createElement(
+            'div',
+            null,
+            React.createElement(
+                'div',
+                { className: 'Matrix' },
+                React.createElement(
+                    'div',
+                    { id: 'chart', style: { "marginTop": "25px" } },
+                    React.createElement(D3Chart, null)
+                ),
+                React.createElement(
+                    'div',
+                    { className: 'buttonContainer' },
+                    React.createElement(
+                        'li',
+                        { className: 'zoomButton' },
+                        React.createElement(
+                            'a',
+                            { id: 'zoom-in', 'data-zoom': '+1' },
+                            'Zoom In'
+                        )
+                    ),
+                    React.createElement(
+                        'li',
+                        { className: 'zoomButton' },
+                        React.createElement(
+                            'a',
+                            { id: 'zoom-out', 'data-zoom': '-1' },
+                            'Zoom Out'
+                        )
+                    ),
+                    React.createElement(
+                        'li',
+                        { className: 'zoomButton' },
+                        React.createElement(
+                            'a',
+                            { id: 'reset', 'data-zoom': '-8' },
+                            'Reset'
+                        )
+                    )
+                )
+            ),
+            React.createElement(GMMatrixToolbar, {
+                left: this.props.minPad,
+                right: this.props.minPad
+            })
+        );
     }
 });
 
@@ -50336,11 +50428,9 @@ module.exports = Requests;
 var React = require('react');
 var ReactDOM = require('react-dom');
 
-function hoverOnCell(d, trait, marker, correlation) {
-
+function hoverOnCell(d, trait, marker, correlation, mousePos) {
     var labelText = "<h4>Trait: T" + trait + "</h4> <h4>Marker: M" + marker + "</h4> <p> Correlation: " + correlation + "</p>";
-
-    var tooltip = d3.select("#chart").append("div").attr("class", "tooltip").html(labelText).style("position", "absolute").style("right", "125px").style("top", "114px");
+    var tooltip = d3.select("#chart").append("div").attr("class", "tooltip").html(labelText).style("position", "absolute").style("left", mousePos.pageX + "px").style("top", mousePos.pageY + "px");
 }
 
 function hoverOutCell() {
@@ -50473,10 +50563,11 @@ var Graph = function Graph() {
         }).attr("rx", 4).attr("ry", 4).attr("class", "cell").attr("width", cellWidth).attr("height", cellHeight).attr("value", function (d) {
             return d.value;
         }).on('mouseover', function (d) {
+            var mousePos = d3.event;
             var trait = d.Trait;
             var marker = d.Marker;
             var correlation = d.value;
-            hoverOnCell(d, trait, marker, correlation);
+            hoverOnCell(d, trait, marker, correlation, mousePos);
             d3.select(d3.event.target).classed("highlight", true);
         }).on('mouseout', function (d) {
             hoverOutCell();
@@ -50534,7 +50625,6 @@ var Graph = function Graph() {
 
 var D3Chart = React.createClass({
     displayName: 'D3Chart',
-
 
     getInitialState: function getInitialState() {
         return {

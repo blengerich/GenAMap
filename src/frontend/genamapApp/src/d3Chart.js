@@ -1,18 +1,15 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 
-function hoverOnCell(d, trait, marker, correlation) {
-
+function hoverOnCell(d, trait, marker, correlation, mousePos) {
     var labelText = "<h4>Trait: T" + trait + "</h4> <h4>Marker: M" + marker + "</h4> <p> Correlation: " + correlation + "</p>";
-
     var tooltip = d3.select("#chart")
                       .append("div")
                         .attr("class", "tooltip")
                         .html(labelText)
                         .style("position", "absolute")
-                        .style("right", "125px")
-                        .style("top", "114px")
-
+                        .style("left", mousePos.pageX + "px")
+                        .style("top", mousePos.pageY + "px")
 }
 
 function hoverOutCell() {
@@ -73,7 +70,7 @@ var Graph = function() {
             var transformX = parts[1];
             var transformY = parts[2];
             newArray[0] = transformX;
-            newArray[1] = transformY;     
+            newArray[1] = transformY;
         }
 
         overlay.attr("transform", "translate(" + newArray + ")scale(" + newZoom + ")");
@@ -163,20 +160,21 @@ var Graph = function() {
                         .attr("height", cellHeight)
                         .attr("value", function(d) { return d.value })
                         .on('mouseover', function(d) {
-                            var trait = d.Trait;
-                            var marker = d.Marker;
-                            var correlation = d.value;
-                            hoverOnCell(d, trait, marker, correlation)
-                            d3.select(d3.event.target).classed("highlight", true);
+                          var mousePos = d3.event;
+                          var trait = d.Trait;
+                          var marker = d.Marker;
+                          var correlation = d.value;
+                          hoverOnCell(d, trait, marker, correlation, mousePos);
+                          d3.select(d3.event.target).classed("highlight", true);
                         })
                         .on('mouseout', function(d) {
-                            hoverOutCell();
-                            d3.select(d3.event.target).classed("highlight", false);
+                          hoverOutCell();
+                          d3.select(d3.event.target).classed("highlight", false);
                         });
 
         cards.transition().duration(100)
             .style("fill", function(d) { return colorScale(d.value); });
-          
+
         cards.exit().remove();
 	});
 
@@ -222,7 +220,7 @@ var Graph = function() {
 
     var numCellsHorizontalLanding = width/10;
     var numCellsVerticalLanding = height/10;
-    
+
     var overlayWidthPercentage = numCellsHorizontalLanding/numTraits;
     var overlayHeightPercentage = numCellsVerticalLanding/numMarkers;
 
