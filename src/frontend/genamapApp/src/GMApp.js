@@ -41,11 +41,7 @@ var GMApp = React.createClass({
   render: function () {
     var titleDisplay = this.state.leftNavOpen && this.state.rightNavOpen ? "hidden" : "visible"
     var childrenWithProps = React.Children.map(this.props.children, (child) => {
-        console.log(child);
-        return React.cloneElement(child, { left: this.state.paddingLeft,
-                                           right: this.state.paddingRight,
-                                           minPad: settings.minPad
-                                          });
+        return React.cloneElement(child, { minPad: settings.minPad });
     });
 
     return (
@@ -74,8 +70,8 @@ var GMApp = React.createClass({
         />
         <main
           className="gm-layout__content"
-          style={{paddingLeft: this.state.paddingLeft,
-                  paddingRight: this.state.paddingRight,
+          style={{paddingLeft: settings.minPad,
+                  paddingRight: settings.minPad,
                 }}
         >
           {childrenWithProps}

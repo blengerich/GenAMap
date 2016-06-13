@@ -4,10 +4,6 @@ var D3Chart = require('./d3Chart');
 var GMMatrixToolbar = require('./GMMatrixToolbar');
 
 var GMMatrixVisualization = React.createClass({
-    componentDidMount() {
-        console.log(this.props);
-    },
-
   render: function () {
     return (
       <div>
@@ -24,7 +20,7 @@ var GMMatrixVisualization = React.createClass({
                 <li className="zoomButton">
                     <a id="zoom-out" data-zoom="-1">
                         Zoom Out
-                    </a> 
+                    </a>
                 </li>
                 <li className="zoomButton">
                     <a id="reset" data-zoom="-8">
@@ -33,9 +29,9 @@ var GMMatrixVisualization = React.createClass({
                 </li>
             </div>
         </div>
-        <GMMatrixToolbar 
-          left={this.props.left - this.props.minPad} 
-          right={this.props.right - this.props.minPad}
+        <GMMatrixToolbar
+          left={this.props.minPad}
+          right={this.props.minPad}
         />
       </div>
     );
