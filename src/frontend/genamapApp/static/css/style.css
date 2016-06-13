@@ -48,7 +48,6 @@ svg:active{
 	right: 24px;
 }
 
-
 #map-background {
 	stroke: #111111;
     stroke-width: 4px;
@@ -61,8 +60,9 @@ svg:active{
   	background: #eee;
   	box-shadow: 0 0 5px #999999;
   	color: #333;
+    font-family: Roboto;
   	font-size: 12px;
- 	padding: 10px;
+ 	  padding: 10px;
   	text-align: center;
   	width: 200px;
   	z-index: 10;
@@ -79,4 +79,3 @@ svg:active{
 #add {
 	color: #4db6ac;
 }
-

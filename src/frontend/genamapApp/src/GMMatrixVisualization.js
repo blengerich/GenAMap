@@ -8,9 +8,7 @@ var GMMatrixVisualization = React.createClass({
     return (
       <div>
         <div className="Matrix">
-            <div id="chart" style={{"marginTop" : "25px"}}>
-                <D3Chart/>
-            </div>
+            <D3Chart />
             <div className="buttonContainer">
                 <li className="zoomButton">
                     <a id="zoom-in" data-zoom="+1">
