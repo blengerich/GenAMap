@@ -41,7 +41,10 @@ var GMApp = React.createClass({
   render: function () {
     var titleDisplay = this.state.leftNavOpen && this.state.rightNavOpen ? "hidden" : "visible"
     var childrenWithProps = React.Children.map(this.props.children, (child) => {
-        return React.cloneElement(child, { minPad: settings.minPad });
+        return React.cloneElement(child, { left: this.state.paddingLeft,
+                                           right: this.state.paddingRight,
+                                           minPad: settings.minPad
+                                         });
     });
 
     return (

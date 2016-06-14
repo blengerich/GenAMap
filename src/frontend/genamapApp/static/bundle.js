@@ -49035,9 +49035,14 @@ var GMApp = React.createClass({
     this.setState({ rightNavOpen: !this.state.rightNavOpen, paddingRight: padRight + 'px' });
   },
   render: function render() {
+    var _this = this;
+
     var titleDisplay = this.state.leftNavOpen && this.state.rightNavOpen ? "hidden" : "visible";
     var childrenWithProps = React.Children.map(this.props.children, function (child) {
-      return React.cloneElement(child, { minPad: settings.minPad });
+      return React.cloneElement(child, { left: _this.state.paddingLeft,
+        right: _this.state.paddingRight,
+        minPad: settings.minPad
+      });
     });
 
     return React.createElement(
@@ -49533,54 +49538,23 @@ var D3Chart = require('./d3Chart');
 var GMMatrixToolbar = require('./GMMatrixToolbar');
 
 var GMMatrixVisualization = React.createClass({
-    displayName: 'GMMatrixVisualization',
+  displayName: 'GMMatrixVisualization',
 
-    render: function render() {
-        return React.createElement(
-            'div',
-            null,
-            React.createElement(
-                'div',
-                { className: 'Matrix' },
-                React.createElement(D3Chart, null),
-                React.createElement(
-                    'div',
-                    { className: 'buttonContainer' },
-                    React.createElement(
-                        'li',
-                        { className: 'zoomButton' },
-                        React.createElement(
-                            'a',
-                            { id: 'zoom-in', 'data-zoom': '+1' },
-                            'Zoom In'
-                        )
-                    ),
-                    React.createElement(
-                        'li',
-                        { className: 'zoomButton' },
-                        React.createElement(
-                            'a',
-                            { id: 'zoom-out', 'data-zoom': '-1' },
-                            'Zoom Out'
-                        )
-                    ),
-                    React.createElement(
-                        'li',
-                        { className: 'zoomButton' },
-                        React.createElement(
-                            'a',
-                            { id: 'reset', 'data-zoom': '-8' },
-                            'Reset'
-                        )
-                    )
-                )
-            ),
-            React.createElement(GMMatrixToolbar, {
-                left: this.props.minPad,
-                right: this.props.minPad
-            })
-        );
-    }
+  render: function render() {
+    return React.createElement(
+      'div',
+      null,
+      React.createElement(
+        'div',
+        { className: 'Matrix' },
+        React.createElement(D3Chart, null)
+      ),
+      React.createElement(GMMatrixToolbar, {
+        left: this.props.minPad,
+        right: this.props.minPad
+      })
+    );
+  }
 });
 
 module.exports = GMMatrixVisualization;
@@ -50423,6 +50397,8 @@ module.exports = Requests;
 
 var React = require('react');
 var ReactDOM = require('react-dom');
+var FontIcon = require('material-ui/lib/font-icon');
+var IconButton = require('material-ui/lib/icon-button');
 
 function hoverOnCell(d, trait, marker, correlation, mousePos) {
   var labelText = "<h2>Trait: T" + trait + "</h2> <h2>Marker: M" + marker + "</h2> <p> Correlation: " + correlation + "</p>";
@@ -50439,11 +50415,11 @@ function getRandomInt(min, max) {
 
 var Graph = function Graph() {
   // Grab the file from upload
-  var fileLocation = 'images/test_node_small.csv';
+  var fileLocation = 'images/export.csv';
 
   // Read this from file
   var numTraits = 250;
-  var numMarkers = 10;
+  var numMarkers = 250;
 
   var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
   var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
@@ -50455,10 +50431,17 @@ var Graph = function Graph() {
   var cellHeight = 10;
 
   // Need to change percentages again to take into account sidebar
-  var width = windowWidth / 1.25;
-  var height = windowHeight / 1.5;
+  var maxWidth = windowWidth / 1.25;
+  var maxHeight = windowHeight / 1.5;
+  var matrixHeight = cellHeight * numMarkers;
+  var matrixWidth = cellWidth * numTraits;
 
-  var margin = { top: 0, right: rightMargin, bottom: 25, left: 25 };
+  var margin = { top: 0, right: rightMargin, bottom: 15, left: 5 };
+
+  var width = Math.min(maxWidth, matrixWidth);
+  var height = Math.min(maxHeight, matrixHeight);
+
+  d3.select('#chart').style({ "width": width + margin.left + "px" });
 
   var zoom = d3.behavior.zoom().size([width, height]).scaleExtent([1, 8]).on("zoom", zoomed);
 
@@ -50534,9 +50517,6 @@ var Graph = function Graph() {
     var matrix = d3.select("#matrixHolder");
     var left = 1;
     var bottom = numMarkers * cellWidth + margin.bottom;
-
-    matrix.append("line").attr({ x1: left, y1: 0, x2: left, y2: bottom }).attr(axisStyle);
-    matrix.append("line").attr({ x1: left, y1: bottom, x2: numTraits * cellWidth + margin.right, y2: bottom }).attr(axisStyle);
   }
 
   d3.selectAll("a[data-zoom]").on("click", clicked);
@@ -50601,7 +50581,7 @@ var Graph = function Graph() {
   var overlayMapHeight = 150;
 
   /* Some minimap code */
-  var svgGraphic = d3.select("#chart").append("svg").attr("class", "minimap").attr("width", overlayMapWidth).attr("height", overlayMapHeight);
+  var svgGraphic = d3.select("body").append("svg").attr("class", "minimap").attr("width", overlayMapWidth).attr("height", overlayMapHeight);
 
   var minimapColors = ["#65e5cf", "#5bc8df", "#239faf", "#128479", "#5eacdd", "#1e69c4", "#2b90e2"];
 
@@ -50645,10 +50625,10 @@ var D3Chart = React.createClass({
   },
 
   render: function render() {
-    return React.createElement('div', { id: 'chart', style: { "marginTop": "25px" } });
+    return React.createElement('div', { id: 'chart', style: { "marginTop": "25px" } }, React.createElement('ul', { className: 'buttonContainer' }, React.createElement('li', { className: 'zoomButton' }, React.createElement('a', { id: 'zoom-in', 'data-zoom': '+1' }, 'Zoom In')), React.createElement('li', { className: 'zoomButton' }, React.createElement('a', { id: 'zoom-out', 'data-zoom': '-1' }, 'Zoom Out')), React.createElement('li', { className: 'zoomButton' }, React.createElement('a', { id: 'reset', 'data-zoom': '-8' }, 'Reset'))));
   }
 });
 
 module.exports = D3Chart;
 
-},{"react":379,"react-dom":186}]},{},[380]);
+},{"material-ui/lib/font-icon":53,"material-ui/lib/icon-button":54,"react":379,"react-dom":186}]},{},[380]);

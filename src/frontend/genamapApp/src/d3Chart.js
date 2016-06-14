@@ -1,5 +1,7 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
+var FontIcon = require('material-ui/lib/font-icon');
+var IconButton = require('material-ui/lib/icon-button');
 
 function hoverOnCell(d, trait, marker, correlation, mousePos) {
   var labelText = "<h2>Trait: T" + trait + "</h2> <h2>Marker: M" + marker + "</h2> <p> Correlation: " + correlation + "</p>";
@@ -22,11 +24,11 @@ function getRandomInt(min, max) {
 
 var Graph = function() {
     // Grab the file from upload
-	var fileLocation = 'images/test_node_small.csv';
+	var fileLocation = 'images/export.csv';
 
   // Read this from file
   var numTraits = 250;
-  var numMarkers = 10;
+  var numMarkers = 250;
 
 	var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 	var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
@@ -38,10 +40,18 @@ var Graph = function() {
 	var cellHeight = 10;
 
   // Need to change percentages again to take into account sidebar
-  var width =  windowWidth/1.25;
-  var height = windowHeight/1.5;
+  var maxWidth =  windowWidth/1.25;
+  var maxHeight = windowHeight/1.5;
+  var matrixHeight = cellHeight * numMarkers;
+  var matrixWidth = cellWidth * numTraits;
 
-	var margin = { top: 0, right: rightMargin, bottom: 25, left: 25 };
+  var margin = { top: 0, right: rightMargin, bottom: 15, left: 5 };
+
+  var width = Math.min(maxWidth, matrixWidth);
+  var height = Math.min(maxHeight, matrixHeight);
+
+  d3.select('#chart')
+    .style({ "width": (width + margin.left) + "px" });
 
   var zoom = d3.behavior.zoom()
               .size([width, height])
@@ -116,13 +126,6 @@ var Graph = function() {
     var matrix = d3.select("#matrixHolder");
     var left = 1;
     var bottom = numMarkers * cellWidth + margin.bottom;
-
-    matrix.append("line")
-          .attr({ x1: left, y1: 0, x2: left, y2: bottom })
-          .attr(axisStyle);
-    matrix.append("line")
-          .attr({ x1: left, y1: bottom, x2: numTraits * cellWidth + margin.right, y2: bottom })
-          .attr(axisStyle);
   }
 
   d3.selectAll("a[data-zoom]")
@@ -204,7 +207,7 @@ var Graph = function() {
     var overlayMapHeight = 150;
 
     /* Some minimap code */
-    var svgGraphic = d3.select("#chart")
+    var svgGraphic = d3.select("body")
                         .append("svg")
                             .attr("class", "minimap")
                             .attr("width", overlayMapWidth)
@@ -272,7 +275,24 @@ var D3Chart = React.createClass({
 
 	render: function() {
 		return (
-			<div id="chart" style={{ "marginTop": "25px" }}>
+      <div id="chart" style={{ "marginTop": "25px" }}>
+      <ul className="buttonContainer">
+        <li className="zoomButton">
+          <a id="zoom-in" data-zoom="+1">
+            Zoom In
+          </a>
+        </li>
+        <li className="zoomButton">
+          <a id="zoom-out" data-zoom="-1">
+            Zoom Out
+          </a>
+        </li>
+        <li className="zoomButton">
+          <a id="reset" data-zoom="-8">
+            Reset
+          </a>
+        </li>
+      </ul>
 			</div>
 		);
 	}
