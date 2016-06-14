@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 #include "Eigen/Dense"
 #include "Model.hpp"
 
@@ -39,7 +40,7 @@ private :
 
     //Smoothing Proximal Gradient Method
     MatrixXd edge_vertex_matrix; // Dimension: Edge_size*Col(x)
-    int mau; // Smootheness parameter  //todo: what is this?
+    double mau; // Smootheness parameter  //todo: what is this?
     MatrixXd alpha_matrix;
 
 public :
@@ -71,6 +72,9 @@ public :
     int get_flasso_type();
     void set_mau(double);
     double get_mau();
+    MatrixXd get_X();
+    MatrixXd get_Y();
+    MatrixXd get_beta();
 
     // Cost function and supporting functions
     double cost();
@@ -90,6 +94,9 @@ public :
     // Calculate the gradient descent using the alpha and Edge vertex matrix
     // along with other input parameters i.e. X, Y and Beta.
     MatrixXd gradient();
+
+    // Lipschitz Constant
+    float getL();
 
     Gflasso(const unordered_map<string, string>&);
 };

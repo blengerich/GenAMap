@@ -41,7 +41,7 @@ treeNode *Tree::buildParentFromChildren(vector<treeNode *> chd) {
     vector<long> tmp;
     par->trait = tmp;
     par->s = 0;
-    for (long i = 0; i < chd.size(); i++) {
+    for (unsigned long i = 0; i < chd.size(); i++) {
         par->trait.insert(par->trait.end(), chd[i]->trait.begin(), chd[i]->trait.end());
         par->s = max(chd[i]->s + 1, par->s);
     }
@@ -71,7 +71,7 @@ void Tree::setWeight() {
         treeNode * node = nodes.front();
         prev_s = node->s;
         node->s = node->s / n;
-        for (int i=0;i<node->children.size();i++){
+        for (unsigned int i=0;i<node->children.size(); i++){
             node->children[i]->s = prev_s - 1;
             nodes.push(node->children[i]);
         }
@@ -321,7 +321,7 @@ double TreeLasso::penalty_cost() {
 
 double TreeLasso::l1NormIndex(vector<long> traits) {
     double r = 0;
-    for (long i=0;i<traits.size();i++){
+    for (unsigned long i=0; i<traits.size(); i++){
         r += beta.col(traits[i]).lpNorm<1>();
     }
     return r;
@@ -329,7 +329,7 @@ double TreeLasso::l1NormIndex(vector<long> traits) {
 
 double TreeLasso::l2NormIndex(vector<long> traits) {
     double r = 0;
-    for (long i=0;i<traits.size();i++){
+    for (unsigned long i=0;i<traits.size();i++){
         r += beta.col(traits[i]).norm();
     }
     return r;
@@ -337,7 +337,7 @@ double TreeLasso::l2NormIndex(vector<long> traits) {
 
 double TreeLasso::l2NormIndexIndex(long j, vector<long> traits) {
     double r = 0;
-    for (long i=0;i<traits.size();i++){
+    for (unsigned long i=0;i<traits.size();i++){
         r += beta.row(j).col(traits[i]).norm();
     }
     return r;
@@ -352,7 +352,7 @@ void TreeLasso::prune() {
             n->weight = 0;
         }
         if (n->children.size()>0){
-            for (int i=0; i<n->children.size();i++){
+            for (unsigned int i=0; i<n->children.size(); i++){
                 nodes.push(n->children[i]);
             }
         }
@@ -370,7 +370,7 @@ void TreeLasso::penaltyWeights() {
         if (n->children.size()==0){
         }
         else{
-            for (int i=0; i<n->children.size();i++){
+            for (unsigned int i=0; i<n->children.size();i++){
                 n->children[i]->weight = n->s*(1-n->children[i]->s);
                 nodes.push(n->children[i]);
             }
@@ -388,7 +388,7 @@ long TreeLasso::countNodes(){
         if (n->children.size()==0){
         }
         else{
-            for (int i=0; i<n->children.size();i++){
+            for (unsigned int i=0; i<n->children.size();i++){
                 nodes.push(n->children[i]);
                 count ++ ;
             }
@@ -407,7 +407,7 @@ long TreeLasso::countNoneZeroNodes() {
         if (n->children.size()==0){
         }
         else{
-            for (int i=0; i<n->children.size();i++){
+            for (unsigned int i=0; i<n->children.size();i++){
                 nodes.push(n->children[i]);
             }
         }
@@ -428,20 +428,20 @@ void TreeLasso::initMatrixD() {
 
 void TreeLasso::updateMD() {
     long index=0;
-    long c = X.cols();
+    unsigned long c = X.cols();
     queue<treeNode*> nodes;
     nodes.push(T->getRoot());
     double denominator = updateMD_denominator();
     while (nodes.size()>0){
         treeNode * n = nodes.front();
-        for (long j=0; j<c;j++){
+        for (unsigned long j=0; j<c; j++){
 //            mD(j, index) = l2NormIndexIndex(j, n->trait)*n->weight/denominator;
             mD_(j, index) = denominator*n->weight/l2NormIndexIndex(j, n->trait);
         }
         if (n->children.size()==0){
         }
         else{
-            for (int i=0; i<n->children.size();i++){
+            for (unsigned int i=0; i<n->children.size(); i++){
                 nodes.push(n->children[i]);
             }
         }
@@ -460,7 +460,7 @@ double TreeLasso::updateMD_denominator() {
         if (n->children.size()==0){
         }
         else{
-            for (int i=0; i<n->children.size();i++){
+            for (unsigned int i=0; i<n->children.size(); i++){
                 nodes.push(n->children[i]);
             }
         }
@@ -471,14 +471,14 @@ double TreeLasso::updateMD_denominator() {
 
 
 void TreeLasso::updateBeta() {
-    long k = beta.cols();
-    long n = XX.rows();
+    unsigned long k = beta.cols();
+    unsigned long n = XX.rows();
     MatrixXd D = MatrixXd::Zero(n, n);
-    for (long i=0;i<n;i++){
+    for (unsigned long i=0; i<n; i++){
         D(i,i) = mD_.row(i).sum();
     }
     MatrixXd xxdx = ((XX+lambda * D).inverse())*X.transpose();
-    for (long j=0; j<k; j++){
+    for (unsigned long j=0; j<k; j++){
         beta.col(j) = xxdx*y.col(j);
     }
 }
@@ -507,14 +507,14 @@ void TreeLasso::initGradientUpdate() {
             if (node->children.size()>0){
                 if (node->weight!=0){
                     mTw(index, 0) = node->weight;
-                    for (long j=0;j<node->trait.size();j++){
+                    for (unsigned long j=0; j<node->trait.size(); j++){
                         mT(index, node->trait.at(j)) = 1;
                         Cweights.push(node->weight);
                         Cindex.push(node->trait.at(j));
                     }
                     index--;
                 }
-                for (long i=0;i<node->children.size();i++){
+                for (unsigned long i=0; i<node->children.size(); i++){
                     nodes.push(node->children[i]);
                 }
             }

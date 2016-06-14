@@ -60,9 +60,9 @@ void MultiPopLasso::reArrangeData() {
     VectorXd tmpPop = VectorXd::Zero(r);
     vector<long> idx;
     long count = 0;
-    for (long i=0;i<popNum;i++){
+    for (long i=0; i<popNum; i++){
         idx = getPopulationIndex(i);
-        for (long j=0;j<idx.size();j++){
+        for (unsigned long j=0; j<idx.size(); j++){
             tmpX.row(count) = X.row(idx.at(j));
             tmpY.row(count) = y.row(idx.at(j));
             tmpPop(count++) = i;

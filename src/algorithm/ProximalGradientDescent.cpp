@@ -25,6 +25,21 @@ ProximalGradientDescent::ProximalGradientDescent(const unordered_map<string, str
     prev_residue = numeric_limits<double>::max();
 }
 
+
+ProximalGradientDescent::ProximalGradientDescent() {
+    learningRate = 0.001;
+    learningRate2 = 0.001;
+    tolerance = 0.000001;
+    prev_residue = numeric_limits<double>::max();
+    innerStep1 = 10;
+    innerStep2 = 10;
+}
+
+
+/*void ProximalGradientDescent::stop() {
+    shouldStop = true;
+}*/
+
 void ProximalGradientDescent::setTolerance(float tol) {
     tolerance = tol;
 }
@@ -46,13 +61,25 @@ void ProximalGradientDescent::setInnerStep2(long d) {
     innerStep2 =d;
 }
 
+void ProximalGradientDescent::setUpRun() {
+    isRunning = true;
+    progress = 0.0;
+    shouldStop = false;
+}
+
+void ProximalGradientDescent::finishRun() {
+    isRunning = false;
+    progress = 1.0;
+}
+
 void ProximalGradientDescent::run(Model *model) {
-    cerr << "The algorithm for this specific model is not implemented, runs on basic model"<<endl;
+    setUpRun();
+    cerr << "The algorithm for this specific model is not implemented, runs on basic model"<<endl;    
     int epoch = 0;
     double residue = model->cost();
     VectorXd grad;
     VectorXd in;
-    while (epoch < maxIteration && residue > tolerance) {
+    while (epoch < maxIteration && residue > tolerance && !shouldStop) {
         epoch++;
         progress = float(epoch) / maxIteration;
         grad = model->proximal_derivative();
@@ -60,14 +87,17 @@ void ProximalGradientDescent::run(Model *model) {
         model->updateBeta(model->proximal_operator(in, learningRate));
         residue = model->cost();
     }
+    finishRun();
 }
 
 void ProximalGradientDescent::run(LinearRegression *model) {
+    setUpRun();
     int epoch = 0;
+    model->initBeta();
     double residue = model->cost();
     VectorXd grad;
     VectorXd in;
-    while (epoch < maxIteration && residue > tolerance) {
+    while (epoch < maxIteration && residue > tolerance && !shouldStop) {
         epoch++;
         progress = float(epoch) / maxIteration;
         grad = model->proximal_derivative();
@@ -75,6 +105,7 @@ void ProximalGradientDescent::run(LinearRegression *model) {
         model->updateBeta(model->proximal_operator(in, learningRate));
         residue = model->cost();
     }
+    finishRun();
 }
 
 void ProximalGradientDescent::setLearningRate(float lr) {
@@ -82,17 +113,8 @@ void ProximalGradientDescent::setLearningRate(float lr) {
 }
 
 
-
-ProximalGradientDescent::ProximalGradientDescent() {
-    learningRate = 0.001;
-    learningRate2 = 0.001;
-    tolerance = 0.000001;
-    prev_residue = numeric_limits<double>::max();
-    innerStep1 = 10;
-    innerStep2 = 10;
-}
-
 void ProximalGradientDescent::run(TreeLasso * model) {
+    isRunning = true;
     int epoch = 0;
     double residue = model->cost();
     double theta = 1;
@@ -105,7 +127,7 @@ void ProximalGradientDescent::run(TreeLasso * model) {
     MatrixXd grad;
     model->initGradientUpdate();
     double diff = tolerance*2;
-    while (epoch < maxIteration && diff > tolerance) {
+    while (epoch < maxIteration && diff > tolerance && !shouldStop) {
         epoch++;
         progress = float(epoch) / maxIteration;
 
@@ -127,10 +149,12 @@ void ProximalGradientDescent::run(TreeLasso * model) {
         diff = abs(prev_residue - residue);
     }
     model->updateBeta(best_beta);
+    isRunning = false;
 }
 
 
 void ProximalGradientDescent::run(MultiPopLasso * model) {
+    isRunning = true;
     model->initTraining();
     int epoch = 0;
     double residue = model->cost();
@@ -143,7 +167,7 @@ void ProximalGradientDescent::run(MultiPopLasso * model) {
     MatrixXd in;
     MatrixXd grad;
     double diff = tolerance*2;
-    while (epoch < maxIteration && diff > tolerance) {
+    while (epoch < maxIteration && diff > tolerance && !shouldStop) {
         epoch++;
         progress = float(epoch) / maxIteration;
         theta_new = 2.0/(epoch+2);
@@ -162,10 +186,12 @@ void ProximalGradientDescent::run(MultiPopLasso * model) {
         diff = abs(prev_residue - residue);
     }
     model->updateBeta(best_beta);
+    isRunning = false;
 }
 
 void ProximalGradientDescent::run(AdaMultiLasso *model) {
     // this is not just proximal gradient descent, also including iteratively updating beta and w, v
+    isRunning = true;
     model->initTraining();
     int epoch = 0;
     double residue = model->cost();
@@ -188,11 +214,11 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
     VectorXd v_prev = model->getV();
     VectorXd w_grad = model->getW();
     VectorXd v_grad = model->getV();
-    while (epoch < maxIteration && diff > tolerance) {
+    while (epoch < maxIteration && diff > tolerance && !shouldStop) {
         i1 = 0;
         i2 = 0;
         epoch++;
-        while (i1 < innerStep1){
+        while (i1 < innerStep1 && !shouldStop){
             i1 ++ ;
             beta_prev2 = model->getFormattedBeta();
             progress = float(epoch) / maxIteration;
@@ -205,7 +231,7 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
             theta = theta_new;
             model->updateBeta(beta);
         }
-        while (i2 < innerStep2){
+        while (i2 < innerStep2 && !shouldStop){
             i2 ++ ;
             lr2 = learningRate2 / sqrt(i2);
             w_prev = model->getW();
@@ -231,6 +257,7 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
 //        cout << "--------"<<endl;
     }
     model->updateBeta(best_beta);
+    isRunning = false;
 }
 
 bool ProximalGradientDescent::checkVectorConvergence(VectorXd v1, VectorXd v2, double d) {

@@ -39,18 +39,8 @@ function DOCKER {
     bash --login '/Applications/Docker/Docker Quickstart Terminal.app/Contents/Resources/Scripts/start.sh'
 }
 
-function RUN {
-  docker run --name ${OPT_NAME} -ti --rm -p ${OPT_PORT}:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap:${OPT_IMAGE_TAG}
-  exit 1
-}
-
 function NODE {
-  open "http://${IP}:${OPT_PORT}" && docker run --name ${OPT_NAME} -ti --rm -p ${OPT_PORT}:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap:${OPT_IMAGE_TAG} /bin/bash -c "cd /usr/src/genamap/src/frontend/genamapApp && node webapp.js"
-  exit 1
-}
-
-function NODEGYP {
-  docker run --name ${OPT_NAME} -ti --rm -p ${OPT_PORT}:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap:${OPT_IMAGE_TAG} /bin/bash -c "cd /usr/src/genamap/src/Scheduler/node && node-gyp rebuild"
+  open "http://${IP}:${OPT_PORT}" && docker run --name ${OPT_NAME} -ti --rm -p ${OPT_PORT}:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap:${OPT_IMAGE_TAG} /bin/bash -c "cd /usr/src/genamap/src/frontend/genamapApp; node webapp.js"
   exit 1
 }
 
@@ -107,10 +97,6 @@ while [ $# -ne 0 ]; do
   COMMAND=$1
   if [ "$COMMAND" == "docker" ]; then
     DOCKER
-  elif [ "$COMMAND" == "run" ]; then
-    RUN
-  elif [ "$COMMAND" == "nodegyp" ]; then
-    NODEGYP
   elif [ "$COMMAND" == "node" ]; then
     NODE
   elif [ "$COMMAND" == "gulp" ]; then

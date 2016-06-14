@@ -12,7 +12,6 @@
 #ifdef BAZEL
 #include "json/json.h"
 #include "IO/DataBaseCommunicator.hpp"
-
 #else
 #include "json.h"
 #include "../IO/DataBaseCommunicator.hpp"

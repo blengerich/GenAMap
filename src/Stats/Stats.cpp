@@ -28,3 +28,21 @@ double Stats::ChiToPValue(double chisqr_value, int dof) {
 double Stats::WaldTest(double mle, double var, double candidate) {
     return pow(mle - candidate, 2) / var;
 }
+
+double Stats::FisherExactTest(MatrixXd X) {
+   int N = X.sum();
+   double NFac = boost::math::factorial<double>(N);
+   MatrixXd rowSums = X.rowwise().sum();
+   MatrixXd colSums = X.colwise().sum();
+   MatrixXd comFacs = X.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
+   MatrixXd rFacs = rowSums.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
+   MatrixXd cFacs = colSums.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
+   double rowsFacs = rFacs.prod();
+   double colsFacs = cFacs.prod();
+   double componentFacs = comFacs.prod();
+   return rowsFacs*colsFacs/(NFac*componentFacs);
+}
+
+double Stats::BonCorrection(double pVal, int number) {
+  return pVal/number;
+}

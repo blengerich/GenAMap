@@ -2,8 +2,11 @@
 // Created by aditya gautam on 2/22/16.
 //
 #include "GFlasso.h"
+#include <unordered_map>
+#include <iostream>
 
 using namespace Eigen;
+
 // Constructors with different parameters provided
 Gflasso::Gflasso() {
     lambda_flasso = 0.0;
@@ -68,22 +71,36 @@ double Gflasso::get_mau() {
     return mau;
 }
 
+MatrixXd Gflasso::get_X(){
+    return X;
+}
+
+MatrixXd Gflasso::get_Y(){
+    return Y;
+};
+
+MatrixXd Gflasso::get_beta() {
+    return beta;
+}
 // Training functions : X,Y and other parameters
 void Gflasso::train(){
-    cout << " Error : No Parameters are provided. Cannot perform GFLasso regression !" <<endl;
+    std::cout << " Error : No Training Parameters are provided. Cannot perform GFLasso regression !" << std::endl;
 }
 
 void Gflasso::train(MatrixXd X,MatrixXd Y){
-    cout << "Training set X and Y is provided !" << endl;
+    std::cout << "Training set X and Y is provided !" << std::endl;
     this->X = X;
     this->Y = Y;
-    int row =0, col =0;
+    int row=0, col=0;
     row = X.cols();
     col = Y.rows();
 
-    // Initialize beta to some random values
+    // Initialize beta to zero values
     this->beta = MatrixXd::Random(row,col);
     this->beta.setZero();
+    std::cout << "Initializing the beta matrix. Dimen : rows " << this->beta.rows() << " col " << this->beta.cols() <<
+            std::endl;
+
 }
 
 // Training data provided along with initial beta estimation
@@ -126,7 +143,8 @@ double Gflasso::gflasso_fusion_penalty(){
             }
 
             //  Beta is N*J matrix, where N are the number of input sample and J aer the no. of features in Y.
-            total_sum = mul_factor*abs(beta.col(start_node).sum() - sign * beta.col(end_node).sum());
+            total_sum += mul_factor*abs(beta.col(start_node).sum() - sign * beta.col(end_node).sum());
+            std::cout << " mul fac " << mul_factor << " tot sum = " << total_sum << std::endl;
         }
     }
 
@@ -135,6 +153,10 @@ double Gflasso::gflasso_fusion_penalty(){
 
 // Cost function of GFlasso
 double Gflasso::cost(){
+
+    std::cout << "GFlasso cost : Y-X*beta = " <<  (Y - X * beta).squaredNorm() << std::endl;
+    std::cout << "GFlasso cost : beta.cwiseAbs().sum() = "  << beta.cwiseAbs().sum() << std::endl;
+    std::cout << "GFlasso cost : fusion penalty = " << gflasso_fusion_penalty() << std::endl;
 
     return (
             (Y - X * beta).squaredNorm() +
@@ -154,17 +176,23 @@ double Gflasso::cost(){
  */
 int Gflasso::get_num_edges(){
 
-    int row=corr_coff.rows(), col = corr_coff.cols(),row_idx=0,col_idx=0,count=0;
+    int row=corr_coff.rows(), col = corr_coff.cols(),row_idx=0,col_idx=0,num_edges=0;
+
+
+    std::cout << " Get num edges " ;
 
     for(row_idx=0;row_idx<row;row_idx++) {
         for(col_idx=0;col_idx<col;col_idx++) {
+
+            std::cout <<  corr_coff(row_idx, col_idx) << " " ;
             if (corr_coff(row_idx, col_idx) != 0){
-                count++;
+                num_edges++;
             }
         }
     }
 
-    return count;
+    //std::cout << "Num of edges in the correlation matrix = " << num_edges << std::endl;
+    return num_edges;
 }
 
 /* Edge Vertex matrix is used in the calculation of gradient and is corresponding
@@ -177,7 +205,7 @@ int Gflasso::get_num_edges(){
 void Gflasso::update_edge_vertex_matrix(){
 
     // Initialize the matrix size based on the input parameters
-    this->edge_vertex_matrix = MatrixXd::Random(this->get_num_edges(),beta.rows());
+    this->edge_vertex_matrix = MatrixXd::Random(get_num_edges(),beta.rows());
     edge_vertex_matrix.setZero();
 
     // For each edge, just fill only two values i.e the column corresponding to edge
@@ -250,6 +278,15 @@ MatrixXd Gflasso::gradient(){
     update_alpha_matrix();
 
     return ( (X.transpose())*(X*beta - Y) + (edge_vertex_matrix.transpose()*alpha_matrix) );
+}
+
+
+/* Lipschitz Constant to be used in the SPG to get the optimal values of beta matrix*/
+float Gflasso::getL() {
+
+    MatrixXd X = this->get_X();
+    return ((X.transpose()*X).eigenvalues()).real().maxCoeff() + edge_vertex_matrix.squaredNorm()/mau;
+
 }
 
 Gflasso::Gflasso(const unordered_map<string, string> &options) {

@@ -9,12 +9,10 @@
 #ifndef Scheduler_hpp
 #define Scheduler_hpp
 
-#include <mutex>
-#include <pthread.h>
-#include <queue>
+#include <Eigen/Dense>
+#include <memory>
 #include <unordered_map>
 #include <uv.h>
-#include <v8.h>
 #include <vector>
 
 #ifdef BAZEL
@@ -44,27 +42,37 @@ public:
 	int newModel(const ModelOptions_t&);
 	// returns the model's assigned ID, -1 for failure.
 
+	bool setX(const int, const Eigen::MatrixXd&);
+	// returns true on success, false otherwise.
+
+	bool setY(const int, const Eigen::MatrixXd&);
+	// returns true on success, false otherwise.
+	
+
 	int newJob(const JobOptions_t&);
 	// Assumes that algorithm and job have been created by this scheduler.
 	// Simply packages as a job and assigns an ID.
 	// Returns the job's assigned ID, -1 for failure.
 	
-	bool startJob(Job_t*, void (*f)(uv_work_t*, int));
-	//bool startJob(Isolate*, const Local<Function>&, const Local<Number>&);
+	bool startJob(const int, void (*f)(uv_work_t*, int));
 	// Returns true if successfully queued, false otherwise.
 
-	double checkJob(const int);
+	double checkJobProgress(const int);
 	// Returns the progress of the job.
 
 	bool cancelJob(const int);
 	// Cancels a potentially running job.
 
-	// TODO: How to know if the user owns the algorithm?
+	// TODO: How to know if the user owns the algorithm? [Issue: https://github.com/blengerich/GenAMap_V2/issues/28]
 	bool deleteAlgorithm(const int);
 	bool deleteModel(const int);
 	bool deleteJob(const int);
 
+	Model* getModel(const int);
+	Algorithm* getAlgorithm(const int);
 	Job_t* getJob(const int);
+
+	MatrixXd getResult(const int);
 
 	static Scheduler* Instance();
 	// This class follows the singleton pattern.
@@ -77,19 +85,24 @@ protected:
 
 private:
 
+	// Generates and returns new identifier. Failure is identified with -1.
 	int getNewAlgorithmId();
-    // Generates and returns new job identifier. Failure is identified with -1.
-
 	int getNewModelId();
-    // Generates and returns new job identifier. Failure is identified with -1.
-
 	int getNewJobId();
-    // Generates and returns new job identifier. Failure is identified with -1.
+    
+	// Checks whether an Id is currently being used. Returns true for currently in use, false otherwise.
+	bool ValidAlgorithmId(const int);
+	bool ValidModelId(const int);
+	bool ValidJobId(const int);
+
 
     #ifdef BAZEL
     FRIEND_TEST(SchedulerTest, getNewAlgorithmId);
     FRIEND_TEST(SchedulerTest, getNewModelId);
     FRIEND_TEST(SchedulerTest, getNewJobId);
+    FRIEND_TEST(SchedulerTest, ValidAlgorithmId);
+    FRIEND_TEST(SchedulerTest, ValidModelId);
+    FRIEND_TEST(SchedulerTest, ValidJobId);
     #endif
 
     static Scheduler* s_instance;   // Singleton
@@ -104,14 +117,12 @@ private:
     const int kMaxJobId = 100;
     int next_job_id;
 
-    unordered_map<int, Algorithm*> algorithms_map;
-    unordered_map<int, Model*> models_map;
-    unordered_map<int, Job_t*> jobs_map;
+    unordered_map<int, unique_ptr<Algorithm>> algorithms_map;
+    unordered_map<int, unique_ptr<Model>> models_map;
+    unordered_map<int, unique_ptr<Job_t>> jobs_map;
     // tracks all jobs (running, waiting, and completed). indexed by job_id.  
 };
 
 void trainAlgorithmThread(uv_work_t* req);
-//void trainAlgorithmComplete(uv_work_t* req, int status);
-
 
 #endif /* Scheduler_hpp */
