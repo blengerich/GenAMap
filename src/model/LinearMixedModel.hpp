@@ -30,7 +30,7 @@ using namespace std;
 using namespace Eigen;
 
 class LinearMixedModel : public Model {
-private :
+protected:
 
     // Training data
     MatrixXd X;

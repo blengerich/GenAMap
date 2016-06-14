@@ -3,6 +3,7 @@
 //
 
 #include "ProximalGradientDescent.hpp"
+#include "BrentSearch.hpp"
 
 #include <Eigen/Dense>
 #include <iostream>
@@ -263,4 +264,18 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
 bool ProximalGradientDescent::checkVectorConvergence(VectorXd v1, VectorXd v2, double d) {
     double r = (v1 - v2).squaredNorm();
     return (r < d);
+}
+
+void ProximalGradientDescent::run(SparseLMM *model) {
+    BrentSearch *brentSearch = new BrentSearch();
+    brentSearch->set_delta(0.5);
+    brentSearch->run(model);
+    double delta = model->get_lambda();
+    model->rotateXY(delta);
+    LinearRegression lr = LinearRegression();
+    lr.setL1_reg(model->getL1reg());
+    lr.setX(model->getRotatedX());
+    lr.setY(model->getRoattedY());
+    run(&lr);
+    model->updateBeta(lr.getBeta());
 }
