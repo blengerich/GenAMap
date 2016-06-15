@@ -4,7 +4,6 @@ import GMMatrixToolbar from './GMMatrixToolbar'
 
 const GMMatrixVisualization = React.createClass({
   render: function () {
-    console.log("Matrix vis: ", this.props);
     return (
       <div>
         <div className="Matrix">

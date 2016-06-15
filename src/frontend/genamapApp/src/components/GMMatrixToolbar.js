@@ -62,8 +62,6 @@ const GMMatrixToolbar = React.createClass({
       });
   },
   render: function () {
-    console.log("GMToolbar props:");
-    console.log(this.props);
     return (
       <div>
         <FlatButton label='Toggle Toolbar' onTouchTap={this.handleToggle} />

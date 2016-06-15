@@ -43,11 +43,6 @@ svg:active{
     vector-effect:non-scaling-stroke; /* not for FF */
 }
 
-.minimap {
-	position: absolute;
-	right: 24px;
-}
-
 #map-background {
 	stroke: #111111;
     stroke-width: 4px;
@@ -87,5 +82,11 @@ svg:active{
 
 .buttonContainer {
   position: absolute;
-  right: 120px;
+  right: 50px;
+}
+
+.minimap {
+	position: absolute;
+  top: 50%;
+	right: 24px;
 }

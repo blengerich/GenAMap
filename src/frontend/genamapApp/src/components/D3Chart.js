@@ -1,6 +1,6 @@
 import React from 'react'
 import FontIcon from 'material-ui/lib/font-icon'
-import IconButton from 'material-ui/lib/icon-button'
+import FloatingActionButton from 'material-ui/lib/floating-action-button'
 
 function hoverOnCell(d, trait, marker, correlation, mousePos) {
   var labelText = "<h2>Trait: T" + trait + "</h2> <h2>Marker: M" + marker + "</h2> <p> Correlation: " + correlation + "</p>";
@@ -202,8 +202,10 @@ var Graph = function() {
       matrix.attr("transform", "translate(" + newArray + ")scale(" + d3.event.scale + ")");
     }
 
-    var overlayMapWidth = 150;
-    var overlayMapHeight = 150;
+    var overlayMapWidth = 100;
+    var overlayMapHeight = 100;
+    var overlayCellWidth = 5;
+    var overlayCellHeight = 5;
 
     /* Some minimap code */
     var svgGraphic = d3.select("body")
@@ -214,20 +216,20 @@ var Graph = function() {
 
     var minimapColors = ["#65e5cf", "#5bc8df", "#239faf", "#128479", "#5eacdd", "#1e69c4", "#2b90e2"];
 
-    for (var col = 0; col < 30; col++) {
-        for (var row = 0; row < 30; row++) {
+    for (var col = 0; col < 20; col++) {
+        for (var row = 0; row < 20; row++) {
 
             var random = getRandomInt(0,7);
             var color = minimapColors[random];
 
             svgGraphic.append("rect")
-                          .attr("x", col*5)
-                          .attr("y", row*5)
+                          .attr("x", col*overlayCellWidth)
+                          .attr("y", row*overlayCellHeight)
                           .attr("rx", 4)
                           .attr("ry", 4)
                           .attr("class", "cell")
-                          .attr("width", 5)
-                          .attr("height", 5)
+                          .attr("width", overlayCellWidth)
+                          .attr("height", overlayCellHeight)
                           .attr("value", 1)
                           .style("fill", color)
                           .style("fill-opacity", "0.8");
@@ -275,23 +277,29 @@ var D3Chart = React.createClass({
 	render: function() {
 		return (
       <div id="chart" style={{ "marginTop": "25px" }}>
-      <ul className="buttonContainer">
-        <li className="zoomButton">
-          <a id="zoom-in" data-zoom="+1">
-            Zoom In
-          </a>
-        </li>
-        <li className="zoomButton">
-          <a id="zoom-out" data-zoom="-1">
-            Zoom Out
-          </a>
-        </li>
-        <li className="zoomButton">
-          <a id="reset" data-zoom="-8">
-            Reset
-          </a>
-        </li>
-      </ul>
+        <ul className="buttonContainer">
+          <li className="zoomButton">
+            <a id="zoom-in" data-zoom="+1">
+              <FloatingActionButton>
+                <FontIcon className="material-icons">add</FontIcon>
+              </FloatingActionButton>
+            </a>
+          </li>
+          <li className="zoomButton">
+            <a id="zoom-out" data-zoom="-1">
+              <FloatingActionButton>
+                <FontIcon className="material-icons">remove</FontIcon>
+              </FloatingActionButton>
+            </a>
+          </li>
+          <li className="zoomButton">
+            <a id="reset" data-zoom="-8">
+              <FloatingActionButton>
+                <FontIcon className="material-icons">settings_backup_restore</FontIcon>
+              </FloatingActionButton>
+            </a>
+          </li>
+        </ul>
       </div>
 		);
 	}
