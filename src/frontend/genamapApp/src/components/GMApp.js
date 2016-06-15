@@ -33,6 +33,8 @@ class GMApp extends Component {
   }
 
   render () {
+    console.log("GMApp props");
+    console.log(this.props);
     const padding = {
       paddingLeft: this.getPadding(this.props.leftNavOpen),
       paddingRight: this.getPadding(this.props.rightNavOpen)
