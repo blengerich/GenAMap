@@ -96,7 +96,7 @@ public :
     MatrixXd gradient();
 
     // Lipschitz Constant
-    float get_L();
+    float getL();
 
     Gflasso(const unordered_map<string, string>&);
 };
