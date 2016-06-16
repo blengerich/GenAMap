@@ -45,9 +45,16 @@ const errorText = 'This is a required field'
 
 const GMRunAnalysisDialog = React.createClass({
   getInitialState: function () {
+    const projects = return fetch(config.api.projectUrl)
+    .then(response => {
+      if (!response.ok) Promise.reject('Could not get projects')
+      return response.json()
+    }).then(projects => {
+      return projects
+    })
     return {
       open: false,
-      projects: [],
+      projects: projects,
       markers: [],
       traits: [],
       algorithms: config.algorithms,
@@ -78,11 +85,7 @@ const GMRunAnalysisDialog = React.createClass({
     this.props.onClose()
   },
   onChangeProject: function (event, index, value) {
-    let getProjectRequest = {
-      method: 'GET'
-    }
-
-    return fetch(`${this.props.projectUrl}/${value}`, getProjectRequest)
+    return fetch(`${config.api.projectUrl}/${value}`)
     .then(response => {
       if (!response.ok) Promise.reject('Could not get projects')
       return response.json()
