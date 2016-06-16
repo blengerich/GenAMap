@@ -27,11 +27,11 @@ function getRandomInt(min, max) {
 
 var Graph = function() {
     // Grab the file from upload
-	var fileLocation = 'example_data/export.csv';
+	var fileLocation = 'example_data/test_node_small.csv';
 
   // Read this from file
   var numTraits = 250;
-  var numMarkers = 250;
+  var numMarkers = 10;
 
 	var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 	var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
@@ -275,11 +275,21 @@ var D3Chart = React.createClass({
 			points: []
 		}
 	},
-
   componentDidMount: function() {
     this.state.points = Graph();
   },
-
+  componentDidUpdate() {
+    var threshold = this.props.threshold;
+    d3.select("#overallMatrix")
+      .selectAll('.cell')
+      .each(function(d) {
+        if (d.value < threshold) {
+          d3.select(this).style({ visibility: "hidden" });
+        } else {
+          d3.select(this).style({ visibility: "visible" });
+        }
+      });
+  },
 	render: function() {
 		return (
       <div>
