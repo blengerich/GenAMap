@@ -1,6 +1,7 @@
 import React from 'react'
 import FontIcon from 'material-ui/lib/font-icon'
 import FlatButton from 'material-ui/lib/flat-button'
+import Badge from 'material-ui/lib/badge'
 import Slider from 'material-ui/lib/slider'
 import AutoComplete from 'material-ui/lib/auto-complete'
 import MenuItem from 'material-ui/lib/menus/menu-item'
@@ -50,16 +51,16 @@ const GMMatrixToolbar = React.createClass({
     this.setState({open: !this.state.open});
   },
   openVizMenu: function(e) {
-      e.preventDefault();
-      this.setState({
-          vizMenuOpen: true,
-          vizMenuAnchor: e.currentTarget
-      });
+    e.preventDefault();
+    this.setState({
+      vizMenuOpen: true,
+      vizMenuAnchor: e.currentTarget
+    });
   },
   closeVizMenu: function() {
-      this.setState({
-          vizMenuOpen: false
-      });
+    this.setState({
+      vizMenuOpen: false
+    });
   },
   render: function () {
     return (
@@ -70,8 +71,9 @@ const GMMatrixToolbar = React.createClass({
           height={100}
           left={this.props.left}
           right={this.props.right}
+          onThresholdChange={this.props.onThresholdChange}
         >
-          <Slider style={styles.slider} />
+          <Slider style={styles.slider} onChange={this.props.onThresholdChange} />
           <FlatButton
             label="Switch visualization"
             icon={<FontIcon className="material-icons">show_chart</FontIcon>}
