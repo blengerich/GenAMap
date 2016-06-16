@@ -3,6 +3,7 @@ import Dialog from 'material-ui/lib/dialog'
 import FlatButton from 'material-ui/lib/flat-button'
 import SelectField from 'material-ui/lib/select-field'
 import MenuItem from 'material-ui/lib/menus/menu-item'
+import fetch from './fetch'
 
 import GMAlgorithmCard from './GMAlgorithmCard'
 
@@ -47,9 +48,11 @@ const GMRunAnalysisDialog = React.createClass({
       open: false,
       projects: [],
       markers: [],
+      traits: [],
       algorithms: [],
       projectValue: '',
       markerValue: '',
+      traitValue: '',
       algorithmsValue: new Set()
     }
   },
@@ -58,12 +61,15 @@ const GMRunAnalysisDialog = React.createClass({
   },
   validateForm: function () {
     return (!!this.state.projectValue && !!this.state.markerValue &&
-            this.state.algorithmsValue.size > 0)
+            !!this.state.traitValue && this.state.algorithmsValue.size > 0)
   },
   handleSubmit: function () {
-    this.props.submit({project: this.state.projectValue,
-                       marker: this.state.markerValue,
-                       algorithms: Array.from(this.state.algorithmsValue)})
+    this.props.submit({
+      project: this.state.projectValue,
+      marker: this.state.markerValue,
+      trait: this.state.traitValue,
+      algorithms: Array.from(this.state.algorithmsValue)
+    })
     this.setState(this.getInitialState())
     this.handleClose()
   },
@@ -71,15 +77,35 @@ const GMRunAnalysisDialog = React.createClass({
     this.props.onClose()
   },
   onChangeProject: function (event, index, value) {
-    // GetRequest(this.props.projectUrl + '/' + value, {}, (project) => {
-    //   const markers = project.data.filter(function (data) {
-    //     return (data.filetype === 'markerFile')
-    //   })
-    //   this.setState({projectValue: value, markers: markers, markerValue: ''})
-    // })
+    let getProjectRequest = {
+      method: 'GET'
+    }
+
+    return fetch(`${this.props.projectUrl}/${value}`, getProjectRequest)
+    .then(response => {
+      if (!response.ok) Promise.reject('Could not get projects')
+      return response.json()
+    }).then(project => {
+      const markers = project.data.filter(function (data) {
+        return (data.filetype === 'markerFile')
+      })
+      const traits = project.data.filter(function (data) {
+        return (data.filetype === 'traitFile')
+      })
+      this.setState({
+        projectValue: value,
+        makers: markers,
+        markerValue: '',
+        traits: traits,
+        traitValue: ''
+      })
+    })
   },
   onChangeMarker: function (event, index, value) {
     this.setState({markerValue: value})
+  },
+  onChangeTrait: function (event, index, value) {
+    this.setState({traitValue: value})
   },
   onChangeAlgorithm: function (algorithm) {
     var a = this.state.algorithmsValue;
@@ -115,6 +141,12 @@ const GMRunAnalysisDialog = React.createClass({
     )
     var markerListReact = this.state.markers.map((marker, index) =>
       <option key={index} value={marker.name}>{marker.name}</option>
+    )
+    var traitList = this.state.traits.map((trait, index) =>
+      <MenuItem key={index} value={trait.name} primaryText={trait.name} />
+    )
+    var traitListReact = this.state.traits.map((trait, index) =>
+      <option key={index} value={trait.name}>{trait.name}</option>
     )
     var algorithmList = this.state.algorithms.map(algorithm =>
       <GMAlgorithmCard
@@ -160,6 +192,19 @@ const GMRunAnalysisDialog = React.createClass({
               </SelectField>
               <select id='marker' className='hidden' value={this.state.markerValue} readOnly>
                 {markerListReact}
+              </select>
+            </div>
+            <div>
+              <SelectField
+                value={this.state.traitValue}
+                hintText='Choose Trait'
+                errorText={!this.state.traitValue && errorText}
+                onChange={this.onChangeTrait}
+              >
+                {traitList}
+              </SelectField>
+              <select id='trait' className='hidden' value={this.state.traitValue} readOnly>
+                {traitListReact}
               </select>
             </div>
             <div style={styles.scroll}>
