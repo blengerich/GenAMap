@@ -95799,6 +95799,8 @@ var _floatingActionButton2 = _interopRequireDefault(_floatingActionButton);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function initAxes() {}
+
 function hoverOnCell(d, trait, marker, correlation, mousePos) {
   var labelText = "<h2>Trait: T" + trait + "</h2> <h2>Marker: M" + marker + "</h2> <p> Correlation: " + correlation + "</p>";
   var tooltip = d3.select("#chart").append("div").attr("class", "tooltip").html(labelText).style("position", "absolute").style("left", mousePos.pageX + "px").style("top", mousePos.pageY + "px");
@@ -95814,7 +95816,7 @@ function getRandomInt(min, max) {
 
 var Graph = function Graph() {
   // Grab the file from upload
-  var fileLocation = 'images/export.csv';
+  var fileLocation = 'example_data/export.csv';
 
   // Read this from file
   var numTraits = 250;
@@ -96010,6 +96012,8 @@ var Graph = function Graph() {
   svgGraphic.append("g").attr("class", "frame").call(miniZoom).append("rect").attr("id", "map-background").attr("value", 1).style("width", overlayWidth).style("height", overlayHeight).attr("transform", "translate(" + 0 + "," + 0 + ")");
 
   var overlay = d3.select("#map-background");
+
+  initAxes();
 };
 
 var D3Chart = _react2.default.createClass({
@@ -96028,57 +96032,61 @@ var D3Chart = _react2.default.createClass({
   render: function render() {
     return _react2.default.createElement(
       'div',
-      { id: 'chart', style: { "marginTop": "25px" } },
+      null,
       _react2.default.createElement(
-        'ul',
-        { className: 'buttonContainer' },
+        'div',
+        { id: 'chart', style: { "marginTop": "25px" } },
         _react2.default.createElement(
-          'li',
-          { className: 'zoomButton' },
+          'ul',
+          { className: 'buttonContainer' },
           _react2.default.createElement(
-            'a',
-            { id: 'zoom-in', 'data-zoom': '+1' },
+            'li',
+            { className: 'zoomButton' },
             _react2.default.createElement(
-              _floatingActionButton2.default,
-              null,
+              'a',
+              { id: 'zoom-in', 'data-zoom': '+1' },
               _react2.default.createElement(
-                _fontIcon2.default,
-                { className: 'material-icons' },
-                'add'
+                _floatingActionButton2.default,
+                null,
+                _react2.default.createElement(
+                  _fontIcon2.default,
+                  { className: 'material-icons' },
+                  'add'
+                )
               )
             )
-          )
-        ),
-        _react2.default.createElement(
-          'li',
-          { className: 'zoomButton' },
+          ),
           _react2.default.createElement(
-            'a',
-            { id: 'zoom-out', 'data-zoom': '-1' },
+            'li',
+            { className: 'zoomButton' },
             _react2.default.createElement(
-              _floatingActionButton2.default,
-              null,
+              'a',
+              { id: 'zoom-out', 'data-zoom': '-1' },
               _react2.default.createElement(
-                _fontIcon2.default,
-                { className: 'material-icons' },
-                'remove'
+                _floatingActionButton2.default,
+                null,
+                _react2.default.createElement(
+                  _fontIcon2.default,
+                  { className: 'material-icons' },
+                  'remove'
+                )
               )
             )
-          )
-        ),
-        _react2.default.createElement(
-          'li',
-          { className: 'zoomButton' },
+          ),
           _react2.default.createElement(
-            'a',
-            { id: 'reset', 'data-zoom': '-8' },
+            'li',
+            { className: 'zoomButton' },
             _react2.default.createElement(
-              _floatingActionButton2.default,
-              null,
+              'a',
+              { id: 'reset', 'data-zoom': '-8' },
               _react2.default.createElement(
-                _fontIcon2.default,
-                { className: 'material-icons' },
-                'settings_backup_restore'
+                _floatingActionButton2.default,
+                null,
+                _react2.default.createElement(
+                  _fontIcon2.default,
+                  { className: 'material-icons' },
+                  'settings_backup_restore'
+                )
               )
             )
           )
@@ -96465,135 +96473,11 @@ exports.default = GMAlgorithmCard;
 },{"material-ui/lib/card/card":285,"material-ui/lib/card/card-media":283,"material-ui/lib/card/card-text":284,"material-ui/lib/checkbox":286,"react":668}],1117:[function(require,module,exports){
 'use strict';
 
-var _typeof20 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-var _typeof19 = typeof Symbol === "function" && _typeof20(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof20(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof20(obj);
-};
-
-var _typeof18 = typeof Symbol === "function" && _typeof19(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof19(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof19(obj);
-};
-
-var _typeof17 = typeof Symbol === "function" && _typeof18(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof18(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof18(obj);
-};
-
-var _typeof16 = typeof Symbol === "function" && _typeof17(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof17(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof17(obj);
-};
-
-var _typeof15 = typeof Symbol === "function" && _typeof16(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof16(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof16(obj);
-};
-
-var _typeof14 = typeof Symbol === "function" && _typeof15(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof15(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof15(obj);
-};
-
-var _typeof13 = typeof Symbol === "function" && _typeof14(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof14(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof14(obj);
-};
-
-var _typeof12 = typeof Symbol === "function" && _typeof13(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof13(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof13(obj);
-};
-
-var _typeof11 = typeof Symbol === "function" && _typeof12(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof12(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof12(obj);
-};
-
-var _typeof10 = typeof Symbol === "function" && _typeof11(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof11(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof11(obj);
-};
-
-var _typeof9 = typeof Symbol === "function" && _typeof10(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof10(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof10(obj);
-};
-
-var _typeof8 = typeof Symbol === "function" && _typeof9(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof9(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof9(obj);
-};
-
-var _typeof7 = typeof Symbol === "function" && _typeof8(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof8(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof8(obj);
-};
-
-var _typeof6 = typeof Symbol === "function" && _typeof7(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof7(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof7(obj);
-};
-
-var _typeof5 = typeof Symbol === "function" && _typeof6(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof6(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof6(obj);
-};
-
-var _typeof4 = typeof Symbol === "function" && _typeof5(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof5(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof5(obj);
-};
-
-var _typeof3 = typeof Symbol === "function" && _typeof4(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof4(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof4(obj);
-};
-
-var _typeof2 = typeof Symbol === "function" && _typeof3(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof3(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof3(obj);
-};
-
-var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof2(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof2(obj);
-};
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-  };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = require('react');
 
@@ -96615,27 +96499,13 @@ var _config = require('../../config');
 
 var _config2 = _interopRequireDefault(_config);
 
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) {
-  if (!self) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
-}
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-}
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var GMApp = function (_Component) {
   _inherits(GMApp, _Component);
@@ -96689,13 +96559,24 @@ var GMApp = function (_Component) {
       var childrenWithProps = _react2.default.Children.map(this.props.children, function (child) {
         return _react2.default.cloneElement(child, { minPad: _config2.default.ui.minPad });
       });
-      return _react2.default.createElement('div', null, _react2.default.createElement(_GMTopMenu2.default, {
-        handleLeftIconTouch: this.handleLeftIconTouch.bind(this),
-        handleRightIconTouch: this.handleRightIconTouch.bind(this),
-        handleLogoutButton: this.handleLogoutButton.bind(this),
-        style: navPadding,
-        visibility: this.getVisibility()
-      }), _react2.default.createElement(_GMLeftMenu2.default, { open: this.props.leftNavOpen, width: _config2.default.ui.navWidth, user: this.props.user }), _react2.default.createElement(_GMRightMenu2.default, { open: this.props.rightNavOpen, width: _config2.default.ui.navWidth }), _react2.default.createElement('main', { style: fixedPadding }, childrenWithProps));
+      return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(_GMTopMenu2.default, {
+          handleLeftIconTouch: this.handleLeftIconTouch.bind(this),
+          handleRightIconTouch: this.handleRightIconTouch.bind(this),
+          handleLogoutButton: this.handleLogoutButton.bind(this),
+          style: navPadding,
+          visibility: this.getVisibility()
+        }),
+        _react2.default.createElement(_GMLeftMenu2.default, { open: this.props.leftNavOpen, width: _config2.default.ui.navWidth, user: this.props.user }),
+        _react2.default.createElement(_GMRightMenu2.default, { open: this.props.rightNavOpen, width: _config2.default.ui.navWidth }),
+        _react2.default.createElement(
+          'main',
+          { style: fixedPadding },
+          childrenWithProps
+        )
+      );
     }
   }]);
 
@@ -97672,18 +97553,25 @@ var _GMMatrixToolbar = require('./GMMatrixToolbar');
 
 var _GMMatrixToolbar2 = _interopRequireDefault(_GMMatrixToolbar);
 
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var GMMatrixVisualization = _react2.default.createClass({
   displayName: 'GMMatrixVisualization',
 
   render: function render() {
-    return _react2.default.createElement('div', null, _react2.default.createElement('div', { className: 'Matrix' }, _react2.default.createElement(_D3Chart2.default, null)), _react2.default.createElement(_GMMatrixToolbar2.default, {
-      left: this.props.minPad,
-      right: this.props.minPad
-    }));
+    return _react2.default.createElement(
+      'div',
+      null,
+      _react2.default.createElement(
+        'div',
+        { className: 'Matrix' },
+        _react2.default.createElement(_D3Chart2.default, null)
+      ),
+      _react2.default.createElement(_GMMatrixToolbar2.default, {
+        left: this.props.minPad,
+        right: this.props.minPad
+      })
+    );
   }
 });
 
