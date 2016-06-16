@@ -2,6 +2,10 @@ import React from 'react'
 import FontIcon from 'material-ui/lib/font-icon'
 import FloatingActionButton from 'material-ui/lib/floating-action-button'
 
+function initAxes() {
+
+}
+
 function hoverOnCell(d, trait, marker, correlation, mousePos) {
   var labelText = "<h2>Trait: T" + trait + "</h2> <h2>Marker: M" + marker + "</h2> <p> Correlation: " + correlation + "</p>";
   var tooltip = d3.select("#chart")
@@ -23,7 +27,7 @@ function getRandomInt(min, max) {
 
 var Graph = function() {
     // Grab the file from upload
-	var fileLocation = 'images/export.csv';
+	var fileLocation = 'example_data/export.csv';
 
   // Read this from file
   var numTraits = 250;
@@ -261,6 +265,8 @@ var Graph = function() {
                 .attr("transform", "translate(" + 0 + "," + 0 + ")")
 
     var overlay = d3.select("#map-background");
+
+    initAxes();
 }
 
 var D3Chart = React.createClass({
@@ -276,30 +282,32 @@ var D3Chart = React.createClass({
 
 	render: function() {
 		return (
-      <div id="chart" style={{ "marginTop": "25px" }}>
-        <ul className="buttonContainer">
-          <li className="zoomButton">
-            <a id="zoom-in" data-zoom="+1">
-              <FloatingActionButton>
-                <FontIcon className="material-icons">add</FontIcon>
-              </FloatingActionButton>
-            </a>
-          </li>
-          <li className="zoomButton">
-            <a id="zoom-out" data-zoom="-1">
-              <FloatingActionButton>
-                <FontIcon className="material-icons">remove</FontIcon>
-              </FloatingActionButton>
-            </a>
-          </li>
-          <li className="zoomButton">
-            <a id="reset" data-zoom="-8">
-              <FloatingActionButton>
-                <FontIcon className="material-icons">settings_backup_restore</FontIcon>
-              </FloatingActionButton>
-            </a>
-          </li>
-        </ul>
+      <div>
+        <div id="chart" style={{ "marginTop": "25px" }}>
+          <ul className="buttonContainer">
+            <li className="zoomButton">
+              <a id="zoom-in" data-zoom="+1">
+                <FloatingActionButton>
+                  <FontIcon className="material-icons">add</FontIcon>
+                </FloatingActionButton>
+              </a>
+            </li>
+            <li className="zoomButton">
+              <a id="zoom-out" data-zoom="-1">
+                <FloatingActionButton>
+                  <FontIcon className="material-icons">remove</FontIcon>
+                </FloatingActionButton>
+              </a>
+            </li>
+            <li className="zoomButton">
+              <a id="reset" data-zoom="-8">
+                <FloatingActionButton>
+                  <FontIcon className="material-icons">settings_backup_restore</FontIcon>
+                </FloatingActionButton>
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
 		);
 	}
