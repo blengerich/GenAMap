@@ -3,9 +3,10 @@ import Dialog from 'material-ui/lib/dialog'
 import FlatButton from 'material-ui/lib/flat-button'
 import SelectField from 'material-ui/lib/select-field'
 import MenuItem from 'material-ui/lib/menus/menu-item'
-import fetch from './fetch'
 
 import GMAlgorithmCard from './GMAlgorithmCard'
+import fetch from './fetch'
+import config from '../../config'
 
 const styles = {
   fileInput: {
@@ -49,7 +50,7 @@ const GMRunAnalysisDialog = React.createClass({
       projects: [],
       markers: [],
       traits: [],
-      algorithms: [],
+      algorithms: config.algorithms,
       projectValue: '',
       markerValue: '',
       traitValue: '',
@@ -133,22 +134,22 @@ const GMRunAnalysisDialog = React.createClass({
     const projectList = this.state.projects.map((project) =>
       <MenuItem key={project.id} value={project.id} primaryText={project.name} />
     )
-    var projectListReact = this.state.projects.map((project) =>
+    const projectListReact = this.state.projects.map((project) =>
       <option key={project.id} value={project.id}>{project.name}</option>
     )
-    var markerList = this.state.markers.map((marker, index) =>
+    const markerList = this.state.markers.map((marker, index) =>
       <MenuItem key={index} value={marker.name} primaryText={marker.name} />
     )
-    var markerListReact = this.state.markers.map((marker, index) =>
+    const markerListReact = this.state.markers.map((marker, index) =>
       <option key={index} value={marker.name}>{marker.name}</option>
     )
-    var traitList = this.state.traits.map((trait, index) =>
+    const traitList = this.state.traits.map((trait, index) =>
       <MenuItem key={index} value={trait.name} primaryText={trait.name} />
     )
-    var traitListReact = this.state.traits.map((trait, index) =>
+    const traitListReact = this.state.traits.map((trait, index) =>
       <option key={index} value={trait.name}>{trait.name}</option>
     )
-    var algorithmList = this.state.algorithms.map(algorithm =>
+    const algorithmList = this.state.algorithms.map(algorithm =>
       <GMAlgorithmCard
         key={algorithm.id}
         algorithm={algorithm}

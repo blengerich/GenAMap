@@ -332,7 +332,19 @@ var getAlgorithmType = function (id) {
   return algorithmTypes[id]
 }
 
+/**
+ * req.body will have:
+ * project (string)
+ * marker (string)
+ * trait (string)
+ * algorithms (Array)
+ */
 app.post(config.api.runAnalysisUrl, function (req, res) {
+  // Logging the fields to make sure they exist
+  console.log("req.body.project: ", req.body.project)
+  console.log("req.body.marker: ", req.body.marker)
+  console.log("req.body.trait: ", req.body.trait)
+  console.log("req.body.algorithms: ", req.body.algorithms)
   req.body.algorithms.forEach((model) => {
     // should be getting the Model ID here, then we can call API for data paths
     /* app.get('/api/data/:id', function (req, res)*/
