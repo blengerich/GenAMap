@@ -179,3 +179,25 @@ svg:active{
     cursor: move;
 }
 
+.tooltip, .selector {
+  	background: #eee;
+  	box-shadow: 0 0 5px #999999;
+  	color: #333;
+  	font-size: 12px;
+ 	padding: 10px;
+  	text-align: center;
+  	width: 200px;
+  	z-index: 10;
+}
+
+.btn-flat {
+	width: 50%;
+}
+
+#cancel {
+	color: #e57373;
+}
+
+#add {
+	color: #4db6ac;
+}

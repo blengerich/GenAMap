@@ -33,23 +33,30 @@ class GMApp extends Component {
   }
 
   render () {
-    const padding = {
+    const navPadding = {
       paddingLeft: this.getPadding(this.props.leftNavOpen),
       paddingRight: this.getPadding(this.props.rightNavOpen)
     }
+    const fixedPadding = {
+      paddingLeft: config.ui.minPad,
+      paddingRight: config.ui.minPad
+    }
+    var childrenWithProps = React.Children.map(this.props.children, (child) => {
+        return React.cloneElement(child, { minPad: config.ui.minPad });
+    });
     return (
       <div>
         <GMTopMenu
           handleLeftIconTouch={this.handleLeftIconTouch.bind(this)}
           handleRightIconTouch={this.handleRightIconTouch.bind(this)}
           handleLogoutButton={this.handleLogoutButton.bind(this)}
-          style={padding}
+          style={navPadding}
           visibility={this.getVisibility()}
         />
         <GMLeftMenu open={this.props.leftNavOpen} width={config.ui.navWidth} user={this.props.user} />
         <GMRightMenu open={this.props.rightNavOpen} width={config.ui.navWidth} />
-        <main style={padding}>
-          {this.props.children}
+        <main style={fixedPadding}>
+          {childrenWithProps}
         </main>
       </div>
     )
