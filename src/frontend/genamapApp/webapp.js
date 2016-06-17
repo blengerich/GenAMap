@@ -340,27 +340,29 @@ var getAlgorithmType = function (id) {
  * algorithms (Array)
  */
 app.post(config.api.runAnalysisUrl, function (req, res) {
+	console.log("params", req.params)
   console.log("body", req.body)
   // Logging the fields to make sure they exist
   console.log("req.body.project: ", req.body.project)
   console.log("req.body.marker: ", req.body.marker)
   console.log("req.body.trait: ", req.body.trait)
   console.log("req.body.algorithms: ", req.body.algorithms)
+
+  // How to read actual datafile??
+  /*app.models.file.findOne({id: req.body.project}, function (err, model) {
+    if (err) console.log(err)
+    console.log(model.path)
+    fs.readFile(model.path, 'utf8', function (error, data) {
+      if (error) throw error
+      //console.log(data)
+    })
+  })*/
+
   req.body.algorithms.forEach((model) => {
+  	console.log("model", model)
     // should be getting the Model ID here, then we can call API for data paths
     /* app.get('/api/data/:id', function (req, res)*/
-    /*
-    algorithmOptions = {
-        type: algorithm_type,
-        max_iteration: int (Number),
-        tolerance: double (Number),
-        learning_rate: double (Number)
-    };
-    algorithm_type = {
-      proximal_gradient_descent: 1,
-      iterative_update: 2
-    };
-    */
+
     const algorithmOptions = {
       type: req.body.algorithmType || getAlgorithmType(model.id) || 1,
       options: {
@@ -369,6 +371,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
         learning_rate: req.body.learning_rate || 0.01
       }
     }
+
     const algorithmId = Scheduler.newAlgorithm(algorithmOptions)
     if (algorithmId === -1) return res.json({msg: 'error creating algorithm'})
 
@@ -395,12 +398,8 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
     const modelId = Scheduler.newModel(modelOptions)
     if (modelId === -1) return res.json({msg: 'error creating model'})
 
-    /* fs.readFile(model.path, 'utf8', function (error, data) {
-        console.log("data:", data);
-    	return res.json({file: model, data: data});
-  	});*/
-
     /* TODO:Set X and Y here [Issue: https://github.com/blengerich/GenAMap_V2/issues/18] */
+
     Scheduler.setX(modelId, [[0, 1], [1, 1]])
     Scheduler.setY(modelId, [[0], [1]])
 
@@ -411,11 +410,10 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
     };
     */
     const jobId = Scheduler.newJob({algorithm_id: algorithmId, model_id: modelId})
-    // console.log('jobId: ', jobId, typeof(jobId))
 
-    Scheduler.startJob((results) => {
+    Scheduler.startJob(jobId, function (results) {
       console.log('results: ', results)
-    }, jobId)
+    })
     // console.log(Scheduler.checkJob(jobId));
     // console.log(Scheduler.cancelJob(jobId));
     // console.log(Scheduler.deleteAlgorithm(algorithmId));
