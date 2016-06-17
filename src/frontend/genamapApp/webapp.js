@@ -333,33 +333,32 @@ var getAlgorithmType = function (id) {
 }
 
 /**
- * req.body will have:
- * project (string)
- * marker (string)
- * trait (string)
- * algorithms (Array)
+ * @param {Object} req
+ * @param {Object} [req.body]
+ * @param {Number} [req.body.project]
+ * @param {Number} [req.body.marker]
+ * @param {Number} [req.body.trait]
+ * @param {Array} [req.body.algorithms]
+ * @param {Object} [req.body.algorithms]
+ * @example req.body = {
+ *   project: 1,
+ *   marker: 7,
+ *   trait: 8,
+ *   algorithms:[1, 3]
+ * }
  */
 app.post(config.api.runAnalysisUrl, function (req, res) {
-	console.log("params", req.params)
-  console.log("body", req.body)
-  // Logging the fields to make sure they exist
-  console.log("req.body.project: ", req.body.project)
-  console.log("req.body.marker: ", req.body.marker)
-  console.log("req.body.trait: ", req.body.trait)
-  console.log("req.body.algorithms: ", req.body.algorithms)
-
-  // How to read actual datafile??
-  /*app.models.file.findOne({id: req.body.project}, function (err, model) {
-    if (err) console.log(err)
-    console.log(model.path)
-    fs.readFile(model.path, 'utf8', function (error, data) {
+  app.models.file.findOne({ id: req.body.marker }).exec(function (err, markerFile) {
+    if (err) console.log('Error getting marker for analysis: ', err)
+    console.log(markerFile)
+    fs.readFile(markerFile.path, 'utf8', function (error, data) {
       if (error) throw error
-      //console.log(data)
+      console.log('markerFile data: ', data)
     })
-  })*/
+  })
 
   req.body.algorithms.forEach((model) => {
-  	console.log("model", model)
+    console.log("model", model)
     // should be getting the Model ID here, then we can call API for data paths
     /* app.get('/api/data/:id', function (req, res)*/
 

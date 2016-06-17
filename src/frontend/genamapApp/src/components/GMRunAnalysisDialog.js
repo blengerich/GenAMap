@@ -100,7 +100,7 @@ const GMRunAnalysisDialog = React.createClass({
   },
   onChangeAlgorithm: function (algorithm) {
     var a = this.state.algorithmsValue;
-    (a.has(algorithm)) ? a.delete(algorithm) : a.add(algorithm)
+    (a.has(algorithm.id)) ? a.delete(algorithm.id) : a.add(algorithm.id)
     this.setState({algorithmsValue: a})
   },
   isDisabled: function (algorithmName) {
@@ -128,16 +128,16 @@ const GMRunAnalysisDialog = React.createClass({
       <option key={project.id} value={project.id}>{project.name}</option>
     )
     const markerList = this.state.markers.map((marker, index) =>
-      <MenuItem key={index} value={marker.name} primaryText={marker.name} />
+      <MenuItem key={index} value={marker.id} primaryText={marker.name} />
     )
     const markerListReact = this.state.markers.map((marker, index) =>
-      <option key={index} value={marker.name}>{marker.name}</option>
+      <option key={index} value={marker.id}>{marker.name}</option>
     )
     const traitList = this.state.traits.map((trait, index) =>
-      <MenuItem key={index} value={trait.name} primaryText={trait.name} />
+      <MenuItem key={index} value={trait.id} primaryText={trait.name} />
     )
     const traitListReact = this.state.traits.map((trait, index) =>
-      <option key={index} value={trait.name}>{trait.name}</option>
+      <option key={index} value={trait.id}>{trait.name}</option>
     )
     const algorithmList = this.state.algorithms.map(algorithm =>
       <GMAlgorithmCard
