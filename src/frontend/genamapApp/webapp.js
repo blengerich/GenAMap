@@ -9,6 +9,8 @@ var async = require('async')
 var diskAdapter = require('sails-disk')
 var omit = require('lodash.omit')
 var mkdirp = require('mkdirp')
+var Converter = require('csvtojson').Converter;
+
 require('es6-promise').polyfill()
 require('isomorphic-fetch')
 
@@ -339,7 +341,6 @@ var getAlgorithmType = function (id) {
  * @param {Number} [req.body.marker]
  * @param {Number} [req.body.trait]
  * @param {Array} [req.body.algorithms]
- * @param {Object} [req.body.algorithms]
  * @example req.body = {
  *   project: 1,
  *   marker: 7,
@@ -348,78 +349,96 @@ var getAlgorithmType = function (id) {
  * }
  */
 app.post(config.api.runAnalysisUrl, function (req, res) {
+  var converter = new Converter({noheader:true});
+
+  // Get marker file
   app.models.file.findOne({ id: req.body.marker }).exec(function (err, markerFile) {
-    if (err) console.log('Error getting marker for analysis: ', err)
-    console.log(markerFile)
-    fs.readFile(markerFile.path, 'utf8', function (error, data) {
-      if (error) throw error
-      console.log('markerFile data: ', data)
-    })
+    if (err) console.log('Error getting marker for analysis: ', err);
+    converter.fromFile(markerFile.path, function(err,markerData) {
+      if (err) console.log('Error getting marker for analysis: ', err);
+      // Get trait file
+      app.models.file.findOne({ id: req.body.trait }).exec(function (err, traitFile) {
+        if (err) console.log('Error getting trait for analysis: ', err)
+        var traitConverter = new Converter({noheader:true});
+        traitConverter.fromFile(traitFile.path, function(err, traitData) {
+          if (err) console.log('Error getting trait for analysis: ', err)
+          // Now that we have the data, create a job for each request
+          req.body.algorithms.forEach((model) => {
+            // Algorithm
+            const algorithmOptions = {
+              type: req.body.algorithmType || getAlgorithmType(model.id) || 1,
+              options: {
+                // max_iteration: req.body.max_iteration || 10,
+                tolerance: req.body.tolerance || 0.01,
+                learning_rate: req.body.learning_rate || 0.01
+              }
+            }
+            const algorithmId = Scheduler.newAlgorithm(algorithmOptions)
+            if (algorithmId === -1) return res.json({msg: 'error creating algorithm'})
+
+            // Model
+            const modelOptions = {
+              type: model.id || 1,
+              options: {
+                lambda: model.lambda || 0.05,
+                L2_lambda: model.L2_lambda || 0.01
+              }
+            }
+            const modelId = Scheduler.newModel(modelOptions)
+            if (modelId === -1) return res.json({msg: 'error creating model'})
+            Scheduler.setX(modelId, markerData)
+            Scheduler.setY(modelId, traitData)
+
+            // Job
+            const jobId = Scheduler.newJob({algorithm_id: algorithmId, model_id: modelId})
+            Scheduler.startJob(jobId, function (results) {
+              console.log('results: ', results)
+            })
+          })
+        });
+      });
+    });
   })
 
-  req.body.algorithms.forEach((model) => {
-    console.log("model", model)
-    // should be getting the Model ID here, then we can call API for data paths
-    /* app.get('/api/data/:id', function (req, res)*/
-
-    const algorithmOptions = {
-      type: req.body.algorithmType || getAlgorithmType(model.id) || 1,
-      options: {
-        // max_iteration: req.body.max_iteration || 10,
-        tolerance: req.body.tolerance || 0.01,
-        learning_rate: req.body.learning_rate || 0.01
-      }
-    }
-
-    const algorithmId = Scheduler.newAlgorithm(algorithmOptions)
-    if (algorithmId === -1) return res.json({msg: 'error creating algorithm'})
-
-    /*
-    modelOptions = {
-      type: model_type,
-    };
-    model_type = {
-      linear_regression: 1,
-      lasso: 2,
-      ada_multi_lasso: 3,
-      gf_lasso: 4,
-      multi_pop_lasso: 5,
-      tree_lasso: 6
-    };
-    */
-    const modelOptions = {
-      type: model.id || 1,
-      options: {
-        lambda: model.lambda || 0.05,
-        L2_lambda: model.L2_lambda || 0.01
-      }
-    }
-    const modelId = Scheduler.newModel(modelOptions)
-    if (modelId === -1) return res.json({msg: 'error creating model'})
-
-    /* TODO:Set X and Y here [Issue: https://github.com/blengerich/GenAMap_V2/issues/18] */
-
-    Scheduler.setX(modelId, [[0, 1], [1, 1]])
-    Scheduler.setY(modelId, [[0], [1]])
-
-    /*
-    jobOptions = {
-      algorithm_id: int,
-      model_id: int,
-    };
-    */
-    const jobId = Scheduler.newJob({algorithm_id: algorithmId, model_id: modelId})
-
-    Scheduler.startJob(jobId, function (results) {
-      console.log('results: ', results)
-    })
-    // console.log(Scheduler.checkJob(jobId));
-    // console.log(Scheduler.cancelJob(jobId));
-    // console.log(Scheduler.deleteAlgorithm(algorithmId));
-    // console.log(Scheduler.deleteModel(modelId));
-  })
   return res.json({status: true})
 })
+
+
+// TODO: implement checkJob [Issue: https://github.com/blengerich/GenAMap_V2/issues/42]
+/**
+* @param {Object} req
+* @param {Number} req.jobId
+app.post(config.api.checkJobUrl, function(req, res) {
+	// console.log(Scheduler.checkJob(jobId));
+})
+*/
+
+// TODO: implement cancelJob [Issue: https://github.com/blengerich/GenAMap_V2/issues/39]
+/**
+* @param {Object} req
+* @param {Number} req.jobId
+app.post(config.api.cancelJobUrl, function(req, res) {
+	// console.log(Scheduler.cancelJob(jobId));
+})
+*/
+
+// TODO: implement deleteAlgorithm [Issue: https://github.com/blengerich/GenAMap_V2/issues/40]
+/** 
+* @param {Object} req
+* @param {Number} req.algorithmId
+app.post(config.api.deleteAlgorithmUrl, function(req, res) {
+	// console.log(Scheduler.deleteAlgorithm(algorithmId));
+})
+*/
+
+// TODO: implment deleteModel [Issue: https://github.com/blengerich/GenAMap_V2/issues/41]
+/**
+* @param {Object} req
+* @param {Number} req.modelId
+app.post(config.api.deleteModelUrl, function(req, res) {
+	// console.log(Scheduler.deleteModel(modelId));
+})
+*/
 
 app.get('/api/projects', function (req, res) {
   app.models.project.find().populate('files').exec(function (err, models) {
