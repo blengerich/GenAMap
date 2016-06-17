@@ -14,6 +14,7 @@
   },
   "author": "Dylan Steele",
   "dependencies": {
+    "async": "^2.0.0-rc.6",
     "body-parser": "^1.15.1",
     "busboy": "^0.2.12",
     "chai": "^3.5.0",

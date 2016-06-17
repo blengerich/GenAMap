@@ -45,16 +45,9 @@ const errorText = 'This is a required field'
 
 const GMRunAnalysisDialog = React.createClass({
   getInitialState: function () {
-    const projects = return fetch(config.api.projectUrl)
-    .then(response => {
-      if (!response.ok) Promise.reject('Could not get projects')
-      return response.json()
-    }).then(projects => {
-      return projects
-    })
     return {
       open: false,
-      projects: projects,
+      projects: [],
       markers: [],
       traits: [],
       algorithms: config.algorithms,
@@ -65,7 +58,10 @@ const GMRunAnalysisDialog = React.createClass({
     }
   },
   componentWillReceiveProps: function (nextProps) {
-    this.setState({open: nextProps.open})
+    this.setState({
+      open: nextProps.open,
+      projects: nextProps.projects
+    })
   },
   validateForm: function () {
     return (!!this.state.projectValue && !!this.state.markerValue &&
@@ -85,24 +81,15 @@ const GMRunAnalysisDialog = React.createClass({
     this.props.onClose()
   },
   onChangeProject: function (event, index, value) {
-    return fetch(`${config.api.projectUrl}/${value}`)
-    .then(response => {
-      if (!response.ok) Promise.reject('Could not get projects')
-      return response.json()
-    }).then(project => {
-      const markers = project.data.filter(function (data) {
-        return (data.filetype === 'markerFile')
-      })
-      const traits = project.data.filter(function (data) {
-        return (data.filetype === 'traitFile')
-      })
-      this.setState({
-        projectValue: value,
-        makers: markers,
-        markerValue: '',
-        traits: traits,
-        traitValue: ''
-      })
+    const project = this.props.projects[index]
+    const markers = project.files.filter(file => file.filetype === 'markerFile')
+    const traits = project.files.filter(file => file.filetype === 'traitFile')
+    this.setState({
+      projectValue: value,
+      markers: markers,
+      markerValue: '',
+      traits: traits,
+      traitValue: ''
     })
   },
   onChangeMarker: function (event, index, value) {

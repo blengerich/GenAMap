@@ -5,7 +5,7 @@ import FontIcon from 'material-ui/lib/font-icon'
 import IconButton from 'material-ui/lib/icon-button'
 import Avatar from 'material-ui/lib/avatar'
 
-import GMRunAnalysisDialog from './GMRunAnalysisDialog'
+import GMRunAnalysisDialogContainer from './GMRunAnalysisDialogContainer'
 import GMActivities from './GMActivities'
 import config from '../../config'
 import fetch from './fetch'
@@ -64,26 +64,6 @@ var GMTopMenu = React.createClass({
   onDialogClose: function () {
     this.setState({dialogOpen: false})
   },
-  runAnalysis: function (runAnalysisRequest) {
-    let request = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: runAnalysisRequest
-    }
-
-    fetch(this.props.runAnalysisUrl, request)
-    .then(response => {
-      if (!response.ok) {
-        console.log('Could not run analysis', response.json())
-      } else {
-        return response.json()
-      }
-    }).then(processedData => {
-      console.log(processedData)
-    })
-  },
   render: function () {
     var logosrc = 'images/' + this.state.logos[this.state.logoIndex]
     return (
@@ -103,7 +83,7 @@ var GMTopMenu = React.createClass({
             <FontIcon color={styles.appBarLink.color} className='material-icons'>menu</FontIcon>
           </IconButton>
         </AppBar>
-        <GMRunAnalysisDialog
+        <GMRunAnalysisDialogContainer
           open={this.state.dialogOpen}
           onClose={this.onDialogClose}
           submit={this.runAnalysis}

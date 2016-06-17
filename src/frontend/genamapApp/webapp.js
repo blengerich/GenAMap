@@ -35,8 +35,8 @@ var orm = new Waterline()
 
 app.engine('.html', require('ejs').renderFile)
 app.use(express.static('static'))
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
 app.use('/api/', expressjwt({ secret: config.secret }))
 
 const waterlineConfig = {
@@ -340,6 +340,7 @@ var getAlgorithmType = function (id) {
  * algorithms (Array)
  */
 app.post(config.api.runAnalysisUrl, function (req, res) {
+  console.log("body", req.body)
   // Logging the fields to make sure they exist
   console.log("req.body.project: ", req.body.project)
   console.log("req.body.marker: ", req.body.marker)
@@ -410,7 +411,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
     };
     */
     const jobId = Scheduler.newJob({algorithm_id: algorithmId, model_id: modelId})
-    console.log('jobId: ', jobId)
+    // console.log('jobId: ', jobId, typeof(jobId))
 
     Scheduler.startJob((results) => {
       console.log('results: ', results)

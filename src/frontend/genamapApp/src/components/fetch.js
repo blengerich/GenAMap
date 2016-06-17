@@ -1,6 +1,6 @@
 import { getToken, verifyToken } from '../middleware/token'
 
-const fetch = (path, init) => {
+const fetch = (path, init = {}) => {
   const token = getToken()
   if (verifyToken(token)) {
     if (!init.headers) {
@@ -13,14 +13,8 @@ const fetch = (path, init) => {
       })
     }
   }
+  
   return window.fetch(path, init)
-  // .then(response => {
-  //   if (response.ok) {
-  //     return response.json()
-  //   } else {
-  //     Promise.reject(response)
-  //   }
-  // }).catch(error => console.log('Error: ', error))
 }
 
 export default fetch
