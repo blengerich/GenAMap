@@ -1,15 +1,28 @@
 import React from 'react'
-
+import D3Chart from './D3Chart'
 import GMMatrixToolbar from './GMMatrixToolbar'
 
 const GMMatrixVisualization = React.createClass({
+  getInitialState() {
+    return {
+      correlationThreshold: 0.0
+    }
+  },
+  onThresholdChange(event, value) {
+    this.setState({
+      correlationThreshold: value
+    });
+  },
   render: function () {
     return (
       <div>
-        <p>Put your HTML here</p>
+        <div className="Matrix">
+          <D3Chart threshold={this.state.correlationThreshold} />
+        </div>
         <GMMatrixToolbar
-          left={this.props.left - this.props.minPad}
-          right={this.props.right - this.props.minPad}
+          left={this.props.minPad}
+          right={this.props.minPad}
+          onThresholdChange={this.onThresholdChange}
         />
       </div>
     )

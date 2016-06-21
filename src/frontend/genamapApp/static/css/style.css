@@ -1,0 +1,92 @@
+.menu h1:before {
+  content: ' ';
+  background-image: url('../images/logo-01.png');
+  display: block;
+}
+
+html, body {
+	overflow-y: hidden;
+}
+
+body {
+	display: flex;
+	min-height: 100vh;
+	flex-direction: column;
+}
+
+main {
+	flex: 1 0 auto;
+}
+
+.zoomButton {
+	list-style-type: none;
+}
+
+/* Change color of cell on hover */
+
+.highlight:hover {
+	fill: #5FB53F !important;
+	opacity: 0.8 !important;
+}
+
+/* Make pointer a hand on matrix pan */
+
+svg:active{
+	cursor: pointer;
+	cursor: hand;
+}
+
+.marquee {
+    fill-opacity: 0.4;
+    stroke: #000;
+    stroke-dasharray:2,4;
+    vector-effect:non-scaling-stroke; /* not for FF */
+}
+
+#map-background {
+	stroke: #111111;
+    stroke-width: 4px;
+    fill-opacity: 0.6;
+    fill: #fff;
+    cursor: move;
+}
+
+.tooltip, .selector {
+  	background: #eee;
+  	box-shadow: 0 0 5px #999999;
+  	color: #333;
+    font-family: Roboto;
+  	font-size: 12px;
+ 	  padding: 10px;
+  	text-align: center;
+  	width: 200px;
+  	z-index: 10;
+}
+
+.btn-flat {
+	width: 50%;
+}
+
+#cancel {
+	color: #e57373;
+}
+
+#add {
+	color: #4db6ac;
+}
+
+#chart {
+  border-bottom: 2px solid black;
+  border-left: 2px solid black;
+}
+
+.buttonContainer {
+  position: absolute;
+  right: 50px;
+}
+
+.minimap {
+	position: absolute;
+  top: 50%;
+	right: 24px;
+}
