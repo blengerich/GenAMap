@@ -12,7 +12,7 @@ To get the genamap CLI:
 * Create an executable genamap file in /usr/local/bin with the contents from doc/Docker/genamap.sh
   $ nano /usr/local/bin/genamap
   [copy and paste code; control-o + enter to write out (save); control-x to exit]
-  $ chmod +x genamap
+  $ chmod +x /usr/local/bin/genamap
 To run the node app (with CLI):
 * Open a terminal window
 * Go to the GenAMap_V2 folder and run genamap commands (to view help for the genamap command run genamap -h)

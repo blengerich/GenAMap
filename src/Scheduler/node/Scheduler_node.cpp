@@ -75,14 +75,16 @@ void setX(const FunctionCallbackInfo<Value>& args) {
 	Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
 
 	const unsigned int rows = ar->Length();
-	const unsigned int cols = Local<v8::Array>::Cast(ar->Get(0))->Length();
+	Local<v8::Array> props = Local<v8::Object>::Cast(ar->Get(0))->GetPropertyNames();
+	const unsigned int cols = props->Length();
 	Eigen::MatrixXd Matrix(rows, cols);
 
 	for (unsigned int i=0; i<rows; i++) {
 		for (unsigned int j=0; j<cols; j++) {
-			Matrix(i,j) = (double)Local<v8::Array>::Cast(ar->Get(i))->Get(j)->NumberValue();
+			Matrix(i,j) = (double)Local<v8::Object>::Cast(ar->Get(i))->Get(props->Get(j))->NumberValue();
 		}
 	}
+
 	bool result = Scheduler::Instance()->setX(model_num, Matrix);
 	Local<Boolean> retval = Boolean::New(isolate, result);
 	args.GetReturnValue().Set(retval);
@@ -91,20 +93,23 @@ void setX(const FunctionCallbackInfo<Value>& args) {
 // Sets the Y matrix of a given model.
 // Arguments: model_num, JSON matrix
 void setY(const FunctionCallbackInfo<Value>& args) {
+	// TODO: failing when Y is multiple columns [Issue: https://github.com/blengerich/GenAMap_V2/issues/38]
 	Isolate* isolate = args.GetIsolate();
 
 	const int model_num = (int)Local<Number>::Cast(args[0])->Value();
 	Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
 
 	const unsigned int rows = ar->Length();
-	const unsigned int cols = Local<v8::Array>::Cast(ar->Get(0))->Length();
+	Local<v8::Array> props = Local<v8::Object>::Cast(ar->Get(0))->GetPropertyNames();
+	const unsigned int cols = props->Length();
 	Eigen::MatrixXd Matrix(rows, cols);
 
 	for (unsigned int i=0; i<rows; i++) {
 		for (unsigned int j=0; j<cols; j++) {
-			Matrix(i,j) = (double)Local<v8::Array>::Cast(ar->Get(i))->Get(j)->NumberValue();
+			Matrix(i,j) = (double)Local<v8::Object>::Cast(ar->Get(i))->Get(props->Get(j))->NumberValue();
 		}
 	}
+
 	bool result = Scheduler::Instance()->setY(model_num, Matrix);
 	args.GetReturnValue().Set(Boolean::New(isolate, result));	
 }

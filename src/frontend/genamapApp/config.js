@@ -26,6 +26,17 @@ const config = {
     name: 'None'
   }, {
     name: 'Fly'
+  }],
+  algorithms: [{
+    id: 1,
+    name: 'algorithm1',
+    image: 'https://goo.gl/CKW3lw',
+    info: 'info about algorithm1'
+  }, {
+    id: 2,
+    name: 'algorithm2',
+    image: 'https://goo.gl/CKW3lw',
+    info: 'info about algorithm2'
   }]
 }
 

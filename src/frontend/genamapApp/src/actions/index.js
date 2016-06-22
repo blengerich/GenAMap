@@ -95,18 +95,21 @@ function runAnalysisReceive (data) {
 }
 
 export function runAnalysis (data) {
-  let request = {
+  let runAnalysisRequestInit = {
     method: 'POST',
-    body: data
-  }
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }  
 
-  console.log('DATA: ', data)
   return (dispatch) => {
     dispatch(runAnalysisRequest(data))
-    return fetch(this.props.runAnalysisUrl, request)
+    return fetch(config.api.runAnalysisUrl, runAnalysisRequestInit)
     .then(response => {
-      if (!response.ok) Promise.reject(response.json())
-      return response.json()
+      if (!response.ok) {
+        Promise.reject(response.json())
+      } else {
+        return response.json()
+      }
     }).then(processedData => {
       dispatch(runAnalysisReceive(processedData))
     }).catch(err => console.log('Error: ', err))

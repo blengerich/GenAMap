@@ -1,4 +1,5 @@
 import { connect } from 'react-redux'
+
 import { deleteFile, importData, renameFile } from '../actions'
 import GMProjectMenu from './GMProjectMenu'
 

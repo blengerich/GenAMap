@@ -5,6 +5,8 @@ import SelectField from 'material-ui/lib/select-field'
 import MenuItem from 'material-ui/lib/menus/menu-item'
 
 import GMAlgorithmCard from './GMAlgorithmCard'
+import fetch from './fetch'
+import config from '../../config'
 
 const styles = {
   fileInput: {
@@ -47,23 +49,31 @@ const GMRunAnalysisDialog = React.createClass({
       open: false,
       projects: [],
       markers: [],
-      algorithms: [],
+      traits: [],
+      algorithms: config.algorithms,
       projectValue: '',
       markerValue: '',
+      traitValue: '',
       algorithmsValue: new Set()
     }
   },
   componentWillReceiveProps: function (nextProps) {
-    this.setState({open: nextProps.open})
+    this.setState({
+      open: nextProps.open,
+      projects: nextProps.projects
+    })
   },
   validateForm: function () {
     return (!!this.state.projectValue && !!this.state.markerValue &&
-            this.state.algorithmsValue.size > 0)
+            !!this.state.traitValue && this.state.algorithmsValue.size > 0)
   },
   handleSubmit: function () {
-    this.props.submit({project: this.state.projectValue,
-                       marker: this.state.markerValue,
-                       algorithms: Array.from(this.state.algorithmsValue)})
+    this.props.submit({
+      project: this.state.projectValue,
+      marker: this.state.markerValue,
+      trait: this.state.traitValue,
+      algorithms: Array.from(this.state.algorithmsValue)
+    })
     this.setState(this.getInitialState())
     this.handleClose()
   },
@@ -71,19 +81,26 @@ const GMRunAnalysisDialog = React.createClass({
     this.props.onClose()
   },
   onChangeProject: function (event, index, value) {
-    // GetRequest(this.props.projectUrl + '/' + value, {}, (project) => {
-    //   const markers = project.data.filter(function (data) {
-    //     return (data.filetype === 'markerFile')
-    //   })
-    //   this.setState({projectValue: value, markers: markers, markerValue: ''})
-    // })
+    const project = this.props.projects[index]
+    const markers = project.files.filter(file => file.filetype === 'markerFile')
+    const traits = project.files.filter(file => file.filetype === 'traitFile')
+    this.setState({
+      projectValue: value,
+      markers: markers,
+      markerValue: '',
+      traits: traits,
+      traitValue: ''
+    })
   },
   onChangeMarker: function (event, index, value) {
     this.setState({markerValue: value})
   },
+  onChangeTrait: function (event, index, value) {
+    this.setState({traitValue: value})
+  },
   onChangeAlgorithm: function (algorithm) {
     var a = this.state.algorithmsValue;
-    (a.has(algorithm)) ? a.delete(algorithm) : a.add(algorithm)
+    (a.has(algorithm.id)) ? a.delete(algorithm.id) : a.add(algorithm.id)
     this.setState({algorithmsValue: a})
   },
   isDisabled: function (algorithmName) {
@@ -107,16 +124,22 @@ const GMRunAnalysisDialog = React.createClass({
     const projectList = this.state.projects.map((project) =>
       <MenuItem key={project.id} value={project.id} primaryText={project.name} />
     )
-    var projectListReact = this.state.projects.map((project) =>
+    const projectListReact = this.state.projects.map((project) =>
       <option key={project.id} value={project.id}>{project.name}</option>
     )
-    var markerList = this.state.markers.map((marker, index) =>
-      <MenuItem key={index} value={marker.name} primaryText={marker.name} />
+    const markerList = this.state.markers.map((marker, index) =>
+      <MenuItem key={index} value={marker.id} primaryText={marker.name} />
     )
-    var markerListReact = this.state.markers.map((marker, index) =>
-      <option key={index} value={marker.name}>{marker.name}</option>
+    const markerListReact = this.state.markers.map((marker, index) =>
+      <option key={index} value={marker.id}>{marker.name}</option>
     )
-    var algorithmList = this.state.algorithms.map(algorithm =>
+    const traitList = this.state.traits.map((trait, index) =>
+      <MenuItem key={index} value={trait.id} primaryText={trait.name} />
+    )
+    const traitListReact = this.state.traits.map((trait, index) =>
+      <option key={index} value={trait.id}>{trait.name}</option>
+    )
+    const algorithmList = this.state.algorithms.map(algorithm =>
       <GMAlgorithmCard
         key={algorithm.id}
         algorithm={algorithm}
@@ -160,6 +183,19 @@ const GMRunAnalysisDialog = React.createClass({
               </SelectField>
               <select id='marker' className='hidden' value={this.state.markerValue} readOnly>
                 {markerListReact}
+              </select>
+            </div>
+            <div>
+              <SelectField
+                value={this.state.traitValue}
+                hintText='Choose Trait'
+                errorText={!this.state.traitValue && errorText}
+                onChange={this.onChangeTrait}
+              >
+                {traitList}
+              </SelectField>
+              <select id='trait' className='hidden' value={this.state.traitValue} readOnly>
+                {traitListReact}
               </select>
             </div>
             <div style={styles.scroll}>
