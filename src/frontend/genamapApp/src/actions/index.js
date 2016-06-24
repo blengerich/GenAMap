@@ -99,7 +99,7 @@ export function runAnalysis (data) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
-  }  
+  }
 
   return (dispatch) => {
     dispatch(runAnalysisRequest(data))
