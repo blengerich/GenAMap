@@ -57,7 +57,7 @@ var Graph = function() {
   var mapWidth = Math.min(maxWidth, matrixWidth);
   var mapHeight = Math.min(maxHeight, matrixHeight);
 
-  var axisPadding = 30;
+  var axisPadding = 50;
 
   var totalWidth = axisPadding + margin.left + mapWidth;
   var totalHeight = mapHeight + margin.bottom + axisPadding;
@@ -142,6 +142,7 @@ var Graph = function() {
                  .attr("class", "axes")
                  .attr("transform", "translate(" + axisPadding + ",0)");
 
+    // gridlines
     axes.append("line")
         .attr("x2", mapWidth + margin.left)
         .attr("y1", mapHeight + margin.bottom)
@@ -162,6 +163,13 @@ var Graph = function() {
          .text(markerLabels[i]);
     }
 
+    axes.append("text")
+        .attr("class", "title")
+        .attr("text-anchor", "middle")
+        .attr("y", mapHeight/2)
+        .attr("transform", "translate(-35,0)rotate(-90,0," + mapHeight/2 + ")")
+        .text("Markers");
+
     // vertical labels
     for (var i = 0; i < numTraits; i++) {
       var col = d3.select(".axes")
@@ -176,6 +184,14 @@ var Graph = function() {
          .attr("y", 8)
          .text(traitLabels[i]);
     }
+
+    axes.append("text")
+        .attr("class", "title")
+        .attr("text-anchor", "middle")
+        .attr("y", mapHeight)
+        .attr("x", mapWidth/2)
+        .attr("transform", "translate(0,50)")
+        .text("Traits");
 
     // opaque bottom-left selector
     axes.append("rect")

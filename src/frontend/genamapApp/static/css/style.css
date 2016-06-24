@@ -94,3 +94,9 @@ svg:active{
   font-size: 10px;
   font-family: sans-serif;
 }
+
+.axes .title {
+  font-size: 18px;
+  font-family: sans-serif;
+  font-weight: bold;
+}
