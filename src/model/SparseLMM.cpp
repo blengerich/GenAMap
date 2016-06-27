@@ -23,10 +23,10 @@ void SparseLMM::rotateXY(double lambda) {
     Id.setIdentity(n, n);
     MatrixXd U_trans = U.transpose(); // n*n
     MatrixXd U_trans_X = U_trans * X; // n*d
-    MatrixXd U_trans_Y = U_trans * Y; // n*1
+    MatrixXd U_trans_Y = U_trans * y; // n*1
     MatrixXd S_lambda = (S + lambda * Id);
-    rX = U_trans_X * S_lambda;
-    rY = U_trans_Y * S_lambda;
+    rX = S_lambda * U_trans_X;
+    rY = S_lambda * U_trans_Y;
 }
 
 MatrixXd SparseLMM::getRotatedX() {

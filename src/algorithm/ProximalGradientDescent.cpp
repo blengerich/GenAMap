@@ -277,5 +277,6 @@ void ProximalGradientDescent::run(SparseLMM *model) {
     lr.setX(model->getRotatedX());
     lr.setY(model->getRoattedY());
     run(&lr);
-    model->updateBeta(lr.getBeta());
+    MatrixXd tmp = lr.getBeta();
+    model->updateBeta(tmp);
 }

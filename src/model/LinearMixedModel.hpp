@@ -33,8 +33,8 @@ class LinearMixedModel : public Model {
 protected:
 
     // Training data
-    MatrixXd X;
-    MatrixXd Y;
+//    MatrixXd X;
+//    MatrixXd Y;
 
     // Dimensions of the data
     long n; // Number of samples
@@ -46,7 +46,7 @@ protected:
     MatrixXd U;
     void decomposition();
 
-    MatrixXd beta; // d*1
+//    MatrixXd beta; // d*1
     MatrixXd mau;  // Coeff matrix of similarity matrix.
     double lambda_optimized; // Value at which log likelihood is max
     double sigma;
