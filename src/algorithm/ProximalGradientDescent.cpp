@@ -120,7 +120,7 @@ void ProximalGradientDescent::run(Gflasso * model) {
         
         beta_prev = beta_curr;
         theta = theta_new;
-        model->update_beta(beta);
+        model->updateBeta(beta);
         residue = model->cost();
         
         diff = abs(prev_residue - residue);
@@ -132,7 +132,7 @@ void ProximalGradientDescent::run(Gflasso * model) {
         cout << " Iter = " << epoch  << " cost " << residue << " diff = " << diff << endl;
     }
     cout<<endl;
-    model->update_beta(best_beta);
+    model->updateBeta(best_beta);
 }
 
 void ProximalGradientDescent::run(LinearRegression *model) {
