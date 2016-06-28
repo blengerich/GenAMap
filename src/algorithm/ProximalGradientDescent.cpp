@@ -91,6 +91,50 @@ void ProximalGradientDescent::run(Model *model) {
     finishRun();
 }
 
+void ProximalGradientDescent::run(Gflasso * model) {
+    
+    int epoch = 0;
+    double residue = model->cost();
+    double theta = 1;
+    double theta_new = 0;
+    MatrixXd beta_prev = model->get_beta(); //bx
+    MatrixXd beta_curr = model->get_beta(); //bx_new
+    MatrixXd beta = model->get_beta();  //bw
+    MatrixXd best_beta = model->get_beta();
+    MatrixXd in;
+    MatrixXd grad;
+    double diff = tolerance*2;
+    prev_residue= 9999999;
+    
+    cout << "PGD maxIter = " << maxIteration << "  tolerance = " << tolerance << endl;
+    
+    while (epoch < maxIteration && diff > tolerance) {
+        epoch++;
+        progress = float(epoch) / maxIteration;
+        theta_new = 2.0/(epoch+3.0);
+        grad = model->gradient();
+        
+        in = beta - 1/model->getL() * grad;
+        beta_curr = in;
+        beta = beta_curr + (1-theta)/theta * theta_new * (beta_curr-beta_prev);
+        
+        beta_prev = beta_curr;
+        theta = theta_new;
+        model->update_beta(beta);
+        residue = model->cost();
+        
+        diff = abs(prev_residue - residue);
+        if (residue < prev_residue){
+            best_beta = beta;
+            prev_residue = residue;
+        }
+        
+        cout << " Iter = " << epoch  << " cost " << residue << " diff = " << diff << endl;
+    }
+    cout<<endl;
+    model->update_beta(best_beta);
+}
+
 void ProximalGradientDescent::run(LinearRegression *model) {
     setUpRun();
     int epoch = 0;
