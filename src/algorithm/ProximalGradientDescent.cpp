@@ -94,18 +94,24 @@ void ProximalGradientDescent::run(Model *model) {
 void ProximalGradientDescent::run(LinearRegression *model) {
     setUpRun();
     int epoch = 0;
-    model->initBeta();
-    double residue = model->cost();
-    VectorXd grad;
-    VectorXd in;
-    while (epoch < maxIteration && residue > tolerance && !shouldStop) {
-        epoch++;
-        progress = float(epoch) / maxIteration;
-        grad = model->proximal_derivative();
-        in = model->getBeta() - learningRate * grad;
-        model->updateBeta(model->proximal_operator(in, learningRate));
-        residue = model->cost();
+    MatrixXd y = model->getY();
+    for (long i=0;i<y.cols();i++){
+        model->setY(y.col(i));
+        model->initBeta();
+        double residue = model->cost();
+        VectorXd grad;
+        VectorXd in;
+        while (epoch < maxIteration && residue > tolerance && !shouldStop) {
+            epoch++;
+            progress = float(epoch) / maxIteration;
+            grad = model->proximal_derivative();
+            in = model->getBeta() - learningRate * grad;
+            model->updateBeta(model->proximal_operator(in, learningRate));
+            residue = model->cost();
+        }
+        model->updateBetaAll(model->getBeta());
     }
+    model->updateBeta(model->getBetaAll());
     finishRun();
 }
 
