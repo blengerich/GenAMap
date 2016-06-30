@@ -23,6 +23,7 @@ class LinearRegression : public virtual Model {
 private:
     float L1_reg;
     float L2_reg;
+    MatrixXd betaAll;
 public:
     void setL1_reg(float);
     void setL2_reg(float);
@@ -38,6 +39,9 @@ public:
 
     LinearRegression();
     LinearRegression(const unordered_map<string, string>& options);
+
+    void updateBetaAll(MatrixXd);
+    MatrixXd getBetaAll();
 };
 
 

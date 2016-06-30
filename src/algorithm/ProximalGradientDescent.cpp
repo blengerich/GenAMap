@@ -3,6 +3,7 @@
 //
 
 #include "ProximalGradientDescent.hpp"
+#include "BrentSearch.hpp"
 
 #include <Eigen/Dense>
 #include <iostream>
@@ -90,21 +91,71 @@ void ProximalGradientDescent::run(Model *model) {
     finishRun();
 }
 
+void ProximalGradientDescent::run(Gflasso * model) {
+    
+    int epoch = 0;
+    double residue = model->cost();
+    double theta = 1;
+    double theta_new = 0;
+    MatrixXd beta_prev = model->get_beta(); //bx
+    MatrixXd beta_curr = model->get_beta(); //bx_new
+    MatrixXd beta = model->get_beta();  //bw
+    MatrixXd best_beta = model->get_beta();
+    MatrixXd in;
+    MatrixXd grad;
+    double diff = tolerance*2;
+    prev_residue= 9999999;
+    
+    cout << "PGD maxIter = " << maxIteration << "  tolerance = " << tolerance << endl;
+    
+    while (epoch < maxIteration && diff > tolerance) {
+        epoch++;
+        progress = float(epoch) / maxIteration;
+        theta_new = 2.0/(epoch+3.0);
+        grad = model->gradient();
+        
+        in = beta - 1/model->getL() * grad;
+        beta_curr = in;
+        beta = beta_curr + (1-theta)/theta * theta_new * (beta_curr-beta_prev);
+        
+        beta_prev = beta_curr;
+        theta = theta_new;
+        model->updateBeta(beta);
+        residue = model->cost();
+        
+        diff = abs(prev_residue - residue);
+        if (residue < prev_residue){
+            best_beta = beta;
+            prev_residue = residue;
+        }
+        
+        cout << " Iter = " << epoch  << " cost " << residue << " diff = " << diff << endl;
+    }
+    cout<<endl;
+    model->updateBeta(best_beta);
+}
+
 void ProximalGradientDescent::run(LinearRegression *model) {
     setUpRun();
     int epoch = 0;
-    model->initBeta();
-    double residue = model->cost();
-    VectorXd grad;
-    VectorXd in;
-    while (epoch < maxIteration && residue > tolerance && !shouldStop) {
-        epoch++;
-        progress = float(epoch) / maxIteration;
-        grad = model->proximal_derivative();
-        in = model->getBeta() - learningRate * grad;
-        model->updateBeta(model->proximal_operator(in, learningRate));
-        residue = model->cost();
+    MatrixXd y = model->getY();
+    for (long i=0;i<y.cols();i++){
+        model->setY(y.col(i));
+        model->initBeta();
+        double residue = model->cost();
+        VectorXd grad;
+        VectorXd in;
+        while (epoch < maxIteration && residue > tolerance && !shouldStop) {
+            epoch++;
+            progress = float(epoch) / maxIteration;
+            grad = model->proximal_derivative();
+            in = model->getBeta() - learningRate * grad;
+            model->updateBeta(model->proximal_operator(in, learningRate));
+            residue = model->cost();
+        }
+        model->updateBetaAll(model->getBeta());
     }
+    model->updateBeta(model->getBetaAll());
     finishRun();
 }
 
@@ -263,4 +314,19 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
 bool ProximalGradientDescent::checkVectorConvergence(VectorXd v1, VectorXd v2, double d) {
     double r = (v1 - v2).squaredNorm();
     return (r < d);
+}
+
+void ProximalGradientDescent::run(SparseLMM *model) {
+    BrentSearch *brentSearch = new BrentSearch();
+    brentSearch->set_delta(0.5);
+    brentSearch->run(model);
+    double delta = model->get_lambda();
+    model->rotateXY(delta);
+    LinearRegression lr = LinearRegression();
+    lr.setL1_reg(model->getL1reg());
+    lr.setX(model->getRotatedX());
+    lr.setY(model->getRoattedY());
+    run(&lr);
+    MatrixXd tmp = lr.getBeta();
+    model->updateBeta(tmp);
 }

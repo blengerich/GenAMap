@@ -87,19 +87,19 @@ void Gflasso::train(){
     std::cout << " Error : No Training Parameters are provided. Cannot perform GFLasso regression !" << std::endl;
 }
 
-void Gflasso::train(MatrixXd X,MatrixXd Y){
-    std::cout << "Training set X and Y is provided !" << std::endl;
+void Gflasso::setXY(MatrixXd X,MatrixXd Y){
+//    std::cout << "Training set X and Y is provided !" << std::endl;
     this->X = X;
     this->Y = Y;
-    int row=0, col=0;
+    long row=0, col=0;
     row = X.cols();
-    col = Y.rows();
+    col = Y.cols();
 
     // Initialize beta to zero values
     this->beta = MatrixXd::Random(row,col);
     this->beta.setZero();
-    std::cout << "Initializing the beta matrix. Dimen : rows " << this->beta.rows() << " col " << this->beta.cols() <<
-            std::endl;
+//    std::cout << "Initializing the beta matrix. Dimen : rows " << this->beta.rows() << " col " << this->beta.cols() <<
+//            std::endl;
 
 }
 
