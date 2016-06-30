@@ -106,7 +106,6 @@ var Graph = function() {
           .attr("y", newTextY)
           .style("font-size", newFontSize);
       });
-      console.log("DONE?");
 
     var overlay = d3.select("#map-background");
 
@@ -241,7 +240,7 @@ var Graph = function() {
       matrix.append("line")
             .attr("x1", 0)
             .attr("y1", cellHeight * i)
-            .attr("x2", mapWidth)
+            .attr("x2", cellWidth * numTraits)
             .attr("y2", cellHeight * i)
             .attr("stroke", "#fff");
     }
@@ -251,7 +250,7 @@ var Graph = function() {
             .attr("x1", cellWidth * i)
             .attr("y1", 0)
             .attr("x2", cellWidth * i)
-            .attr("y2", mapHeight)
+            .attr("y2", cellHeight * numMarkers)
             .attr("stroke", "#fff");
     }
   }

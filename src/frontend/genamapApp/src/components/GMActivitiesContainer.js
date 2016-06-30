@@ -12,11 +12,17 @@ const getCompletedActivities = (activities) => {
   return activities.filter((activity) => activity.status === 'completed')
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, ownProps) => {
   return {
-    runningActivities: getRunningActivities(state.userwData.activities),
+    runningActivities: getRunningActivities(state.userData.activities),
     completedActivities: getCompletedActivities(state.userData.activities),
-    allActivities: state.user.activities
+    allActivities: state.userData.activities,
+    open: ownProps.open,
+    anchorEl: ownProps.anchorEl,
+    onActivityClose: ownProps.onActivityClose,
+    anchorOrigin: ownProps.anchorOrigin,
+    targetOrigin: ownProps.targetOrigin,
+    onRequestClose: ownProps.onRequestClose
   }
 }
 
@@ -39,4 +45,3 @@ const GMActivitiesContainer = connect(
 )(GMActivities)
 
 export default GMActivitiesContainer
-

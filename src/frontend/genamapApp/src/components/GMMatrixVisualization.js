@@ -22,7 +22,7 @@ const GMMatrixVisualization = React.createClass({
         <GMMatrixToolbar
           left={this.props.minPad}
           right={this.props.minPad}
-          onThresholdChange={this.onThresholdChange}
+          slider={{"onThresholdChange": this.onThresholdChange}}
         />
       </div>
     )

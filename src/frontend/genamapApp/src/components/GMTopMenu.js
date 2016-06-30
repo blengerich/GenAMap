@@ -7,6 +7,7 @@ import Avatar from 'material-ui/lib/avatar'
 
 import GMRunAnalysisDialogContainer from './GMRunAnalysisDialogContainer'
 import GMActivities from './GMActivities'
+import GMActivitiesContainer from './GMActivitiesContainer'
 import config from '../../config'
 import fetch from './fetch'
 
@@ -88,7 +89,7 @@ var GMTopMenu = React.createClass({
           onClose={this.onDialogClose}
           submit={this.runAnalysis}
         />
-        <GMActivities
+        <GMActivitiesContainer
           open={this.state.activityOpen}
           anchorEl={this.state.anchorEl}
           onActivityClose={this.onActivityClose}

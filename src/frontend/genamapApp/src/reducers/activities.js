@@ -3,6 +3,13 @@ import { ADD_ACTIVITY, RUN_ANALYSIS, DELETE_PROJECT,
 
 const activity = (state, action) => {
   switch (action.type) {
+    case ADD_ACTIVITY:
+      return {
+        id: action.id,
+        text: action.text,
+        completed: false,
+        status: 'running'
+      }
     case RUN_ANALYSIS:
       return {
         id: action.id,
@@ -18,10 +25,10 @@ const activity = (state, action) => {
 const activities = (state = [], action) => {
   switch (action.type) {
     case CANCEL_ACTIVITY:
-      return state.filter((a) => a.id !== action.activity)
+      return state.filter((a) => a.id !== action.id)
     case PAUSE_ACTIVITY:
       return state.map((a) => {
-        if (a.id === action.activity) {
+        if (a.id === action.id) {
           return Object.assign({}, a, {
             status: 'paused'
           })

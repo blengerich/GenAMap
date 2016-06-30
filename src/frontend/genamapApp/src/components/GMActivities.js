@@ -28,7 +28,7 @@ const GMActivities = React.createClass({
     })
   },
   handleRequestClose: function () {
-    this.props.onActivitiesClose()
+    this.props.onActivityClose()
   },
   handleTabChange: function (tabValue) {
     this.setState({tabValue: tabValue})

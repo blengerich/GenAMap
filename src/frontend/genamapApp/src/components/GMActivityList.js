@@ -41,10 +41,15 @@ const buttonFromText = (text, onFocus) =>
   </IconButton>
 
 const GMActivity = React.createClass({
+  getInitialState: function() {
+    return {
+      completed: 0.0
+    }
+  },
   render: function () {
     const cancelButton = buttonFromText(
       'cancel',
-      () => this.props.actions.onCancelClick(this.props.activity.id)
+      () => this.props.actions.onCancelClick(this.props.activity)
     )
     return (
       <ListItem disabled={true} rightIconButton={cancelButton}>

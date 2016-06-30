@@ -324,6 +324,7 @@ app.post(config.api.importDataUrl, function (req, res) {
       )
     })
   })
+
   req.pipe(busboy)
 })
 
@@ -399,20 +400,14 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
               results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
               console.log('results: ', results)
             })
+            return res.json({ status: true, jobId: jobId })
           })
         });
       });
     });
   })
 
-  return res.json({status: true })
-})
-
-app.post('/visualization/matrix', function (req, res) {
-  console.log("redirect?")
-  res.redirect('/visualization/matrix')
-  res.end()
-  return res
+  //return res.json({ status: true })
 })
 
 
