@@ -22,7 +22,7 @@ function getRandomInt(min, max) {
 }
 
 var Graph = function() {
-    // Grab the file from upload
+  // Grab the file from upload
 	var fileLocation = 'example_data/test_node_small.csv';
 
   // TODO: get from label files
@@ -244,6 +244,7 @@ var Graph = function() {
                 .call(zoom)
                 .append("g")
                   .attr("id", "overallMatrix");
+
   initAxes();
 
   d3.csv(fileLocation,
@@ -391,6 +392,26 @@ var D3Chart = React.createClass({
           d3.select(this).style({ visibility: "visible" });
         }
       });
+    var zoomEnabled = this.props.zoom;
+    var disableZoom = d3.behavior.zoom()
+                        .on("zoom", null);
+    // var reZoom = d3.behavior.zoom()
+    //           .size([mapWidth, mapHeight])
+    //           .scaleExtent([1, 8])
+    //           .on("zoom", zoomed);
+    if (!zoomEnabled) {
+      document.getElementById("overallMatrix").style.cursor = "cell";
+      d3.select("#matrixHolder")
+        .call(disableZoom);
+      document.getElementById("map-background").style.cursor = "default";
+      d3.select(".frame")
+        .call(disableZoom);
+    }
+    else {
+      document.getElementById("overallMatrix").style.cursor = "default";
+      // d3.select("#matrixHolder")
+      //   .call(reZoom);
+    }
   },
 	render: function() {
 		return (
