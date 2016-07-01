@@ -95992,7 +95992,11 @@ var Graph = function Graph() {
       return (d.Trait - 1) * cellWidth;
     }).attr("y", function (d) {
       return (d.Marker - 1) * cellHeight;
-    }).attr("class", "cell").attr("width", cellWidth).attr("height", cellHeight).attr("value", function (d) {
+    }).attr("class", "cell").attr("width", cellWidth).attr("height", cellHeight).attr("trait", function (d) {
+      return d.Trait;
+    }).attr("marker", function (d) {
+      return d.Marker;
+    }).attr("value", function (d) {
       return d.value;
     }).on('mouseover', function (d) {
       var mousePos = d3.event;
@@ -96089,11 +96093,16 @@ var D3Chart = _react2.default.createClass({
     if (!zoomEnabled) {
       document.getElementById("overallMatrix").style.cursor = "cell";
       d3.select("#matrixHolder").call(disableZoom);
+      d3.select("#overallMatrix").selectAll('.cell').on("click", function () {
+        console.log("Marker", this.getAttribute("marker"));
+        console.log("Trait", this.getAttribute("trait"));
+      });
       document.getElementById("map-background").style.cursor = "default";
       d3.select(".frame").call(disableZoom);
     } else {
       document.getElementById("overallMatrix").style.cursor = "default";
       d3.select("#matrixHolder").call(reZoomMap);
+      document.getElementById("map-background").style.cursor = "move";
       d3.select(".frame").call(reZoomMini);
     }
   },
