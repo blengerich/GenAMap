@@ -2,6 +2,13 @@ import React from 'react'
 import FontIcon from 'material-ui/lib/font-icon'
 import FloatingActionButton from 'material-ui/lib/floating-action-button'
 
+var zoomFunction;
+var mapWidth;
+var mapHeight;
+var miniZoomed;
+var overlayWidth;
+var overlayHeight;
+
 function hoverOnCell(d, trait, marker, correlation, mousePos) {
   var labelText = "<h2>Trait: T" + trait + "</h2> <h2>Marker: M" + marker + "</h2> <p> Correlation: " + correlation + "</p>";
   var tooltip = d3.select("#chart")
@@ -54,8 +61,8 @@ var Graph = function() {
 
   var margin = { top: 0, right: rightMargin, bottom: 5, left: 5 };
 
-  var mapWidth = Math.min(maxWidth, matrixWidth);
-  var mapHeight = Math.min(maxHeight, matrixHeight);
+  mapWidth = Math.min(maxWidth, matrixWidth);
+  mapHeight = Math.min(maxHeight, matrixHeight);
 
   var axisPadding = 50;
 
@@ -68,9 +75,9 @@ var Graph = function() {
   var zoom = d3.behavior.zoom()
               .size([mapWidth, mapHeight])
               .scaleExtent([1, 8])
-              .on("zoom", zoomed)
+              .on("zoom", zoomFunction)
 
-  function zoomed() {
+  zoomFunction = function() {
     svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     var zoomAmount = d3.event.scale;
     var translateAmount = d3.event.translate;
@@ -297,7 +304,7 @@ var Graph = function() {
         initGridLines();
 	  });
 
-    function miniZoomed() {
+    miniZoomed = function() {
       var translateAmount = d3.event.translate;
       overlay.attr("transform", "translate(" + translateAmount + ")scale(" + 1/d3.event.scale + ")");
       var matrix = d3.select("#overallMatrix");
@@ -351,8 +358,8 @@ var Graph = function() {
     var overlayWidthPercentage = numCellsHorizontalLanding/numTraits;
     var overlayHeightPercentage = numCellsVerticalLanding/numMarkers;
 
-    var overlayWidth = overlayWidthPercentage*overlayMapWidth;
-    var overlayHeight = overlayHeightPercentage*overlayMapHeight;
+    overlayWidth = overlayWidthPercentage*overlayMapWidth;
+    overlayHeight = overlayHeightPercentage*overlayMapHeight;
 
     var miniZoom = d3.behavior.zoom()
                 .size([overlayWidth, overlayHeight])
@@ -395,10 +402,14 @@ var D3Chart = React.createClass({
     var zoomEnabled = this.props.zoom;
     var disableZoom = d3.behavior.zoom()
                         .on("zoom", null);
-    // var reZoom = d3.behavior.zoom()
-    //           .size([mapWidth, mapHeight])
-    //           .scaleExtent([1, 8])
-    //           .on("zoom", zoomed);
+    var reZoomMap = d3.behavior.zoom()
+                      .size([mapWidth, mapHeight])
+                      .scaleExtent([1, 8])
+                      .on("zoom", zoomFunction);
+    var reZoomMini = d3.behavior.zoom()
+                      .size([overlayWidth, overlayHeight])
+                      .scaleExtent([1, 8])
+                      .on("zoom", miniZoomed)
     if (!zoomEnabled) {
       document.getElementById("overallMatrix").style.cursor = "cell";
       d3.select("#matrixHolder")
@@ -409,8 +420,11 @@ var D3Chart = React.createClass({
     }
     else {
       document.getElementById("overallMatrix").style.cursor = "default";
-      // d3.select("#matrixHolder")
-      //   .call(reZoom);
+      d3.select("#matrixHolder")
+        .call(reZoomMap);
+      document.getElementById("map-background").style.cursor = "move";
+      d3.select(".frame")
+        .call(reZoomMini);
     }
   },
 	render: function() {

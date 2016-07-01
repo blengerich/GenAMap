@@ -95789,6 +95789,13 @@ function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
+var zoomFunction;
+var mapWidth;
+var mapHeight;
+var miniZoomed;
+var overlayWidth;
+var overlayHeight;
+
 function hoverOnCell(d, trait, marker, correlation, mousePos) {
   var labelText = "<h2>Trait: T" + trait + "</h2> <h2>Marker: M" + marker + "</h2> <p> Correlation: " + correlation + "</p>";
   var tooltip = d3.select("#chart").append("div").attr("class", "tooltip").html(labelText).style("position", "absolute").style("left", mousePos.pageX + "px").style("top", mousePos.pageY + "px");
@@ -95833,8 +95840,8 @@ var Graph = function Graph() {
 
   var margin = { top: 0, right: rightMargin, bottom: 5, left: 5 };
 
-  var mapWidth = Math.min(maxWidth, matrixWidth);
-  var mapHeight = Math.min(maxHeight, matrixHeight);
+  mapWidth = Math.min(maxWidth, matrixWidth);
+  mapHeight = Math.min(maxHeight, matrixHeight);
 
   var axisPadding = 50;
 
@@ -95843,9 +95850,9 @@ var Graph = function Graph() {
 
   d3.select('#chart').style({ "width": mapWidth + margin.left + "px" });
 
-  var zoom = d3.behavior.zoom().size([mapWidth, mapHeight]).scaleExtent([1, 8]).on("zoom", zoomed);
+  var zoom = d3.behavior.zoom().size([mapWidth, mapHeight]).scaleExtent([1, 8]).on("zoom", zoomFunction);
 
-  function zoomed() {
+  zoomFunction = function zoomFunction() {
     svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     var zoomAmount = d3.event.scale;
     var translateAmount = d3.event.translate;
@@ -95874,7 +95881,7 @@ var Graph = function Graph() {
     }
 
     overlay.attr("transform", "translate(" + newArray + ")scale(" + newZoom + ")");
-  }
+  };
 
   function reset() {
     svg.call(zoom.event);
@@ -96007,7 +96014,7 @@ var Graph = function Graph() {
     initGridLines();
   });
 
-  function miniZoomed() {
+  miniZoomed = function miniZoomed() {
     var translateAmount = d3.event.translate;
     overlay.attr("transform", "translate(" + translateAmount + ")scale(" + 1 / d3.event.scale + ")");
     var matrix = d3.select("#overallMatrix");
@@ -96017,7 +96024,7 @@ var Graph = function Graph() {
     d3.selectAll(".row").attr("transform", "translate(0," + newArray[1] + ")");
 
     d3.selectAll(".col").attr("transform", "translate(" + newArray[0] + ",0)");
-  }
+  };
 
   var overlayMapWidth = 100;
   var overlayMapHeight = 100;
@@ -96045,8 +96052,8 @@ var Graph = function Graph() {
   var overlayWidthPercentage = numCellsHorizontalLanding / numTraits;
   var overlayHeightPercentage = numCellsVerticalLanding / numMarkers;
 
-  var overlayWidth = overlayWidthPercentage * overlayMapWidth;
-  var overlayHeight = overlayHeightPercentage * overlayMapHeight;
+  overlayWidth = overlayWidthPercentage * overlayMapWidth;
+  overlayHeight = overlayHeightPercentage * overlayMapHeight;
 
   var miniZoom = d3.behavior.zoom().size([overlayWidth, overlayHeight]).scaleExtent([1, 8]).on("zoom", miniZoomed);
 
@@ -96077,10 +96084,8 @@ var D3Chart = _react2.default.createClass({
     });
     var zoomEnabled = this.props.zoom;
     var disableZoom = d3.behavior.zoom().on("zoom", null);
-    // var reZoom = d3.behavior.zoom()
-    //           .size([mapWidth, mapHeight])
-    //           .scaleExtent([1, 8])
-    //           .on("zoom", zoomed);
+    var reZoomMap = d3.behavior.zoom().size([mapWidth, mapHeight]).scaleExtent([1, 8]).on("zoom", zoomFunction);
+    var reZoomMini = d3.behavior.zoom().size([overlayWidth, overlayHeight]).scaleExtent([1, 8]).on("zoom", miniZoomed);
     if (!zoomEnabled) {
       document.getElementById("overallMatrix").style.cursor = "cell";
       d3.select("#matrixHolder").call(disableZoom);
@@ -96088,8 +96093,8 @@ var D3Chart = _react2.default.createClass({
       d3.select(".frame").call(disableZoom);
     } else {
       document.getElementById("overallMatrix").style.cursor = "default";
-      // d3.select("#matrixHolder")
-      //   .call(reZoom);
+      d3.select("#matrixHolder").call(reZoomMap);
+      d3.select(".frame").call(reZoomMini);
     }
   },
 
