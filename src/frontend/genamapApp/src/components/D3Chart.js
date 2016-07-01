@@ -403,6 +403,7 @@ var D3Chart = React.createClass({
 		}
 	},
   componentDidMount: function() {
+    console.log("mounted")
     this.state.points = Graph();
   },
   componentDidUpdate() {

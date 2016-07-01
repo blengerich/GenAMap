@@ -18,8 +18,18 @@ const styles = {
 }
 
 const GMActivities = React.createClass({
+  fetchActivityUpdates: function() {
+    this.props.runningActivities.map((a) => {
+      this.props.activityActions.onFetchUpdateActivity(a.id)
+    })
+
+    setTimeout(this.fetchActivityUpdates, 500)
+  },
   getInitialState: function () {
     return {open: this.props.open, tabValue: 'running'}
+  },
+  componentDidMount: function() {
+    this.fetchActivityUpdates()
   },
   componentWillReceiveProps: function (nextProps) {
     this.setState({

@@ -41,11 +41,6 @@ const buttonFromText = (text, onFocus) =>
   </IconButton>
 
 const GMActivity = React.createClass({
-  getInitialState: function() {
-    return {
-      completed: 0.0
-    }
-  },
   render: function () {
     const cancelButton = buttonFromText(
       'cancel',
@@ -60,7 +55,7 @@ const GMActivity = React.createClass({
           </div>
           <div style={styles.flexItemPrimary}>
             <LinearProgress mode='determinate' value={this.props.activity.progress} />
-            <span style={styles.secondaryText}>{this.state.completed.toFixed(1) + '%'}</span>
+            <span style={styles.secondaryText}>{(this.props.activity.progress*100.0).toFixed(1) + '%'}</span>
           </div>
         </div>
       </ListItem>

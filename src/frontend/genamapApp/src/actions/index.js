@@ -211,15 +211,15 @@ export function requestUpdateActivity (activity) {
   }
 }
 
-export function receiveUpdateActivity (activity, response) {
+export function receiveUpdateActivity (id, response) {
   return {
     type: RECEIVE_UPDATE_ACTIVITY,
-    activity,
+    id,
     response
   }
 }
 
-function fetchUpdateActivity (activity) {
+export function fetchUpdateActivity (activity) {
   return (dispatch) => {
     dispatch(requestUpdateActivity(activity))
     return fetch(`${config.api.getActivityUrl}/${activity}`)

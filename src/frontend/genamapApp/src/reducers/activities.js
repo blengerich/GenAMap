@@ -1,5 +1,6 @@
 import { ADD_ACTIVITY, RUN_ANALYSIS, DELETE_PROJECT,
-         CANCEL_ACTIVITY, PAUSE_ACTIVITY, LOAD_INITIAL_ACTIVITIES } from '../actions'
+         CANCEL_ACTIVITY, PAUSE_ACTIVITY, RECEIVE_UPDATE_ACTIVITY,
+         LOAD_INITIAL_ACTIVITIES } from '../actions'
 
 const activity = (state, action) => {
   switch (action.type) {
@@ -8,14 +9,27 @@ const activity = (state, action) => {
         id: action.id,
         text: action.text,
         completed: false,
+        progress: 0.0,
         status: 'running'
       }
-    case RUN_ANALYSIS:
-      return {
-        id: action.id,
-        text: action.text,
-        completed: false,
-        status: 'running'
+    case RECEIVE_UPDATE_ACTIVITY:
+      if (action.response.progress == -1) {
+        // TODO: read from temp file
+        return {
+          id: action.id,
+          text: action.text,
+          completed: true,
+          progress: 1.0,
+          status: 'completed'
+        }
+      } else {
+        return {
+          id: action.id,
+          text: action.text,
+          completed: false,
+          progress: action.response.progress,
+          status: 'running'
+        }
       }
     default:
       return state
@@ -40,6 +54,10 @@ const activities = (state = [], action) => {
         ...state,
         activity(undefined, action)
       ]
+    case RECEIVE_UPDATE_ACTIVITY:
+      return state.map((a) => {
+        return (a.id == action.id) ? activity(undefined, action) : (a)
+      })
     case RUN_ANALYSIS:
       return state.map((e, i) => e)
     case DELETE_PROJECT:

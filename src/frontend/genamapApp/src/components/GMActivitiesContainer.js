@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { cancelActivity, pauseActivity } from '../actions'
+import { cancelActivity, pauseActivity, fetchUpdateActivity } from '../actions'
 import GMActivities from './GMActivities'
 
 const getRunningActivities = (activities) => {
@@ -34,6 +34,9 @@ const mapDispatchToProps = (dispatch) => {
       },
       onPauseClick: (id) => {
         dispatch(pauseActivity(id))
+      },
+      onFetchUpdateActivity: (id) => {
+        dispatch(fetchUpdateActivity(id))
       }
     }
   }
