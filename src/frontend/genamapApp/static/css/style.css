@@ -67,12 +67,31 @@ svg:active{
 	width: 50%;
 }
 
+.subsetButton {
+  border: 10px;
+  background: none;
+  display: inline-block;
+  cursor: pointer;
+  transform: translate3d(0, 0, 0);
+  transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: 500;
+  border-radius: 2px;
+  position: relative; 
+  line-height: 36px;
+  min-width: 30px;
+  flex: 0 1 auto;
+  width: 40%;
+}
+
 #cancel {
 	color: #e57373;
 }
 
 #add {
 	color: #4db6ac;
+  padding-left: 20px;
 }
 
 .buttonContainer {
@@ -100,3 +119,5 @@ svg:active{
   font-family: sans-serif;
   font-weight: bold;
 }
+
+

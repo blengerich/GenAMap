@@ -96071,11 +96071,19 @@ var D3Chart = _react2.default.createClass({
 
   getInitialState: function getInitialState() {
     return {
-      points: []
+      points: [],
+      subsetCells: [],
+      numClicked: 0
     };
   },
   componentDidMount: function componentDidMount() {
     this.state.points = Graph();
+  },
+  subsetIndicator: function subsetIndicator(trait1, marker1, trait2, marker2) {
+    // Would be easier to have material-ui flatbutton instead of regular buttons
+    // modfied with CSS, but I don't know how to render those in a string
+    var labelText = "<h4> Selected Subset: </h4> " + "<p>" + trait1 + " - " + trait2 + "</p>" + "<p>" + marker1 + " - " + marker2 + "</p>" + "<button class='subsetButton' id='cancel'> Cancel </button>" + "<button class='subsetButton' id='add'> Add </button>";
+    var selector = d3.select("#chart").append("div").attr("class", "selector").html(labelText).style("position", "absolute").style("left", "80px").style("top", "300px");
   },
   componentDidUpdate: function componentDidUpdate() {
     var threshold = this.props.threshold;
@@ -96090,12 +96098,25 @@ var D3Chart = _react2.default.createClass({
     var disableZoom = d3.behavior.zoom().on("zoom", null);
     var reZoomMap = d3.behavior.zoom().size([mapWidth, mapHeight]).scaleExtent([1, 8]).on("zoom", zoomFunction);
     var reZoomMini = d3.behavior.zoom().size([overlayWidth, overlayHeight]).scaleExtent([1, 8]).on("zoom", miniZoomed);
+    var that = this;
     if (!zoomEnabled) {
       document.getElementById("overallMatrix").style.cursor = "cell";
       d3.select("#matrixHolder").call(disableZoom);
       d3.select("#overallMatrix").selectAll('.cell').on("click", function () {
-        console.log("Marker", this.getAttribute("marker"));
-        console.log("Trait", this.getAttribute("trait"));
+        // Allocates a new array so uses more memory, but online said it was safer lol
+        var subsetCells = that.state.subsetCells.slice();
+        // Just adding the name here for display purposes, add the whole cell ('this') if wanted
+        subsetCells.push("Trait " + this.getAttribute("trait"));
+        subsetCells.push("Marker " + this.getAttribute("marker"));
+        that.setState({ subsetCells: subsetCells });
+        that.setState({ numClicked: that.state.numClicked + 1 });
+        if (that.state.numClicked == 2) {
+          console.log("ayy made it!");
+          that.subsetIndicator(that.state.subsetCells[0], that.state.subsetCells[1], that.state.subsetCells[2], that.state.subsetCells[3]);
+          that.setState({ numClicked: 0 });
+          var reset = that.state.subsetCells.slice(0, 0);
+          that.setState({ subsetCells: reset });
+        }
       });
       document.getElementById("map-background").style.cursor = "default";
       d3.select(".frame").call(disableZoom);
@@ -96106,7 +96127,6 @@ var D3Chart = _react2.default.createClass({
       d3.select(".frame").call(reZoomMini);
     }
   },
-
   render: function render() {
     return _react2.default.createElement('div', null, _react2.default.createElement('div', { id: 'chart', style: { "marginTop": "25px" } }, _react2.default.createElement('ul', { className: 'buttonContainer' }, _react2.default.createElement('li', { className: 'zoomButton' }, _react2.default.createElement('a', { id: 'zoom-in', 'data-zoom': '+1' }, _react2.default.createElement(_floatingActionButton2.default, null, _react2.default.createElement(_fontIcon2.default, { className: 'material-icons' }, 'add')))), _react2.default.createElement('li', { className: 'zoomButton' }, _react2.default.createElement('a', { id: 'zoom-out', 'data-zoom': '-1' }, _react2.default.createElement(_floatingActionButton2.default, null, _react2.default.createElement(_fontIcon2.default, { className: 'material-icons' }, 'remove')))), _react2.default.createElement('li', { className: 'zoomButton' }, _react2.default.createElement('a', { id: 'reset', 'data-zoom': '-8' }, _react2.default.createElement(_floatingActionButton2.default, null, _react2.default.createElement(_fontIcon2.default, { className: 'material-icons' }, 'settings_backup_restore')))))));
   }
@@ -97637,7 +97657,9 @@ var _GMMatrixToolbar = require('./GMMatrixToolbar');
 
 var _GMMatrixToolbar2 = _interopRequireDefault(_GMMatrixToolbar);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
 
 var GMMatrixVisualization = _react2.default.createClass({
   displayName: 'GMMatrixVisualization',
@@ -97659,21 +97681,12 @@ var GMMatrixVisualization = _react2.default.createClass({
   },
 
   render: function render() {
-    return _react2.default.createElement(
-      'div',
-      null,
-      _react2.default.createElement(
-        'div',
-        { className: 'Matrix' },
-        _react2.default.createElement(_D3Chart2.default, { threshold: this.state.correlationThreshold, zoom: this.state.zoomEnabled })
-      ),
-      _react2.default.createElement(_GMMatrixToolbar2.default, {
-        left: this.props.minPad,
-        right: this.props.minPad,
-        onThresholdChange: this.onThresholdChange,
-        subsetSelector: this.subsetSelector
-      })
-    );
+    return _react2.default.createElement('div', null, _react2.default.createElement('div', { className: 'Matrix' }, _react2.default.createElement(_D3Chart2.default, { threshold: this.state.correlationThreshold, zoom: this.state.zoomEnabled })), _react2.default.createElement(_GMMatrixToolbar2.default, {
+      left: this.props.minPad,
+      right: this.props.minPad,
+      onThresholdChange: this.onThresholdChange,
+      subsetSelector: this.subsetSelector
+    }));
   }
 });
 
@@ -98882,7 +98895,9 @@ var _actions = require('./actions');
 
 var _token = require('./middleware/token');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
 
 (0, _reactTapEventPlugin2.default)();
 
@@ -98891,21 +98906,7 @@ var store = (0, _configureStore2.default)();
 var token = (0, _token.getToken)();
 (0, _token.verifyToken)(token) ? store.dispatch((0, _actions.setInitialUserState)(token)) : (0, _token.removeToken)();
 
-(0, _reactDom.render)(_react2.default.createElement(
-  _reactRedux.Provider,
-  { store: store },
-  _react2.default.createElement(
-    _reactRouter.Router,
-    { history: _reactRouter.hashHistory },
-    _react2.default.createElement(_reactRouter.Route, { path: '/login', component: (0, _WithDevTools.addDevTools)(_GMLoginContainer2.default) }),
-    _react2.default.createElement(
-      _reactRouter.Route,
-      { path: '/', component: (0, _WithDevTools.addDevTools)((0, _AuthenticatedComponent.requireAuthentication)(_GMAppContainer2.default)) },
-      _react2.default.createElement(_reactRouter.Route, { path: 'data/:id', component: _GMDataList2.default }),
-      _react2.default.createElement(_reactRouter.Route, { path: 'visualization/matrix', component: _GMMatrixVisualization2.default })
-    )
-  )
-), document.getElementById('gm-app'));
+(0, _reactDom.render)(_react2.default.createElement(_reactRedux.Provider, { store: store }, _react2.default.createElement(_reactRouter.Router, { history: _reactRouter.hashHistory }, _react2.default.createElement(_reactRouter.Route, { path: '/login', component: (0, _WithDevTools.addDevTools)(_GMLoginContainer2.default) }), _react2.default.createElement(_reactRouter.Route, { path: '/', component: (0, _WithDevTools.addDevTools)((0, _AuthenticatedComponent.requireAuthentication)(_GMAppContainer2.default)) }, _react2.default.createElement(_reactRouter.Route, { path: 'data/:id', component: _GMDataList2.default }), _react2.default.createElement(_reactRouter.Route, { path: 'visualization/matrix', component: _GMMatrixVisualization2.default })))), document.getElementById('gm-app'));
 
 },{"./actions":922,"./components/AuthenticatedComponent":923,"./components/GMAppContainer":930,"./components/GMDataList":931,"./components/GMLoginContainer":935,"./components/GMMatrixVisualization":937,"./components/WithDevTools":946,"./middleware/token":950,"./store/configureStore":957,"jsonwebtoken":350,"react":859,"react-dom":654,"react-redux":677,"react-router":711,"react-tap-event-plugin":724}],949:[function(require,module,exports){
 'use strict';

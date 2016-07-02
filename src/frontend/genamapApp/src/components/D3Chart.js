@@ -384,13 +384,31 @@ var Graph = function() {
 var D3Chart = React.createClass({
   getInitialState: function() {
 		return {
-			points: []
+			points: [],
+      subsetCells: [],
+      numClicked: 0
 		}
 	},
   componentDidMount: function() {
     this.state.points = Graph();
   },
-  componentDidUpdate() {
+  subsetIndicator: function(trait1, marker1, trait2, marker2) {
+    // Would be easier to have material-ui flatbutton instead of regular buttons
+    // modfied with CSS, but I don't know how to render those in a string
+    var labelText = "<h4> Selected Subset: </h4> " + 
+                    "<p>" + trait1 + " - " + trait2 + "</p>" +
+                    "<p>" + marker1 + " - " + marker2 + "</p>" +
+                    "<button class='subsetButton' id='cancel'> Cancel </button>" +
+                    "<button class='subsetButton' id='add'> Add </button>";
+    var selector = d3.select("#chart")
+                      .append("div")
+                        .attr("class", "selector")
+                        .html(labelText)
+                        .style("position", "absolute")
+                        .style("left", "80px")
+                        .style("top", "300px");
+  },
+  componentDidUpdate: function() {
     var threshold = this.props.threshold;
     d3.select("#overallMatrix")
       .selectAll('.cell')
@@ -412,6 +430,7 @@ var D3Chart = React.createClass({
                       .size([overlayWidth, overlayHeight])
                       .scaleExtent([1, 8])
                       .on("zoom", miniZoomed)
+    var that = this;
     if (!zoomEnabled) {
       document.getElementById("overallMatrix").style.cursor = "cell";
       d3.select("#matrixHolder")
@@ -419,8 +438,21 @@ var D3Chart = React.createClass({
       d3.select("#overallMatrix")
         .selectAll('.cell')
         .on("click", function() {
-          console.log("Marker", this.getAttribute("marker"));
-          console.log("Trait", this.getAttribute("trait"));
+          // Allocates a new array so uses more memory, but online said it was safer lol
+          var subsetCells = that.state.subsetCells.slice();
+          // Just adding the name here for display purposes, add the whole cell ('this') if wanted
+          subsetCells.push("Trait " + this.getAttribute("trait"));
+          subsetCells.push("Marker " + this.getAttribute("marker"));
+          that.setState({subsetCells: subsetCells});
+          that.setState({numClicked: that.state.numClicked + 1});
+          if (that.state.numClicked == 2) {
+            console.log("ayy made it!");
+            that.subsetIndicator(that.state.subsetCells[0], that.state.subsetCells[1], 
+                                  that.state.subsetCells[2], that.state.subsetCells[3]);
+            that.setState({numClicked: 0});
+            var reset = that.state.subsetCells.slice(0, 0);
+            that.setState({subsetCells: reset});
+          }
         });
       document.getElementById("map-background").style.cursor = "default";
       d3.select(".frame")
