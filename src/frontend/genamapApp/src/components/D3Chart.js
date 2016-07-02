@@ -408,6 +408,9 @@ var D3Chart = React.createClass({
                         .style("left", "80px")
                         .style("top", "300px");
   },
+  drawMarquee: function(div) {
+
+  },
   componentDidUpdate: function() {
     var threshold = this.props.threshold;
     d3.select("#overallMatrix")

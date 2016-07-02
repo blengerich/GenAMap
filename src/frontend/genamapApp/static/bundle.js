@@ -96085,6 +96085,7 @@ var D3Chart = _react2.default.createClass({
     var labelText = "<h4> Selected Subset: </h4> " + "<p>" + trait1 + " - " + trait2 + "</p>" + "<p>" + marker1 + " - " + marker2 + "</p>" + "<button class='subsetButton' id='cancel'> Cancel </button>" + "<button class='subsetButton' id='add'> Add </button>";
     var selector = d3.select("#chart").append("div").attr("class", "selector").html(labelText).style("position", "absolute").style("left", "80px").style("top", "300px");
   },
+  drawMarquee: function drawMarquee(div) {},
   componentDidUpdate: function componentDidUpdate() {
     var threshold = this.props.threshold;
     d3.select("#overallMatrix").selectAll('.cell').each(function (d) {
@@ -97657,9 +97658,7 @@ var _GMMatrixToolbar = require('./GMMatrixToolbar');
 
 var _GMMatrixToolbar2 = _interopRequireDefault(_GMMatrixToolbar);
 
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var GMMatrixVisualization = _react2.default.createClass({
   displayName: 'GMMatrixVisualization',
@@ -97681,12 +97680,21 @@ var GMMatrixVisualization = _react2.default.createClass({
   },
 
   render: function render() {
-    return _react2.default.createElement('div', null, _react2.default.createElement('div', { className: 'Matrix' }, _react2.default.createElement(_D3Chart2.default, { threshold: this.state.correlationThreshold, zoom: this.state.zoomEnabled })), _react2.default.createElement(_GMMatrixToolbar2.default, {
-      left: this.props.minPad,
-      right: this.props.minPad,
-      onThresholdChange: this.onThresholdChange,
-      subsetSelector: this.subsetSelector
-    }));
+    return _react2.default.createElement(
+      'div',
+      null,
+      _react2.default.createElement(
+        'div',
+        { className: 'Matrix' },
+        _react2.default.createElement(_D3Chart2.default, { threshold: this.state.correlationThreshold, zoom: this.state.zoomEnabled })
+      ),
+      _react2.default.createElement(_GMMatrixToolbar2.default, {
+        left: this.props.minPad,
+        right: this.props.minPad,
+        onThresholdChange: this.onThresholdChange,
+        subsetSelector: this.subsetSelector
+      })
+    );
   }
 });
 
@@ -98895,9 +98903,7 @@ var _actions = require('./actions');
 
 var _token = require('./middleware/token');
 
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 (0, _reactTapEventPlugin2.default)();
 
@@ -98906,7 +98912,21 @@ var store = (0, _configureStore2.default)();
 var token = (0, _token.getToken)();
 (0, _token.verifyToken)(token) ? store.dispatch((0, _actions.setInitialUserState)(token)) : (0, _token.removeToken)();
 
-(0, _reactDom.render)(_react2.default.createElement(_reactRedux.Provider, { store: store }, _react2.default.createElement(_reactRouter.Router, { history: _reactRouter.hashHistory }, _react2.default.createElement(_reactRouter.Route, { path: '/login', component: (0, _WithDevTools.addDevTools)(_GMLoginContainer2.default) }), _react2.default.createElement(_reactRouter.Route, { path: '/', component: (0, _WithDevTools.addDevTools)((0, _AuthenticatedComponent.requireAuthentication)(_GMAppContainer2.default)) }, _react2.default.createElement(_reactRouter.Route, { path: 'data/:id', component: _GMDataList2.default }), _react2.default.createElement(_reactRouter.Route, { path: 'visualization/matrix', component: _GMMatrixVisualization2.default })))), document.getElementById('gm-app'));
+(0, _reactDom.render)(_react2.default.createElement(
+  _reactRedux.Provider,
+  { store: store },
+  _react2.default.createElement(
+    _reactRouter.Router,
+    { history: _reactRouter.hashHistory },
+    _react2.default.createElement(_reactRouter.Route, { path: '/login', component: (0, _WithDevTools.addDevTools)(_GMLoginContainer2.default) }),
+    _react2.default.createElement(
+      _reactRouter.Route,
+      { path: '/', component: (0, _WithDevTools.addDevTools)((0, _AuthenticatedComponent.requireAuthentication)(_GMAppContainer2.default)) },
+      _react2.default.createElement(_reactRouter.Route, { path: 'data/:id', component: _GMDataList2.default }),
+      _react2.default.createElement(_reactRouter.Route, { path: 'visualization/matrix', component: _GMMatrixVisualization2.default })
+    )
+  )
+), document.getElementById('gm-app'));
 
 },{"./actions":922,"./components/AuthenticatedComponent":923,"./components/GMAppContainer":930,"./components/GMDataList":931,"./components/GMLoginContainer":935,"./components/GMMatrixVisualization":937,"./components/WithDevTools":946,"./middleware/token":950,"./store/configureStore":957,"jsonwebtoken":350,"react":859,"react-dom":654,"react-redux":677,"react-router":711,"react-tap-event-plugin":724}],949:[function(require,module,exports){
 'use strict';

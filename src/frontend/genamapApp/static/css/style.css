@@ -37,34 +37,27 @@ svg:active{
 }
 
 .marquee {
-    fill-opacity: 0.4;
-    stroke: #000;
-    stroke-dasharray:2,4;
-    vector-effect:non-scaling-stroke; /* not for FF */
+
 }
 
 #map-background {
 	stroke: #111111;
-    stroke-width: 4px;
-    fill-opacity: 0.6;
-    fill: #fff;
-    cursor: move;
+  stroke-width: 4px;
+  fill-opacity: 0.6;
+  fill: #fff;
+  cursor: move;
 }
 
 .tooltip, .selector {
-  	background: #eee;
-  	box-shadow: 0 0 5px #999999;
-  	color: #333;
-    font-family: Roboto;
-  	font-size: 12px;
- 	  padding: 10px;
-  	text-align: center;
-  	width: 200px;
-  	z-index: 10;
-}
-
-.btn-flat {
-	width: 50%;
+	background: #eee;
+	box-shadow: 0 0 5px #999999;
+	color: #333;
+  font-family: Roboto;
+	font-size: 12px;
+	padding: 10px;
+	text-align: center;
+	width: 200px;
+	z-index: 10;
 }
 
 .subsetButton {
