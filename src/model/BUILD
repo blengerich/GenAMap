@@ -9,8 +9,6 @@ cc_library(
 			"//model:Model",]
 )
 
-
-
 cc_library(
 	name = "GFlasso",
 	srcs = ["GFlasso.cpp"],
@@ -91,6 +89,15 @@ cc_test(
     		"TreeLasso",
     		"//Math:Math"],
 	size = "small"
+)
+
+cc_library(
+    name = "SparseLMM",
+    srcs = ["SparseLMM.cpp"],
+    hdrs = ["SparseLMM.h"],
+    copts = ["-DBAZEL"],
+    deps = ["//model:LinearMixedModel",
+            "//model:Model"],
 )
 
 cc_library(

@@ -21,6 +21,7 @@ cc_library(
 	hdrs = ["BrentSearch.hpp"],
 	deps = ["//algorithm:Algorithm",
 			"//algorithm:AlgorithmOptions",
+			"//algorithm:GridSearch",
 			"//model:LinearMixedModel"],
 	copts = ["-DBAZEL"]
 )
@@ -39,11 +40,14 @@ cc_library(
 	hdrs = ["ProximalGradientDescent.hpp"],
 	deps = ["//algorithm:Algorithm",
 		"//algorithm:AlgorithmOptions",
+		"//algorithm:BrentSearch",
 		"//model:AdaMultiLasso",
 		"//model:GFlasso",
+		"//model:LinearMixedModel",
 		"//model:LinearRegression",
 		"//model:TreeLasso",
 		"//model:MultiPopLasso",
+		"//model:SparseLMM",
 		"//Math:Math"],
 	copts = ["-DBAZEL"]
 )
