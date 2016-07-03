@@ -149,13 +149,13 @@ void ProximalGradientDescent::run(LinearRegression *model) {
             epoch++;
             progress = float(epoch) / maxIteration;
             grad = model->proximal_derivative();
-            in = model->getBeta() - learningRate * grad;
-            model->updateBeta(model->proximal_operator(in, learningRate));
+            in = model->getBeta_single() - learningRate * grad;
+            model->updateBeta_single(model->proximal_operator(in, learningRate));
             residue = model->cost();
         }
-        model->updateBetaAll(model->getBeta());
+        model->updateBeta(model->getBeta());
     }
-    model->updateBeta(model->getBetaAll());
+    model->updateBeta(model->getBeta());
     finishRun();
 }
 
