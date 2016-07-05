@@ -52,12 +52,15 @@ void checkJob(const v8::FunctionCallbackInfo<v8::Value>&args);
 // Arguments: int job_id
 // Returns -1 on error.
 
-//void cancelJob(const int job_num);
+void getJobResult(const v8::FunctionCallbackInfo<v8::Value>&args);
+// Returns a Matrix of results for the given jobNum
+// Arguments: int job_id
+// Returns empty matrix on error.
+
 void cancelJob(const v8::FunctionCallbackInfo<v8::Value>& args);
 // cancels the algorithm associated with the given jobNum
 // Arguments: int job_id
 // Returns True for success, false on failure.
-
 
 void deleteAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args);
 // Arguments: int alg_id
@@ -91,6 +94,7 @@ void Init(Handle<Object> exports, Handle<Object> module) {
 	NODE_SET_METHOD(exports, "startJob", startJob);
 	NODE_SET_METHOD(exports, "checkJob", checkJob);
 	NODE_SET_METHOD(exports, "cancelJob", cancelJob);
+	NODE_SET_METHOD(exports, "getJobResult", getJobResult);
 	NODE_SET_METHOD(exports, "deleteAlgorithm", deleteAlgorithm);
 	NODE_SET_METHOD(exports, "deleteModel", deleteModel);
 	NODE_SET_METHOD(exports, "deleteJob", deleteJob);

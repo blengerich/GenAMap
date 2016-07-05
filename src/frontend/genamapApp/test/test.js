@@ -1,4 +1,5 @@
 var assert = require('chai').assert;
+var expect = require('chai').expect;
 var backend = require('../../../Scheduler/node/build/Release/scheduler.node');
 
 describe('Scheduler', function() {
@@ -111,12 +112,6 @@ describe('Scheduler', function() {
 		var alg_id = backend.newAlgorithm({'type': '1',
 			'options': {'tolerance': '0.01', 'learning_rate': '0.1'}});
 		var job_id = backend.newJob({'model_id': model_id, 'algorithm_id': alg_id, 'model_type':1, 'algorithm_type':3});
-		
-
-		/*it('return true for good job start', function () {
-			assert.equal(true, 
-				backend.startJob(job_id, function(results) {console.log(results)} ));
-		});*/
 
 		it('return true for good job start', function() {
 			assert.equal(true, backend.setX(model_id, [[0, 1], [1, 1]]));
@@ -124,10 +119,28 @@ describe('Scheduler', function() {
 			assert.equal(true, 
 				backend.startJob(job_id, function(results) {console.log(results)} ));
 		});
-		//it('return false for bad options', function () {
-		//	assert.equal(false, 
-		//		backend.startJob(job_id+1, function() {/*empty callback*/} ));
+
+		//it('throw error for bad options', function () {
+		//	expect(backend.startJob.bind(backend, job_id+10, function() {/*empty callback*/} )).to.throw(
+		//			new TypeError('Job id must correspond to a job that has been created.'));
 		//});
+	});
+
+
+	describe('getJobResult', function() {
+		var model_id = backend.newModel({'type': '1',
+			'options': {'lambda': '0.05', 'L2_lambda': '0.01'}});
+		var alg_id = backend.newAlgorithm({'type': '1',
+			'options': {'tolerance': '0.01', 'learning_rate': '0.1'}});
+		var job_id = backend.newJob({'model_id': model_id, 'algorithm_id': alg_id, 'model_type':1, 'algorithm_type':3});
+		
+		it('return filled results matrix for good job run', function() {
+			assert.equal(true, backend.setX(model_id, [[0, 1], [1, 1]]));
+			assert.equal(true, backend.setY(model_id, [[0], [1]]));
+			assert.equal(true, 
+				backend.startJob(job_id, function(results) {
+					assert.equal(backend.getJobResult(job_id), results);} ));
+		});
 	});
 
 });
