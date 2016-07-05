@@ -13,21 +13,21 @@ const activity = (state, action) => {
         status: 'running'
       }
     case RECEIVE_UPDATE_ACTIVITY:
-      if (action.response.progress == -1) {
-        // TODO: read from temp file
+      if (action.progress == 1) {
         return {
           id: action.id,
           text: action.text,
           completed: true,
           progress: 1.0,
-          status: 'completed'
+          status: 'completed',
+          results: action.results
         }
       } else {
         return {
           id: action.id,
           text: action.text,
           completed: false,
-          progress: action.response.progress,
+          progress: action.progress,
           status: 'running'
         }
       }

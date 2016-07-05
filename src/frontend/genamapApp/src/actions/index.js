@@ -215,7 +215,8 @@ export function receiveUpdateActivity (id, response) {
   return {
     type: RECEIVE_UPDATE_ACTIVITY,
     id,
-    response
+    progress: response.progress,
+    results: response.results
   }
 }
 

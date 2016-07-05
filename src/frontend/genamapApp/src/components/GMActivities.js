@@ -20,10 +20,11 @@ const styles = {
 const GMActivities = React.createClass({
   fetchActivityUpdates: function() {
     this.props.runningActivities.map((a) => {
+      console.log("Fetching", a.id)
       this.props.activityActions.onFetchUpdateActivity(a.id)
     })
 
-    setTimeout(this.fetchActivityUpdates, 500)
+    setTimeout(this.fetchActivityUpdates, 1000)
   },
   getInitialState: function () {
     return {open: this.props.open, tabValue: 'running'}
