@@ -386,7 +386,9 @@ var D3Chart = React.createClass({
 		return {
 			points: [],
       subsetCells: [],
-      numClicked: 0
+      numClicked: 0,
+      element: null,
+      mouse: {x: 0, y: 0, startX: 0, startY: 0}
 		}
 	},
   componentDidMount: function() {
@@ -410,6 +412,55 @@ var D3Chart = React.createClass({
   },
   drawMarquee: function(div) {
 
+    var that = this;
+
+    function setMousePosition(event) {
+      var ev = event || window.event; // Firefox || IE
+      if (ev.pageX) { // Firefox
+          // that.state.mouse.x = ev.pageX + window.pageXOffset - 10;
+          // that.state.mouse.y = ev.pageY + window.pageYOffset - 10;
+          var mousePosition = that.state.mouse;
+          mousePosition.x = ev.pageX + window.pageXOffset - 10;
+          mousePosition.y = ev.pageY + window.pageYOffset - 10;
+          that.setState({mouse: mousePosition});
+      } else if (ev.clientX) { // IE
+          // that.state.mouse.x = ev.clientX + document.body.scrollLeft - 10;
+          // that.state.mouse.y = ev.clientY + document.body.scrollTop - 10;
+          var mousePosition = that.state.mouse;
+          mousePosition.x = ev.clientX + document.body.scrollLeft - 10;
+          mousePosition.y = ev.clientY + document.body.scrollTop - 10;
+          that.setState({mouse: mousePosition});
+      }
+    };
+
+    div.onmousemove = function (event) {
+      setMousePosition(event);
+      if (that.state.element !== null) {          
+          that.state.element.style.width = Math.abs(that.state.mouse.x - that.state.mouse.startX) + 'px';
+          that.state.element.style.height = Math.abs(that.state.mouse.y - that.state.mouse.startY) + 'px';
+          that.state.element.style.left = (that.state.mouse.x - that.state.mouse.startX < 0) ? that.state.mouse.x + 'px' : that.state.mouse.startX + 'px';
+          that.state.element.style.top = (that.state.mouse.y - that.state.mouse.startY < 0) ? that.state.mouse.y + 'px' : that.state.mouse.startY + 'px';
+      }
+    }
+
+    div.onclick = function(event) {
+      if (that.state.element !== null) {
+          that.setState({element : null});
+          console.log("Finished drawing!");
+      } 
+      else {
+        console.log("Started drawing!");
+        that.state.mouse.startX = that.state.mouse.x;
+        that.state.mouse.startY = that.state.mouse.y;
+        console.log("a", that.state.element);
+        that.setState({element : document.createElement('div')});
+        that.state.element.className = 'marquee'
+        that.state.element.style.left = that.state.mouse.x + 'px';
+        console.log("b", that.state.element);
+        that.state.element.style.top = that.state.mouse.y + 'px';
+        document.getElementById('chart').appendChild(that.state.element);
+      }
+    }
   },
   componentDidUpdate: function() {
     var threshold = this.props.threshold;
@@ -435,6 +486,7 @@ var D3Chart = React.createClass({
                       .on("zoom", miniZoomed)
     var that = this;
     if (!zoomEnabled) {
+      that.drawMarquee(document.getElementById("overallMatrix"));
       document.getElementById("overallMatrix").style.cursor = "cell";
       d3.select("#matrixHolder")
         .call(disableZoom);
@@ -449,7 +501,6 @@ var D3Chart = React.createClass({
           that.setState({subsetCells: subsetCells});
           that.setState({numClicked: that.state.numClicked + 1});
           if (that.state.numClicked == 2) {
-            console.log("ayy made it!");
             that.subsetIndicator(that.state.subsetCells[0], that.state.subsetCells[1], 
                                   that.state.subsetCells[2], that.state.subsetCells[3]);
             that.setState({numClicked: 0});
