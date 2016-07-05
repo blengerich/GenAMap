@@ -72,7 +72,7 @@ public:
 	Algorithm* getAlgorithm(const int);
 	Job_t* getJob(const int);
 
-	MatrixXd getResult(const int);
+	MatrixXd getJobResult(const int);
 
 	static Scheduler* Instance();
 	// This class follows the singleton pattern.

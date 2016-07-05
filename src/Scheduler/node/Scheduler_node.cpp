@@ -146,15 +146,21 @@ void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 		return;
 	}
 
-	if (!args[0]->IsNumber()) {
+	if (!(args[0]->IsNumber())) {
 		isolate->ThrowException(Exception::TypeError(
 			String::NewFromUtf8(isolate, "Job id must be a number.")));
-		return;
 		args.GetReturnValue().Set(Boolean::New(isolate, false));
+		return;
 	}
 
 	const int job_id = (int)Local<Number>::Cast(args[0])->Value();
 	Job_t* job = Scheduler::Instance()->getJob(job_id);
+	if (!job) {
+		isolate->ThrowException(Exception::TypeError(
+			String::NewFromUtf8(isolate, "Job id must correspond to a job that has been created.")));
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
+		return;
+	}
 	job->callback.Reset(isolate, Local<Function>::Cast(args[1]));
 	job->job_id = job_id;
 
@@ -179,6 +185,29 @@ void checkJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	const double progress = Scheduler::Instance()->checkJobProgress(job_id);
 	Local<Number> retval = Number::New(isolate, progress);
 	args.GetReturnValue().Set(retval);
+}
+
+// Gets the results of a job, given the job's id.
+// Synchronous.
+// Arguments: int job_id
+// Returns: MatrixXd of results, empty on error.
+void getJobResult(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	Isolate* isolate = args.GetIsolate();
+
+	// Check argument types.
+	if (args.Length() < 1) {
+		isolate->ThrowException(Exception::TypeError(
+			String::NewFromUtf8(isolate, "Must supply a job id to check.")));
+		return;
+	}
+
+	int job_id = (int)Local<Number>::Cast(args[0])->Value();
+	const MatrixXd& result = Scheduler::Instance()->getJobResult(job_id);
+	Local<v8::Array> obj = v8::Array::New(isolate);
+	// TODO: Fewer convserions to return a matrix [Issue: https://github.com/blengerich/GenAMap_V2/issues/17]
+	obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
+	//Handle<Value> argv[] = { obj };
+	args.GetReturnValue().Set(obj);
 }
 
 
@@ -260,6 +289,6 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 	Local<Function>::New(isolate, job->callback)->Call(
 		isolate->GetCurrentContext()->Global(), 1, argv);
 	job->callback.Reset();
-	Scheduler::Instance()->deleteJob(job->job_id);
+	//Scheduler::Instance()->deleteJob(job->job_id);
 }
 
