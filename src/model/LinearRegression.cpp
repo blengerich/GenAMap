@@ -20,12 +20,14 @@ using namespace std;
 LinearRegression::LinearRegression() {
     L1_reg = 0;
     L2_reg = 0;
+    betaAll = MatrixXd::Ones(1,1);
 };
 
 
 LinearRegression::LinearRegression(const unordered_map<string, string>& options) {
     L1_reg = stof(options.at("lambda"));
     L2_reg = stof(options.at("L2_lambda"));
+    betaAll = MatrixXd::Ones(1,1);
 };
 
 
@@ -66,4 +68,18 @@ MatrixXd LinearRegression::proximal_operator(VectorXd in, float lr) {
         in = in.array()*sign.array()/(1+2*lr*L2_reg);
         return in.matrix();
     }
+}
+
+void LinearRegression::updateBetaAll(MatrixXd b) {
+    if (betaAll.rows() == 1){
+        betaAll = b;
+    }
+    else{
+        betaAll.conservativeResize(betaAll.rows(),betaAll.cols()+1);
+        betaAll.col(betaAll.cols()-1) = b;
+    }
+}
+
+MatrixXd LinearRegression::getBetaAll() {
+    return betaAll;
 }

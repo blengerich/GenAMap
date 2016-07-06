@@ -206,7 +206,7 @@ bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) 
 }
 
 
-// Runs in libuv thread spawned by trainAlgorithmAsync
+// Runs in libuv thread spawned by startJob
 void trainAlgorithmThread(uv_work_t* req) {
 	Job_t* job = static_cast<Job_t*>(req->data);
 	if (!job) {
@@ -216,7 +216,7 @@ void trainAlgorithmThread(uv_work_t* req) {
 		cerr << "Job must have an algorithm and a model" << endl;
 		return;
 	}
-	
+
 	// TODO: as more algorithm/model types are created, add them here. [Issue: https://github.com/blengerich/GenAMap_V2/issues/25]
 	if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
 	    if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
@@ -227,7 +227,9 @@ void trainAlgorithmThread(uv_work_t* req) {
 	        alg->run(dynamic_cast<Lasso*>(job->model)); 
 	    }*/ /*else if (dynamic_cast<Gflasso*>(job->model)) {
 	        alg->run(dynamic_cast<Gflasso*>(job->model));
-	    }*/ 
+	    }*/ else {
+	        cerr << "Requested model type not implemented" << endl;
+	    }
 	} else if (IterativeUpdate* alg = dynamic_cast<IterativeUpdate*>(job->algorithm)) {
 		if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 			alg->run(model);	
@@ -237,7 +239,11 @@ void trainAlgorithmThread(uv_work_t* req) {
 			alg->run(dynamic_cast<AdaMultiLasso*>(job->model));
 		}*/ /*else if (dynamic_cast<Gflasso*>(job->model)) {
 			alg->run(dynamic_cast<Gflasso*>(job->model));
-		}*/
+		}*/ else {
+			cerr << "Requested model type not implemented" << endl;
+		}
+	} else {
+		cerr << "Requested algorithm type not implemented" << endl;
 	}
 }
 
@@ -255,7 +261,7 @@ bool Scheduler::cancelJob(const int job_id) {
 		getJob(job_id)->algorithm->stop();	// TODO: switch to sending shutdown signal? [Issue: https://github.com/blengerich/GenAMap_V2/issues/21]
 		while(getJob(job_id)->algorithm->getIsRunning()) {
 			// TODO: stopping should be async with callback? [Issue: https://github.com/blengerich/GenAMap_V2/issues/26]
-			usleep(1000);
+			usleep(100);
 		}
 		return true;
 	}
@@ -289,7 +295,7 @@ bool Scheduler::deleteModel(const int model_id) {
 
 bool Scheduler::deleteJob(const int job_id) {
 	// TODO: check that user owns this job [Issue: https://github.com/blengerich/GenAMap_V2/issues/23]
-	if (cancelJob(job_id)) {
+	if (ValidJobId(job_id) && cancelJob(job_id)) {
 		jobs_map[job_id].reset();
 		jobs_map.erase(job_id);
 		return true;
@@ -313,7 +319,7 @@ Job_t* Scheduler::getJob(const int job_id) {
 }
 
 
-MatrixXd Scheduler::getResult(const int job_id) {
+MatrixXd Scheduler::getJobResult(const int job_id) {
 	return ValidJobId(job_id) ? getJob(job_id)->model->getBeta() : MatrixXd();
 }
 

@@ -55,7 +55,7 @@ public :
     // Methods to set and get various input variables of GFLASSO
     void train();
     // Only X and Y are given
-    void train(MatrixXd,MatrixXd);
+    void setXY(MatrixXd,MatrixXd);
     // Training data provided along with Correlation coff Matrix
     void train(MatrixXd,MatrixXd,MatrixXd);
     // Everything is provided i.e. Training data,traits corr. and regularization params

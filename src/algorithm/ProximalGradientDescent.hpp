@@ -14,6 +14,7 @@
 #include "model/TreeLasso.hpp"
 #include "model/MultiPopLasso.hpp"
 #include "model/GFlasso.h"
+#include "model/SparseLMM.h"
 #else
 #include "Algorithm.hpp"
 #include "AlgorithmOptions.hpp"
@@ -22,6 +23,7 @@
 #include "../model/MultiPopLasso.hpp"
 #include "../model/AdaMultiLasso.hpp"
 #include "../model/GFlasso.h"
+#include "../model/SparseLMM.h"
 #endif
 
 
@@ -58,6 +60,7 @@ public:
     void run(MultiPopLasso*);
     void run(AdaMultiLasso*);
     void run(Gflasso*);
+    void run(SparseLMM*);
 
     /*void stop();*/
 };
