@@ -417,15 +417,11 @@ var D3Chart = React.createClass({
     function setMousePosition(event) {
       var ev = event || window.event; // Firefox || IE
       if (ev.pageX) { // Firefox
-          // that.state.mouse.x = ev.pageX + window.pageXOffset - 10;
-          // that.state.mouse.y = ev.pageY + window.pageYOffset - 10;
           var mousePosition = that.state.mouse;
           mousePosition.x = ev.pageX + window.pageXOffset - 10;
           mousePosition.y = ev.pageY + window.pageYOffset - 10;
           that.setState({mouse: mousePosition});
       } else if (ev.clientX) { // IE
-          // that.state.mouse.x = ev.clientX + document.body.scrollLeft - 10;
-          // that.state.mouse.y = ev.clientY + document.body.scrollTop - 10;
           var mousePosition = that.state.mouse;
           mousePosition.x = ev.clientX + document.body.scrollLeft - 10;
           mousePosition.y = ev.clientY + document.body.scrollTop - 10;
@@ -446,17 +442,13 @@ var D3Chart = React.createClass({
     div.onclick = function(event) {
       if (that.state.element !== null) {
           that.setState({element : null});
-          console.log("Finished drawing!");
       } 
       else {
-        console.log("Started drawing!");
         that.state.mouse.startX = that.state.mouse.x;
         that.state.mouse.startY = that.state.mouse.y;
-        console.log("a", that.state.element);
         that.setState({element : document.createElement('div')});
         that.state.element.className = 'marquee'
         that.state.element.style.left = that.state.mouse.x + 'px';
-        console.log("b", that.state.element);
         that.state.element.style.top = that.state.mouse.y + 'px';
         document.getElementById('chart').appendChild(that.state.element);
       }
