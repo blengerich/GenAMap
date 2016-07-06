@@ -373,9 +373,8 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                 learning_rate: req.body.learning_rate || 0.01
               }
             }
-            const algorithmId = Scheduler.newAlgorithm(algorithmOptions)
-            if (algorithmId === -1) return res.json({msg: 'error creating algorithm'})
 
+          
             // Model
             const modelOptions = {
               type: model.id || 1,
@@ -384,13 +383,12 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                 L2_lambda: model.L2_lambda || 0.01
               }
             }
-            const modelId = Scheduler.newModel(modelOptions)
-            if (modelId === -1) return res.json({msg: 'error creating model'})
-            Scheduler.setX(modelId, markerData)
-            Scheduler.setY(modelId, traitData)
-
+            
             // Job
-            const jobId = Scheduler.newJob({algorithm_id: algorithmId, model_id: modelId})
+            const jobId = Scheduler.newJob({algorithm_options: algorithmOptions, model_options: modelOptions})
+            if (jobId === -1) return res.json({msg: 'error creating job'})
+            Scheduler.setX(jobId, markerData)
+            Scheduler.setY(jobId, traitData)
             Scheduler.startJob(jobId, function (results) {
               console.log('results: ', results)
             })
