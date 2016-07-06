@@ -1,6 +1,6 @@
 # GenAMap Version 2
 
-[![Build Status](http://ec2-54-152-243-180.compute-1.amazonaws.com:8080/buildStatus/icon?job=GenAMap)](http://ec2-54-152-243-180.compute-1.amazonaws.com:8080/job/GenAMap/) <-- (Must be logged in to view)
+[![Build Status](http://ec2-54-152-243-180.compute-1.amazonaws.com:8080/buildStatus/icon?job=GenAMap_Master)](http://ec2-54-152-243-180.compute-1.amazonaws.com:8080/job/GenAMap_Master/) <-- (Must be logged in to view)
 
 ## Documentation:
 See [docs](https://github.com/blengerich/GenAMap_V2/tree/master/Documentation).
