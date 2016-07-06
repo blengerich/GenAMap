@@ -13,6 +13,7 @@
 #include <unordered_map>
 
 #include "Scheduler/Scheduler.hpp"
+#include "Scheduler/Job.hpp"
 #include "algorithm/AlgorithmOptions.hpp"
 #include "model/ModelOptions.hpp"
 
@@ -115,22 +116,22 @@ TEST_F(SchedulerTest, newModel) {
 
 
 TEST_F(SchedulerTest, SetX) {
-	int model_num = my_scheduler->newModel(model_opts);
+	int job_id = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
 	Eigen::MatrixXd m(2,3);
 	m << 1, 2,
 		 3, 4,
 		 5, 6;
-	EXPECT_EQ(true, my_scheduler->setX(model_num, m));
+	EXPECT_EQ(true, my_scheduler->setX(job_id, m));
 }
 
 
 TEST_F(SchedulerTest, SetY) {
-	int model_num = my_scheduler->newModel(model_opts);
+	int job_id = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
 	Eigen::MatrixXd m(2,3);
 	m << 1, 2,
 		 3, 4,
 		 5, 6;
-	EXPECT_EQ(true, my_scheduler->setY(model_num, m));
+	EXPECT_EQ(true, my_scheduler->setY(job_id, m));
 }
 
 
@@ -147,10 +148,9 @@ TEST_F(SchedulerTest, getNewJobId) {
 
 
 TEST_F(SchedulerTest, newJob) {
-	int alg_num = my_scheduler->newAlgorithm(alg_opts);
-	int model_num = my_scheduler->newModel(model_opts);
-	JobOptions_t job_opts = JobOptions_t(alg_num, model_num);
-	int job_num1 = my_scheduler->newJob(job_opts);
+	/*int alg_num = my_scheduler->newAlgorithm(alg_opts);
+	int model_num = my_scheduler->newModel(model_opts);*/
+	int job_num1 = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
 	ASSERT_GE(job_num1, 0);
 }
 
@@ -158,9 +158,8 @@ TEST_F(SchedulerTest, newJob) {
 TEST_F(SchedulerTest, ValidAlgorithmId) {
 	ASSERT_FALSE(my_scheduler->ValidAlgorithmId(-1));
 	EXPECT_FALSE(my_scheduler->ValidAlgorithmId(my_scheduler->getNewAlgorithmId()));
-
 	int alg_num = my_scheduler->newAlgorithm(alg_opts);
-	ASSERT_TRUE(my_scheduler->ValidModelId(alg_num));
+	ASSERT_TRUE(my_scheduler->ValidAlgorithmId(alg_num));
 }
 
 
@@ -173,15 +172,13 @@ TEST_F(SchedulerTest, ValidModelId) {
 }
 
 
-// TODO: extract jobs and models into "sample" jobs/model for quick setup/teardown. [Issue: https://github.com/blengerich/GenAMap_V2/issues/16]
 TEST_F(SchedulerTest, ValidJobId) {
 	ASSERT_FALSE(my_scheduler->ValidJobId(-1));
 	EXPECT_FALSE(my_scheduler->ValidJobId(my_scheduler->getNewJobId()));
 	
-	int alg_num = my_scheduler->newAlgorithm(alg_opts);
-	int model_num = my_scheduler->newModel(model_opts);
-	JobOptions_t job_opts = JobOptions_t(alg_num, model_num);
-	int job_num1 = my_scheduler->newJob(job_opts);
+	/*int alg_num = my_scheduler->newAlgorithm(alg_opts);
+	int model_num = my_scheduler->newModel(model_opts);*/
+	int job_num1 = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
 	ASSERT_TRUE(my_scheduler->ValidJobId(job_num1));
 
 	my_scheduler->deleteJob(job_num1);
@@ -198,52 +195,62 @@ TEST_F(SchedulerTest, Train_Not_Found) {
 
 
 TEST_F(SchedulerTest, Train) {
-	ModelOptions_t model_opts = ModelOptions_t(linear_regression, {{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
+	/*ModelOptions_t model_opts = ModelOptions_t(linear_regression, {{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
 	int model_num1 = my_scheduler->newModel(model_opts);
 	AlgorithmOptions_t alg_opts = AlgorithmOptions_t(
 		algorithm_type::proximal_gradient_descent, {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
+	*/
+	//int alg_num1 = my_scheduler->newAlgorithm(alg_opts);
+	int job_id = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
+	my_scheduler->setX(job_id, X);
+    my_scheduler->setY(job_id, y);
 
-    Scheduler::Instance()->setX(model_num1, X);
-    Scheduler::Instance()->setY(model_num1, y);
-    
-	int alg_num1 = my_scheduler->newAlgorithm(alg_opts);
-	int job_num = my_scheduler->newJob(JobOptions_t(alg_num1, model_num1));
-
-	ASSERT_TRUE(my_scheduler->startJob(job_num, NullFunc));
+	ASSERT_TRUE(my_scheduler->startJob(job_id, NullFunc));
 }
 
 TEST_F(SchedulerTest, CheckJobProgress) {
-	EXPECT_EQ(my_scheduler->checkJobProgress(0), -1);
-	int model_num1 = my_scheduler->newModel(model_opts);
+	EXPECT_EQ(-1, my_scheduler->checkJobProgress(-1));
+	int job_id = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
+	my_scheduler->setX(job_id, X);
+    my_scheduler->setY(job_id, y);
+	ASSERT_TRUE(my_scheduler->startJob(job_id, NullFunc));
 
-    my_scheduler->setX(model_num1, X);
-    my_scheduler->setY(model_num1, y);
-    
-	int alg_num1 = my_scheduler->newAlgorithm(alg_opts);
-	int job_num = my_scheduler->newJob(JobOptions_t(alg_num1, model_num1));
-	ASSERT_TRUE(my_scheduler->startJob(job_num, NullFunc));
-
-	double progress = my_scheduler->checkJobProgress(job_num);
+	double progress = my_scheduler->checkJobProgress(job_id);
 	ASSERT_GE(progress, 0);
-	double progress_2 = my_scheduler->checkJobProgress(job_num);
+	double progress_2 = my_scheduler->checkJobProgress(job_id);
 	ASSERT_GE(progress_2, progress);
 
-    while(my_scheduler->checkJobProgress(job_num) < 1.0) {
+    while(my_scheduler->checkJobProgress(job_id) < 1.0) {
         usleep(1);
     }
-    ASSERT_EQ(1.0, my_scheduler->checkJobProgress(job_num));
+    ASSERT_EQ(1.0, my_scheduler->checkJobProgress(job_id));
+
+    // new job should update independently
+    int job_id2 = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
+    ASSERT_NE(job_id, job_id2);
+    EXPECT_EQ(0, my_scheduler->checkJobProgress(job_id2));
+    ASSERT_TRUE(my_scheduler->startJob(job_id2, NullFunc));
+    progress = my_scheduler->checkJobProgress(job_id2);
+    ASSERT_GE(progress, 0);
+    progress_2 = my_scheduler->checkJobProgress(job_id2);
+    ASSERT_GE(progress_2, progress);
+
+    while(my_scheduler->checkJobProgress(job_id2) < 1.0) {
+        usleep(1);
+    }
+    ASSERT_EQ(1.0, my_scheduler->checkJobProgress(job_id2));
+
 	/*ASSERT_TRUE(my_scheduler->deleteJob(job_num));*/
 	/*ASSERT_EQ(my_scheduler->checkJobProgress(job_num), -1);*/
 }
 
 
 TEST_F(SchedulerTest, GetJobResult) {
-    int model_num1 = my_scheduler->newModel(model_opts);
-    my_scheduler->setX(model_num1, X);
-    my_scheduler->setY(model_num1, y);
-    
-    int alg_num1 = my_scheduler->newAlgorithm(alg_opts);
-    int job_num = my_scheduler->newJob(JobOptions_t(alg_num1, model_num1));
+    //int model_num1 = my_scheduler->newModel(model_opts);
+    //int alg_num1 = my_scheduler->newAlgorithm(alg_opts);
+    int job_num = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
+    my_scheduler->setX(job_num, X);
+    my_scheduler->setY(job_num, y);    
     ASSERT_TRUE(my_scheduler->startJob(job_num, NullFunc));
 
     MatrixXd results = my_scheduler->getJobResult(job_num);

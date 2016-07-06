@@ -25,92 +25,43 @@ using namespace std;
 using namespace v8;
 
 
-// Creates a new algorithm, but does not run it. Currently synchronous.
-// Arguments: JSON to be converted to AlgorithmOptions_t
-void newAlgorithm(const FunctionCallbackInfo<Value>& args) {
-	Isolate* isolate = args.GetIsolate();
-
-	if (args.Length() < 1) {
-		isolate->ThrowException(Exception::TypeError(
-			String::NewFromUtf8(isolate, "Wrong number of arguments")));
-		return;
-	}
-
-	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
-	const AlgorithmOptions_t& options = AlgorithmOptions_t(isolate, options_v8);
-
-	const int id = Scheduler::Instance()->newAlgorithm(options);
-	if (id < 0) {
-		isolate->ThrowException(Exception::Error(
-			String::NewFromUtf8(isolate, "Could not add another algorithm.")));
-		return;
-	}
-
-	Local<Integer> retval = Integer::New(isolate, id);
-	args.GetReturnValue().Set(retval);
-}
-
-// Creates a new model, but does not run it. Synchronous.
-// Arguments: JSON to be converted to ModelOptions_t
-void newModel(const FunctionCallbackInfo<Value>& args) {
-	Isolate* isolate = args.GetIsolate();
-	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
-	const ModelOptions_t& options = ModelOptions_t(isolate, options_v8);
-	const int id = Scheduler::Instance()->newModel(options);
-	if (id < 0) {
-		isolate->ThrowException(Exception::Error(
-			String::NewFromUtf8(isolate, "Could not add another model")));
-		return;
-	}
-
-	Local<Integer> retval = Integer::New(isolate, id);
-	args.GetReturnValue().Set(retval);
-}
-
-// Sets the X matrix of a given model.
-// Arguments: model_num, JSON matrix
-void setX(const FunctionCallbackInfo<Value>& args) {
-	Isolate* isolate = args.GetIsolate();
-	const int model_num = (int)Local<Number>::Cast(args[0])->Value();
-	Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
-
+MatrixXd* v8toEigen(Local<v8::Array>& ar) {
 	const unsigned int rows = ar->Length();
 	Local<v8::Array> props = Local<v8::Object>::Cast(ar->Get(0))->GetPropertyNames();
 	const unsigned int cols = props->Length();
-	Eigen::MatrixXd Matrix(rows, cols);
+	Eigen::MatrixXd* mat = new Eigen::MatrixXd(rows, cols);
 
 	for (unsigned int i=0; i<rows; i++) {
 		for (unsigned int j=0; j<cols; j++) {
-			Matrix(i,j) = (double)Local<v8::Object>::Cast(ar->Get(i))->Get(props->Get(j))->NumberValue();
+			(*mat)(i,j) = (double)Local<v8::Object>::Cast(ar->Get(i))->Get(props->Get(j))->NumberValue();
 		}
 	}
+	return mat;
+}
 
-	bool result = Scheduler::Instance()->setX(model_num, Matrix);
-	Local<Boolean> retval = Boolean::New(isolate, result);
-	args.GetReturnValue().Set(retval);
+// Sets the X matrix of a given model.
+// Arguments: job_id, JSON matrix
+void setX(const FunctionCallbackInfo<Value>& args) {
+	Isolate* isolate = args.GetIsolate();
+	const int job_id = (int)Local<Number>::Cast(args[0])->Value();
+	Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
+	MatrixXd* mat = v8toEigen(ar);
+	
+	bool result = Scheduler::Instance()->setX(job_id, *mat);
+	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
 
 // Sets the Y matrix of a given model.
-// Arguments: model_num, JSON matrix
+// Arguments: job_id, JSON matrix
 void setY(const FunctionCallbackInfo<Value>& args) {
 	// TODO: failing when Y is multiple columns [Issue: https://github.com/blengerich/GenAMap_V2/issues/38]
 	Isolate* isolate = args.GetIsolate();
 
-	const int model_num = (int)Local<Number>::Cast(args[0])->Value();
+	const int job_id = (int)Local<Number>::Cast(args[0])->Value();
 	Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
+	MatrixXd* mat = v8toEigen(ar);
 
-	const unsigned int rows = ar->Length();
-	Local<v8::Array> props = Local<v8::Object>::Cast(ar->Get(0))->GetPropertyNames();
-	const unsigned int cols = props->Length();
-	Eigen::MatrixXd Matrix(rows, cols);
-
-	for (unsigned int i=0; i<rows; i++) {
-		for (unsigned int j=0; j<cols; j++) {
-			Matrix(i,j) = (double)Local<v8::Object>::Cast(ar->Get(i))->Get(props->Get(j))->NumberValue();
-		}
-	}
-
-	bool result = Scheduler::Instance()->setY(model_num, Matrix);
+	bool result = Scheduler::Instance()->setY(job_id, *mat);
 	args.GetReturnValue().Set(Boolean::New(isolate, result));	
 }
 
@@ -206,7 +157,6 @@ void getJobResult(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Local<v8::Array> obj = v8::Array::New(isolate);
 	// TODO: Fewer convserions to return a matrix [Issue: https://github.com/blengerich/GenAMap_V2/issues/17]
 	obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
-	//Handle<Value> argv[] = { obj };
 	args.GetReturnValue().Set(obj);
 }
 
@@ -233,27 +183,6 @@ void cancelJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 	const int job_id = (int)Local<Integer>::Cast(args[0])->Value();
 	const bool success = Scheduler::Instance()->cancelJob(job_id);
-	Handle<Boolean> retval = Boolean::New(isolate, success);
-	args.GetReturnValue().Set(retval);
-}
-
-
-// Arguments: int alg_id
-// Returns: boolean for success
-void deleteAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args) {
-	Isolate* isolate = args.GetIsolate();
-	const int algorithm_id = (int)Local<Integer>::Cast(args[0])->Value();
-	const bool success = Scheduler::Instance()->deleteAlgorithm(algorithm_id);
-	Handle<Boolean> retval = Boolean::New(isolate, success);
-	args.GetReturnValue().Set(retval);
-}
-
-
-// Arguments: int model_id
-void deleteModel(const v8::FunctionCallbackInfo<v8::Value>& args) {
-	Isolate* isolate = args.GetIsolate();
-	const int model_id = (int)Local<Integer>::Cast(args[0])->Value();
-	const bool success = Scheduler::Instance()->deleteModel(model_id);
 	Handle<Boolean> retval = Boolean::New(isolate, success);
 	args.GetReturnValue().Set(retval);
 }
@@ -289,6 +218,69 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 	Local<Function>::New(isolate, job->callback)->Call(
 		isolate->GetCurrentContext()->Global(), 1, argv);
 	job->callback.Reset();
-	//Scheduler::Instance()->deleteJob(job->job_id);
 }
 
+/* Deprecated - only interacting with jobs now
+// Creates a new algorithm, but does not run it. Currently synchronous.
+// Arguments: JSON to be converted to AlgorithmOptions_t
+void newAlgorithm(const FunctionCallbackInfo<Value>& args) {
+	Isolate* isolate = args.GetIsolate();
+
+	if (args.Length() < 1) {
+		isolate->ThrowException(Exception::TypeError(
+			String::NewFromUtf8(isolate, "Wrong number of arguments")));
+		return;
+	}
+
+	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
+	const AlgorithmOptions_t& options = AlgorithmOptions_t(isolate, options_v8);
+
+	const int id = Scheduler::Instance()->newAlgorithm(options);
+	if (id < 0) {
+		isolate->ThrowException(Exception::Error(
+			String::NewFromUtf8(isolate, "Could not add another algorithm.")));
+		return;
+	}
+
+	Local<Integer> retval = Integer::New(isolate, id);
+	args.GetReturnValue().Set(retval);
+}
+
+// Creates a new model, but does not run it. Synchronous.
+// Arguments: JSON to be converted to ModelOptions_t
+void newModel(const FunctionCallbackInfo<Value>& args) {
+	Isolate* isolate = args.GetIsolate();
+	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
+	const ModelOptions_t& options = ModelOptions_t(isolate, options_v8);
+	const int id = Scheduler::Instance()->newModel(options);
+	if (id < 0) {
+		isolate->ThrowException(Exception::Error(
+			String::NewFromUtf8(isolate, "Could not add another model")));
+		return;
+	}
+
+	Local<Integer> retval = Integer::New(isolate, id);
+	args.GetReturnValue().Set(retval);
+}
+
+// Arguments: int alg_id
+// Returns: boolean for success
+void deleteAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	Isolate* isolate = args.GetIsolate();
+	const int algorithm_id = (int)Local<Integer>::Cast(args[0])->Value();
+	const bool success = Scheduler::Instance()->deleteAlgorithm(algorithm_id);
+	Handle<Boolean> retval = Boolean::New(isolate, success);
+	args.GetReturnValue().Set(retval);
+}
+
+
+// Arguments: int model_id
+void deleteModel(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	Isolate* isolate = args.GetIsolate();
+	const int model_id = (int)Local<Integer>::Cast(args[0])->Value();
+	const bool success = Scheduler::Instance()->deleteModel(model_id);
+	Handle<Boolean> retval = Boolean::New(isolate, success);
+	args.GetReturnValue().Set(retval);
+}
+
+*/

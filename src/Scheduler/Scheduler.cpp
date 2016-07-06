@@ -145,18 +145,18 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 }
 
 
-bool Scheduler::setX(const int model_id, const Eigen::MatrixXd& X) {
-	if (getModel(model_id)) {
-		getModel(model_id)->setX(X);
+bool Scheduler::setX(const int job_id, const Eigen::MatrixXd& X) {
+	if (getJob(job_id) && getJob(job_id)->model) {
+		getJob(job_id)->model->setX(X);
 		return true;
 	}
 	return false;
 }
 
 
-bool Scheduler::setY(const int model_id, const Eigen::MatrixXd& Y) {
-	if (getModel(model_id)) {
-		getModel(model_id)->setY(Y);
+bool Scheduler::setY(const int job_id, const Eigen::MatrixXd& Y) {
+	if (getJob(job_id) && getJob(job_id)->model) {
+		getJob(job_id)->model->setY(Y);
 		return true;
 	}
 	return false;
@@ -164,21 +164,31 @@ bool Scheduler::setY(const int model_id, const Eigen::MatrixXd& Y) {
 
 
 int Scheduler::newJob(const JobOptions_t& options) {
-	const int algorithm_id = options.algorithm_id;
-	const int model_id = options.model_id;
+	/*const int algorithm_id = options.algorithm_id;
+	const int model_id = options.model_id;*/
 
 	Job_t* my_job = new Job_t();
 	const int job_id = getNewJobId();
 	if (job_id >= 0) {
 		my_job->job_id = job_id;
+		int algorithm_id = newAlgorithm(options.alg_opts);
 		if (getAlgorithm(algorithm_id)) {
+			my_job->algorithm = getAlgorithm(algorithm_id);
+			int model_id = newModel(options.model_opts);
+			if (getModel(model_id)) {
+				my_job->model = getModel(algorithm_id);
+				jobs_map[my_job->job_id] = unique_ptr<Job_t>(my_job);
+				return job_id;
+			}
+		}
+		/*if (getAlgorithm(algorithm_id)) {
 			my_job->algorithm = getAlgorithm(algorithm_id);
 			if (getModel(model_id)) {
 				my_job->model = getModel(model_id);
 				jobs_map[my_job->job_id] = unique_ptr<Job_t>(my_job);
 				return job_id;
 			}
-		}
+		}*/
 	}
 
 	delete my_job;
