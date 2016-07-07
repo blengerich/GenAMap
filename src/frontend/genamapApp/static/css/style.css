@@ -25,7 +25,7 @@ main {
 /* Change color of cell on hover */
 
 .highlight:hover {
-	fill: #5FB53F !important;
+	fill: #ff0000 !important;
 	opacity: 0.8 !important;
 }
 
@@ -78,11 +78,12 @@ svg:active{
 .buttonContainer {
   position: absolute;
   right: 50px;
+  top: 50%;
 }
 
 .minimap {
 	position: absolute;
-  top: 50%;
+  top: 15%;
 	right: 24px;
 }
 
