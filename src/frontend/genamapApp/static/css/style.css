@@ -75,11 +75,6 @@ svg:active{
 	color: #4db6ac;
 }
 
-#chart {
-  border-bottom: 2px solid black;
-  border-left: 2px solid black;
-}
-
 .buttonContainer {
   position: absolute;
   right: 50px;
@@ -89,4 +84,18 @@ svg:active{
 	position: absolute;
   top: 50%;
 	right: 24px;
+}
+
+.axes line {
+  stroke: #000;
+}
+
+.row text, .col text {
+  font-family: sans-serif;
+}
+
+.axes .title {
+  font-size: 18px;
+  font-family: sans-serif;
+  font-weight: bold;
 }

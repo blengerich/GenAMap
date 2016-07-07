@@ -33,8 +33,10 @@ class GMImportDialog extends Component {
       open: false,
       projectValue: '',
       projectName: '',
+      markerLabel: '',
       markerName: '',
       markerFileName: '',
+      traitLabel: '',
       traitName: '',
       traitFileName: '',
       speciesValue: '',
@@ -93,12 +95,20 @@ class GMImportDialog extends Component {
     this.setState({projectName: event.target.value})
   }
 
+  onChangeMarkerLabel (event) {
+    this.setState({markerLabel: event.target.value})
+  }
+
   onChangeMarkerName (event) {
     this.setState({markerName: event.target.value})
   }
 
   onChangeMarkerFileName (event) {
     this.setState({markerFileName: event.target.value.substr(12)})
+  }
+
+  onChangeTraitLabel(event) {
+    this.setState({traitLabel: event.target.value})
   }
 
   onChangeTraitName (event) {
@@ -148,6 +158,7 @@ class GMImportDialog extends Component {
           leftIcon={<FontIcon className='material-icons'>add</FontIcon>}
         />
         <Dialog
+          autoScrollBodyContent={true}
           className='gm-dialog__import'
           title='Import Data'
           actions={actions}
@@ -196,7 +207,27 @@ class GMImportDialog extends Component {
               <br />
               <div className='file-field-wrapper'>
                 <FlatButton
-                  label='Marker File'
+                  label='Marker Labels'
+                  secondary={true}
+                  style={styles.fileInputButton}
+                >
+                  <input
+                    id='markerLabelFile'
+                    type='file'
+                    accept='.csv'
+                    style={styles.fileInput}
+                    onChange={this.onChangeMarkerLabel.bind(this)}
+                  />
+                </FlatButton>
+                <TextField
+                  id='traitFileName'
+                  value={this.state.markerLabel}
+                  disabled={true}
+                />
+              </div>
+              <div className='file-field-wrapper'>
+                <FlatButton
+                  label='Marker Values'
                   secondary={true}
                   style={styles.fileInputButton}
                 >
@@ -226,7 +257,27 @@ class GMImportDialog extends Component {
               />
               <div className='file-field-wrapper'>
                 <FlatButton
-                  label='Trait File'
+                  label='Trait Labels'
+                  secondary={true}
+                  style={styles.fileInputButton}
+                >
+                  <input
+                    id='traitLabelFile'
+                    type='file'
+                    accept='.csv'
+                    style={styles.fileInput}
+                    onChange={this.onChangeTraitLabel.bind(this)}
+                  />
+                </FlatButton>
+                <TextField
+                  id='traitFileName'
+                  value={this.state.traitLabel}
+                  disabled={true}
+                />
+              </div>
+              <div className='file-field-wrapper'>
+                <FlatButton
+                  label='Trait Values'
                   secondary={true}
                   style={styles.fileInputButton}
                 >

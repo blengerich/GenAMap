@@ -18,6 +18,10 @@ var config = require('./config')
 var Scheduler = require('../../Scheduler/node/build/Release/scheduler')
 var jwt = require('jsonwebtoken')
 
+// temp
+var http = require('http')
+var querystring = require('querystring')
+
 const getTokenContent = (token) => {
   try {
     const decoded = jwt.verify(token, config.secret)
@@ -237,6 +241,16 @@ app.post(config.api.createSessionUrl, function (req, res) {
   })
 })
 
+app.get(`${config.api.getActivityUrl}/:id`, function (req, res) {
+  var progress = Scheduler.checkJob(req.params.id)
+  if (progress == 1) {
+    var jobResults = Scheduler.getJobResult(req.params.id)
+    var results = JSON.parse(jobResults[0].replace(/(\r\n|\n|\r)/gm,""))
+    return res.json({ progress, results })
+  }
+  return res.json({ progress })
+})
+
 app.get(`${config.api.dataUrl}/:id`, function (req, res) {
   app.models.file.findOne({id: req.params.id}, function (err, model) {
     if (err) return res.status(500).json({err: err})
@@ -320,6 +334,7 @@ app.post(config.api.importDataUrl, function (req, res) {
       )
     })
   })
+
   req.pipe(busboy)
 })
 
@@ -390,15 +405,17 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             Scheduler.setX(jobId, markerData)
             Scheduler.setY(jobId, traitData)
             Scheduler.startJob(jobId, function (results) {
+              results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
               console.log('results: ', results)
             })
+            return res.json({ status: true, jobId: jobId })
           })
         });
       });
     });
   })
 
-  return res.json({status: true})
+  //return res.json({ status: true })
 })
 
 
@@ -421,7 +438,7 @@ app.post(config.api.cancelJobUrl, function(req, res) {
 */
 
 // TODO: implement deleteAlgorithm [Issue: https://github.com/blengerich/GenAMap_V2/issues/40]
-/** 
+/**
 * @param {Object} req
 * @param {Number} req.algorithmId
 app.post(config.api.deleteAlgorithmUrl, function(req, res) {
