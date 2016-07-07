@@ -77,11 +77,8 @@ var Graph = function() {
               .scaleExtent([1, 8])
               .on("zoom", zoomFunction)
 
-  zoomFunction = function() {
-    svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-    var zoomAmount = d3.event.scale;
-    var translateAmount = d3.event.translate;
 
+  function axisOnZoom(translateAmount, zoomAmount) {
     var newTextY = baseLabelStyle.innerMargin * zoomAmount;
     var newFontSize = baseLabelStyle.fontSize * zoomAmount;
 
@@ -112,6 +109,13 @@ var Graph = function() {
           .attr("y", newTextY)
           .style("font-size", newFontSize);
       });
+  }
+
+  function zoomed() {
+    svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+    var zoomAmount = d3.event.scale;
+    var translateAmount = d3.event.translate;
+    axisOnZoom(translateAmount, zoomAmount);
 
     var overlay = d3.select("#map-background");
 
@@ -335,9 +339,11 @@ var Graph = function() {
       var translateAmount = d3.event.translate;
       overlay.attr("transform", "translate(" + translateAmount + ")scale(" + 1/d3.event.scale + ")");
       var matrix = d3.select("#overallMatrix");
+      var zoomAmount = d3.event.scale;
       var newArray = [translateAmount[0]*(mapWidth/overlayMapWidth),
                       translateAmount[1]*(mapHeight/overlayMapHeight)];
       matrix.attr("transform", "translate(" + newArray + ")scale(" + d3.event.scale + ")");
+      axisOnZoom(newArray, zoomAmount);
     }
 
     var maxOverlayDimension = 100;
