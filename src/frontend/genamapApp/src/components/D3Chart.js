@@ -2,12 +2,11 @@ import React from 'react'
 import FontIcon from 'material-ui/lib/font-icon'
 import FloatingActionButton from 'material-ui/lib/floating-action-button'
 
-var zoomFunction;
-var mapWidth;
-var mapHeight;
-var miniZoomed;
-var overlayWidth;
-var overlayHeight;
+
+const colors = ["#c1f4ec","#91f2ed","#97e6fc","#95d1f9","#64b4dd","#65c5db","#66a9d8"];
+const colorScale = d3.scale.quantile()
+                        .domain([0, 1])
+                        .range(colors);
 
 function hoverOnCell(d, trait, marker, correlation, mousePos) {
   var labelText = "<h2>Trait: T" + trait + "</h2> <h2>Marker: M" + marker + "</h2> <p> Correlation: " + correlation + "</p>";
@@ -29,12 +28,12 @@ function getRandomInt(min, max) {
 }
 
 var Graph = function() {
-  // Grab the file from upload
-	var fileLocation = 'example_data/test_node_small.csv';
+	// Grab the file from upload
+	var fileLocation = 'example_data/export.csv';
 
   // TODO: get from label files
   var numTraits = 250;
-  var numMarkers = 10;
+  var numMarkers = 250;
 
   var traitLabels = [];
   for (var i = 1; i <= numTraits; i++)
@@ -297,11 +296,6 @@ var Graph = function() {
     },
 
     function(error, data) {
-		    var colors = ["#c1f4ec","#91f2ed","#97e6fc","#95d1f9","#64b4dd","#65c5db","#66a9d8"];
-        var colorScale = d3.scale.quantile()
-                                .domain([0, 1])
-                                .range(colors);
-
         var cards = svg.selectAll(".dots")
                       .data(data, function(d) { return d.Marker+':'+d.Trait;});
 
@@ -341,12 +335,21 @@ var Graph = function() {
       var translateAmount = d3.event.translate;
       overlay.attr("transform", "translate(" + translateAmount + ")scale(" + 1/d3.event.scale + ")");
       var matrix = d3.select("#overallMatrix");
-      var newArray = [-translateAmount[0]*(numTraits/15), -translateAmount[1]*(numMarkers/15)];
+      var newArray = [translateAmount[0]*(mapWidth/overlayMapWidth),
+                      translateAmount[1]*(mapHeight/overlayMapHeight)];
       matrix.attr("transform", "translate(" + newArray + ")scale(" + d3.event.scale + ")");
     }
 
-    var overlayMapWidth = 100;
-    var overlayMapHeight = 100;
+    var maxOverlayDimension = 100;
+    var overlayMapWidth, overlayMapHeight;
+    if (numMarkers > numTraits) {
+      overlayMapHeight = maxOverlayDimension;
+      overlayMapWidth = maxOverlayDimension * (numTraits/numMarkers);
+    } else {
+      overlayMapWidth = maxOverlayDimension;
+      overlayMapHeight = maxOverlayDimension * (numMarkers/numTraits);
+    }
+
     var overlayCellWidth = 5;
     var overlayCellHeight = 5;
 
@@ -417,7 +420,6 @@ var D3Chart = React.createClass({
 		}
 	},
   componentDidMount: function() {
-    console.log("mounted")
     this.state.points = Graph();
   },
   subsetIndicator: function(trait1, marker1, trait2, marker2) {
@@ -486,9 +488,9 @@ var D3Chart = React.createClass({
       .selectAll('.cell')
       .each(function(d) {
         if (d.value < threshold) {
-          d3.select(this).style({ visibility: "hidden" });
+          d3.select(this).style("fill", "#dcdcdc");
         } else {
-          d3.select(this).style({ visibility: "visible" });
+          d3.select(this).style("fill", colorScale(d.value));
         }
       });
     var zoomEnabled = this.props.zoom;
