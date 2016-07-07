@@ -242,12 +242,15 @@ app.post(config.api.createSessionUrl, function (req, res) {
 })
 
 app.get(`${config.api.getActivityUrl}/:id`, function (req, res) {
+  console.log('requesting job progress from backend')
   var progress = Scheduler.checkJob(req.params.id)
-  if (progress == 1) {
+  console.log('Job id: ' + req.params.id + '\t progress: ' + progress)
+  /*if (progress == 1) {
     var jobResults = Scheduler.getJobResult(req.params.id)
-    var results = JSON.parse(jobResults[0].replace(/(\r\n|\n|\r)/gm,""))
+    //var results = JSON.parse(jobResults[0].replace(/(\r\n|\n|\r)/gm,""))
+    var results = jobResults[0]
     return res.json({ progress, results })
-  }
+  }*/
   return res.json({ progress })
 })
 
@@ -380,7 +383,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           // Now that we have the data, create a job for each request
           req.body.algorithms.forEach((model) => {
             // Algorithm
-            const algorithmOptions = {
+            var algorithmOptions = {
               type: req.body.algorithmType || getAlgorithmType(model.id) || 1,
               options: {
                 // max_iteration: req.body.max_iteration || 10,
@@ -389,18 +392,16 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
               }
             }
 
-          
             // Model
-            const modelOptions = {
+            var modelOptions = {
               type: model.id || 1,
               options: {
                 lambda: model.lambda || 0.05,
                 L2_lambda: model.L2_lambda || 0.01
               }
             }
-            
             // Job
-            const jobId = Scheduler.newJob({algorithm_options: algorithmOptions, model_options: modelOptions})
+            const jobId = Scheduler.newJob({'algorithm_options': algorithmOptions, 'model_options': modelOptions})
             if (jobId === -1) return res.json({msg: 'error creating job'})
             Scheduler.setX(jobId, markerData)
             Scheduler.setY(jobId, traitData)
