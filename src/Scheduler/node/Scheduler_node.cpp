@@ -112,9 +112,16 @@ void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 		args.GetReturnValue().Set(Boolean::New(isolate, false));
 		return;
 	}
+
+	if (job->algorithm->getIsRunning()) {
+		isolate->ThrowException(Exception::Error(
+			String::NewFromUtf8(isolate, "Job is already running.")));
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
+		return;
+	}
+
 	job->callback.Reset(isolate, Local<Function>::Cast(args[1]));
 	job->job_id = job_id;
-
 	bool result = Scheduler::Instance()->startJob(job_id, trainAlgorithmComplete);
 	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }

@@ -164,9 +164,6 @@ bool Scheduler::setY(const int job_id, const Eigen::MatrixXd& Y) {
 
 
 int Scheduler::newJob(const JobOptions_t& options) {
-	/*const int algorithm_id = options.algorithm_id;
-	const int model_id = options.model_id;*/
-
 	Job_t* my_job = new Job_t();
 	const int job_id = getNewJobId();
 	if (job_id >= 0) {
@@ -179,16 +176,14 @@ int Scheduler::newJob(const JobOptions_t& options) {
 				my_job->model = getModel(algorithm_id);
 				jobs_map[my_job->job_id] = unique_ptr<Job_t>(my_job);
 				return job_id;
+			} else {
+				cerr << "error creating model" << endl;
 			}
+		} else {
+			cerr << "error creating algorithm" << endl;
 		}
-		/*if (getAlgorithm(algorithm_id)) {
-			my_job->algorithm = getAlgorithm(algorithm_id);
-			if (getModel(model_id)) {
-				my_job->model = getModel(model_id);
-				jobs_map[my_job->job_id] = unique_ptr<Job_t>(my_job);
-				return job_id;
-			}
-		}*/
+	} else {
+		cerr << "could not get a new job id (queue may be full)" << endl;
 	}
 
 	delete my_job;
@@ -202,14 +197,18 @@ bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) 
 	}
 
 	Job_t* job = getJob(job_id);
-	job->request.data = job;
+
 	if (!job) {
 		cerr << "Job must not be null" << endl;
 		return false;
 	} else if (!job->algorithm || !job->model) {
 		cerr << "Job must have an algorithm and a model" << endl;
 		return false;
+	} else if (job->algorithm->getIsRunning()) {
+		cerr << "Job already running" << endl;
+		return false;
 	}
+	job->request.data = job;
 	uv_queue_work(uv_default_loop(), &(job->request), trainAlgorithmThread, completion);
 	usleep(10);	// TODO: fix this rare race condition (stopping job before the worker thread has started is bad) in a better way? [Issue: https://github.com/blengerich/GenAMap_V2/issues/27]
 	return true;

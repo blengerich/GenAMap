@@ -11,6 +11,24 @@ describe('Scheduler', function() {
 				'options': {'lambda': 0.05, 'L2_lambda': 0.01}};
 	var bad_model_opts = {'type': 8,
 				'options': {'lambda': 0.05, 'L2_lambda': 0.01}}
+	var largeX = [];
+	var largeY = [];
+	const n_patients = 1000;
+	const n_markers = 1000;
+	const n_traits = 1;
+	for (i = 0; i < n_patients; i++) {
+		var markers = [];
+		for (j = 0; j < n_markers; j++) {
+			markers.push(Math.round(Math.random()));
+		}
+		largeX.push(markers);
+
+		var traits = [];
+		for (k = 0; k < n_traits; k++) {
+			traits.push(Math.round(Math.random()));
+		}
+		largeY.push(traits);
+	}
 
 	describe('newJob', function() {
 		var id1 = backend.newJob({'algorithm_options': alg_opts, 'model_options': model_opts});
@@ -57,7 +75,6 @@ describe('Scheduler', function() {
 		it('should return false for a job that has not been created', function () {
 			assert.equal(false, backend.setY(job_id+10, [[1,2], [3,4]]));
 		});
-		
 	});
 
 	describe('startJob', function() {
@@ -78,10 +95,15 @@ describe('Scheduler', function() {
 		var job_id2 = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
 
 		it('return true for second good job start', function() {
-			assert.equal(true, backend.setX(job_id2, [[0, 1], [1, 1]]));
-			assert.equal(true, backend.setY(job_id2, [[0], [1]]));
+			assert.equal(true, backend.setX(job_id2, largeX));
+			assert.equal(true, backend.setY(job_id2, largeY));
 			assert.equal(true, 
 				backend.startJob(job_id2, function(results) {/* empty */} ));
+		});
+
+		it('throw error for trying to start already running job', function() {
+			assert.throws(function() { backend.startJob(job_id2, function() {/* empty */} )},
+				Error, 'Job is already running.');
 		});
 
 		it('throw error for second bad options', function () {
@@ -103,27 +125,9 @@ describe('Scheduler', function() {
 		});
 	});
 
+
 	describe('checkJob', function() {
-		var largeX = [];
-		var largeY = [];
-		const n_patients = 1000;
-		const n_markers = 1000;
-		const n_traits = 1;
-		for (i = 0; i < n_patients; i++) {
-			var markers = [];
-			for (j = 0; j < n_markers; j++) {
-				markers.push(Math.round(Math.random()));
-			}
-			largeX.push(markers);
-
-			var traits = [];
-			for (k = 0; k < n_traits; k++) {
-				traits.push(Math.round(Math.random()));
-			}
-			largeY.push(traits);
-		}
-
-		var job_id = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});		
+		var job_id = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
 		it('large job progress = 0 before starting', function() {
 			assert.equal(true, backend.setX(job_id, largeX));
 			assert.equal(true, backend.setY(job_id, largeY));
@@ -132,50 +136,51 @@ describe('Scheduler', function() {
 
 		it('large job progress < 1 before ending', function() {
 			backend.startJob(job_id, function(results) {} );
+			while (backend.checkJob(job_id) == 0) {}
 			assert.isBelow(backend.checkJob(job_id), 1, 'job progress should be less than 1 immediately after starting');
-			console.log(backend.checkJob(job_id));
-		});
-		it('large job progress = 1 after ending', function() {
-			backend.startJob(job_id, function(results) {
-					assert.equal(backend.checkJob(job_id), 1);
-					assert.deepEqual(backend.getJobResult(job_id), results);
-				});
 		});
 
 		var job_id2 = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
-		it('small job progress = 0 before starting', function() {
-			assert.equal(true, backend.setX(job_id2, [[0, 1], [1, 1]]));
-			assert.equal(true, backend.setY(job_id2, [[0], [1]]));
-			assert.equal(0, backend.checkJob(job_id2));
-		});
-
-		it('small job progress = 1 after ending', function() {
-			assert.equal(true, 
-				backend.startJob(job_id2, function(results) {
+		it('large job progress = 1 after ending', function() {
+			backend.startJob(job_id2, function(results) {
 					assert.equal(backend.checkJob(job_id2), 1);
 					assert.deepEqual(backend.getJobResult(job_id2), results);
-				} ));
+			});
 		});
 
 		var job_id3 = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
-		it('large job progress = 0 before starting', function() {
-			assert.equal(true, backend.setX(job_id3, largeX));
-			assert.equal(true, backend.setY(job_id3, largeY));
-			//assert.equal(0, backend.checkJob(job_id3));
+		it('small job progress = 0 before starting', function() {
+			assert.equal(true, backend.setX(job_id3, [[0, 1], [1, 1]]));
+			assert.equal(true, backend.setY(job_id3, [[0], [1]]));
+			assert.equal(0, backend.checkJob(job_id3));
 		});
 
-		/*it('large job progress < 1 before ending', function() {
-			backend.startJob(job_id3, function(results) {} );
-			console.log(backend.checkJob(job_id3));
-			assert.isBelow(backend.checkJob(job_id3), 1, 'job progress should be less than 1 immediately after starting')
-		});*/
-
-		/*it('large job progress = 1 after ending', function() {
+		it('small job progress = 1 after ending', function() { 
 			backend.startJob(job_id3, function(results) {
 					assert.equal(backend.checkJob(job_id3), 1);
 					assert.deepEqual(backend.getJobResult(job_id3), results);
-			});
-		});*/
-	});
+				});
+		});
 
+		var job_id4 = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
+		it('large job progress = 0 before starting', function() {
+			assert.equal(true, backend.setX(job_id4, largeX));
+			assert.equal(true, backend.setY(job_id4, largeY));
+			assert.equal(0, backend.checkJob(job_id4));
+		});
+
+		it('large job progress < 1 before ending', function() {
+			backend.startJob(job_id4, function(results) {} );
+			while (backend.checkJob(job_id4) == 0) {}
+			assert.isBelow(backend.checkJob(job_id4), 1, 'job progress should be less than 1 immediately after starting')
+		});
+
+		var job_id5 = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
+		it('large job progress = 1 after ending', function() {
+			backend.startJob(job_id5, function(results) {
+					assert.equal(backend.checkJob(job_id5), 1);
+					assert.deepEqual(backend.getJobResult(job_id5), results);
+			});
+		});
+	});
 });

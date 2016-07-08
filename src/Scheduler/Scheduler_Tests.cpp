@@ -11,6 +11,8 @@
 #include <memory>
 #include <stdio.h>
 #include <unordered_map>
+#include <ctime>
+#include <chrono>
 
 #include "Scheduler/Scheduler.hpp"
 #include "Scheduler/Job.hpp"
@@ -32,7 +34,7 @@ protected:
 			linear_regression,
 			{{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
 
-        MatrixXd X(10, 5);
+        X = MatrixXd(10, 5);
         X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
         0.9058,    0.9706,    0.0357,    0.0318,    0.3816,
         0.1270,    0.9572,    0.8491,    0.2769,    0.7655,
@@ -43,7 +45,7 @@ protected:
         0.5469,    0.9157,    0.3922,    0.3171,    0.6463,
         0.9575,    0.7922,    0.6555,    0.9502,    0.7094,
         0.9649,    0.9595,    0.1712,    0.0344,    0.7547;
-        MatrixXd y(10, 1);
+    	y = MatrixXd(10, 1);        
         y << 0.4173,
         0.0497,
         0.9027,
@@ -54,15 +56,31 @@ protected:
         0.9001,
         0.3692,
         0.1112;
+
+		LargeX = MatrixXd(n_patients, n_markers);
+        for (int i = 0; i < n_patients; i++) {
+            for (int j = 0; j < n_markers; j++) {
+                LargeX(i,j) = rand();
+            }
+        }
+    	LargeY = MatrixXd(n_patients, n_traits);        
+        for (int i = 0; i < n_patients; i++) {
+            for (int j = 0; j < n_traits; j++) {
+                LargeY(i,j) = rand();
+            }
+        }
 	}
 
-	virtual void TearDown() {
+	virtual void TearDown() {}
 
-	}
-
+    const int n_patients = 1000;
+    const int n_markers = 1000;
+    const int n_traits = 1;
 	AlgorithmOptions_t alg_opts;
     MatrixXd X;
     MatrixXd y;
+    MatrixXd LargeX;
+    MatrixXd LargeY;
 	ModelOptions_t model_opts;
 	Scheduler* my_scheduler;
 };
@@ -202,22 +220,49 @@ TEST_F(SchedulerTest, Train) {
 	*/
 	//int alg_num1 = my_scheduler->newAlgorithm(alg_opts);
 	int job_id = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
-	my_scheduler->setX(job_id, X);
-    my_scheduler->setY(job_id, y);
+	ASSERT_TRUE(my_scheduler->setX(job_id, X));
+    ASSERT_TRUE(my_scheduler->setY(job_id, y));
 
 	ASSERT_TRUE(my_scheduler->startJob(job_id, NullFunc));
 }
 
 TEST_F(SchedulerTest, CheckJobProgress) {
+    int job_id4 = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
+    ASSERT_TRUE(my_scheduler->setX(job_id4, LargeX));
+    ASSERT_TRUE(my_scheduler->setY(job_id4, LargeY));
+    ASSERT_EQ(0, my_scheduler->checkJobProgress(job_id4));	// works fine
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    start = std::chrono::system_clock::now();
+    std::time_t start_time = std::chrono::system_clock::to_time_t(start);
+    std::cerr << "starting job at " << std::ctime(&start_time);
+    ASSERT_TRUE(my_scheduler->startJob(job_id4, NullFunc));
+
+    start = std::chrono::system_clock::now();
+    double progress = my_scheduler->checkJobProgress(job_id4);
+    end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end-start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+    std::cerr << "finished computation at " << std::ctime(&end_time)
+              << "elapsed time: " << elapsed_seconds.count() << "s\n";
+    ASSERT_GE(progress, 0);
+    ASSERT_LT(progress, 1);	// false: progress == 1 here, but why?
+    double progress_2 = my_scheduler->checkJobProgress(job_id4);
+    ASSERT_GE(progress_2, progress);
+
+    while(my_scheduler->checkJobProgress(job_id4) < 1.0) {
+        usleep(1);
+    }
+    ASSERT_EQ(1.0, my_scheduler->checkJobProgress(job_id4));
+
 	EXPECT_EQ(-1, my_scheduler->checkJobProgress(-1));
 	int job_id = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
 	my_scheduler->setX(job_id, X);
     my_scheduler->setY(job_id, y);
 	ASSERT_TRUE(my_scheduler->startJob(job_id, NullFunc));
 
-	double progress = my_scheduler->checkJobProgress(job_id);
+	progress = my_scheduler->checkJobProgress(job_id);
 	ASSERT_GE(progress, 0);
-	double progress_2 = my_scheduler->checkJobProgress(job_id);
+	progress_2 = my_scheduler->checkJobProgress(job_id);
 	ASSERT_GE(progress_2, progress);
 
     while(my_scheduler->checkJobProgress(job_id) < 1.0) {
@@ -228,6 +273,8 @@ TEST_F(SchedulerTest, CheckJobProgress) {
     // new job should update independently
     int job_id2 = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
     ASSERT_NE(job_id, job_id2);
+    my_scheduler->setX(job_id2, X);
+    my_scheduler->setY(job_id2, y);
     EXPECT_EQ(0, my_scheduler->checkJobProgress(job_id2));
     ASSERT_TRUE(my_scheduler->startJob(job_id2, NullFunc));
     progress = my_scheduler->checkJobProgress(job_id2);
@@ -239,6 +286,24 @@ TEST_F(SchedulerTest, CheckJobProgress) {
         usleep(1);
     }
     ASSERT_EQ(1.0, my_scheduler->checkJobProgress(job_id2));
+
+    // new job should update independently
+    int job_id3 = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
+    ASSERT_NE(job_id, job_id3);
+    my_scheduler->setX(job_id3, LargeX);
+    my_scheduler->setY(job_id3, LargeY);
+    ASSERT_EQ(0, my_scheduler->checkJobProgress(job_id3));
+    ASSERT_TRUE(my_scheduler->startJob(job_id3, NullFunc));
+    progress = my_scheduler->checkJobProgress(job_id3);
+    ASSERT_GE(progress, 0);
+    ASSERT_LT(progress, 1);
+    progress_2 = my_scheduler->checkJobProgress(job_id3);
+    ASSERT_GE(progress_2, progress);
+
+    while(my_scheduler->checkJobProgress(job_id3) < 1.0) {
+        usleep(1);
+    }
+    ASSERT_EQ(1.0, my_scheduler->checkJobProgress(job_id3));
 
 	/*ASSERT_TRUE(my_scheduler->deleteJob(job_num));*/
 	/*ASSERT_EQ(my_scheduler->checkJobProgress(job_num), -1);*/
