@@ -405,7 +405,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             Scheduler.setX(jobId, markerData);
             Scheduler.setY(jobId, traitData);
             var success = Scheduler.startJob(jobId, function (results) {
-              results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
+              //results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
               //console.log('results: ', results)
             });
 
