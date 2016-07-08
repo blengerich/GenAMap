@@ -39,30 +39,53 @@ MatrixXd* v8toEigen(Local<v8::Array>& ar) {
 	return mat;
 }
 
+// Checks that the argument in the supplied position is a number type.
+// Doesn't check 
+bool ArgsHaveJobID(const FunctionCallbackInfo<Value>& args, const int position) {
+	Isolate* isolate = args.GetIsolate();
+	if (args.Length() < 1) {
+		isolate->ThrowException(Exception::TypeError(
+			String::NewFromUtf8(isolate, "Must supply a job id.")));
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
+		return false;
+	}
+
+	if (!(args[0]->IsNumber())) {
+		isolate->ThrowException(Exception::TypeError(
+			String::NewFromUtf8(isolate, "Job id must be a number.")));
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
+		return false;
+	}
+
+	return true;
+}
+
 // Sets the X matrix of a given model.
 // Arguments: job_id, JSON matrix
 void setX(const FunctionCallbackInfo<Value>& args) {
+	bool result = false;
 	Isolate* isolate = args.GetIsolate();
-	const int job_id = (int)Local<Number>::Cast(args[0])->Value();
-	Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
-	MatrixXd* mat = v8toEigen(ar);
-	
-	bool result = Scheduler::Instance()->setX(job_id, *mat);
+	if (ArgsHaveJobID(args, 0)) {
+		const int job_id = (int)Local<Number>::Cast(args[0])->Value();
+		Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
+		MatrixXd* mat = v8toEigen(ar);
+		result = Scheduler::Instance()->setX(job_id, *mat);
+	}
 	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
 
 // Sets the Y matrix of a given model.
 // Arguments: job_id, JSON matrix
 void setY(const FunctionCallbackInfo<Value>& args) {
-	// TODO: failing when Y is multiple columns [Issue: https://github.com/blengerich/GenAMap_V2/issues/38]
+	bool result = false;
 	Isolate* isolate = args.GetIsolate();
-
-	const int job_id = (int)Local<Number>::Cast(args[0])->Value();
-	Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
-	MatrixXd* mat = v8toEigen(ar);
-
-	bool result = Scheduler::Instance()->setY(job_id, *mat);
-	args.GetReturnValue().Set(Boolean::New(isolate, result));	
+	if (ArgsHaveJobID(args, 0)) {
+		const int job_id = (int)Local<Number>::Cast(args[0])->Value();
+		Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
+		MatrixXd* mat = v8toEigen(ar);
+		result = Scheduler::Instance()->setY(job_id, *mat);
+	}
+	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
 
 
@@ -90,16 +113,8 @@ void newJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	// Inspect arguments.
-	if (args.Length() < 1) {
-		isolate->ThrowException(Exception::TypeError(
-			String::NewFromUtf8(isolate, "Must supply a job id to start.")));
-		args.GetReturnValue().Set(Boolean::New(isolate, false));
-		return;
-	}
 
-	if (!(args[0]->IsNumber())) {
-		isolate->ThrowException(Exception::TypeError(
-			String::NewFromUtf8(isolate, "Job id must be a number.")));
+	if (!ArgsHaveJobID(args, 0)) {
 		args.GetReturnValue().Set(Boolean::New(isolate, false));
 		return;
 	}
@@ -133,9 +148,8 @@ void checkJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 
 	// Check argument types.
-	if (args.Length() < 1) {
-		isolate->ThrowException(Exception::TypeError(
-			String::NewFromUtf8(isolate, "Must supply a job id to check.")));
+	if (!ArgsHaveJobID(args, 0)) {
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
 		return;
 	}
 
@@ -153,9 +167,8 @@ void getJobResult(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 
 	// Check argument types.
-	if (args.Length() < 1) {
-		isolate->ThrowException(Exception::TypeError(
-			String::NewFromUtf8(isolate, "Must supply a job id to check.")));
+	if (!ArgsHaveJobID(args, 0)) {
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
 		return;
 	}
 
@@ -176,15 +189,8 @@ void cancelJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 
 	// Check argument types.
-	if (args.Length() < 1) {
-		isolate->ThrowException(Exception::TypeError(
-			String::NewFromUtf8(isolate, "Must supply a job id to cancel.")));
-		return;
-	}
-	
-	if (!args[0]->IsNumber()) {
-		isolate->ThrowException(Exception::TypeError(
-			String::NewFromUtf8(isolate, "Job id must be a number.")));
+	if (!ArgsHaveJobID(args, 0)) {
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
 		return;
 	}
 
@@ -198,6 +204,12 @@ void cancelJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 // Arguments: job_id
 void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
+
+	if (!ArgsHaveJobID(args, 0)) {
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
+		return;
+	}
+
 	const int job_id = (int)Local<Integer>::Cast(args[0])->Value();
 	const bool success = Scheduler::Instance()->deleteJob(job_id);
 	Handle<Boolean> retval = Boolean::New(isolate, success);

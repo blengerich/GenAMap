@@ -15,7 +15,7 @@ require('es6-promise').polyfill()
 require('isomorphic-fetch')
 
 var config = require('./config')
-var Scheduler = require('../../Scheduler/node/build/Release/scheduler')
+var Scheduler = require('../../Scheduler/node/build/Release/scheduler.node')
 var jwt = require('jsonwebtoken')
 
 // temp
@@ -242,15 +242,13 @@ app.post(config.api.createSessionUrl, function (req, res) {
 })
 
 app.get(`${config.api.getActivityUrl}/:id`, function (req, res) {
-  console.log('requesting job progress from backend')
-  var progress = Scheduler.checkJob(req.params.id)
+  var progress = Scheduler.checkJob(parseInt(req.params.id));
   console.log('Job id: ' + req.params.id + '\t progress: ' + progress)
-  /*if (progress == 1) {
-    var jobResults = Scheduler.getJobResult(req.params.id)
-    //var results = JSON.parse(jobResults[0].replace(/(\r\n|\n|\r)/gm,""))
-    var results = jobResults[0]
+  if (progress == 1) {
+    var jobResults = Scheduler.getJobResult(parseInt(req.params.id))
+    var results = JSON.parse(jobResults[0].replace(/(\r\n|\n|\r)/gm,""))
     return res.json({ progress, results })
-  }*/
+  }
   return res.json({ progress })
 })
 
@@ -368,11 +366,10 @@ var getAlgorithmType = function (id) {
  */
 app.post(config.api.runAnalysisUrl, function (req, res) {
   var converter = new Converter({noheader:true});
-
   // Get marker file
   app.models.file.findOne({ id: req.body.marker }).exec(function (err, markerFile) {
     if (err) console.log('Error getting marker for analysis: ', err);
-    converter.fromFile(markerFile.path, function(err,markerData) {
+    converter.fromFile(markerFile.path, function(err, markerData) {
       if (err) console.log('Error getting marker for analysis: ', err);
       // Get trait file
       app.models.file.findOne({ id: req.body.trait }).exec(function (err, traitFile) {
@@ -402,14 +399,17 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             }
             // Job
             const jobId = Scheduler.newJob({'algorithm_options': algorithmOptions, 'model_options': modelOptions})
-            if (jobId === -1) return res.json({msg: 'error creating job'})
-            Scheduler.setX(jobId, markerData)
-            Scheduler.setY(jobId, traitData)
-            Scheduler.startJob(jobId, function (results) {
+            if (jobId === -1) {
+              return res.json({msg: 'error creating job'});
+            }
+            Scheduler.setX(jobId, markerData);
+            Scheduler.setY(jobId, traitData);
+            var success = Scheduler.startJob(jobId, function (results) {
               results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
-              console.log('results: ', results)
-            })
-            return res.json({ status: true, jobId: jobId })
+              //console.log('results: ', results)
+            });
+
+            return res.json({ status: success, jobId: jobId })
           })
         });
       });

@@ -231,21 +231,13 @@ TEST_F(SchedulerTest, CheckJobProgress) {
     ASSERT_TRUE(my_scheduler->setX(job_id4, LargeX));
     ASSERT_TRUE(my_scheduler->setY(job_id4, LargeY));
     ASSERT_EQ(0, my_scheduler->checkJobProgress(job_id4));	// works fine
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    start = std::chrono::system_clock::now();
-    std::time_t start_time = std::chrono::system_clock::to_time_t(start);
-    std::cerr << "starting job at " << std::ctime(&start_time);
     ASSERT_TRUE(my_scheduler->startJob(job_id4, NullFunc));
-
-    start = std::chrono::system_clock::now();
+    while(my_scheduler->checkJobProgress(job_id4) == 0) {
+    	usleep(1);
+    }
     double progress = my_scheduler->checkJobProgress(job_id4);
-    end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end-start;
-    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-    std::cerr << "finished computation at " << std::ctime(&end_time)
-              << "elapsed time: " << elapsed_seconds.count() << "s\n";
     ASSERT_GE(progress, 0);
-    ASSERT_LT(progress, 1);	// false: progress == 1 here, but why?
+    ASSERT_LT(progress, 1);
     double progress_2 = my_scheduler->checkJobProgress(job_id4);
     ASSERT_GE(progress_2, progress);
 
@@ -294,6 +286,9 @@ TEST_F(SchedulerTest, CheckJobProgress) {
     my_scheduler->setY(job_id3, LargeY);
     ASSERT_EQ(0, my_scheduler->checkJobProgress(job_id3));
     ASSERT_TRUE(my_scheduler->startJob(job_id3, NullFunc));
+    while(my_scheduler->checkJobProgress(job_id3) == 0) {
+    	usleep(1);
+    }
     progress = my_scheduler->checkJobProgress(job_id3);
     ASSERT_GE(progress, 0);
     ASSERT_LT(progress, 1);
