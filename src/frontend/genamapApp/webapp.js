@@ -241,15 +241,19 @@ app.post(config.api.createSessionUrl, function (req, res) {
   })
 })
 
-app.get(`${config.api.getActivityUrl}/:id`, function (req, res) {
-  var progress = Scheduler.checkJob(parseInt(req.params.id));
+app.post(`${config.api.getActivityUrl}/:id`, function (req, res) {
+  var progress = Scheduler.checkJob(req.params.id)
   if (progress == 1) {
-    var jobResults = Scheduler.getJobResult(parseInt(req.params.id))
-    var results = JSON.parse(jobResults[0])
-    //var results = JSON.parse(jobResults[0].replace(/(\r\n|\n|\r)/gm,""))
-    return res.json({ progress, results })
+    var jobResults = Scheduler.getJobResult(req.params.id)
+    var results = jobResults[0].replace(/(\r\n|\n|\r)/gm,"")
+
+    fs.writeFile(req.body.resultsPath, results, function(err) {
+      if (err) console.log(err)
+      return res.json({ progress, results })
+    })
+  } else {
+    return res.json({ progress })
   }
-  return res.json({ progress })
 })
 
 app.get(`${config.api.dataUrl}/:id`, function (req, res) {
@@ -405,11 +409,12 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             Scheduler.setX(jobId, markerData);
             Scheduler.setY(jobId, traitData);
             var success = Scheduler.startJob(jobId, function (results) {
-              //results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
-              //console.log('results: ', results)
+              results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
+              console.log('results: ', results)
             });
 
-            return res.json({ status: success, jobId: jobId })
+            var resultsPath = path.join(markerFile.path.substr(0, markerFile.path.lastIndexOf("/")), "results.csv")
+            return res.json({ status: true, jobId, resultsPath })
           })
         });
       });

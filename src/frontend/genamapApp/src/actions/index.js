@@ -113,7 +113,8 @@ export function runAnalysis (data) {
       }
     }).then(processedData => {
       var activity = {
-        id: processedData.jobId
+        id: processedData.jobId,
+        resultsPath: processedData.resultsPath
       }
       dispatch(addActivity(activity))
     }).catch(err => console.log('Error: ', err))
@@ -170,7 +171,8 @@ export function starFile (file) {
 export function addActivity (activity) {
   return {
     type: ADD_ACTIVITY,
-    id: activity.id
+    id: activity.id,
+    resultsPath: activity.resultsPath
   }
 }
 
@@ -211,10 +213,11 @@ export function requestUpdateActivity (activity) {
   }
 }
 
-export function receiveUpdateActivity (id, response) {
+export function receiveUpdateActivity (activity, response) {
   return {
     type: RECEIVE_UPDATE_ACTIVITY,
-    id,
+    id: activity.id,
+    resultsPath: activity.resultsPath,
     progress: response.progress,
     results: response.results
   }
@@ -223,7 +226,13 @@ export function receiveUpdateActivity (id, response) {
 export function fetchUpdateActivity (activity) {
   return (dispatch) => {
     dispatch(requestUpdateActivity(activity))
-    return fetch(`${config.api.getActivityUrl}/${activity}`)
+    let getActivityRequest = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ resultsPath: activity.resultsPath })
+    }
+
+    return fetch(`${config.api.getActivityUrl}/${activity.id}`, getActivityRequest)
     .then(response => {
       if (!response.ok) {
         console.log('Could not fetch activity for activity ', activity)

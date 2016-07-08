@@ -21,7 +21,7 @@ const GMActivities = React.createClass({
   fetchActivityUpdates: function() {
     this.props.runningActivities.map((a) => {
       console.log("Fetching", a.id)
-      this.props.activityActions.onFetchUpdateActivity(a.id)
+      this.props.activityActions.onFetchUpdateActivity(a)
     })
 
     setTimeout(this.fetchActivityUpdates, 1000)
