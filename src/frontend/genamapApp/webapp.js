@@ -243,7 +243,6 @@ app.post(config.api.createSessionUrl, function (req, res) {
 
 app.get(`${config.api.getActivityUrl}/:id`, function (req, res) {
   var progress = Scheduler.checkJob(parseInt(req.params.id));
-  console.log('Job id: ' + req.params.id + '\t progress: ' + progress)
   if (progress == 1) {
     var jobResults = Scheduler.getJobResult(parseInt(req.params.id))
     var results = JSON.parse(jobResults[0].replace(/(\r\n|\n|\r)/gm,""))
