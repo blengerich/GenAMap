@@ -245,7 +245,8 @@ app.get(`${config.api.getActivityUrl}/:id`, function (req, res) {
   var progress = Scheduler.checkJob(parseInt(req.params.id));
   if (progress == 1) {
     var jobResults = Scheduler.getJobResult(parseInt(req.params.id))
-    var results = JSON.parse(jobResults[0].replace(/(\r\n|\n|\r)/gm,""))
+    var results = JSON.parse(jobResults[0])
+    //var results = JSON.parse(jobResults[0].replace(/(\r\n|\n|\r)/gm,""))
     return res.json({ progress, results })
   }
   return res.json({ progress })
@@ -415,7 +416,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
     });
   })
 
-  return res.json({ status: true })
+  //return res.json({ status: true })
 })
 
 
