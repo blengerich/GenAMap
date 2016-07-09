@@ -17,6 +17,7 @@ export const TOGGLE_LEFT_NAV = 'TOGGLE_LEFT_NAV'
 export const TOGGLE_RIGHT_NAV = 'TOGGLE_RIGHT_NAV'
 export const DELETE_FILE = 'DELETE_FILE'
 export const STAR_FILE = 'STAR_FILE'
+export const ADD_ACTIVITY = 'ADD_ACTIVITY'
 export const CANCEL_ACTIVITY = 'CANCEL_ACTIVITY'
 export const PAUSE_ACTIVITY = 'PAUSE_ACTIVITY'
 export const RESTART_ACTIVITY = 'RESTART_ACTIVITY'
@@ -99,7 +100,7 @@ export function runAnalysis (data) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
-  }  
+  }
 
   return (dispatch) => {
     dispatch(runAnalysisRequest(data))
@@ -111,7 +112,10 @@ export function runAnalysis (data) {
         return response.json()
       }
     }).then(processedData => {
-      dispatch(runAnalysisReceive(processedData))
+      var activity = {
+        id: processedData.jobId
+      }
+      dispatch(addActivity(activity))
     }).catch(err => console.log('Error: ', err))
   }
 }
@@ -163,10 +167,17 @@ export function starFile (file) {
   }
 }
 
+export function addActivity (activity) {
+  return {
+    type: ADD_ACTIVITY,
+    id: activity.id
+  }
+}
+
 export function cancelActivity (activity) {
   return {
     type: CANCEL_ACTIVITY,
-    activity
+    id: activity.id
   }
 }
 
@@ -200,15 +211,16 @@ export function requestUpdateActivity (activity) {
   }
 }
 
-export function receiveUpdateActivity (activity, response) {
+export function receiveUpdateActivity (id, response) {
   return {
     type: RECEIVE_UPDATE_ACTIVITY,
-    activity,
-    response
+    id,
+    progress: response.progress,
+    results: response.results
   }
 }
 
-function fetchUpdateActivity (activity) {
+export function fetchUpdateActivity (activity) {
   return (dispatch) => {
     dispatch(requestUpdateActivity(activity))
     return fetch(`${config.api.getActivityUrl}/${activity}`)

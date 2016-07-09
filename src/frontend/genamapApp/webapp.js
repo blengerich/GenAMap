@@ -15,8 +15,12 @@ require('es6-promise').polyfill()
 require('isomorphic-fetch')
 
 var config = require('./config')
-var Scheduler = require('../../Scheduler/node/build/Release/scheduler')
+var Scheduler = require('../../Scheduler/node/build/Release/scheduler.node')
 var jwt = require('jsonwebtoken')
+
+// temp
+var http = require('http')
+var querystring = require('querystring')
 
 const getTokenContent = (token) => {
   try {
@@ -237,6 +241,17 @@ app.post(config.api.createSessionUrl, function (req, res) {
   })
 })
 
+app.get(`${config.api.getActivityUrl}/:id`, function (req, res) {
+  var progress = Scheduler.checkJob(parseInt(req.params.id));
+  if (progress == 1) {
+    var jobResults = Scheduler.getJobResult(parseInt(req.params.id))
+    var results = JSON.parse(jobResults[0])
+    //var results = JSON.parse(jobResults[0].replace(/(\r\n|\n|\r)/gm,""))
+    return res.json({ progress, results })
+  }
+  return res.json({ progress })
+})
+
 app.get(`${config.api.dataUrl}/:id`, function (req, res) {
   app.models.file.findOne({id: req.params.id}, function (err, model) {
     if (err) return res.status(500).json({err: err})
@@ -320,6 +335,7 @@ app.post(config.api.importDataUrl, function (req, res) {
       )
     })
   })
+
   req.pipe(busboy)
 })
 
@@ -350,11 +366,10 @@ var getAlgorithmType = function (id) {
  */
 app.post(config.api.runAnalysisUrl, function (req, res) {
   var converter = new Converter({noheader:true});
-
   // Get marker file
   app.models.file.findOne({ id: req.body.marker }).exec(function (err, markerFile) {
     if (err) console.log('Error getting marker for analysis: ', err);
-    converter.fromFile(markerFile.path, function(err,markerData) {
+    converter.fromFile(markerFile.path, function(err, markerData) {
       if (err) console.log('Error getting marker for analysis: ', err);
       // Get trait file
       app.models.file.findOne({ id: req.body.trait }).exec(function (err, traitFile) {
@@ -373,8 +388,6 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                 learning_rate: req.body.learning_rate || 0.01
               }
             }
-            const algorithmId = Scheduler.newAlgorithm(algorithmOptions)
-            if (algorithmId === -1) return res.json({msg: 'error creating algorithm'})
 
             // Model
             const modelOptions = {
@@ -384,23 +397,26 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                 L2_lambda: model.L2_lambda || 0.01
               }
             }
-            const modelId = Scheduler.newModel(modelOptions)
-            if (modelId === -1) return res.json({msg: 'error creating model'})
-            Scheduler.setX(modelId, markerData)
-            Scheduler.setY(modelId, traitData)
-
             // Job
-            const jobId = Scheduler.newJob({algorithm_id: algorithmId, model_id: modelId})
-            Scheduler.startJob(jobId, function (results) {
-              console.log('results: ', results)
-            })
+            const jobId = Scheduler.newJob({'algorithm_options': algorithmOptions, 'model_options': modelOptions})
+            if (jobId === -1) {
+              return res.json({msg: 'error creating job'});
+            }
+            Scheduler.setX(jobId, markerData);
+            Scheduler.setY(jobId, traitData);
+            var success = Scheduler.startJob(jobId, function (results) {
+              //results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
+              //console.log('results: ', results)
+            });
+
+            return res.json({ status: success, jobId: jobId })
           })
         });
       });
     });
   })
 
-  return res.json({status: true})
+  //return res.json({ status: true })
 })
 
 
@@ -423,7 +439,7 @@ app.post(config.api.cancelJobUrl, function(req, res) {
 */
 
 // TODO: implement deleteAlgorithm [Issue: https://github.com/blengerich/GenAMap_V2/issues/40]
-/** 
+/**
 * @param {Object} req
 * @param {Number} req.algorithmId
 app.post(config.api.deleteAlgorithmUrl, function(req, res) {
