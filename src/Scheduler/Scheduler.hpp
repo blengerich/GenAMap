@@ -35,25 +35,19 @@ class Scheduler {
 /* Class to run jobs and get information about the currently running jobs.
 */
 
-public:
-	int newAlgorithm(const AlgorithmOptions_t&);
-	// returns the algorithm's assigned ID, -1 for failure.
-
-	int newModel(const ModelOptions_t&);
-	// returns the model's assigned ID, -1 for failure.
-
-	bool setX(const int, const Eigen::MatrixXd&);
-	// returns true on success, false otherwise.
-
-	bool setY(const int, const Eigen::MatrixXd&);
-	// returns true on success, false otherwise.
-	
-
+public:	
 	int newJob(const JobOptions_t&);
 	// Assumes that algorithm and job have been created by this scheduler.
 	// Simply packages as a job and assigns an ID.
 	// Returns the job's assigned ID, -1 for failure.
 	
+	bool setX(const int, const Eigen::MatrixXd&);
+	// returns true on success, false otherwise.
+
+	bool setY(const int, const Eigen::MatrixXd&);
+	// returns true on success, false otherwise.
+
+
 	bool startJob(const int, void (*f)(uv_work_t*, int));
 	// Returns true if successfully queued, false otherwise.
 
@@ -63,16 +57,15 @@ public:
 	bool cancelJob(const int);
 	// Cancels a potentially running job.
 
-	// TODO: How to know if the user owns the algorithm? [Issue: https://github.com/blengerich/GenAMap_V2/issues/28]
-	bool deleteAlgorithm(const int);
-	bool deleteModel(const int);
-	bool deleteJob(const int);
 
 	Model* getModel(const int);
 	Algorithm* getAlgorithm(const int);
 	Job_t* getJob(const int);
 
 	MatrixXd getJobResult(const int);
+
+	// TODO: How to know if the user owns the algorithm? [Issue: https://github.com/blengerich/GenAMap_V2/issues/28]
+	bool deleteJob(const int);
 
 	static Scheduler* Instance();
 	// This class follows the singleton pattern.
@@ -84,6 +77,11 @@ protected:
 	Scheduler& operator=(Scheduler const&);
 
 private:
+	int newAlgorithm(const AlgorithmOptions_t&);
+	// returns the algorithm's assigned ID, -1 for failure.
+
+	int newModel(const ModelOptions_t&);
+	// returns the model's assigned ID, -1 for failure.
 
 	// Generates and returns new identifier. Failure is identified with -1.
 	int getNewAlgorithmId();
@@ -95,8 +93,13 @@ private:
 	bool ValidModelId(const int);
 	bool ValidJobId(const int);
 
+	bool deleteAlgorithm(const int);
+	bool deleteModel(const int);
+
 
     #ifdef BAZEL
+    FRIEND_TEST(SchedulerTest, newAlgorithm);
+    FRIEND_TEST(SchedulerTest, newModel);
     FRIEND_TEST(SchedulerTest, getNewAlgorithmId);
     FRIEND_TEST(SchedulerTest, getNewModelId);
     FRIEND_TEST(SchedulerTest, getNewJobId);

@@ -149,7 +149,8 @@ const GMMatrixToolbar = React.createClass({
           <FlatButton
             label='Create a subset'
             icon={<FontIcon className='material-icons'>add</FontIcon>}
-            style={styles.action}
+            style={styles.action} 
+            onClick={this.props.subsetSelector}  
           />
           <FlatButton
             label='Sort'
