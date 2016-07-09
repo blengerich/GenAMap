@@ -5,7 +5,8 @@ import GMMatrixToolbar from './GMMatrixToolbar'
 const GMMatrixVisualization = React.createClass({
   getInitialState() {
     return {
-      correlationThreshold: 0.0
+      correlationThreshold: 0.0,
+      zoomEnabled: true
     }
   },
   onThresholdChange(event, value) {
@@ -13,11 +14,16 @@ const GMMatrixVisualization = React.createClass({
       correlationThreshold: value
     });
   },
+  subsetSelector(event) {
+    this.setState({
+      zoomEnabled: !this.state.zoomEnabled
+    });
+  },
   render: function () {
     return (
       <div>
         <div className="Matrix">
-          <D3Chart threshold={this.state.correlationThreshold} />
+          <D3Chart threshold={this.state.correlationThreshold} zoom={this.state.zoomEnabled}/>
         </div>
         <GMMatrixToolbar
           left={this.props.minPad}
