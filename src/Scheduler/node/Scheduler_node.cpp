@@ -25,41 +25,6 @@ using namespace std;
 using namespace v8;
 
 
-MatrixXd* v8toEigen(Local<v8::Array>& ar) {
-	const unsigned int rows = ar->Length();
-	Local<v8::Array> props = Local<v8::Object>::Cast(ar->Get(0))->GetPropertyNames();
-	const unsigned int cols = props->Length();
-	Eigen::MatrixXd* mat = new Eigen::MatrixXd(rows, cols);
-
-	for (unsigned int i=0; i<rows; i++) {
-		for (unsigned int j=0; j<cols; j++) {
-			(*mat)(i,j) = (double)Local<v8::Object>::Cast(ar->Get(i))->Get(props->Get(j))->NumberValue();
-		}
-	}
-	return mat;
-}
-
-// Checks that the argument in the supplied position is a number type.
-// Doesn't check 
-bool ArgsHaveJobID(const FunctionCallbackInfo<Value>& args, const int position) {
-	Isolate* isolate = args.GetIsolate();
-	if (args.Length() < 1) {
-		isolate->ThrowException(Exception::TypeError(
-			String::NewFromUtf8(isolate, "Must supply a job id.")));
-		args.GetReturnValue().Set(Boolean::New(isolate, false));
-		return false;
-	}
-
-	if (!(args[0]->IsNumber())) {
-		isolate->ThrowException(Exception::TypeError(
-			String::NewFromUtf8(isolate, "Job id must be a number.")));
-		args.GetReturnValue().Set(Boolean::New(isolate, false));
-		return false;
-	}
-
-	return true;
-}
-
 // Sets the X matrix of a given model.
 // Arguments: job_id, JSON matrix
 void setX(const FunctionCallbackInfo<Value>& args) {
@@ -216,6 +181,9 @@ void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	args.GetReturnValue().Set(retval);
 }
 
+/////////////////////////////////
+// Helper Functions
+/////////////////////////////////
 
 // Handles packaging of algorithm results to return to the frontend.
 // Called by libuv in event loop when async training completes.
@@ -237,6 +205,42 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 	Local<Function>::New(isolate, job->callback)->Call(
 		isolate->GetCurrentContext()->Global(), 1, argv);
 	job->callback.Reset();
+}
+
+
+MatrixXd* v8toEigen(Local<v8::Array>& ar) {
+	const unsigned int rows = ar->Length();
+	Local<v8::Array> props = Local<v8::Object>::Cast(ar->Get(0))->GetPropertyNames();
+	const unsigned int cols = props->Length();
+	Eigen::MatrixXd* mat = new Eigen::MatrixXd(rows, cols);
+
+	for (unsigned int i=0; i<rows; i++) {
+		for (unsigned int j=0; j<cols; j++) {
+			(*mat)(i,j) = (double)Local<v8::Object>::Cast(ar->Get(i))->Get(props->Get(j))->NumberValue();
+		}
+	}
+	return mat;
+}
+
+// Checks that the argument in the supplied position is a number type.
+// Doesn't check that it is a valid job ID.
+bool ArgsHaveJobID(const FunctionCallbackInfo<Value>& args, const int position) {
+	Isolate* isolate = args.GetIsolate();
+	if (args.Length() < 1) {
+		isolate->ThrowException(Exception::TypeError(
+			String::NewFromUtf8(isolate, "Must supply a job id.")));
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
+		return false;
+	}
+
+	if (!(args[0]->IsNumber())) {
+		isolate->ThrowException(Exception::TypeError(
+			String::NewFromUtf8(isolate, "Job id must be a number.")));
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
+		return false;
+	}
+
+	return true;
 }
 
 /* Deprecated - only interacting with jobs now

@@ -29,8 +29,6 @@ typedef struct Job_t {
 } Job_t;
 
 typedef struct JobOptions_t {
-	/*int algorithm_id;
-	int model_id;*/
 	AlgorithmOptions_t alg_opts;
 	ModelOptions_t model_opts;
 	//double priority;
@@ -43,14 +41,6 @@ typedef struct JobOptions_t {
 		Handle<Object> model_opts_v8 = Handle<Object>::Cast(options_v8->Get(
 			v8::String::NewFromUtf8(isolate, "model_options")));
 		model_opts = ModelOptions_t(isolate, model_opts_v8);
-
-		/*v8::Handle<v8::Value> algorithm_id_handle = options_v8->Get(
-			v8::String::NewFromUtf8(isolate, "algorithm_id"));
-		v8::Handle<v8::Value> model_id_handle = options_v8->Get(
-			v8::String::NewFromUtf8(isolate, "model_id"));
-
-		algorithm_id = algorithm_id_handle->IntegerValue();
-		model_id = model_id_handle->IntegerValue();*/
 	}
 
 	JobOptions_t(AlgorithmOptions_t alg, ModelOptions_t model)

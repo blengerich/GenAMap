@@ -379,7 +379,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           // Now that we have the data, create a job for each request
           req.body.algorithms.forEach((model) => {
             // Algorithm
-            var algorithmOptions = {
+            const algorithmOptions = {
               type: req.body.algorithmType || getAlgorithmType(model.id) || 1,
               options: {
                 // max_iteration: req.body.max_iteration || 10,
@@ -389,7 +389,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             }
 
             // Model
-            var modelOptions = {
+            const modelOptions = {
               type: model.id || 1,
               options: {
                 lambda: model.lambda || 0.05,
@@ -415,7 +415,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
     });
   })
 
-  //return res.json({ status: true })
+  return res.json({ status: true })
 })
 
 

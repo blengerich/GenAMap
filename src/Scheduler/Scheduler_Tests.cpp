@@ -11,8 +11,6 @@
 #include <memory>
 #include <stdio.h>
 #include <unordered_map>
-#include <ctime>
-#include <chrono>
 
 #include "Scheduler/Scheduler.hpp"
 #include "Scheduler/Job.hpp"
@@ -166,8 +164,6 @@ TEST_F(SchedulerTest, getNewJobId) {
 
 
 TEST_F(SchedulerTest, newJob) {
-	/*int alg_num = my_scheduler->newAlgorithm(alg_opts);
-	int model_num = my_scheduler->newModel(model_opts);*/
 	int job_num1 = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
 	ASSERT_GE(job_num1, 0);
 }
@@ -194,8 +190,6 @@ TEST_F(SchedulerTest, ValidJobId) {
 	ASSERT_FALSE(my_scheduler->ValidJobId(-1));
 	EXPECT_FALSE(my_scheduler->ValidJobId(my_scheduler->getNewJobId()));
 	
-	/*int alg_num = my_scheduler->newAlgorithm(alg_opts);
-	int model_num = my_scheduler->newModel(model_opts);*/
 	int job_num1 = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
 	ASSERT_TRUE(my_scheduler->ValidJobId(job_num1));
 
@@ -213,73 +207,50 @@ TEST_F(SchedulerTest, Train_Not_Found) {
 
 
 TEST_F(SchedulerTest, Train) {
-	/*ModelOptions_t model_opts = ModelOptions_t(linear_regression, {{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
-	int model_num1 = my_scheduler->newModel(model_opts);
-	AlgorithmOptions_t alg_opts = AlgorithmOptions_t(
-		algorithm_type::proximal_gradient_descent, {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
-	*/
-	//int alg_num1 = my_scheduler->newAlgorithm(alg_opts);
 	int job_id = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
 	ASSERT_TRUE(my_scheduler->setX(job_id, X));
     ASSERT_TRUE(my_scheduler->setY(job_id, y));
-
 	ASSERT_TRUE(my_scheduler->startJob(job_id, NullFunc));
 }
 
 TEST_F(SchedulerTest, CheckJobProgress) {
-    int job_id4 = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
-    ASSERT_TRUE(my_scheduler->setX(job_id4, LargeX));
-    ASSERT_TRUE(my_scheduler->setY(job_id4, LargeY));
-    ASSERT_EQ(0, my_scheduler->checkJobProgress(job_id4));	// works fine
-    ASSERT_TRUE(my_scheduler->startJob(job_id4, NullFunc));
-    while(my_scheduler->checkJobProgress(job_id4) == 0) {
+    EXPECT_EQ(-1, my_scheduler->checkJobProgress(-1));	// job progress == -1 for bad ID
+
+    int job_id = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
+    ASSERT_TRUE(my_scheduler->setX(job_id, LargeX));
+    ASSERT_TRUE(my_scheduler->setY(job_id, LargeY));
+    ASSERT_EQ(0, my_scheduler->checkJobProgress(job_id));	// job progress == 0 before being run
+    ASSERT_TRUE(my_scheduler->startJob(job_id, NullFunc));
+    while(my_scheduler->checkJobProgress(job_id) == 0) {
     	usleep(1);
     }
-    double progress = my_scheduler->checkJobProgress(job_id4);
+    double progress = my_scheduler->checkJobProgress(job_id);	// 0 < job progress < 1 before end of run
     ASSERT_GE(progress, 0);
     ASSERT_LT(progress, 1);
-    double progress_2 = my_scheduler->checkJobProgress(job_id4);
+    double progress_2 = my_scheduler->checkJobProgress(job_id);	// job progress monotonically increasing
     ASSERT_GE(progress_2, progress);
-
-    while(my_scheduler->checkJobProgress(job_id4) < 1.0) {
-        usleep(1);
-    }
-    ASSERT_EQ(1.0, my_scheduler->checkJobProgress(job_id4));
-
-	EXPECT_EQ(-1, my_scheduler->checkJobProgress(-1));
-	int job_id = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
-	my_scheduler->setX(job_id, X);
-    my_scheduler->setY(job_id, y);
-	ASSERT_TRUE(my_scheduler->startJob(job_id, NullFunc));
-
-	progress = my_scheduler->checkJobProgress(job_id);
-	ASSERT_GE(progress, 0);
-	progress_2 = my_scheduler->checkJobProgress(job_id);
-	ASSERT_GE(progress_2, progress);
-
     while(my_scheduler->checkJobProgress(job_id) < 1.0) {
         usleep(1);
     }
-    ASSERT_EQ(1.0, my_scheduler->checkJobProgress(job_id));
+    ASSERT_EQ(1.0, my_scheduler->checkJobProgress(job_id));	// job progress == 1 after run
 
-    // new job should update independently
-    int job_id2 = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
-    ASSERT_NE(job_id, job_id2);
-    my_scheduler->setX(job_id2, X);
+	// Everything should be the same for a second run (this small job only takes 1 iteration, though).
+	int job_id2 = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
+	my_scheduler->setX(job_id2, X);
     my_scheduler->setY(job_id2, y);
-    EXPECT_EQ(0, my_scheduler->checkJobProgress(job_id2));
-    ASSERT_TRUE(my_scheduler->startJob(job_id2, NullFunc));
-    progress = my_scheduler->checkJobProgress(job_id2);
-    ASSERT_GE(progress, 0);
-    progress_2 = my_scheduler->checkJobProgress(job_id2);
-    ASSERT_GE(progress_2, progress);
+	ASSERT_TRUE(my_scheduler->startJob(job_id2, NullFunc));
+
+	progress = my_scheduler->checkJobProgress(job_id2);
+	ASSERT_GE(progress, 0);
+	progress_2 = my_scheduler->checkJobProgress(job_id2);
+	ASSERT_GE(progress_2, progress);
 
     while(my_scheduler->checkJobProgress(job_id2) < 1.0) {
         usleep(1);
     }
     ASSERT_EQ(1.0, my_scheduler->checkJobProgress(job_id2));
 
-    // new job should update independently
+    // Run large job again
     int job_id3 = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
     ASSERT_NE(job_id, job_id3);
     my_scheduler->setX(job_id3, LargeX);
@@ -294,20 +265,17 @@ TEST_F(SchedulerTest, CheckJobProgress) {
     ASSERT_LT(progress, 1);
     progress_2 = my_scheduler->checkJobProgress(job_id3);
     ASSERT_GE(progress_2, progress);
-
     while(my_scheduler->checkJobProgress(job_id3) < 1.0) {
         usleep(1);
     }
     ASSERT_EQ(1.0, my_scheduler->checkJobProgress(job_id3));
 
-	/*ASSERT_TRUE(my_scheduler->deleteJob(job_num));*/
-	/*ASSERT_EQ(my_scheduler->checkJobProgress(job_num), -1);*/
+	/*ASSERT_TRUE(my_scheduler->deleteJob(job_id3));
+	ASSERT_EQ(my_scheduler->checkJobProgress(job_id3), -1);	// job progress == -1 after being deleted*/
 }
 
 
 TEST_F(SchedulerTest, GetJobResult) {
-    //int model_num1 = my_scheduler->newModel(model_opts);
-    //int alg_num1 = my_scheduler->newAlgorithm(alg_opts);
     int job_num = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
     my_scheduler->setX(job_num, X);
     my_scheduler->setY(job_num, y);    
@@ -318,7 +286,4 @@ TEST_F(SchedulerTest, GetJobResult) {
         usleep(1);
     }
     results = my_scheduler->getJobResult(job_num);
-
-    /*ASSERT_TRUE(my_scheduler->deleteJob(job_num));
-    EXPECT_EQ(my_scheduler->getJobResult(job_num), MatrixXd());*/
 }

@@ -80,14 +80,15 @@ void deleteModel(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 void trainAlgorithmComplete(uv_work_t* req, int status);
 
+MatrixXd* v8toEigen(Local<v8::Array>& ar);
+
+bool ArgsHaveJobID(const FunctionCallbackInfo<Value>& args, const int position);
 
 /////////////////////
 // Register with Node
 /////////////////////
 
 void Init(Handle<Object> exports, Handle<Object> module) {
-	/*NODE_SET_METHOD(exports, "newAlgorithm", newAlgorithm);
-	NODE_SET_METHOD(exports, "newModel", newModel);*/
 	NODE_SET_METHOD(exports, "setX", setX);
 	NODE_SET_METHOD(exports, "setY", setY);
 	NODE_SET_METHOD(exports, "newJob", newJob);
@@ -95,8 +96,6 @@ void Init(Handle<Object> exports, Handle<Object> module) {
 	NODE_SET_METHOD(exports, "checkJob", checkJob);
 	NODE_SET_METHOD(exports, "cancelJob", cancelJob);
 	NODE_SET_METHOD(exports, "getJobResult", getJobResult);
-	/*NODE_SET_METHOD(exports, "deleteAlgorithm", deleteAlgorithm);
-	NODE_SET_METHOD(exports, "deleteModel", deleteModel);*/
 	NODE_SET_METHOD(exports, "deleteJob", deleteJob);
 }
 
