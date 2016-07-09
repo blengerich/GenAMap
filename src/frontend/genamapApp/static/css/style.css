@@ -37,34 +37,48 @@ svg:active{
 }
 
 .marquee {
-    fill-opacity: 0.4;
-    stroke: #000;
-    stroke-dasharray:2,4;
-    vector-effect:non-scaling-stroke; /* not for FF */
+  border: 2px solid #000;
+  position: absolute;
+  background-color: gray;
+  opacity: 0.5;
 }
 
 #map-background {
 	stroke: #111111;
-    stroke-width: 4px;
-    fill-opacity: 0.6;
-    fill: #fff;
-    cursor: move;
+  stroke-width: 4px;
+  fill-opacity: 0.6;
+  fill: #fff;
+  cursor: move;
 }
 
 .tooltip, .selector {
-  	background: #eee;
-  	box-shadow: 0 0 5px #999999;
-  	color: #333;
-    font-family: Roboto;
-  	font-size: 12px;
- 	  padding: 10px;
-  	text-align: center;
-  	width: 200px;
-  	z-index: 10;
+	background: #eee;
+	box-shadow: 0 0 5px #999999;
+	color: #333;
+  font-family: Roboto;
+	font-size: 12px;
+	padding: 10px;
+	text-align: center;
+	width: 200px;
+	z-index: 10;
 }
 
-.btn-flat {
-	width: 50%;
+.subsetButton {
+  border: 10px;
+  background: none;
+  display: inline-block;
+  cursor: pointer;
+  transform: translate3d(0, 0, 0);
+  transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: 500;
+  border-radius: 2px;
+  position: relative; 
+  line-height: 36px;
+  min-width: 30px;
+  flex: 0 1 auto;
+  width: 40%;
 }
 
 #cancel {
@@ -73,11 +87,7 @@ svg:active{
 
 #add {
 	color: #4db6ac;
-}
-
-#chart {
-  border-bottom: 2px solid black;
-  border-left: 2px solid black;
+  padding-left: 20px;
 }
 
 .buttonContainer {
@@ -90,3 +100,20 @@ svg:active{
   top: 50%;
 	right: 24px;
 }
+
+.axes line {
+  stroke: #000;
+}
+
+.row text, .col text {
+  font-size: 10px;
+  font-family: sans-serif;
+}
+
+.axes .title {
+  font-size: 18px;
+  font-family: sans-serif;
+  font-weight: bold;
+}
+
+

@@ -18,6 +18,10 @@ var config = require('./config')
 var Scheduler = require('../../Scheduler/node/build/Release/scheduler')
 var jwt = require('jsonwebtoken')
 
+// temp
+var http = require('http')
+var querystring = require('querystring')
+
 const getTokenContent = (token) => {
   try {
     const decoded = jwt.verify(token, config.secret)
@@ -392,6 +396,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             // Job
             const jobId = Scheduler.newJob({algorithm_id: algorithmId, model_id: modelId})
             Scheduler.startJob(jobId, function (results) {
+              results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
               console.log('results: ', results)
             })
           })
@@ -400,7 +405,14 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
     });
   })
 
-  return res.json({status: true})
+  return res.json({status: true })
+})
+
+app.post('/visualization/matrix', function (req, res) {
+  console.log("redirect?")
+  res.redirect('/visualization/matrix')
+  res.end()
+  return res
 })
 
 
@@ -423,7 +435,7 @@ app.post(config.api.cancelJobUrl, function(req, res) {
 */
 
 // TODO: implement deleteAlgorithm [Issue: https://github.com/blengerich/GenAMap_V2/issues/40]
-/** 
+/**
 * @param {Object} req
 * @param {Number} req.algorithmId
 app.post(config.api.deleteAlgorithmUrl, function(req, res) {
