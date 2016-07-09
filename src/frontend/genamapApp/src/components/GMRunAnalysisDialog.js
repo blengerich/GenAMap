@@ -151,6 +151,7 @@ const GMRunAnalysisDialog = React.createClass({
     return (
       <div>
         <Dialog
+          autoScrollBodyContent={true}
           className='gm-dialog__run-analysis'
           title='Run Analysis'
           actions={actions}

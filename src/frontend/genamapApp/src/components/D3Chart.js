@@ -65,6 +65,7 @@ var Graph = function() {
   mapHeight = Math.min(maxHeight, matrixHeight);
 
   var axisPadding = 50;
+  var baseLabelStyle = { fontSize: 10, innerMargin: 8 };
 
   var totalWidth = axisPadding + margin.left + mapWidth;
   var totalHeight = mapHeight + margin.bottom + axisPadding;
@@ -82,11 +83,36 @@ var Graph = function() {
     var zoomAmount = d3.event.scale;
     var translateAmount = d3.event.translate;
 
-    console.log("translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-    d3.selectAll(".col text")
-      .attr("transform", "translate(0," + translateAmount[0] + ")scale(" + d3.event.scale + ")");
-    d3.selectAll(".row text")
-      .attr("transform", "translate(0," + translateAmount[1] + ")scale(" + d3.event.scale + ")");
+    var newTextY = baseLabelStyle.innerMargin * zoomAmount;
+    var newFontSize = baseLabelStyle.fontSize * zoomAmount;
+
+    // column text transform
+    d3.selectAll(".col")
+      .each(function(d, i) {
+        var col = d3.select(this);
+        var translated = d3.transform(col.attr("transform")).translate;
+
+        var newX = margin.left + cellWidth * i * zoomAmount + translateAmount[0];
+        col.attr("transform", "translate(" + newX + "," + translated[1] + ")rotate(-90)");
+
+        col.select("text")
+           .attr("y", newTextY)
+           .style("font-size", newFontSize);
+      });
+
+    // row text transform
+    d3.selectAll(".row")
+      .each(function(d, i) {
+        var row = d3.select(this);
+        var translated = d3.transform(row.attr("transform")).translate;
+
+        var newY = margin.top + cellHeight * i * zoomAmount + translateAmount[1];
+        row.attr("transform", "translate(" + translated[0] + "," + newY + ")");
+
+        row.select("text")
+          .attr("y", newTextY)
+          .style("font-size", newFontSize);
+      });
 
     var overlay = d3.select("#map-background");
 
@@ -207,6 +233,11 @@ var Graph = function() {
         .attr("width", axisPadding + margin.left)
         .attr("height", axisPadding + margin.bottom)
         .attr("fill", "#fff");
+
+    d3.selectAll(".row text")
+      .style("font-size", baseLabelStyle.fontSize + "px");
+    d3.selectAll(".col text")
+      .style("font-size", baseLabelStyle.fontSize + "px");
   }
 
   function initGridLines() {
@@ -216,7 +247,7 @@ var Graph = function() {
       matrix.append("line")
             .attr("x1", 0)
             .attr("y1", cellHeight * i)
-            .attr("x2", mapWidth)
+            .attr("x2", cellWidth * numTraits)
             .attr("y2", cellHeight * i)
             .attr("stroke", "#fff");
     }
@@ -226,7 +257,7 @@ var Graph = function() {
             .attr("x1", cellWidth * i)
             .attr("y1", 0)
             .attr("x2", cellWidth * i)
-            .attr("y2", mapHeight)
+            .attr("y2", cellHeight * numMarkers)
             .attr("stroke", "#fff");
     }
   }
@@ -312,12 +343,6 @@ var Graph = function() {
       var matrix = d3.select("#overallMatrix");
       var newArray = [-translateAmount[0]*(numTraits/15), -translateAmount[1]*(numMarkers/15)];
       matrix.attr("transform", "translate(" + newArray + ")scale(" + d3.event.scale + ")");
-
-      d3.selectAll(".row")
-        .attr("transform", "translate(0," + newArray[1] + ")");
-
-      d3.selectAll(".col")
-        .attr("transform", "translate(" + newArray[0] + ",0)");
     }
 
     var overlayMapWidth = 100;
@@ -392,6 +417,7 @@ var D3Chart = React.createClass({
 		}
 	},
   componentDidMount: function() {
+    console.log("mounted")
     this.state.points = Graph();
   },
   subsetIndicator: function(trait1, marker1, trait2, marker2) {

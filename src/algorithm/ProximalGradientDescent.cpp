@@ -139,7 +139,7 @@ void ProximalGradientDescent::run(LinearRegression *model) {
     setUpRun();
     int epoch = 0;
     MatrixXd y = model->getY();
-    for (long i=0;i<y.cols();i++){
+    for (long i=0; i<y.cols(); i++){
         model->setY(y.col(i));
         model->initBeta();
         double residue = model->cost();
@@ -165,7 +165,7 @@ void ProximalGradientDescent::setLearningRate(float lr) {
 
 
 void ProximalGradientDescent::run(TreeLasso * model) {
-    isRunning = true;
+    setUpRun();
     int epoch = 0;
     double residue = model->cost();
     double theta = 1;
@@ -201,11 +201,12 @@ void ProximalGradientDescent::run(TreeLasso * model) {
     }
     model->updateBeta(best_beta);
     isRunning = false;
+    finishRun();
 }
 
 
 void ProximalGradientDescent::run(MultiPopLasso * model) {
-    isRunning = true;
+    setUpRun();
     model->initTraining();
     int epoch = 0;
     double residue = model->cost();
@@ -237,12 +238,12 @@ void ProximalGradientDescent::run(MultiPopLasso * model) {
         diff = abs(prev_residue - residue);
     }
     model->updateBeta(best_beta);
-    isRunning = false;
+    finishRun();
 }
 
 void ProximalGradientDescent::run(AdaMultiLasso *model) {
     // this is not just proximal gradient descent, also including iteratively updating beta and w, v
-    isRunning = true;
+    setUpRun();
     model->initTraining();
     int epoch = 0;
     double residue = model->cost();
@@ -308,7 +309,7 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
 //        cout << "--------"<<endl;
     }
     model->updateBeta(best_beta);
-    isRunning = false;
+    finishRun();
 }
 
 bool ProximalGradientDescent::checkVectorConvergence(VectorXd v1, VectorXd v2, double d) {

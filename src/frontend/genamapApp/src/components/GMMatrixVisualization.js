@@ -28,8 +28,7 @@ const GMMatrixVisualization = React.createClass({
         <GMMatrixToolbar
           left={this.props.minPad}
           right={this.props.minPad}
-          onThresholdChange={this.onThresholdChange}
-          subsetSelector={this.subsetSelector}
+          slider={{"onThresholdChange": this.onThresholdChange}}
         />
       </div>
     )
