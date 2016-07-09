@@ -8,9 +8,9 @@
 using namespace Eigen;
 using namespace std;
 
-void Model::setX(MatrixXd m) { X = m; }
+void Model::setX(const MatrixXd& m) { X = m; }
 
-void Model::setY(MatrixXd n) { y = n; };
+void Model::setY(const MatrixXd& n) { y = n; };
 
 void Model::initBeta(void) {
     long c = X.cols();

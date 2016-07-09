@@ -39,12 +39,43 @@ const GMProjectSearch = React.createClass({
     )
   }
 })
+//rgb(0, 188, 212)
+const GMSliderTooltip = React.createClass({
+  render: function() {
+    var toolTipStyle = {
+      "position": "absolute",
+      "fontSize": "12px",
+      "fontFamily": "sans-serif",
+      "fontWeight": "bold",
+      "left": 0
+    };
+
+    var slider = document.getElementById('slider');
+    if (slider) {
+      var sliderBounds = slider.getBoundingClientRect();
+      var left = slider.offsetLeft + sliderBounds.width;
+      var top = slider.offsetTop;
+      toolTipStyle.left = left + "px";
+    }
+
+    return (
+      <div style={toolTipStyle}>
+          {this.props.value}
+      </div>
+    )
+  }
+})
 
 const GMMatrixToolbar = React.createClass({
   getInitialState: function () {
     return {
         open: true,
-        vizMenuOpen: false
+        vizSelect: {
+          open: false
+        },
+        slider: {
+          threshold: 0.0
+        }
     };
   },
   handleToggle: function () {
@@ -53,14 +84,26 @@ const GMMatrixToolbar = React.createClass({
   openVizMenu: function(e) {
     e.preventDefault();
     this.setState({
-      vizMenuOpen: true,
-      vizMenuAnchor: e.currentTarget
+      vizSelect: {
+        open: true,
+        anchor: e.currentTarget
+      }
     });
   },
   closeVizMenu: function() {
     this.setState({
-      vizMenuOpen: false
+      vizSelect: {
+        open: false
+      }
     });
+  },
+  onThresholdChange: function(event, value) {
+    this.props.slider.onThresholdChange(event, value);
+    this.setState({
+      slider: {
+        threshold: value
+      }
+    })
   },
   render: function () {
     return (
@@ -71,9 +114,9 @@ const GMMatrixToolbar = React.createClass({
           height={100}
           left={this.props.left}
           right={this.props.right}
-          onThresholdChange={this.props.onThresholdChange}
         >
-          <Slider style={styles.slider} onChange={this.props.onThresholdChange} />
+          <Slider id={"slider"} style={styles.slider} onChange={this.onThresholdChange} />
+          <span style={{ "position": "relative", "marginLeft": "10px", "bottom": "10px" }}>0.5</span>
           <FlatButton
             label="Switch visualization"
             icon={<FontIcon className="material-icons">show_chart</FontIcon>}
@@ -81,8 +124,8 @@ const GMMatrixToolbar = React.createClass({
             style={styles.action}
           />
           <Popover
-            open={this.state.vizMenuOpen}
-            anchorEl={this.state.vizMenuAnchor}
+            open={this.state.vizSelect.open}
+            anchorEl={this.state.vizSelect.anchor}
             onRequestClose={this.closeVizMenu}
           >
             <Menu>
@@ -95,7 +138,8 @@ const GMMatrixToolbar = React.createClass({
           <FlatButton
             label='Create a subset'
             icon={<FontIcon className='material-icons'>add</FontIcon>}
-            style={styles.action}
+            style={styles.action} 
+            onClick={this.props.subsetSelector}  
           />
           <FlatButton
             label='Sort'
