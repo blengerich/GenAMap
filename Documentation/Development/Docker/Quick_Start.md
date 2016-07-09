@@ -44,3 +44,5 @@ Run the following to commit and push with a new tag:
         > exit
         > docker commit -m 'added $dependency' -a '$my name' $abc123deff blengerich/genamap:$dependency
         > docker push blengerich/genamap:$dependency'
+
+* Then I will move retag it as blengerich/genamap:latest, and we can automatically pull it when we run launch_docker.sh
