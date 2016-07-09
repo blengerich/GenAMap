@@ -37,6 +37,7 @@ Because Docker containers mask the ports from the host machine, it can be a litt
 
 If you want to add a dependency
 -----------
+Run the following to commit and push with a new tag:
 
 *       > docker run -ti blengerich/genamap
         > root@[abc123deff]: install $dependency
