@@ -19,6 +19,7 @@
     "busboy": "^0.2.12",
     "chai": "^3.5.0",
     "classnames": "^2.2.5",
+    "csvtojson": "^1.0.0",
     "ejs": "^2.4.2",
     "es6-promise": "^3.2.1",
     "express": "^4.13.4",
