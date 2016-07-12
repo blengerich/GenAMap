@@ -49,7 +49,7 @@ void LinearMixedModel::train(MatrixXd new_X, MatrixXd new_Y, MatrixXd new_K){
 void LinearMixedModel::setXY(MatrixXd X, MatrixXd Y) {
 //    cout << "LMM: Training set X and Y are provided !" << endl;
     this->X = X; // Input
-    this->Y = Y; // Output
+    this->y = Y; // Output
 
     this->beta = MatrixXd::Random(X.cols(), Y.rows());
     this->K = X*X.transpose();
@@ -62,7 +62,7 @@ void LinearMixedModel::setXY(MatrixXd X, MatrixXd Y) {
 void LinearMixedModel::setXYK(MatrixXd X, MatrixXd Y, MatrixXd K) {
 //    cout << "LMM: Training set X,Y and K are provided !" << endl;
     this->X = X;
-    this->Y = Y;
+    this->y = Y;
     this->K = K; // Matrix that needs to be decomposed
     this->n = get_num_samples();
     this->d = X.cols();
@@ -202,7 +202,7 @@ void LinearMixedModel::calculate_beta(double lambda) {
 }
 =======
     MatrixXd U_trans_X = U_trans * X; // n*d
-    MatrixXd U_trans_Y = U_trans * Y; // n*1
+    MatrixXd U_trans_Y = U_trans * y; // n*1
     MatrixXd U_X_trans = (U_trans_X).transpose(); // d*n
     MatrixXd S_lambda_inv = (S + lambda * Id).inverse(); // n*n
 >>>>>>> master
@@ -230,7 +230,7 @@ void LinearMixedModel::calculate_sigma(double lambda) {
     init();
     double ret_val = 0.0, temp_val = 0.0;
     this->calculate_beta(lambda);
-    MatrixXd U_tran_Y = U.transpose() * Y; // n*1
+    MatrixXd U_tran_Y = U.transpose() * y; // n*1
     MatrixXd U_tran_X = U.transpose() * X; // n*d
     MatrixXd U_tran_X_beta = U_tran_X * beta;
 >>>>>>> master

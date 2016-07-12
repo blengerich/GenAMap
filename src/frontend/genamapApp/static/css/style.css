@@ -3,3 +3,116 @@
   background-image: url('../images/logo-01.png');
   display: block;
 }
+
+html, body {
+	overflow-y: hidden;
+}
+
+body {
+	display: flex;
+	min-height: 100vh;
+	flex-direction: column;
+}
+
+main {
+	flex: 1 0 auto;
+}
+
+.zoomButton {
+	list-style-type: none;
+}
+
+/* Change color of cell on hover */
+
+.highlight:hover {
+	fill: #5FB53F !important;
+	opacity: 0.8 !important;
+}
+
+/* Make pointer a hand on matrix pan */
+
+svg:active{
+	cursor: pointer;
+	cursor: hand;
+}
+
+.marquee {
+  border: 2px solid #000;
+  position: absolute;
+  background-color: gray;
+  opacity: 0.5;
+}
+
+#map-background {
+	stroke: #111111;
+  stroke-width: 4px;
+  fill-opacity: 0.6;
+  fill: #fff;
+  cursor: move;
+}
+
+.tooltip, .selector {
+	background: #eee;
+	box-shadow: 0 0 5px #999999;
+	color: #333;
+  font-family: Roboto;
+	font-size: 12px;
+	padding: 10px;
+	text-align: center;
+	width: 200px;
+	z-index: 10;
+}
+
+.subsetButton {
+  border: 10px;
+  background: none;
+  display: inline-block;
+  cursor: pointer;
+  transform: translate3d(0, 0, 0);
+  transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: 500;
+  border-radius: 2px;
+  position: relative; 
+  line-height: 36px;
+  min-width: 30px;
+  flex: 0 1 auto;
+  width: 40%;
+}
+
+#cancel {
+	color: #e57373;
+}
+
+#add {
+	color: #4db6ac;
+  padding-left: 20px;
+}
+
+.buttonContainer {
+  position: absolute;
+  right: 50px;
+}
+
+.minimap {
+	position: absolute;
+  top: 50%;
+	right: 24px;
+}
+
+.axes line {
+  stroke: #000;
+}
+
+.row text, .col text {
+  font-family: sans-serif;
+}
+
+.axes .title {
+  font-size: 18px;
+  font-family: sans-serif;
+  font-weight: bold;
+}
+
+

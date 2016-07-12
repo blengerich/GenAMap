@@ -17,8 +17,8 @@ protected:
     MatrixXd beta;
     MatrixXd y;
 public:
-    void setX(MatrixXd);
-    void setY(MatrixXd);
+    void setX(const MatrixXd&);
+    void setY(const MatrixXd&);
     void initBeta();
     void initBeta(MatrixXd);
     void updateBeta(MatrixXd);

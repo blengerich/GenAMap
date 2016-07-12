@@ -1,0 +1,322 @@
+\documentclass{article}
+\usepackage[latin1]{inputenc}
+\usepackage[pdftex]{color}
+\usepackage[pdftex]{graphicx}
+\usepackage[T1]{fontenc}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{cancel}
+\usepackage{array}
+\usepackage{xspace}
+\usepackage{verbatim}
+\usepackage{mathabx}
+\newcommand{\sgn}{\operatorname{sgn}}
+\newcommand{\argmin}{\operatorname{argmin}}
+\newcommand{\argmax}{\operatorname{argmax}}
+\usepackage{longtable}
+\usepackage{hyperref}
+\usepackage{url}
+
+\bibliographystyle{Algorithms}
+
+\title{Algorithms in GenAMap}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\vspace{1cm}
+
+For further questions / comments / suggestions, please contact \url{genamapsupport@cs.cmu.edu}
+
+
+
+\section{Definitions}
+
+\begin{itemize}
+\item Let $N$ be the number of samples and let $n$, $1 \le n \le N$ be an index over the samples.
+\item Let $d$ be the number of markers and let $i$, $1 \le i \le d$ be an index over the markers.
+\item Let $t$ be the number of traits and let $j$ and $k$, $1 \le j,k \le t$ be indexes of the traits.
+\item Let $X$ be the marker value matrix. Let $X_{n,i}$ be the marker value of marker $i$ and individual $n$. 
+\item Let $Y$ be the trait value matrix. Let $Y_{n,j}$ be the trait value of trait $j$ and individual $n$. Let $Y_j$ be the vector of trait values of trait $j$ for all individuals.
+\item Let $\rho$ denote a network over traits. Let $\rho_{j,k}$ be the edge value between traits $j$ and $k$. We always have $\rho_{j,k} = \rho_{k,j}$ for all $j,k$, i.e. $\rho$ is symmetric, and $\rho_{j,j} = 0$ for all $j$.
+\item Let $\hat{\rho}$ be the network that an algorithm outputs.
+\item Let $B$ be an association value matrix. Let $B_{i,j}$ be the association value of marker $i$ and trait $j$. 
+\item Let $\hat{B}$ be the association value matrix that an algorithm outputs.
+\item Let $F$ be a feature value matrix. Features are additional quantitative information on markers. $F_{d,f}$ is the feature value corresponding to feature $f$ and marker $d$.
+\item In case we consider multiple populations in an algorithm, let $c$ be an index ranging over these populations from 1 to $C$, where $C$ is the total number of populations. $X^c$ is the marker value matrix for population $c$, $Y^c$ is the trait value matrix for population $c$ and $B^c$ are the association strengths between markers and traits for population $c$. $B^c$ has the same size as $B$ in the single-population case, except associations are considered separately for each population in the multi-population setting. $B$ then becomes a three-dimensional tensor with indexes $i$, $j$ and $c$.
+\item When we distinguish a trait value matrix into gene expression value matrix and phenotype value matrix, we will call the gene expression value matrix $Y$ and the phenotype value matrix $Z$. Indexes $l$ and $m$ range over phenotypes. The corresponding networks are called $\rho^Y$ and $\rho^Z$.
+\end{itemize}
+
+%Algorithm Code
+%Description
+%Reference
+%Formula
+%Inputs
+%Outputs
+%Implementation Details
+
+\section{Network Algorithms}
+
+Network Algorithms compute a Network Data set (a network over traits) given a single Trait Data set as input. A network is a square edge weight matrix of an undirected graph where vertices correspond to traits and the edges correspond to relatedness between traits. A large positive numerical entry in a network corresponds to two highly related traits, a negative numerical entry with large absolute value corresponds to two highly inversely related traits and a numerical entry close to or equal to zero corresponds to unrelated traits.
+
+\subsection{Correlation}
+
+\begin{itemize}
+\item Algorithm Code: CR1
+\item Description: Computes the pair-wise correlation between traits, considering each pair independently of all other traits.
+\item Formula:
+\begin{equation*}
+\hat{\rho}_{j,k} = \frac{\sum_n (Y_{n,j} - \bar{Y_j})(Y_{n,k} - \bar{Y_k})}{\sqrt{\sum_n (Y_{n,j} - \bar{Y_j})^2 \sum_n (Y_{n,k} - \bar{Y_k})^2}}
+\end{equation*}
+\item Implementation Details: Data is normalized; Absolute values of network entries are thresholded at a small value to achieve a sparse network 
+\end{itemize}
+
+\subsection{Correlation squared}
+
+\begin{itemize}
+\item Algorithm Code: CR2
+\item Description: Computes the square of the pair-wise correlation between traits, considering each pair independently of all other traits.
+\item Formula:
+\begin{equation*}
+\hat{\rho}_{j,k} = \frac{(\sum_n (Y_{n,j} - \bar{Y_j})(Y_{n,k} - \bar{Y_k}))^2}{\sum_n (Y_{n,j} - \bar{Y_j})^2 \sum_n (Y_{n,k} - \bar{Y_k})^2}
+\end{equation*}
+\item Implementation Details: Data is normalized; Absolute values of network entries are thresholded at a small value to achieve a sparse network 
+\end{itemize}
+
+\subsection{Scale-free Network}
+
+\begin{itemize}
+\item Algorithm Code: SFN
+\item Reference: \cite{SFN}
+\item Implementation Details: Data is normalized; Absolute values of network entries are thresholded at a small value to achieve a sparse network   
+\end{itemize}
+
+\subsection{SFN with Topological Overlap Matrix}
+
+\begin{itemize}
+\item Algorithm Code: TOM
+\item Reference: \cite{SFN}.
+\item Implementation Details: Data is normalized; Absolute values of network entries are thresholded at a small value to achieve a sparse network   
+\end{itemize}
+
+\subsection{Graphical Lasso}
+
+\begin{itemize}
+\item Algorithm Code: GLO
+\item Description: Fits a Gaussian graphical model to the trait data by maximizing the log-likelihood penalized the $L1$-norm of the precision matrix (= inverse covariance matrix), except that diagonal elements are set to zero. The network itself is equal to the precision matrix. 
+\item Reference: \cite{GLasso}
+\item Formula:
+\begin{equation*}
+\hat{\rho} = \argmax_{\rho\text{, $\rho$ non-negative definite}} \log \det \rho - tr(Y^TY\rho) - \lambda|\rho|_1
+\end{equation*}
+\item Implementation Details: Data is normalized; Regularization parameter $\lambda$ is chosen via cross-validation
+\end{itemize}
+
+\section{Association Algorithms}
+
+Association Algorithms compute an Association Data set, given a Marker Data set and a Trait Data set as input, and possibly side information. An Association Data set corresponds to an association value matrix where each row corresponds to a marker, each column corresponds to a trait and an entry represents the association strength between the corresponding marker and trait. Entries with large absolute values in the association matrix represent strong associations between markers and traits and values close to or equal to zero represent weak or no association.
+
+\subsection{Lasso}
+
+\begin{itemize}
+\item Algorithm Code: LAS
+\item Description: Performs $L1$-penalized least-squares regression from all markers to all traits.
+\item Reference: \cite{Lasso}
+\item Formula:
+\begin{equation*}
+\hat{B} = \argmin_{B} \frac{1}{2}||Y - XB||_2^2 + \lambda|B|_1
+\end{equation*}
+\item Implementation Details: Data is normalized; Regularization parameter $\lambda$ is chosen via cross-validation
+\end{itemize}
+
+\subsection{PLINK}
+
+\begin{itemize}
+\item Algorithm Code: PNK
+\item Description: Performs the Wald test (qualitative traits) or chi-squared test (binary traits) as implemented by the PLINK software
+\item Reference: \cite{PLINK}
+\item Implementation Details: Data is normalized; Absolute values of association values are thresholded at a small value to achieve a sparse set of associations
+\end{itemize}
+
+\subsection{Graph-guided fused Lasso}
+
+\begin{itemize}
+\item Algorithm Code: GF2
+\item Abbreviation: GfLasso
+\item Description: Performs $L1$-penalized least-squares regression from all markers to all traits with an additional fusion penalty on regression coefficients pertaining to related traits. Relatedness is measured by a trait network. Hence, this algorithm uses a Network as side information. 
+\item Reference: \cite{GfLasso}
+\item Additional Inputs: Network
+\item Formula:
+\begin{equation*}
+\hat{B} = \argmin_{B} \frac{1}{2}||Y - XB||_2^2 + \lambda|B|_1 + \gamma\sum_{i,j,k, j < k}\rho_{j,k}|B_{i,j} - \sgn(\rho_{j,k})B_{i,k}|
+\end{equation*}
+\item Implementation Details: Data is normalized; Regularization parameters $\lambda, \gamma$ are chosen via cross-validation; Regular Lasso is used for screening prior to running GfLasso to reduce the number of candidate markers; The trait set is partitioned into subsets using graph cuts and each subset is run independently (Network edges between subsets are dropped)
+
+\end{itemize}
+
+\subsection{Graph-constrained fused Lasso}
+
+\begin{itemize}
+\item Algorithm Code: GC2
+\item Abbreviation: GcLasso
+\item Description: Performs $L1$-penalized least-squares regression from all markers to all traits with an additional fusion penalty on regression coefficients pertaining to related traits. Relatedness is measured by a trait network. Hence, this algorithm uses a Network as side information. The difference to GfLasso is that the magnitude of the edge weight in the network is not used for the fusion penalty, only its sign.
+\item Reference: \cite{GfLasso}
+\item Additional Inputs: Network
+\item Formula:
+\begin{equation*}
+\hat{B} = \argmin_{B} \frac{1}{2}||Y - XB||_2^2 + \lambda|B|_1 + \gamma\sum_{i,j,k, j < k}|B_{i,j} - \sgn(\rho_{j,k})B_{i,k}|
+\end{equation*}
+\item Implementation Details: Data is normalized; Regularization parameters $\lambda, \gamma$ are chosen via cross-validation; Regular Lasso is used for screening prior to running GcLasso to reduce the number of candidate markers; The trait set is partitioned into subsets using graph cuts and each subset is run independently (Network edges between subsets are dropped)
+\end{itemize}
+
+\subsection{Tree Lasso}
+
+\begin{itemize}
+\item Algorithm Code: TLS
+\item Description: Performs least-squares regression from all markers to all traits, with an $L2$-penalty defined by overlapping output groups which follow a tree structure. The traits correspond to the leafs of that tree. The tree is derived from a Network through hierarchical clustering. Hence, this algorithm uses a Network as side information.
+\item Reference: \cite{TreeLasso}
+\item Additional Inputs: Network
+\item Formula:
+\begin{equation*}
+\hat{B} = \argmin_{B} \frac{1}{2}||Y - XB||_2^2 + \lambda \sum_i \sum_{v \in V} \omega_v ||B_{i,v}||_2
+\end{equation*}
+Here, $V$ is the set of tree nodes and $B_{i,v}$ is the vector of entries of $B$ in row $i$ and in columns corresponding to traits for which node $v$ is an ancestor.
+\item Implementation Details: Data is normalized; Regularization parameter $\lambda$ is chosen via cross-validation; Regular Lasso is used for screening prior to running Tree Lasso to reduce the number of candidate markers; The trait set is partitioned into subsets using graph cuts and each subset is run independently (Network edges between subsets are dropped); Tree structure and weights $\omega_v$ are generated automatically from the Network through hierarchical clustering
+\end{itemize}
+
+\subsection{Adaptive Multi-Task Lasso}
+
+\begin{itemize}
+\item Algorithm Code: ADL
+\item Abbreviation: AMTL
+\item Description: Performs least-squares regression from all markers to all traits, with an $L2$-penalty defined by non-overlapping output groups. The output groups are generated automatically from a Network, which is used as side information. In addition, AMTL puts an $L1$-penalty on each individual component of $B$, as in Lasso. Furthermore, each penalty term is weighted according to additional parameters (which are optimized over) that combine with Feature Data.
+\item Reference: \cite{TreeLasso}
+\item Additional Inputs: Network, (any number of) Features
+\item Formula:
+\begin{eqnarray*}
+\hat{B} &=& \argmin_{B} \min_{\omega, \kappa, \sum_f \omega_f = \sum_f \kappa_f = 1} \frac{1}{2}||Y - XB||_2^2 + \lambda \sum_{d,t}(F\omega)_d|B_{d,t}|\\
+&& + \gamma \sum_{d,h}(F\kappa)_d||B_{d,h}||_2 + Z(F\omega, F\kappa)
+\end{eqnarray*}
+Here, $h$ ranges over the set of output groups and $B_{i,h}$ is the vector of entries of $B$ in row $i$ and in columns corresponding to traits which belong to group $h$. $Z$ is a Bayesian normalization term.
+\item Implementation Details: Data is normalized; Regularization parameters $\lambda, \gamma$ are chosen via cross-validation; Regular Lasso is used for screening prior to running AMTL to reduce the number of candidate markers; Output Groups are generated automatically from the network; Very large output groups are further partitioned by using graph cuts on the trait network
+\end{itemize}
+
+\subsection{Multi-Population Group Lasso}
+
+\begin{itemize}
+\item Algorithm Code: MPL 
+\item Abbreviation: MPGL
+\item Description: Performs least-squares regression from all markers to all traits. Separate association values are generated for each of a number of populations, which correspond to (disjoint) subsets of the Marker Data / Trait Data sets. The analyses are coupled by a group penalty over matching association values for different populations. This causes all such associations to be selected jointly, while allowing different association magnitudes. A Population Structure, which specifies the partitioning of the data into populations, is required as side information.
+\item Reference: \cite{MPGL}
+\item Additional Inputs: Population Structure.
+\item Formula:
+\begin{equation*}
+\hat{B} = \argmin_{B} \frac{1}{2}\sum_c ||Y^c - X^cB^c||_2^2 + \lambda \sum_{d,t}||B_{d,t}||_2
+\end{equation*}
+Here, $B_{i,j}$ is the vector of entries of $B$ in row $i$ and column $j$, extending into the third dimension (which ranges over $c$).
+\item Implementation Details: Data is normalized; Optimization problem is decomposed and solved separately for each trait; Regularization parameter $\lambda$ is chosen via cross-validation, independently for each trait; Final results for all populations are averaged to obtain a final association matrix of size $d$ by $t$
+\end{itemize}
+
+\subsection{Population Analysis}
+
+\begin{itemize}
+\item Algorithm Code: PAA
+\item Description: This algorithm is a conglomerate of four different tests. Each test is conducted independently on marker-trait pairs and each population and the resulting association values are then averaged across populations. The four tests are: a cross-validation based test, the Wald Test (continuous trait) / chi-squared test (binary trait) as implemented in PLINK, a likelihood test and a two-sided t-test on the trait distribution by marker value.
+\item References: \cite{PopAnal} \cite{PLINK} \cite{LikelihoodTest}
+\item Additional Inputs: Population Structure
+\item Further explanation: The cross-validation based test is conducted in the following manner. We split each population into training and test set (10-fold). We then regress the trait on the marker using the training set, obtaining a scalar regression coefficient. The prediction error obtained on the test set is our test statistic.
+\item Implementation Details: Data is normalized; Absolute values of association values are thresholded at a small value to achieve a sparse set of associations
+\end{itemize}
+
+
+\section{Other Algorithms}
+
+\subsection{graph-Graph-constrained fused Lasso}
+
+\begin{itemize}
+\item Algorithm Code: GTA
+\item Abbreviation: gGfLasso
+\item Description: Performs $L1$-penalized least-squares regression from a Trait Data set representing gene expressions to a Trait Data set representing phenotypes, using an additional fusion penalty on the regression coefficients induced both by a Network over the gene expressions and a Network over the phenotypes. Hence, it uses two Networks as side information plus an addition Association Data set between markers and gene expressions, which will be used to prepare additional information for the GenAMap 3-way association visualization.
+\item Reference: \cite{gGFLasso}
+\item Inputs: Trait Data set representing gene expressions, Trait Data set representing phenotypes, Networks for both Trait Data sets an Association Data set between a Marker Data set and the gene expressions.
+\item Outputs: Gene-Trait Association Data
+\item Formula:
+\begin{eqnarray*}
+\hat{B} &=& \argmin_{B} \frac{1}{2}||Z - YB||_2^2 + \lambda|B|_1 + \gamma_1\sum_{j,l,m, l < m}|B_{j,l} - \sgn(\rho^Z_{l,m})B_{j,m}| \\
+&& + \gamma_2\sum_{j,k,l, j < k}|B_{j,l} - \sgn(\rho^Y_{j,k})B_{k,l}|
+\end{eqnarray*}
+\item Implementation Details: Data is normalized; Regularization parameters $\lambda, \gamma_1,\gamma_2$ are chosen via cross-validation; The trait set is partitioned into subsets using graph cuts and subsets are run independently (Network edges between subsets are dropped)
+\end{itemize}
+
+\subsection{Structure}
+
+\begin{itemize}
+\item Algorithm Code: STR
+\item Description: Computes a Population Structure for a Marker Data set. For details, please see the references.
+\item References: \cite{Structure} \cite{StructureLink}
+\item Input: Marker Data set
+\item Output: Population Structure
+\end{itemize}
+
+\subsection{Agglomerate Hierarchical Clustering}
+
+\begin{itemize}
+\item Algorithm Code: HCL
+\item Description: Computes a tree structure over traits using a Network through agglomerate hierarchical clustering and then uses the ordering of the leaf nodes in that tree to define a permutation of the traits that pulls related traits together. Hierarchical clustering is performed by successively merging sets of traits. At each step, we choose to merge the two sets of traits for which the average of the absolute values of edges from one set to the other in the Network is maximized.
+\item Input: Network
+\item Output: Clustering
+\end{itemize}
+
+\subsection{Agglomerate Hierarchical Clustering (for trees)}
+
+\begin{itemize}
+\item Algorithm Code: TRE
+\item Description: Computes a Tree (tree structure over traits) using a Network through agglomerate hierarchical clustering, as above.
+\item Input: Network
+\item Output: Tree
+\end{itemize}
+
+\subsection{Module Analysis}
+
+\begin{itemize}
+\item Algorithm Code: GMD
+\item Description: Computes the top 20 tightly-connected modules (sets of traits) in a Network which are contiguous with respect to a specified Clustering, i.e. the indices of the module are adjacent under the permutation induced by the Clustering. The algorithms runs in a greedy fashion by selecting the trait subset with the largest average internal node degree, then repeating the procedure on the remaining nodes. The internal degree of a node in a subset is defined as the sum of absolute weights of edges originating from that node and ending inside the subset. Furthermore, for each module, we compute the eQTL enrichment induced by an Association Data set, which is an additional input to this algorithm.
+\item Reference: \cite{ModuleAnalysis}
+\item Input: Network, Clustering, Association Data
+\item Output: Modules
+\item Implementation Details: Modules must have at least size 20.
+\end{itemize}
+
+\subsection{Top $k$ connected traits}
+
+\begin{itemize}
+\item Algorithm Code: N / A
+\item Description: Computes, for each trait, the sum of absolute edge weights to all other traits, then selects the top $k$ traits under this ranking.
+\item Input: Network
+\item Output: Subset
+\end{itemize}
+
+\subsection{Top connected trait and top $k$ neighbors}
+
+\begin{itemize}
+\item Algorithm Code: N / A
+\item Description: Computes, for each trait, the sum of absolute edge weights to all other traits, then selects the top trait under this ranking. After this, it selects the traits with the $k$ largest absolute edge weights to this trait.
+\item Input: Network
+\item Output: Subset
+\end{itemize}
+
+\bibliography{Algorithms}
+
+
+
+
+
+
+
+
+
+
+\end{document}
