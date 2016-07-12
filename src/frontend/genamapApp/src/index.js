@@ -28,7 +28,7 @@ render(
       <Route path='/login' component={addDevTools(GMLoginContainer)} />
       <Route path='/' component={addDevTools(requireAuthentication(GMAppContainer))}>
         <Route path='data/:id' component={GMDataList} />
-        <Route path='visualization/matrix' component={GMMatrixVisualization} />
+        <Route path='visualization/matrix/:id' component={GMMatrixVisualization} />
       </Route>
     </Router>
   </Provider>,

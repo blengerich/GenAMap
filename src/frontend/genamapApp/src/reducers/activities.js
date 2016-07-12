@@ -9,8 +9,9 @@ const activity = (state, action) => {
         id: action.id,
         completed: false,
         progress: 0.0,
-        status: 'running',
-        resultsPath: action.resultsPath
+        projectId: action.projectId,
+        resultsPath: action.resultsPath,
+        status: 'running'
       }
     case RECEIVE_UPDATE_ACTIVITY:
       if (action.progress == 1) {
@@ -18,16 +19,18 @@ const activity = (state, action) => {
           id: action.id,
           completed: true,
           progress: 1.0,
-          status: 'completed',
-          resultsPath: action.resultsPath
+          projectId: action.projectId,
+          resultsPath: action.resultsPath,
+          status: 'completed'
         }
       } else {
         return {
           id: action.id,
           completed: false,
           progress: action.progress,
-          status: 'running',
-          resultsPath: action.resultsPath
+          projectId: action.projectId,
+          resultsPath: action.resultsPath,
+          status: 'running'
         }
       }
     default:

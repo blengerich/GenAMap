@@ -12,6 +12,26 @@ import AutoComplete from 'material-ui/lib/auto-complete'
 import GMImportDialog from './GMImportDialog'
 
 const GMProjectContent = React.createClass({
+  getDataUrl: function() {
+    const filetype = this.props.data.filetype
+    if (filetype === 'markerFile' || filetype === 'traitFile') {
+      return '/data/' + this.props.data.id
+    } else if (filetype === 'resultFile') {
+      return '/visualization/matrix/' + this.props.data.id
+    } else {
+      return ''
+    }
+  },
+  getLeftIconName: function() {
+    const filetype = this.props.data.filetype
+    if (filetype === 'markerFile' || filetype === 'traitFile') {
+      return 'assessment'
+    } else if (filetype === 'resultFile') {
+      return 'view_module'
+    } else {
+      return ''
+    }
+  },
   iconButtonElement: function () {
     return (
       <IconButton touch={true}>
@@ -62,13 +82,15 @@ const GMProjectContent = React.createClass({
     return
   },
   render: function () {
+    const dataUrl = this.getDataUrl()
+    const leftIconName = this.getLeftIconName()
     return (
       <ListItem
         className='gm-project__file'
-        leftIcon={<FontIcon className='material-icons'>assessment</FontIcon>}
+        leftIcon={<FontIcon className='material-icons'>{leftIconName}</FontIcon>}
         rightIconButton={this.rightIconMenu()}
         nestedLevel={1}>
-        <Link to={'/data/' + this.props.data.id}>{this.props.data.name}</Link>
+        <Link to={dataUrl}>{this.props.data.name}</Link>
       </ListItem>
     )
   }
@@ -83,6 +105,7 @@ const GMProject = React.createClass({
         actions={this.props.actions}
       />
     )
+
     return (
       <ListItem
         className='gm-project__container'

@@ -23,6 +23,7 @@ export const PAUSE_ACTIVITY = 'PAUSE_ACTIVITY'
 export const RESTART_ACTIVITY = 'RESTART_ACTIVITY'
 export const REQUEST_UPDATE_ACTIVITY = 'REQUEST_UPDATE_ACTIVITY'
 export const RECEIVE_UPDATE_ACTIVITY = 'RECEIVE_UPDATE_ACTIVITY'
+export const RECEIVE_ANALYSIS_RESULTS = 'RECEIVE_ANALYSIS_RESULTS'
 export const LOGIN_REQUEST = 'LOGIN_REQUEST'
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
 export const LOGIN_FAILURE = 'LOGIN_FAILURE'
@@ -114,7 +115,8 @@ export function runAnalysis (data) {
     }).then(processedData => {
       var activity = {
         id: processedData.jobId,
-        resultsPath: processedData.resultsPath
+        resultsPath: data.resultsPath,
+        projectId: data.project
       }
       dispatch(addActivity(activity))
     }).catch(err => console.log('Error: ', err))
@@ -172,7 +174,8 @@ export function addActivity (activity) {
   return {
     type: ADD_ACTIVITY,
     id: activity.id,
-    resultsPath: activity.resultsPath
+    resultsPath: activity.resultsPath,
+    projectId: activity.projectId
   }
 }
 
@@ -219,7 +222,7 @@ export function receiveUpdateActivity (activity, response) {
     id: activity.id,
     resultsPath: activity.resultsPath,
     progress: response.progress,
-    results: response.results
+    projectId: activity.projectId
   }
 }
 
@@ -228,8 +231,7 @@ export function fetchUpdateActivity (activity) {
     dispatch(requestUpdateActivity(activity))
     let getActivityRequest = {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ resultsPath: activity.resultsPath })
+      headers: { 'Content-Type': 'application/json' }
     }
 
     return fetch(`${config.api.getActivityUrl}/${activity.id}`, getActivityRequest)
@@ -241,7 +243,40 @@ export function fetchUpdateActivity (activity) {
       }
     }).then(response => {
       dispatch(receiveUpdateActivity(activity, response))
+      if (response.progress == 1) {
+        dispatch(requestAnalysisResults(activity))
+      }
     })
+  }
+}
+
+function requestAnalysisResults(activity) {
+  return (dispatch) => {
+    let getResultsRequest = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectId: activity.projectId })
+    }
+    console.log("req results", activity.projectId)
+
+    return fetch(`${config.api.getAnalysisResultsUrl}/${activity.id}`, getResultsRequest)
+    .then(response => {
+      if (!response.ok) {
+        console.log('Could not fetch analysis results for Job', id)
+      } else {
+        return response.json()
+      }
+    }).then(response => {
+      dispatch(receiveAnalysisResults(response))
+    })
+  }
+}
+
+function receiveAnalysisResults(data) {
+  return {
+    type: RECEIVE_ANALYSIS_RESULTS,
+    file: data.file,
+    project: data.project
   }
 }
 

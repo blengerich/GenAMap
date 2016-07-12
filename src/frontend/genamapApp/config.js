@@ -12,7 +12,8 @@ const config = {
     saveUrl: '/api/save',
     createSessionUrl: '/sessions/create',
     createAccountUrl: '/user/create',
-    getActivityUrl: '/activity'
+    getActivityUrl: '/activity',
+    getAnalysisResultsUrl: '/analysis-results'
   },
   ui: {
     navWidth: 300,

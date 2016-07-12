@@ -1,4 +1,4 @@
-import { IMPORT_DATA_RECEIVE, LOAD_INITIAL_PROJECTS, DELETE_FILE } from '../actions'
+import { IMPORT_DATA_RECEIVE, LOAD_INITIAL_PROJECTS, DELETE_FILE, RECEIVE_ANALYSIS_RESULTS } from '../actions'
 
 const project = (state, action) => {
   switch (action.type) {
@@ -9,6 +9,9 @@ const project = (state, action) => {
     case DELETE_FILE:
       const updatedFiles = state.files.filter(file => file.id !== action.file)
       return Object.assign({}, state, { files: updatedFiles })
+    case RECEIVE_ANALYSIS_RESULTS:
+      const withResultFile = [...state.files, action.file]
+      return Object.assign({}, state, { files: withResultFile })
     default:
       return state
   }
@@ -24,6 +27,12 @@ const projects = (state = [], action) => {
     case LOAD_INITIAL_PROJECTS:
       return action.data
     case DELETE_FILE:
+      return state.map(p => {
+        return (p.id === action.project)
+          ? project(p, action)
+          : p
+      })
+    case RECEIVE_ANALYSIS_RESULTS:
       return state.map(p => {
         return (p.id === action.project)
           ? project(p, action)
