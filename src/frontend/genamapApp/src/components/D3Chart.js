@@ -2,6 +2,8 @@ import React from 'react'
 import FontIcon from 'material-ui/lib/font-icon'
 import FloatingActionButton from 'material-ui/lib/floating-action-button'
 
+import fetch from './fetch'
+import config from '../../config'
 
 const colors = ["#c1f4ec","#91f2ed","#97e6fc","#95d1f9","#64b4dd","#65c5db","#66a9d8"];
 const colorScale = d3.scale.quantile()
@@ -27,11 +29,11 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-var Graph = function() {
-	// Grab the file from upload
-	var fileLocation = 'example_data/export.csv';
 
-  // TODO: get from label files
+var Graph = function(rawData) {
+	var fileLocation = 'example_data/test_node_small.csv';
+
+  // TODO: GET FROM LABEL FILES
   var numTraits = 250;
   var numMarkers = 250;
 
@@ -288,131 +290,130 @@ var Graph = function() {
 
   initAxes();
 
-  d3.csv(fileLocation,
-    function(d) {
-      return {
-        MarkerName: d.Marker,
-        TraitName: d.Trait,
-        Marker: d.Marker.replace(/\D/g,''),
-        Trait: d.Trait.replace(/\D/g,''),
-        value: +d.Correlation
-      };
-    },
+  function parseData() {
+    var parsedData = []
+    rawData.v.split(";").forEach(function(row, rowIndex) {
+      row.split(",").forEach(function(d, colIndex) {
+        parsedData.push({
+          value: +d,
+          Marker: rowIndex,
+          Trait: colIndex
+        })
+      })
+    })
 
-    function(error, data) {
-        var cards = svg.selectAll(".dots")
-                      .data(data, function(d) { return d.Marker+':'+d.Trait;});
+    var cards = svg.selectAll(".dots")
+                  .data(parsedData, function(d) { return d.Marker+':'+d.Trait;});
 
-        cards.append("title");
+    cards.append("title");
 
-        // append cells
-        cards.enter().append("rect")
-                        .attr("x", function(d) { return (d.Trait - 1) * cellWidth; })
-                        .attr("y", function(d) { return (d.Marker - 1) * cellHeight; })
-                        .attr("class", "cell")
-                        .attr("width", cellWidth)
-                        .attr("height", cellHeight)
-                        .attr("trait", function(d) {return d.Trait })
-                        .attr("marker", function(d) { return d.Marker })
-                        .attr("value", function(d) { return d.value })
-                        .on('mouseover', function(d) {
-                          var mousePos = d3.event;
-                          var trait = d.Trait;
-                          var marker = d.Marker;
-                          var correlation = d.value;
-                          hoverOnCell(d, trait, marker, correlation, mousePos);
-                          d3.select(d3.event.target).classed("highlight", true);
-                        })
-                        .on('mouseout', function(d) {
-                          hoverOutCell();
-                          d3.select(d3.event.target).classed("highlight", false);
-                        });
+    // append cells
+    cards.enter().append("rect")
+                    .attr("x", function(d) { return d.Trait * cellWidth; })
+                    .attr("y", function(d) { return d.Marker * cellHeight; })
+                    .attr("class", "cell")
+                    .attr("width", cellWidth)
+                    .attr("height", cellHeight)
+                    .attr("trait", function(d) {return d.Trait })
+                    .attr("marker", function(d) { return d.Marker })
+                    .attr("value", function(d) { return d.value })
+                    .on('mouseover', function(d) {
+                      var mousePos = d3.event;
+                      var trait = d.Trait;
+                      var marker = d.Marker;
+                      var correlation = d.value;
+                      hoverOnCell(d, trait, marker, correlation, mousePos);
+                      d3.select(d3.event.target).classed("highlight", true);
+                    })
+                    .on('mouseout', function(d) {
+                      hoverOutCell();
+                      d3.select(d3.event.target).classed("highlight", false);
+                    });
+    cards.transition().duration(100)
+          .style("fill", function(d) { return colorScale(d.value); });
 
-        cards.transition().duration(100)
-            .style("fill", function(d) { return colorScale(d.value); });
+    cards.exit().remove();
+    initGridLines();
+  }
+  parseData()
 
-        cards.exit().remove();
-        initGridLines();
-	  });
+  miniZoomed = function() {
+    var translateAmount = d3.event.translate;
+    overlay.attr("transform", "translate(" + translateAmount + ")scale(" + 1/d3.event.scale + ")");
+    var matrix = d3.select("#overallMatrix");
+    var zoomAmount = d3.event.scale;
+    var newArray = [translateAmount[0]*(mapWidth/overlayMapWidth),
+                    translateAmount[1]*(mapHeight/overlayMapHeight)];
+    matrix.attr("transform", "translate(" + newArray + ")scale(" + d3.event.scale + ")");
+    axisOnZoom(newArray, zoomAmount);
+  }
 
-    miniZoomed = function() {
-      var translateAmount = d3.event.translate;
-      overlay.attr("transform", "translate(" + translateAmount + ")scale(" + 1/d3.event.scale + ")");
-      var matrix = d3.select("#overallMatrix");
-      var zoomAmount = d3.event.scale;
-      var newArray = [translateAmount[0]*(mapWidth/overlayMapWidth),
-                      translateAmount[1]*(mapHeight/overlayMapHeight)];
-      matrix.attr("transform", "translate(" + newArray + ")scale(" + d3.event.scale + ")");
-      axisOnZoom(newArray, zoomAmount);
+  var maxOverlayDimension = 100;
+  var overlayMapWidth, overlayMapHeight;
+  if (numMarkers > numTraits) {
+    overlayMapHeight = maxOverlayDimension;
+    overlayMapWidth = maxOverlayDimension * (numTraits/numMarkers);
+  } else {
+    overlayMapWidth = maxOverlayDimension;
+    overlayMapHeight = maxOverlayDimension * (numMarkers/numTraits);
+  }
+
+  var overlayCellWidth = 5;
+  var overlayCellHeight = 5;
+
+  /* Some minimap code */
+  var svgGraphic = d3.select("body")
+                      .append("svg")
+                        .attr("class", "minimap")
+                        .attr("width", overlayMapWidth)
+                        .attr("height", overlayMapHeight)
+
+  var minimapColors = ["#65e5cf", "#5bc8df", "#239faf", "#128479", "#5eacdd", "#1e69c4", "#2b90e2"];
+
+  for (var col = 0; col < 20; col++) {
+    for (var row = 0; row < 20; row++) {
+      var random = getRandomInt(0,7);
+      var color = minimapColors[random];
+
+      svgGraphic.append("rect")
+                  .attr("x", col*overlayCellWidth)
+                  .attr("y", row*overlayCellHeight)
+                  .attr("rx", 4)
+                  .attr("ry", 4)
+                  .attr("class", "cell")
+                  .attr("width", overlayCellWidth)
+                  .attr("height", overlayCellHeight)
+                  .attr("value", 1)
+                  .style("fill", color)
+                  .style("fill-opacity", "0.8");
     }
+  }
 
-    var maxOverlayDimension = 100;
-    var overlayMapWidth, overlayMapHeight;
-    if (numMarkers > numTraits) {
-      overlayMapHeight = maxOverlayDimension;
-      overlayMapWidth = maxOverlayDimension * (numTraits/numMarkers);
-    } else {
-      overlayMapWidth = maxOverlayDimension;
-      overlayMapHeight = maxOverlayDimension * (numMarkers/numTraits);
-    }
+  var numCellsHorizontalLanding = mapWidth/10;
+  var numCellsVerticalLanding = mapHeight/10;
 
-    var overlayCellWidth = 5;
-    var overlayCellHeight = 5;
+  var overlayWidthPercentage = numCellsHorizontalLanding/numTraits;
+  var overlayHeightPercentage = numCellsVerticalLanding/numMarkers;
 
-    /* Some minimap code */
-    var svgGraphic = d3.select("body")
-                        .append("svg")
-                            .attr("class", "minimap")
-                            .attr("width", overlayMapWidth)
-                            .attr("height", overlayMapHeight)
+  overlayWidth = overlayWidthPercentage*overlayMapWidth;
+  overlayHeight = overlayHeightPercentage*overlayMapHeight;
 
-    var minimapColors = ["#65e5cf", "#5bc8df", "#239faf", "#128479", "#5eacdd", "#1e69c4", "#2b90e2"];
+  var miniZoom = d3.behavior.zoom()
+                    .size([overlayWidth, overlayHeight])
+                    .scaleExtent([1, 8])
+                    .on("zoom", miniZoomed)
 
-    for (var col = 0; col < 20; col++) {
-        for (var row = 0; row < 20; row++) {
+  svgGraphic.append("g")
+            .attr("class", "frame")
+            .call(miniZoom)
+            .append("rect")
+              .attr("id", "map-background")
+              .attr("value", 1)
+              .style("width", overlayWidth)
+              .style("height", overlayHeight)
+              .attr("transform", "translate(" + 0 + "," + 0 + ")")
 
-            var random = getRandomInt(0,7);
-            var color = minimapColors[random];
-
-            svgGraphic.append("rect")
-                          .attr("x", col*overlayCellWidth)
-                          .attr("y", row*overlayCellHeight)
-                          .attr("rx", 4)
-                          .attr("ry", 4)
-                          .attr("class", "cell")
-                          .attr("width", overlayCellWidth)
-                          .attr("height", overlayCellHeight)
-                          .attr("value", 1)
-                          .style("fill", color)
-                          .style("fill-opacity", "0.8");
-        }
-    }
-
-    var numCellsHorizontalLanding = mapWidth/10;
-    var numCellsVerticalLanding = mapHeight/10;
-
-    var overlayWidthPercentage = numCellsHorizontalLanding/numTraits;
-    var overlayHeightPercentage = numCellsVerticalLanding/numMarkers;
-
-    overlayWidth = overlayWidthPercentage*overlayMapWidth;
-    overlayHeight = overlayHeightPercentage*overlayMapHeight;
-
-    var miniZoom = d3.behavior.zoom()
-                .size([overlayWidth, overlayHeight])
-                .scaleExtent([1, 8])
-                .on("zoom", miniZoomed)
-
-    svgGraphic.append("g")
-                .attr("class", "frame")
-                .call(miniZoom)
-              .append("rect")
-                .attr("id", "map-background")
-                .attr("value", 1)
-                .style("width", overlayWidth)
-                .style("height", overlayHeight)
-                .attr("transform", "translate(" + 0 + "," + 0 + ")")
-
-    var overlay = d3.select("#map-background");
+  var overlay = d3.select("#map-background");
 }
 
 var D3Chart = React.createClass({
@@ -425,8 +426,26 @@ var D3Chart = React.createClass({
       mouse: {x: 0, y: 0, startX: 0, startY: 0}
 		}
 	},
-  componentDidMount: function() {
-    this.state.points = Graph();
+  componentWillReceiveProps: function(nextProps) {
+    if (this.props.resultId != nextProps.resultId) {
+      this.loadData(nextProps.resultId)
+    }
+  },
+  loadData: function (id) {
+    let dataRequest = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+
+    fetch(`${config.api.dataUrl}/${id}`, dataRequest)
+    .then(response => {
+      if (!response.ok) Promise.reject(response.json())
+      return response.json()
+    }).then(json => {
+      this.setState({ points: Graph(JSON.parse(json.data)) })
+    }).catch(err => console.log('Error: ', err))
   },
   subsetIndicator: function(trait1, marker1, trait2, marker2) {
     // Would be easier to have material-ui flatbutton instead of regular buttons
@@ -489,6 +508,8 @@ var D3Chart = React.createClass({
     }
   },
   componentDidUpdate: function() {
+    if (this.state.points) return
+
     var threshold = this.props.threshold;
     d3.select("#overallMatrix")
       .selectAll('.cell')

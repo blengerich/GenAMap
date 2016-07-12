@@ -54,7 +54,8 @@ const GMRunAnalysisDialog = React.createClass({
       projectValue: '',
       markerValue: '',
       traitValue: '',
-      algorithmsValue: new Set()
+      algorithmsValue: new Set(),
+      resultsPath: ''
     }
   },
   componentWillReceiveProps: function (nextProps) {
@@ -72,7 +73,8 @@ const GMRunAnalysisDialog = React.createClass({
       project: this.state.projectValue,
       marker: this.state.markerValue,
       trait: this.state.traitValue,
-      algorithms: Array.from(this.state.algorithmsValue)
+      algorithms: Array.from(this.state.algorithmsValue),
+      resultsPath: this.state.resultsPath
     })
     this.setState(this.getInitialState())
     this.handleClose()
@@ -89,7 +91,8 @@ const GMRunAnalysisDialog = React.createClass({
       markers: markers,
       markerValue: '',
       traits: traits,
-      traitValue: ''
+      traitValue: '',
+      resultsPath: project.resultsPath
     })
   },
   onChangeMarker: function (event, index, value) {

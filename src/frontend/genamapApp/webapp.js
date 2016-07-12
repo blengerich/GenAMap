@@ -242,18 +242,38 @@ app.post(config.api.createSessionUrl, function (req, res) {
 })
 
 app.post(`${config.api.getActivityUrl}/:id`, function (req, res) {
-  var progress = Scheduler.checkJob(req.params.id)
-  if (progress == 1) {
-    var jobResults = Scheduler.getJobResult(req.params.id)
-    var results = jobResults[0].replace(/(\r\n|\n|\r)/gm,"")
+  const jobId = +req.params.id
+  const progress = Scheduler.checkJob(jobId)
 
-    fs.writeFile(req.body.resultsPath, results, function(err) {
+  return res.json({ progress })
+})
+
+app.post(`${config.api.getAnalysisResultsUrl}/:id`, function(req, res) {
+  var jobId = +req.params.id
+  var jobResults = Scheduler.getJobResult(jobId)
+  var results = jobResults[0].replace(/(\r\n|\n|\r)/gm,"")
+
+  const userId = extractUserIdFromHeader(req.headers)
+  const id = guid()
+  const projectDir = path.join('./.tmp', userId)
+  const fileName = `${id}.csv`
+  const resultsPath = path.join(projectDir, fileName)
+  console.log("about to write results")
+
+  fs.writeFile(resultsPath, results, function(err) {
+    app.models.file.create({
+      name: 'Matrix View',
+      filetype: 'resultFile',
+      path: resultsPath,
+      project: req.body.projectId
+    }).exec(function (err, file) {
       if (err) console.log(err)
-      return res.json({ progress, results })
+
+      return res.json({ results, file, project: req.body.projectId })
     })
-  } else {
-    return res.json({ progress })
-  }
+
+    if (err) console.log(err)
+  })
 })
 
 app.get(`${config.api.dataUrl}/:id`, function (req, res) {
@@ -324,6 +344,7 @@ app.post(config.api.importDataUrl, function (req, res) {
       // if (err) return res.status(500).json({err: err})
       if (err) throw err
       var files = []
+
       async.each(dataList,
         function (datum, callback) {
           datum.project = project.id
@@ -334,6 +355,7 @@ app.post(config.api.importDataUrl, function (req, res) {
           })
         }, function (err) {
           if (err) throw err
+
           return res.json({ project, files })
         }
       )
@@ -414,7 +436,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             });
 
             var resultsPath = path.join(markerFile.path.substr(0, markerFile.path.lastIndexOf("/")), "results.csv")
-            return res.json({ status: true, jobId, resultsPath })
+            return res.json({ status: success, jobId, resultsPath })
           })
         });
       });
