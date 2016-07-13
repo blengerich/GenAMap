@@ -258,7 +258,6 @@ app.post(`${config.api.getAnalysisResultsUrl}/:id`, function(req, res) {
   const projectDir = path.join('./.tmp', userId)
   const fileName = `${id}.csv`
   const resultsPath = path.join(projectDir, fileName)
-  console.log("about to write results")
 
   fs.writeFile(resultsPath, results, function(err) {
     app.models.file.create({
@@ -300,8 +299,11 @@ app.post(config.api.importDataUrl, function (req, res) {
   var busboy = new Busboy({ headers: req.headers })
   var projectId // eslint-disable-line no-unused-vars
   var projectObj = {}
-  var dataList = { marker: {}, trait: {} }
+  var dataList = { marker: {}, trait: {}, markerLabel: {}, traitLabel: {} }
   const userId = extractUserIdFromHeader(req.headers)
+
+  dataList.markerLabel.name = "Marker Label"
+  dataList.traitLabel.name = "Trait Label"
 
   busboy.on('field', function (fieldname, val, fieldnameTruncated,
                               valTruncated, encoding, mimetype) {
@@ -327,6 +329,7 @@ app.post(config.api.importDataUrl, function (req, res) {
   })
 
   busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+    console.log(fieldname)
     const id = guid()
     const folderPath = path.join('./.tmp', userId)
     const fileName = `${id}.csv`
@@ -335,7 +338,12 @@ app.post(config.api.importDataUrl, function (req, res) {
     const fstream = fs.createWriteStream(fullPath)
     var data
     file.pipe(fstream);
-    (fieldname === 'markerFile') ? data = dataList.marker : data = dataList.trait
+    if (fieldname === 'markerFile') data = dataList.marker
+    else if (fieldname === 'traitFile') data = dataList.trait
+    else if (fieldname === 'markerLabelFile') data = dataList.markerLabel
+    else if (fieldname === 'traitLabelFile') data = dataList.traitLabel
+    else console.log("Unhandled file:", fieldname)
+
     data.filetype = fieldname
     data.path = fullPath
   })

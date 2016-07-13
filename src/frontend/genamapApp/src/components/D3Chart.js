@@ -30,20 +30,12 @@ function getRandomInt(min, max) {
 }
 
 
-var Graph = function(rawData) {
+var Graph = function(data, markerLabels, traitLabels) {
 	var fileLocation = 'example_data/test_node_small.csv';
 
   // TODO: GET FROM LABEL FILES
-  var numTraits = 250;
-  var numMarkers = 250;
-
-  var traitLabels = [];
-  for (var i = 1; i <= numTraits; i++)
-    traitLabels.push("T" + i);
-
-  var markerLabels = [];
-  for (var i = 1; i <= numMarkers; i++)
-    markerLabels.push("M" + i);
+  var numTraits = traitLabels.length
+  var numMarkers = markerLabels.length
 
 	var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 	var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
@@ -292,7 +284,8 @@ var Graph = function(rawData) {
 
   function parseData() {
     var parsedData = []
-    rawData.v.split(";").forEach(function(row, rowIndex) {
+    console.log(data)
+    data.v.split(";").forEach(function(row, rowIndex) {
       row.split(",").forEach(function(d, colIndex) {
         parsedData.push({
           value: +d,
@@ -417,6 +410,17 @@ var Graph = function(rawData) {
 }
 
 var D3Chart = React.createClass({
+  validateNewProps: function(nextProps) {
+    return (!this.props.data || !this.props.markerLabels || !this.props.traitLabels)
+          && (!!nextProps.data && !!nextProps.markerLabels && !!nextProps.traitLabels)
+  },
+  componentWillReceiveProps: function(nextProps) {
+    if (this.validateNewProps(nextProps)) {
+      this.setState({
+        points: Graph(nextProps.data, nextProps.markerLabels, nextProps.traitLabels)
+      })
+    }
+  },
   getInitialState: function() {
 		return {
 			points: [],
@@ -426,27 +430,6 @@ var D3Chart = React.createClass({
       mouse: {x: 0, y: 0, startX: 0, startY: 0}
 		}
 	},
-  componentWillReceiveProps: function(nextProps) {
-    if (this.props.resultId != nextProps.resultId) {
-      this.loadData(nextProps.resultId)
-    }
-  },
-  loadData: function (id) {
-    let dataRequest = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }
-
-    fetch(`${config.api.dataUrl}/${id}`, dataRequest)
-    .then(response => {
-      if (!response.ok) Promise.reject(response.json())
-      return response.json()
-    }).then(json => {
-      this.setState({ points: Graph(JSON.parse(json.data)) })
-    }).catch(err => console.log('Error: ', err))
-  },
   subsetIndicator: function(trait1, marker1, trait2, marker2) {
     // Would be easier to have material-ui flatbutton instead of regular buttons
     // modfied with CSS, but I don't know how to render those in a string

@@ -257,7 +257,6 @@ function requestAnalysisResults(activity) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ projectId: activity.projectId })
     }
-    console.log("req results", activity.projectId)
 
     return fetch(`${config.api.getAnalysisResultsUrl}/${activity.id}`, getResultsRequest)
     .then(response => {

@@ -12,22 +12,14 @@ import AutoComplete from 'material-ui/lib/auto-complete'
 import GMImportDialog from './GMImportDialog'
 
 const GMProjectContent = React.createClass({
-  getDataUrl: function() {
-    const filetype = this.props.data.filetype
-    if (filetype === 'markerFile' || filetype === 'traitFile') {
-      return '/data/' + this.props.data.id
-    } else if (filetype === 'resultFile') {
-      return '/visualization/matrix/' + this.props.data.id
-    } else {
-      return ''
-    }
-  },
   getLeftIconName: function() {
     const filetype = this.props.data.filetype
     if (filetype === 'markerFile' || filetype === 'traitFile') {
       return 'assessment'
     } else if (filetype === 'resultFile') {
       return 'view_module'
+    } else if (filetype === 'markerLabelFile' || filetype === 'traitLabelFile') {
+      return 'label'
     } else {
       return ''
     }
@@ -82,7 +74,6 @@ const GMProjectContent = React.createClass({
     return
   },
   render: function () {
-    const dataUrl = this.getDataUrl()
     const leftIconName = this.getLeftIconName()
     return (
       <ListItem
@@ -90,19 +81,34 @@ const GMProjectContent = React.createClass({
         leftIcon={<FontIcon className='material-icons'>{leftIconName}</FontIcon>}
         rightIconButton={this.rightIconMenu()}
         nestedLevel={1}>
-        <Link to={dataUrl}>{this.props.data.name}</Link>
+        <Link to={this.props.dataUrl}>{this.props.data.name}</Link>
       </ListItem>
     )
   }
 })
 
 const GMProject = React.createClass({
+  getDataUrl: function(file) {
+    switch (file.filetype) {
+      case 'resultFile':
+        const markerLabelFileId = (this.getFileIds('markerLabelFile'))[0]
+        const traitLabelFileId = (this.getFileIds('traitLabelFile'))[0]
+
+        return '/visualization/matrix/' + markerLabelFileId + '/' + traitLabelFileId + '/' + file.id
+      default:
+        return '/data/' + file.id
+    }
+  },
+  getFileIds: function(filetype) {
+    return this.props.project.files.filter(file => file.filetype === filetype).map(file => file.id)
+  },
   render: function () {
     const dataList = this.props.project.files.map((file, i) =>
       <GMProjectContent
         key={i}
         data={file}
         actions={this.props.actions}
+        dataUrl={this.getDataUrl(file)}
       />
     )
 
