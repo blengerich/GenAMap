@@ -7,16 +7,63 @@ import config from '../../config'
 
 const GMMatrixVisualization = React.createClass({
   componentDidMount() {
-    this.setState({ resultId: this.props.params.id })
+    this.loadData(this.props.params)
   },
   componentWillReceiveProps(nextProps) {
-    this.setState({ resultId: nextProps.params.id })
+    this.loadData(nextProps.params)
   },
   getInitialState() {
     return {
       correlationThreshold: 0.0,
       zoomEnabled: true
     }
+  },
+  loadData: function (params) {
+    let dataRequest = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+
+    return fetch(`${config.api.dataUrl}/${params.resultId}`, dataRequest)
+    .then(response => {
+      if (!response.ok) Promise.reject(response.json())
+      return response.json()
+    }).then(json => {
+      this.setState({ data: JSON.parse(json.data) })
+      return fetch(`${config.api.dataUrl}/${params.markerLabelId}`, dataRequest)
+    }).then(response => {
+      if (!response.ok) Promise.reject(response.json())
+      return response.json()
+    }).then(json => {
+      this.setState({ markerLabels: json.data.split('\n').filter(line => line.length > 0) })
+      return fetch(`${config.api.dataUrl}/${params.traitLabelId}`, dataRequest)
+    }).then(response => {
+      if (!response.ok) Promise.reject(response.json())
+      return response.json()
+    }).then(json => {
+      this.setState({ traitLabels: json.data.split('\n').filter(line => line.length > 0) })
+      return json
+    }).catch(err => console.log(err))
+
+  },
+  loadLabels: function(id) {
+    let labelRequest = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+
+    fetch(`${config.api.dataUrl}/${id}`, labelRequest)
+    .then(response => {
+      if (!response.ok) Promise.reject(response.json())
+      return response.json()
+    }).then(json => {
+      const data = json.data.split('\n')
+      return data
+    }).catch(err => console.log('Error: ', err))
   },
   onThresholdChange(event, value) {
     this.setState({
@@ -33,7 +80,9 @@ const GMMatrixVisualization = React.createClass({
       <div>
         <div className="Matrix">
           <D3Chart
-            resultId={this.state.resultId}
+            data={this.state.data}
+            markerLabels={this.state.markerLabels}
+            traitLabels={this.state.traitLabels}
             threshold={this.state.correlationThreshold}
             zoom={this.state.zoomEnabled}
           />
