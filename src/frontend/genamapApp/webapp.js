@@ -257,8 +257,10 @@ app.post(`${config.api.getAnalysisResultsUrl}`, function(req, res) {
     fs.stat(reqPath, function(err, stats) {
       if (!err) {
         app.models.file.findOne({ path: reqPath }, function(err, file) {
+          if (err) console.log(err)
+
           if (!file) {
-            setTimeout(checkFileExists, 1000)
+            setTimeout(checkFileExists, 500, reqPath)
           } else {
             return res.json({ project: projectId, file })
           }
@@ -452,6 +454,8 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                   filetype: 'resultFile',
                   path: resultsPath,
                   project: req.body.project
+                }).exec(function (err, file) {
+                  if (err) throw err
                 })
               })
             })
