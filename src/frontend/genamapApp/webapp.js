@@ -351,12 +351,13 @@ var getAlgorithmType = function (id) {
 }
 
 /**
- * @param {Object} req
- * @param {Object} [req.body]
- * @param {Number} [req.body.project]
- * @param {Number} [req.body.marker]
- * @param {Number} [req.body.trait]
- * @param {Array} [req.body.algorithms]
+ * @param {Object} req - request object
+ * @param {Object} req.body - request body
+ * @param {number} req.body.project - project ID
+ * @param {number} req.body.marker - marker ID
+ * @param {number} req.body.trait - trait ID
+ * @param {number[]} req.body.algorithms - list of algorithms
+ * @param {Object} res - response object
  * @example req.body = {
  *   project: 1,
  *   marker: 7,

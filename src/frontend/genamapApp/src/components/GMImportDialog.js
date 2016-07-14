@@ -8,22 +8,7 @@ import ListItem from 'material-ui/lib/lists/list-item'
 import FontIcon from 'material-ui/lib/font-icon'
 
 import config from '../../config'
-
-const styles = {
-  fileInput: {
-    cursor: 'pointer',
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    right: 0,
-    left: 0,
-    width: '100%',
-    opacity: 0
-  },
-  fileInputButton: {
-    marginRight: '7px'
-  }
-}
+import GMFileInput from './GMFileInput'
 
 const errorText = 'This is a required field'
 
@@ -33,12 +18,12 @@ class GMImportDialog extends Component {
       open: false,
       projectValue: '',
       projectName: '',
-      markerLabel: '',
       markerName: '',
-      markerFileName: '',
-      traitLabel: '',
+      markerLabelFilename: '',
+      markerValueFilename: '',
       traitName: '',
-      traitFileName: '',
+      traitLabelFilename: '',
+      traitValueFilename: '',
       speciesValue: '',
       optionDisabled: true,
       species: config.species
@@ -95,28 +80,28 @@ class GMImportDialog extends Component {
     this.setState({projectName: event.target.value})
   }
 
-  onChangeMarkerLabel (event) {
-    this.setState({markerLabel: event.target.value})
-  }
-
   onChangeMarkerName (event) {
     this.setState({markerName: event.target.value})
   }
 
-  onChangeMarkerFileName (event) {
-    this.setState({markerFileName: event.target.value.substr(12)})
+  onChangeMarkerLabelFilename (event) {
+    this.setState({markerLabelFilename: event.target.value.substr(12)})
   }
 
-  onChangeTraitLabel(event) {
-    this.setState({traitLabel: event.target.value})
+  onChangeMarkerValueFilename (event) {
+    this.setState({markerValueFilename: event.target.value.substr(12)})
   }
 
   onChangeTraitName (event) {
     this.setState({traitName: event.target.value})
   }
 
-  onChangeTraitFileName (event) {
-    this.setState({traitFileName: event.target.value.substr(12)})
+  onChangeTraitLabelFilename (event) {
+    this.setState({traitLabelFilename: event.target.value.substr(12)})
+  }
+
+  onChangeTraitValueFilename (event) {
+    this.setState({traitValueFilename: event.target.value.substr(12)})
   }
 
   onChangeSpecies (event, index, value) {
@@ -178,7 +163,7 @@ class GMImportDialog extends Component {
                 {projectList}
               </SelectField>
               <select
-                id='project'
+                // id='project'
                 className='hidden'
                 value={this.state.projectValue}
                 readOnly
@@ -188,7 +173,7 @@ class GMImportDialog extends Component {
               </select>
               <br />
               <TextField
-                id='projectName'
+                // id='projectName'
                 value={this.state.projectName}
                 hintText='New Project Name'
                 disabled={this.state.optionDisabled}
@@ -198,103 +183,47 @@ class GMImportDialog extends Component {
             </div>
             <div>
               <TextField
-                id='markerName'
+                // id='markerName'
                 value={this.state.markerName}
                 hintText='Marker Name'
                 errorText={!this.state.markerName && errorText}
                 onChange={this.onChangeMarkerName.bind(this)}
               />
               <br />
-              <div className='file-field-wrapper'>
-                <FlatButton
-                  label='Marker Labels'
-                  secondary={true}
-                  style={styles.fileInputButton}
-                >
-                  <input
-                    id='markerLabelFile'
-                    type='file'
-                    accept='.csv'
-                    style={styles.fileInput}
-                    onChange={this.onChangeMarkerLabel.bind(this)}
-                  />
-                </FlatButton>
-                <TextField
-                  id='traitFileName'
-                  value={this.state.markerLabel}
-                  disabled={true}
-                />
-              </div>
-              <div className='file-field-wrapper'>
-                <FlatButton
-                  label='Marker Values'
-                  secondary={true}
-                  style={styles.fileInputButton}
-                >
-                  <input
-                    id='markerFile'
-                    type='file'
-                    accept='.csv'
-                    style={styles.fileInput}
-                    onChange={this.onChangeMarkerFileName.bind(this)}
-                  />
-                </FlatButton>
-                <TextField
-                  id='markerFileName'
-                  value={this.state.markerFileName}
-                  disabled={true}
-                />
-              </div>
+              <GMFileInput
+                buttonLabel='Marker Labels'
+                accept='.csv'
+                onChange={this.onChangeMarkerLabelFilename.bind(this)}
+                fileLabel={this.state.markerLabelFilename}
+              />
+              <GMFileInput
+                buttonLabel='Marker Values'
+                accept='.csv'
+                onChange={this.onChangeMarkerValueFilename.bind(this)}
+                fileLabel={this.state.markerValueFilename}
+              />
             </div>
             <br />
             <div>
               <TextField
-                id='traitName'
+                // id='traitName'
                 value={this.state.traitName}
                 hintText='Trait Name'
                 errorText={!this.state.traitName && errorText}
                 onChange={this.onChangeTraitName.bind(this)}
               />
-              <div className='file-field-wrapper'>
-                <FlatButton
-                  label='Trait Labels'
-                  secondary={true}
-                  style={styles.fileInputButton}
-                >
-                  <input
-                    id='traitLabelFile'
-                    type='file'
-                    accept='.csv'
-                    style={styles.fileInput}
-                    onChange={this.onChangeTraitLabel.bind(this)}
-                  />
-                </FlatButton>
-                <TextField
-                  id='traitFileName'
-                  value={this.state.traitLabel}
-                  disabled={true}
-                />
-              </div>
-              <div className='file-field-wrapper'>
-                <FlatButton
-                  label='Trait Values'
-                  secondary={true}
-                  style={styles.fileInputButton}
-                >
-                  <input
-                    id='traitFile'
-                    type='file'
-                    accept='.csv'
-                    style={styles.fileInput}
-                    onChange={this.onChangeTraitFileName.bind(this)}
-                  />
-                </FlatButton>
-                <TextField
-                  id='traitFileName'
-                  value={this.state.traitFileName}
-                  disabled={true}
-                />
-              </div>
+              <GMFileInput
+                buttonLabel='Trait Labels'
+                accept='.csv'
+                onChange={this.onChangeTraitLabelFilename.bind(this)}
+                fileLabel={this.state.traitLabelFilename}
+              />
+              <GMFileInput
+                buttonLabel='Trait Values'
+                accept='.csv'
+                onChange={this.onChangeTraitValueFilename.bind(this)}
+                fileLabel={this.state.traitValueFilename}
+              />
             </div>
             <div>
               <SelectField
@@ -307,7 +236,7 @@ class GMImportDialog extends Component {
                 {speciesList}
               </SelectField>
               <select
-                id='species'
+                // id='species'
                 className='hidden'
                 value={this.state.speciesValue}
                 readOnly
