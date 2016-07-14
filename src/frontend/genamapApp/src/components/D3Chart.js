@@ -291,7 +291,6 @@ var Graph = function(data, markerLabels, traitLabels) {
 
   function parseData() {
     var parsedData = []
-    console.log(data)
     data.v.split(";").forEach(function(row, rowIndex) {
       row.split(",").forEach(function(d, colIndex) {
         parsedData.push({
@@ -314,7 +313,7 @@ var Graph = function(data, markerLabels, traitLabels) {
                     .attr("class", "cell")
                     .attr("width", cellWidth)
                     .attr("height", cellHeight)
-                    .attr("trait", function(d) {return d.Trait })
+                    .attr("trait", function(d) { return d.Trait })
                     .attr("marker", function(d) { return d.Marker })
                     .attr("value", function(d) { return d.value })
                     .on('mouseover', function(d) {
