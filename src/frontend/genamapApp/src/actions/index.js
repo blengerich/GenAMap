@@ -112,11 +112,11 @@ export function runAnalysis (data) {
       } else {
         return response.json()
       }
-    }).then(processedData => {
+    }).then(json => {
       var activity = {
-        id: processedData.jobId,
-        resultsPath: data.resultsPath,
-        projectId: data.project
+        id: json.jobId,
+        projectId: data.project,
+        resultsPath: json.resultsPath
       }
       dispatch(addActivity(activity))
     }).catch(err => console.log('Error: ', err))
@@ -174,8 +174,8 @@ export function addActivity (activity) {
   return {
     type: ADD_ACTIVITY,
     id: activity.id,
-    resultsPath: activity.resultsPath,
-    projectId: activity.projectId
+    projectId: activity.projectId,
+    resultsPath: activity.resultsPath
   }
 }
 
@@ -220,9 +220,9 @@ export function receiveUpdateActivity (activity, response) {
   return {
     type: RECEIVE_UPDATE_ACTIVITY,
     id: activity.id,
-    resultsPath: activity.resultsPath,
     progress: response.progress,
-    projectId: activity.projectId
+    projectId: activity.projectId,
+    resultsPath: activity.resultsPath
   }
 }
 
@@ -243,7 +243,7 @@ export function fetchUpdateActivity (activity) {
       }
     }).then(response => {
       dispatch(receiveUpdateActivity(activity, response))
-      if (response.progress == 1) {
+      if (response.progress === 1) {
         dispatch(requestAnalysisResults(activity))
       }
     })
@@ -255,18 +255,21 @@ function requestAnalysisResults(activity) {
     let getResultsRequest = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ projectId: activity.projectId })
+      body: JSON.stringify({
+        projectId: activity.projectId,
+        resultsPath: activity.resultsPath
+      })
     }
 
-    return fetch(`${config.api.getAnalysisResultsUrl}/${activity.id}`, getResultsRequest)
+    return fetch(`${config.api.getAnalysisResultsUrl}`, getResultsRequest)
     .then(response => {
       if (!response.ok) {
-        console.log('Could not fetch analysis results for Job', id)
+        console.log('Could not fetch analysis results for Job', activity.id)
       } else {
         return response.json()
       }
-    }).then(response => {
-      dispatch(receiveAnalysisResults(response))
+    }).then(json => {
+      dispatch(receiveAnalysisResults(json))
     })
   }
 }

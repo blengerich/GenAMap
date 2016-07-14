@@ -244,35 +244,34 @@ app.post(config.api.createSessionUrl, function (req, res) {
 app.post(`${config.api.getActivityUrl}/:id`, function (req, res) {
   const jobId = +req.params.id
   const progress = Scheduler.checkJob(jobId)
+  const results = (Scheduler.getJobResult(jobId))[0].replace(/(\r\n|\n|\r)/gm,"")
 
   return res.json({ progress })
 })
 
-app.post(`${config.api.getAnalysisResultsUrl}/:id`, function(req, res) {
-  var jobId = +req.params.id
-  var jobResults = Scheduler.getJobResult(jobId)
-  var results = jobResults[0].replace(/(\r\n|\n|\r)/gm,"")
+app.post(`${config.api.getAnalysisResultsUrl}`, function(req, res) {
+  const projectId = req.body.projectId
 
-  const userId = extractUserIdFromHeader(req.headers)
-  const id = guid()
-  const projectDir = path.join('./.tmp', userId)
-  const fileName = `${id}.csv`
-  const resultsPath = path.join(projectDir, fileName)
-
-  fs.writeFile(resultsPath, results, function(err) {
-    app.models.file.create({
-      name: 'Matrix View',
-      filetype: 'resultFile',
-      path: resultsPath,
-      project: req.body.projectId
-    }).exec(function (err, file) {
-      if (err) console.log(err)
-
-      return res.json({ results, file, project: req.body.projectId })
+  function checkFileExists(reqPath) {
+    /* check if result file has been written and added to database */
+    fs.stat(reqPath, function(err, stats) {
+      if (!err) {
+        app.models.file.findOne({ path: reqPath }, function(err, file) {
+          if (!file) {
+            setTimeout(checkFileExists, 1000)
+          } else {
+            return res.json({ project: projectId, file })
+          }
+        })
+      } else if (err.code === 'ENOENT') {
+        setTimeout(checkFileExists, 500, reqPath)
+      } else {
+        console.log(err)
+      }
     })
+  }
 
-    if (err) console.log(err)
-  })
+  return checkFileExists(req.body.resultsPath)
 })
 
 app.get(`${config.api.dataUrl}/:id`, function (req, res) {
@@ -329,7 +328,6 @@ app.post(config.api.importDataUrl, function (req, res) {
   })
 
   busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
-    console.log(fieldname)
     const id = guid()
     const folderPath = path.join('./.tmp', userId)
     const fileName = `${id}.csv`
@@ -438,12 +436,25 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             }
             Scheduler.setX(jobId, markerData);
             Scheduler.setY(jobId, traitData);
+
+            const userId = extractUserIdFromHeader(req.headers)
+            const id = guid()
+            const userPath = path.join('./.tmp', userId)
+            const fileName = `${id}.csv`
+            const resultsPath = path.join(userPath, fileName)
+
             var success = Scheduler.startJob(jobId, function (results) {
               results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
-              console.log('results: ', results)
-            });
 
-            var resultsPath = path.join(markerFile.path.substr(0, markerFile.path.lastIndexOf("/")), "results.csv")
+              fs.writeFile(resultsPath, results, function(err) {
+                app.models.file.create({
+                  name: 'Matrix View',
+                  filetype: 'resultFile',
+                  path: resultsPath,
+                  project: req.body.project
+                })
+              })
+            })
             return res.json({ status: success, jobId, resultsPath })
           })
         });
