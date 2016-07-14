@@ -73,11 +73,6 @@ var Graph = function() {
   d3.select('#chart')
     .style({ "width": (mapWidth + margin.left) + "px" });
 
-  var zoom = d3.behavior.zoom()
-              .size([mapWidth, mapHeight])
-              .scaleExtent([1, 8])
-              .on("zoom", zoomFunction)
-
   zoomFunction = function() {
     svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     var zoomAmount = d3.event.scale;
@@ -146,9 +141,10 @@ var Graph = function() {
   }
 
   function clicked() {
+
     svg.call(zoom.event);
     // Record the coordinates (in data space) of the center (in screen space).
-    var center0 = [mapWidth/2, mapHeight/2], translate0 = zoom.translate(), coordinates0 = coordinates(center0);
+    var center0 = [mapWidth/2, mapHeight/2], translate0 = zoom.translate(), coordinates0 = coordinates(center0); 
     zoom.scale(zoom.scale() * Math.pow(2, +this.getAttribute("data-zoom")));
 
     // Translate back to the center.
@@ -167,6 +163,11 @@ var Graph = function() {
     var scale = zoom.scale(), translate = zoom.translate();
     return [coordinates[0] * scale + translate[0], coordinates[1] * scale + translate[1]];
   }
+
+  var zoom = d3.behavior.zoom()
+          .size([mapWidth, mapHeight])
+          .scaleExtent([1, 8])
+          .on("zoom", zoomFunction)
 
   /* add axis labels and gridlines */
   function initAxes() {
@@ -417,7 +418,6 @@ var D3Chart = React.createClass({
 		}
 	},
   componentDidMount: function() {
-    console.log("mounted")
     this.state.points = Graph();
   },
   subsetIndicator: function(trait1, marker1, trait2, marker2) {

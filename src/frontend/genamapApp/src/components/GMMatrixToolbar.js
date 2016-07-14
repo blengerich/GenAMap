@@ -105,6 +105,9 @@ const GMMatrixToolbar = React.createClass({
       }
     })
   },
+  subsetSelector: function(event) {
+    this.props.subset.subsetSelector(event);
+  },
   render: function () {
     return (
       <div>
@@ -139,7 +142,7 @@ const GMMatrixToolbar = React.createClass({
             label='Create a subset'
             icon={<FontIcon className='material-icons'>add</FontIcon>}
             style={styles.action} 
-            onClick={this.props.subsetSelector}  
+            onClick={this.subsetSelector}  
           />
           <FlatButton
             label='Sort'
