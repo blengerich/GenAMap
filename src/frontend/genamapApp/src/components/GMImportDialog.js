@@ -39,8 +39,10 @@ class GMImportDialog extends Component {
     return ((!!this.state.projectValue && this.state.projectValue !== 'new' ||
             (this.state.projectValue === 'new' && !!this.state.projectName &&
             !!this.state.speciesValue)) &&
-            !!this.state.markerName && !!this.state.markerFileName &&
-            !!this.state.traitName && !!this.state.traitFileName)
+            !!this.state.markerName && !!this.state.markerLabelFilename &&
+            !!this.state.markerValueFilename &&
+            !!this.state.traitName && !!this.state.traitLabelFilename &&
+            !!this.state.traitValueFilename)
   }
 
   handleSubmit () {
@@ -163,7 +165,7 @@ class GMImportDialog extends Component {
                 {projectList}
               </SelectField>
               <select
-                // id='project'
+                id='project'
                 className='hidden'
                 value={this.state.projectValue}
                 readOnly
@@ -173,7 +175,7 @@ class GMImportDialog extends Component {
               </select>
               <br />
               <TextField
-                // id='projectName'
+                id='projectName'
                 value={this.state.projectName}
                 hintText='New Project Name'
                 disabled={this.state.optionDisabled}
@@ -183,7 +185,7 @@ class GMImportDialog extends Component {
             </div>
             <div>
               <TextField
-                // id='markerName'
+                id='markerName'
                 value={this.state.markerName}
                 hintText='Marker Name'
                 errorText={!this.state.markerName && errorText}
@@ -191,12 +193,14 @@ class GMImportDialog extends Component {
               />
               <br />
               <GMFileInput
+                id='markerLabelFilename'
                 buttonLabel='Marker Labels'
                 accept='.csv'
                 onChange={this.onChangeMarkerLabelFilename.bind(this)}
                 fileLabel={this.state.markerLabelFilename}
               />
               <GMFileInput
+                id='markerValueFilename'
                 buttonLabel='Marker Values'
                 accept='.csv'
                 onChange={this.onChangeMarkerValueFilename.bind(this)}
@@ -206,19 +210,21 @@ class GMImportDialog extends Component {
             <br />
             <div>
               <TextField
-                // id='traitName'
+                id='traitName'
                 value={this.state.traitName}
                 hintText='Trait Name'
                 errorText={!this.state.traitName && errorText}
                 onChange={this.onChangeTraitName.bind(this)}
               />
               <GMFileInput
+                id='traitLabelFilename'
                 buttonLabel='Trait Labels'
                 accept='.csv'
                 onChange={this.onChangeTraitLabelFilename.bind(this)}
                 fileLabel={this.state.traitLabelFilename}
               />
               <GMFileInput
+                id='traitValueFilename'
                 buttonLabel='Trait Values'
                 accept='.csv'
                 onChange={this.onChangeTraitValueFilename.bind(this)}
@@ -236,7 +242,7 @@ class GMImportDialog extends Component {
                 {speciesList}
               </SelectField>
               <select
-                // id='species'
+                id='species'
                 className='hidden'
                 value={this.state.speciesValue}
                 readOnly

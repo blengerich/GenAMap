@@ -35,6 +35,7 @@ class GMFileInput extends Component {
           onClick={this.onClick.bind(this)}
         />
         <input
+          id={this.props.id}
           type='file'
           accept={this.props.accept}
           style={styles.fileInput}

@@ -95964,8 +95964,6 @@ var Graph = function Graph() {
 
   d3.select('#chart').style({ "width": mapWidth + margin.left + "px" });
 
-  var zoom = d3.behavior.zoom().size([mapWidth, mapHeight]).scaleExtent([1, 8]).on("zoom", zoomFunction);
-
   zoomFunction = function zoomFunction() {
     svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     var zoomAmount = d3.event.scale;
@@ -96028,6 +96026,7 @@ var Graph = function Graph() {
   }
 
   function clicked() {
+
     svg.call(zoom.event);
     // Record the coordinates (in data space) of the center (in screen space).
     var center0 = [mapWidth / 2, mapHeight / 2],
@@ -96053,6 +96052,8 @@ var Graph = function Graph() {
         translate = zoom.translate();
     return [coordinates[0] * scale + translate[0], coordinates[1] * scale + translate[1]];
   }
+
+  var zoom = d3.behavior.zoom().size([mapWidth, mapHeight]).scaleExtent([1, 8]).on("zoom", zoomFunction);
 
   /* add axis labels and gridlines */
   function initAxes() {
@@ -96213,7 +96214,6 @@ var D3Chart = _react2.default.createClass({
     };
   },
   componentDidMount: function componentDidMount() {
-    console.log("mounted");
     this.state.points = Graph();
   },
   subsetIndicator: function subsetIndicator(trait1, marker1, trait2, marker2) {
@@ -97138,367 +97138,7 @@ exports.default = GMDataList;
 },{"../../config":1,"./fetch":1044,"material-ui/lib/table/table":415,"material-ui/lib/table/table-body":410,"material-ui/lib/table/table-header":412,"material-ui/lib/table/table-header-column":411,"material-ui/lib/table/table-row":414,"material-ui/lib/table/table-row-column":413,"react":775}],1028:[function(require,module,exports){
 'use strict';
 
-var _typeof65 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-var _typeof64 = typeof Symbol === "function" && _typeof65(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof65(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof65(obj);
-};
-
-var _typeof63 = typeof Symbol === "function" && _typeof64(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof64(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof64(obj);
-};
-
-var _typeof62 = typeof Symbol === "function" && _typeof63(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof63(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof63(obj);
-};
-
-var _typeof61 = typeof Symbol === "function" && _typeof62(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof62(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof62(obj);
-};
-
-var _typeof60 = typeof Symbol === "function" && _typeof61(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof61(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof61(obj);
-};
-
-var _typeof59 = typeof Symbol === "function" && _typeof60(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof60(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof60(obj);
-};
-
-var _typeof58 = typeof Symbol === "function" && _typeof59(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof59(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof59(obj);
-};
-
-var _typeof57 = typeof Symbol === "function" && _typeof58(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof58(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof58(obj);
-};
-
-var _typeof56 = typeof Symbol === "function" && _typeof57(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof57(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof57(obj);
-};
-
-var _typeof55 = typeof Symbol === "function" && _typeof56(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof56(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof56(obj);
-};
-
-var _typeof54 = typeof Symbol === "function" && _typeof55(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof55(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof55(obj);
-};
-
-var _typeof53 = typeof Symbol === "function" && _typeof54(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof54(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof54(obj);
-};
-
-var _typeof52 = typeof Symbol === "function" && _typeof53(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof53(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof53(obj);
-};
-
-var _typeof51 = typeof Symbol === "function" && _typeof52(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof52(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof52(obj);
-};
-
-var _typeof50 = typeof Symbol === "function" && _typeof51(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof51(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof51(obj);
-};
-
-var _typeof49 = typeof Symbol === "function" && _typeof50(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof50(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof50(obj);
-};
-
-var _typeof48 = typeof Symbol === "function" && _typeof49(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof49(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof49(obj);
-};
-
-var _typeof47 = typeof Symbol === "function" && _typeof48(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof48(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof48(obj);
-};
-
-var _typeof46 = typeof Symbol === "function" && _typeof47(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof47(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof47(obj);
-};
-
-var _typeof45 = typeof Symbol === "function" && _typeof46(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof46(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof46(obj);
-};
-
-var _typeof44 = typeof Symbol === "function" && _typeof45(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof45(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof45(obj);
-};
-
-var _typeof43 = typeof Symbol === "function" && _typeof44(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof44(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof44(obj);
-};
-
-var _typeof42 = typeof Symbol === "function" && _typeof43(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof43(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof43(obj);
-};
-
-var _typeof41 = typeof Symbol === "function" && _typeof42(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof42(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof42(obj);
-};
-
-var _typeof40 = typeof Symbol === "function" && _typeof41(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof41(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof41(obj);
-};
-
-var _typeof39 = typeof Symbol === "function" && _typeof40(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof40(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof40(obj);
-};
-
-var _typeof38 = typeof Symbol === "function" && _typeof39(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof39(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof39(obj);
-};
-
-var _typeof37 = typeof Symbol === "function" && _typeof38(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof38(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof38(obj);
-};
-
-var _typeof36 = typeof Symbol === "function" && _typeof37(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof37(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof37(obj);
-};
-
-var _typeof35 = typeof Symbol === "function" && _typeof36(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof36(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof36(obj);
-};
-
-var _typeof34 = typeof Symbol === "function" && _typeof35(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof35(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof35(obj);
-};
-
-var _typeof33 = typeof Symbol === "function" && _typeof34(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof34(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof34(obj);
-};
-
-var _typeof32 = typeof Symbol === "function" && _typeof33(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof33(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof33(obj);
-};
-
-var _typeof31 = typeof Symbol === "function" && _typeof32(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof32(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof32(obj);
-};
-
-var _typeof30 = typeof Symbol === "function" && _typeof31(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof31(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof31(obj);
-};
-
-var _typeof29 = typeof Symbol === "function" && _typeof30(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof30(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof30(obj);
-};
-
-var _typeof28 = typeof Symbol === "function" && _typeof29(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof29(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof29(obj);
-};
-
-var _typeof27 = typeof Symbol === "function" && _typeof28(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof28(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof28(obj);
-};
-
-var _typeof26 = typeof Symbol === "function" && _typeof27(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof27(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof27(obj);
-};
-
-var _typeof25 = typeof Symbol === "function" && _typeof26(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof26(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof26(obj);
-};
-
-var _typeof24 = typeof Symbol === "function" && _typeof25(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof25(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof25(obj);
-};
-
-var _typeof23 = typeof Symbol === "function" && _typeof24(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof24(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof24(obj);
-};
-
-var _typeof22 = typeof Symbol === "function" && _typeof23(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof23(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof23(obj);
-};
-
-var _typeof21 = typeof Symbol === "function" && _typeof22(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof22(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof22(obj);
-};
-
-var _typeof20 = typeof Symbol === "function" && _typeof21(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof21(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof21(obj);
-};
-
-var _typeof19 = typeof Symbol === "function" && _typeof20(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof20(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof20(obj);
-};
-
-var _typeof18 = typeof Symbol === "function" && _typeof19(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof19(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof19(obj);
-};
-
-var _typeof17 = typeof Symbol === "function" && _typeof18(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof18(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof18(obj);
-};
-
-var _typeof16 = typeof Symbol === "function" && _typeof17(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof17(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof17(obj);
-};
-
-var _typeof15 = typeof Symbol === "function" && _typeof16(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof16(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof16(obj);
-};
-
-var _typeof14 = typeof Symbol === "function" && _typeof15(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof15(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof15(obj);
-};
-
-var _typeof13 = typeof Symbol === "function" && _typeof14(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof14(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof14(obj);
-};
-
-var _typeof12 = typeof Symbol === "function" && _typeof13(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof13(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof13(obj);
-};
-
-var _typeof11 = typeof Symbol === "function" && _typeof12(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof12(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof12(obj);
-};
-
-var _typeof10 = typeof Symbol === "function" && _typeof11(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof11(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof11(obj);
-};
-
-var _typeof9 = typeof Symbol === "function" && _typeof10(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof10(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof10(obj);
-};
-
-var _typeof8 = typeof Symbol === "function" && _typeof9(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof9(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof9(obj);
-};
-
-var _typeof7 = typeof Symbol === "function" && _typeof8(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof8(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof8(obj);
-};
-
-var _typeof6 = typeof Symbol === "function" && _typeof7(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof7(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof7(obj);
-};
-
-var _typeof5 = typeof Symbol === "function" && _typeof6(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof6(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof6(obj);
-};
+var _typeof5 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 var _typeof4 = typeof Symbol === "function" && _typeof5(Symbol.iterator) === "symbol" ? function (obj) {
   return typeof obj === "undefined" ? "undefined" : _typeof5(obj);
@@ -97614,6 +97254,7 @@ var GMFileInput = function (_Component) {
         style: styles.fileInputButton,
         onClick: this.onClick.bind(this)
       }), _react2.default.createElement('input', {
+        id: this.props.id,
         type: 'file',
         accept: this.props.accept,
         style: styles.fileInput,
@@ -97640,11 +97281,27 @@ exports.default = GMFileInput;
 },{"material-ui/lib/flat-button":350,"material-ui/lib/text-field":419,"react":775}],1029:[function(require,module,exports){
 'use strict';
 
+var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
+  return typeof obj === "undefined" ? "undefined" : _typeof2(obj);
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof2(obj);
+};
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
 
 var _react = require('react');
 
@@ -97686,13 +97343,27 @@ var _GMFileInput = require('./GMFileInput');
 
 var _GMFileInput2 = _interopRequireDefault(_GMFileInput);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+function _possibleConstructorReturn(self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+}
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
+  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
 
 var errorText = 'This is a required field';
 
@@ -97731,7 +97402,7 @@ var GMImportDialog = function (_Component) {
   _createClass(GMImportDialog, [{
     key: 'validateForm',
     value: function validateForm() {
-      return (!!this.state.projectValue && this.state.projectValue !== 'new' || this.state.projectValue === 'new' && !!this.state.projectName && !!this.state.speciesValue) && !!this.state.markerName && !!this.state.markerFileName && !!this.state.traitName && !!this.state.traitFileName;
+      return (!!this.state.projectValue && this.state.projectValue !== 'new' || this.state.projectValue === 'new' && !!this.state.projectName && !!this.state.speciesValue) && !!this.state.markerName && !!this.state.markerLabelFilename && !!this.state.markerValueFilename && !!this.state.traitName && !!this.state.traitLabelFilename && !!this.state.traitValueFilename;
     }
   }, {
     key: 'handleSubmit',
@@ -97828,163 +97499,87 @@ var GMImportDialog = function (_Component) {
         return _react2.default.createElement(_menuItem2.default, { key: i, value: project.id, primaryText: project.name });
       });
       var projectListReact = this.props.projects.map(function (project, i) {
-        return _react2.default.createElement(
-          'option',
-          { key: i, value: project.id },
-          project.name
-        );
+        return _react2.default.createElement('option', { key: i, value: project.id }, project.name);
       });
       var speciesList = this.state.species.map(function (species, i) {
         return _react2.default.createElement(_menuItem2.default, { key: i, value: species.name, primaryText: species.name });
       });
       var speciesListReact = this.state.species.map(function (species, i) {
-        return _react2.default.createElement(
-          'option',
-          { key: i, value: species.name },
-          species.name
-        );
+        return _react2.default.createElement('option', { key: i, value: species.name }, species.name);
       });
-      return _react2.default.createElement(
-        'div',
-        null,
-        _react2.default.createElement(_listItem2.default, {
-          primaryText: 'Import Data',
-          onClick: this.handleOpen.bind(this),
-          leftIcon: _react2.default.createElement(
-            _fontIcon2.default,
-            { className: 'material-icons' },
-            'add'
-          )
-        }),
-        _react2.default.createElement(
-          _dialog2.default,
-          {
-            autoScrollBodyContent: true,
-            className: 'gm-dialog__import',
-            title: 'Import Data',
-            actions: actions,
-            modal: false,
-            open: this.state.open,
-            onRequestClose: this.handleClose.bind(this)
-          },
-          _react2.default.createElement(
-            'form',
-            { name: 'importData' },
-            _react2.default.createElement(
-              'div',
-              null,
-              _react2.default.createElement(
-                _selectField2.default,
-                {
-                  value: this.state.projectValue,
-                  hintText: 'Choose Project',
-                  errorText: !this.state.projectValue && errorText,
-                  onChange: this.onChangeProject.bind(this)
-                },
-                _react2.default.createElement(_menuItem2.default, { value: 'new', primaryText: 'New Project' }),
-                projectList
-              ),
-              _react2.default.createElement(
-                'select',
-                {
-                  // id='project'
-                  className: 'hidden',
-                  value: this.state.projectValue,
-                  readOnly: true
-                },
-                _react2.default.createElement(
-                  'option',
-                  { value: 'new' },
-                  'New Project'
-                ),
-                projectListReact
-              ),
-              _react2.default.createElement('br', null),
-              _react2.default.createElement(_textField2.default
-              // id='projectName'
+      return _react2.default.createElement('div', null, _react2.default.createElement(_listItem2.default, {
+        primaryText: 'Import Data',
+        onClick: this.handleOpen.bind(this),
+        leftIcon: _react2.default.createElement(_fontIcon2.default, { className: 'material-icons' }, 'add')
+      }), _react2.default.createElement(_dialog2.default, {
+        autoScrollBodyContent: true,
+        className: 'gm-dialog__import',
+        title: 'Import Data',
+        actions: actions,
+        modal: false,
+        open: this.state.open,
+        onRequestClose: this.handleClose.bind(this)
+      }, _react2.default.createElement('form', { name: 'importData' }, _react2.default.createElement('div', null, _react2.default.createElement(_selectField2.default, {
+        value: this.state.projectValue,
+        hintText: 'Choose Project',
+        errorText: !this.state.projectValue && errorText,
+        onChange: this.onChangeProject.bind(this)
+      }, _react2.default.createElement(_menuItem2.default, { value: 'new', primaryText: 'New Project' }), projectList), _react2.default.createElement('select', {
+        // id='project'
+        className: 'hidden',
+        value: this.state.projectValue,
+        readOnly: true
+      }, _react2.default.createElement('option', { value: 'new' }, 'New Project'), projectListReact), _react2.default.createElement('br', null), _react2.default.createElement(_textField2.default
+      // id='projectName'
 
-              // id='markerName'
+      // id='markerName'
 
-              // id='traitName'
-              , { value: this.state.projectName,
-                hintText: 'New Project Name',
-                disabled: this.state.optionDisabled,
-                errorText: !this.state.projectName && !this.state.optionDisabled && errorText,
-                onChange: this.onChangeProjectName.bind(this)
-              })
-            ),
-            _react2.default.createElement(
-              'div',
-              null,
-              _react2.default.createElement(_textField2.default, { value: this.state.markerName,
-                hintText: 'Marker Name',
-                errorText: !this.state.markerName && errorText,
-                onChange: this.onChangeMarkerName.bind(this)
-              }),
-              _react2.default.createElement('br', null),
-              _react2.default.createElement(_GMFileInput2.default, {
-                buttonLabel: 'Marker Labels',
-                accept: '.csv',
-                onChange: this.onChangeMarkerLabelFilename.bind(this),
-                fileLabel: this.state.markerLabelFilename
-              }),
-              _react2.default.createElement(_GMFileInput2.default, {
-                buttonLabel: 'Marker Values',
-                accept: '.csv',
-                onChange: this.onChangeMarkerValueFilename.bind(this),
-                fileLabel: this.state.markerValueFilename
-              })
-            ),
-            _react2.default.createElement('br', null),
-            _react2.default.createElement(
-              'div',
-              null,
-              _react2.default.createElement(_textField2.default, { value: this.state.traitName,
-                hintText: 'Trait Name',
-                errorText: !this.state.traitName && errorText,
-                onChange: this.onChangeTraitName.bind(this)
-              }),
-              _react2.default.createElement(_GMFileInput2.default, {
-                buttonLabel: 'Trait Labels',
-                accept: '.csv',
-                onChange: this.onChangeTraitLabelFilename.bind(this),
-                fileLabel: this.state.traitLabelFilename
-              }),
-              _react2.default.createElement(_GMFileInput2.default, {
-                buttonLabel: 'Trait Values',
-                accept: '.csv',
-                onChange: this.onChangeTraitValueFilename.bind(this),
-                fileLabel: this.state.traitValueFilename
-              })
-            ),
-            _react2.default.createElement(
-              'div',
-              null,
-              _react2.default.createElement(
-                _selectField2.default,
-                {
-                  value: this.state.speciesValue,
-                  disabled: this.state.optionDisabled,
-                  hintText: 'Choose Species',
-                  errorText: !this.state.speciesValue && !this.state.optionDisabled && errorText,
-                  onChange: this.onChangeSpecies.bind(this)
-                },
-                speciesList
-              ),
-              _react2.default.createElement(
-                'select',
-                {
-                  // id='species'
-                  className: 'hidden',
-                  value: this.state.speciesValue,
-                  readOnly: true
-                },
-                speciesListReact
-              )
-            )
-          )
-        )
-      );
+      // id='traitName'
+      , { value: this.state.projectName,
+        hintText: 'New Project Name',
+        disabled: this.state.optionDisabled,
+        errorText: !this.state.projectName && !this.state.optionDisabled && errorText,
+        onChange: this.onChangeProjectName.bind(this)
+      })), _react2.default.createElement('div', null, _react2.default.createElement(_textField2.default, { value: this.state.markerName,
+        hintText: 'Marker Name',
+        errorText: !this.state.markerName && errorText,
+        onChange: this.onChangeMarkerName.bind(this)
+      }), _react2.default.createElement('br', null), _react2.default.createElement(_GMFileInput2.default, {
+        buttonLabel: 'Marker Labels',
+        accept: '.csv',
+        onChange: this.onChangeMarkerLabelFilename.bind(this),
+        fileLabel: this.state.markerLabelFilename
+      }), _react2.default.createElement(_GMFileInput2.default, {
+        buttonLabel: 'Marker Values',
+        accept: '.csv',
+        onChange: this.onChangeMarkerValueFilename.bind(this),
+        fileLabel: this.state.markerValueFilename
+      })), _react2.default.createElement('br', null), _react2.default.createElement('div', null, _react2.default.createElement(_textField2.default, { value: this.state.traitName,
+        hintText: 'Trait Name',
+        errorText: !this.state.traitName && errorText,
+        onChange: this.onChangeTraitName.bind(this)
+      }), _react2.default.createElement(_GMFileInput2.default, {
+        buttonLabel: 'Trait Labels',
+        accept: '.csv',
+        onChange: this.onChangeTraitLabelFilename.bind(this),
+        fileLabel: this.state.traitLabelFilename
+      }), _react2.default.createElement(_GMFileInput2.default, {
+        buttonLabel: 'Trait Values',
+        accept: '.csv',
+        onChange: this.onChangeTraitValueFilename.bind(this),
+        fileLabel: this.state.traitValueFilename
+      })), _react2.default.createElement('div', null, _react2.default.createElement(_selectField2.default, {
+        value: this.state.speciesValue,
+        disabled: this.state.optionDisabled,
+        hintText: 'Choose Species',
+        errorText: !this.state.speciesValue && !this.state.optionDisabled && errorText,
+        onChange: this.onChangeSpecies.bind(this)
+      }, speciesList), _react2.default.createElement('select', {
+        // id='species'
+        className: 'hidden',
+        value: this.state.speciesValue,
+        readOnly: true
+      }, speciesListReact)))));
     }
   }]);
 
@@ -98352,6 +97947,9 @@ var GMMatrixToolbar = _react2.default.createClass({
       }
     });
   },
+  subsetSelector: function subsetSelector(event) {
+    this.props.subset.subsetSelector(event);
+  },
   render: function render() {
     return _react2.default.createElement(
       'div',
@@ -98405,7 +98003,7 @@ var GMMatrixToolbar = _react2.default.createClass({
             'add'
           ),
           style: styles.action,
-          onClick: this.props.subsetSelector
+          onClick: this.subsetSelector
         }),
         _react2.default.createElement(_flatButton2.default, {
           label: 'Sort',
@@ -98476,7 +98074,8 @@ var GMMatrixVisualization = _react2.default.createClass({
       _react2.default.createElement(_GMMatrixToolbar2.default, {
         left: this.props.minPad,
         right: this.props.minPad,
-        slider: { "onThresholdChange": this.onThresholdChange }
+        slider: { "onThresholdChange": this.onThresholdChange },
+        subset: { "subsetSelector": this.subsetSelector }
       })
     );
   }
@@ -98885,9 +98484,7 @@ var _config = require('../../config');
 
 var _config2 = _interopRequireDefault(_config);
 
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var styles = {
   checkbox: {
@@ -99002,19 +98599,31 @@ var GMRunAnalysisDialog = _react2.default.createClass({
       return _react2.default.createElement(_menuItem2.default, { key: project.id, value: project.id, primaryText: project.name });
     });
     var projectListReact = this.state.projects.map(function (project) {
-      return _react2.default.createElement('option', { key: project.id, value: project.id }, project.name);
+      return _react2.default.createElement(
+        'option',
+        { key: project.id, value: project.id },
+        project.name
+      );
     });
     var markerList = this.state.markers.map(function (marker, index) {
       return _react2.default.createElement(_menuItem2.default, { key: index, value: marker.id, primaryText: marker.name });
     });
     var markerListReact = this.state.markers.map(function (marker, index) {
-      return _react2.default.createElement('option', { key: index, value: marker.id }, marker.name);
+      return _react2.default.createElement(
+        'option',
+        { key: index, value: marker.id },
+        marker.name
+      );
     });
     var traitList = this.state.traits.map(function (trait, index) {
       return _react2.default.createElement(_menuItem2.default, { key: index, value: trait.id, primaryText: trait.name });
     });
     var traitListReact = this.state.traits.map(function (trait, index) {
-      return _react2.default.createElement('option', { key: index, value: trait.id }, trait.name);
+      return _react2.default.createElement(
+        'option',
+        { key: index, value: trait.id },
+        trait.name
+      );
     });
     var algorithmList = this.state.algorithms.map(function (algorithm) {
       return _react2.default.createElement(_GMAlgorithmCard2.default, {
@@ -99025,30 +98634,88 @@ var GMRunAnalysisDialog = _react2.default.createClass({
         handleChangeAlgorithm: _this.onChangeAlgorithm
       });
     });
-    return _react2.default.createElement('div', null, _react2.default.createElement(_dialog2.default, {
-      autoScrollBodyContent: true,
-      className: 'gm-dialog__run-analysis',
-      title: 'Run Analysis',
-      actions: actions,
-      modal: false,
-      open: this.state.open,
-      onRequestClose: this.handleClose
-    }, _react2.default.createElement('form', { name: 'runAnalysis' }, _react2.default.createElement('div', null, _react2.default.createElement(_selectField2.default, {
-      value: this.state.projectValue,
-      hintText: 'Choose Project',
-      errorText: !this.state.projectValue && errorText,
-      onChange: this.onChangeProject
-    }, projectList), _react2.default.createElement('select', { id: 'project', className: 'hidden', value: this.state.projectValue, readOnly: true }, projectListReact)), _react2.default.createElement('div', null, _react2.default.createElement(_selectField2.default, {
-      value: this.state.markerValue,
-      hintText: 'Choose Marker',
-      errorText: !this.state.markerValue && errorText,
-      onChange: this.onChangeMarker
-    }, markerList), _react2.default.createElement('select', { id: 'marker', className: 'hidden', value: this.state.markerValue, readOnly: true }, markerListReact)), _react2.default.createElement('div', null, _react2.default.createElement(_selectField2.default, {
-      value: this.state.traitValue,
-      hintText: 'Choose Trait',
-      errorText: !this.state.traitValue && errorText,
-      onChange: this.onChangeTrait
-    }, traitList), _react2.default.createElement('select', { id: 'trait', className: 'hidden', value: this.state.traitValue, readOnly: true }, traitListReact)), _react2.default.createElement('div', { style: styles.scroll }, algorithmList))));
+    return _react2.default.createElement(
+      'div',
+      null,
+      _react2.default.createElement(
+        _dialog2.default,
+        {
+          autoScrollBodyContent: true,
+          className: 'gm-dialog__run-analysis',
+          title: 'Run Analysis',
+          actions: actions,
+          modal: false,
+          open: this.state.open,
+          onRequestClose: this.handleClose
+        },
+        _react2.default.createElement(
+          'form',
+          { name: 'runAnalysis' },
+          _react2.default.createElement(
+            'div',
+            null,
+            _react2.default.createElement(
+              _selectField2.default,
+              {
+                value: this.state.projectValue,
+                hintText: 'Choose Project',
+                errorText: !this.state.projectValue && errorText,
+                onChange: this.onChangeProject
+              },
+              projectList
+            ),
+            _react2.default.createElement(
+              'select',
+              { id: 'project', className: 'hidden', value: this.state.projectValue, readOnly: true },
+              projectListReact
+            )
+          ),
+          _react2.default.createElement(
+            'div',
+            null,
+            _react2.default.createElement(
+              _selectField2.default,
+              {
+                value: this.state.markerValue,
+                hintText: 'Choose Marker',
+                errorText: !this.state.markerValue && errorText,
+                onChange: this.onChangeMarker
+              },
+              markerList
+            ),
+            _react2.default.createElement(
+              'select',
+              { id: 'marker', className: 'hidden', value: this.state.markerValue, readOnly: true },
+              markerListReact
+            )
+          ),
+          _react2.default.createElement(
+            'div',
+            null,
+            _react2.default.createElement(
+              _selectField2.default,
+              {
+                value: this.state.traitValue,
+                hintText: 'Choose Trait',
+                errorText: !this.state.traitValue && errorText,
+                onChange: this.onChangeTrait
+              },
+              traitList
+            ),
+            _react2.default.createElement(
+              'select',
+              { id: 'trait', className: 'hidden', value: this.state.traitValue, readOnly: true },
+              traitListReact
+            )
+          ),
+          _react2.default.createElement(
+            'div',
+            { style: styles.scroll },
+            algorithmList
+          )
+        )
+      )
+    );
   }
 });
 
