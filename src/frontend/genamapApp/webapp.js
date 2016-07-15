@@ -308,16 +308,12 @@ app.post(config.api.importDataUrl, function (req, res) {
     const fileName = `${id}.csv`
     const fullPath = path.join(folderPath, fileName)
     const fstream = fs.createWriteStream(fullPath)
-    let data
+    var data
 
     mkdirp.sync(folderPath)
     file.pipe(fstream)
 
-    switch (fieldname) {
-      case 'markerLabelFilename'
-    }
-
-    (fieldname === 'markerFile') ? data = dataList.marker : data = dataList.trait
+    fieldname === 'markerFilename' ? data = dataList.marker : data = dataList.trait
     data.filetype = fieldname
     data.path = fullPath
   })

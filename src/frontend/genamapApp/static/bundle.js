@@ -97138,45 +97138,11 @@ exports.default = GMDataList;
 },{"../../config":1,"./fetch":1044,"material-ui/lib/table/table":415,"material-ui/lib/table/table-body":410,"material-ui/lib/table/table-header":412,"material-ui/lib/table/table-header-column":411,"material-ui/lib/table/table-row":414,"material-ui/lib/table/table-row-column":413,"react":775}],1028:[function(require,module,exports){
 'use strict';
 
-var _typeof5 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-var _typeof4 = typeof Symbol === "function" && _typeof5(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof5(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof5(obj);
-};
-
-var _typeof3 = typeof Symbol === "function" && _typeof4(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof4(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof4(obj);
-};
-
-var _typeof2 = typeof Symbol === "function" && _typeof3(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof3(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof3(obj);
-};
-
-var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
-  return typeof obj === "undefined" ? "undefined" : _typeof2(obj);
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof2(obj);
-};
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-  };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = require('react');
 
@@ -97190,27 +97156,13 @@ var _textField = require('material-ui/lib/text-field');
 
 var _textField2 = _interopRequireDefault(_textField);
 
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _possibleConstructorReturn(self, call) {
-  if (!self) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }return call && ((typeof call === "undefined" ? "undefined" : _typeof(call)) === "object" || typeof call === "function") ? call : self;
-}
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function, not " + (typeof superClass === "undefined" ? "undefined" : _typeof(superClass)));
-  }subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } });if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-}
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var styles = {
   fileInput: {
@@ -97249,20 +97201,26 @@ var GMFileInput = function (_Component) {
   }, {
     key: 'render',
     value: function render() {
-      return _react2.default.createElement('div', { className: 'file-field-wrapper' }, _react2.default.createElement(_flatButton2.default, {
-        label: this.props.buttonLabel,
-        style: styles.fileInputButton,
-        onClick: this.onClick.bind(this)
-      }), _react2.default.createElement('input', {
-        id: this.props.id,
-        type: 'file',
-        accept: this.props.accept,
-        style: styles.fileInput,
-        onChange: this.onChange.bind(this)
-      }), _react2.default.createElement(_textField2.default, {
-        value: this.props.fileLabel,
-        disabled: true
-      }));
+      return _react2.default.createElement(
+        'div',
+        { className: 'file-field-wrapper' },
+        _react2.default.createElement(_flatButton2.default, {
+          label: this.props.buttonLabel,
+          style: styles.fileInputButton,
+          onClick: this.onClick.bind(this)
+        }),
+        _react2.default.createElement('input', {
+          id: this.props.id,
+          type: 'file',
+          accept: this.props.accept,
+          style: styles.fileInput,
+          onChange: this.onChange.bind(this)
+        }),
+        _react2.default.createElement(_textField2.default, {
+          value: this.props.fileLabel,
+          disabled: true
+        })
+      );
     }
   }]);
 
@@ -97281,7 +97239,25 @@ exports.default = GMFileInput;
 },{"material-ui/lib/flat-button":350,"material-ui/lib/text-field":419,"react":775}],1029:[function(require,module,exports){
 'use strict';
 
-var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof5 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+var _typeof4 = typeof Symbol === "function" && _typeof5(Symbol.iterator) === "symbol" ? function (obj) {
+  return typeof obj === "undefined" ? "undefined" : _typeof5(obj);
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof5(obj);
+};
+
+var _typeof3 = typeof Symbol === "function" && _typeof4(Symbol.iterator) === "symbol" ? function (obj) {
+  return typeof obj === "undefined" ? "undefined" : _typeof4(obj);
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof4(obj);
+};
+
+var _typeof2 = typeof Symbol === "function" && _typeof3(Symbol.iterator) === "symbol" ? function (obj) {
+  return typeof obj === "undefined" ? "undefined" : _typeof3(obj);
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === "undefined" ? "undefined" : _typeof3(obj);
+};
 
 var _typeof = typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol" ? function (obj) {
   return typeof obj === "undefined" ? "undefined" : _typeof2(obj);
@@ -97378,11 +97354,9 @@ var GMImportDialog = function (_Component) {
         projectValue: '',
         projectName: '',
         markerName: '',
-        markerLabelFilename: '',
-        markerValueFilename: '',
+        markerFilename: '',
         traitName: '',
-        traitLabelFilename: '',
-        traitValueFilename: '',
+        traitFilename: '',
         speciesValue: '',
         optionDisabled: true,
         species: _config2.default.species
@@ -97402,7 +97376,7 @@ var GMImportDialog = function (_Component) {
   _createClass(GMImportDialog, [{
     key: 'validateForm',
     value: function validateForm() {
-      return (!!this.state.projectValue && this.state.projectValue !== 'new' || this.state.projectValue === 'new' && !!this.state.projectName && !!this.state.speciesValue) && !!this.state.markerName && !!this.state.markerLabelFilename && !!this.state.markerValueFilename && !!this.state.traitName && !!this.state.traitLabelFilename && !!this.state.traitValueFilename;
+      return (!!this.state.projectValue && this.state.projectValue !== 'new' || this.state.projectValue === 'new' && !!this.state.projectName && !!this.state.speciesValue) && !!this.state.markerName && !!this.state.markerFilename && !!this.state.traitName && !!this.state.traitFilename;
     }
   }, {
     key: 'handleSubmit',
@@ -97452,14 +97426,9 @@ var GMImportDialog = function (_Component) {
       this.setState({ markerName: event.target.value });
     }
   }, {
-    key: 'onChangeMarkerLabelFilename',
-    value: function onChangeMarkerLabelFilename(event) {
-      this.setState({ markerLabelFilename: event.target.value.substr(12) });
-    }
-  }, {
-    key: 'onChangeMarkerValueFilename',
-    value: function onChangeMarkerValueFilename(event) {
-      this.setState({ markerValueFilename: event.target.value.substr(12) });
+    key: 'onChangeMarkerFilename',
+    value: function onChangeMarkerFilename(event) {
+      this.setState({ markerFilename: event.target.value.substr(12) });
     }
   }, {
     key: 'onChangeTraitName',
@@ -97467,14 +97436,9 @@ var GMImportDialog = function (_Component) {
       this.setState({ traitName: event.target.value });
     }
   }, {
-    key: 'onChangeTraitLabelFilename',
-    value: function onChangeTraitLabelFilename(event) {
-      this.setState({ traitLabelFilename: event.target.value.substr(12) });
-    }
-  }, {
-    key: 'onChangeTraitValueFilename',
-    value: function onChangeTraitValueFilename(event) {
-      this.setState({ traitValueFilename: event.target.value.substr(12) });
+    key: 'onChangeTraitFilename',
+    value: function onChangeTraitFilename(event) {
+      this.setState({ traitFilename: event.target.value.substr(12) });
     }
   }, {
     key: 'onChangeSpecies',
@@ -97525,49 +97489,41 @@ var GMImportDialog = function (_Component) {
         errorText: !this.state.projectValue && errorText,
         onChange: this.onChangeProject.bind(this)
       }, _react2.default.createElement(_menuItem2.default, { value: 'new', primaryText: 'New Project' }), projectList), _react2.default.createElement('select', {
-        // id='project'
+        id: 'project',
         className: 'hidden',
         value: this.state.projectValue,
         readOnly: true
-      }, _react2.default.createElement('option', { value: 'new' }, 'New Project'), projectListReact), _react2.default.createElement('br', null), _react2.default.createElement(_textField2.default
-      // id='projectName'
-
-      // id='markerName'
-
-      // id='traitName'
-      , { value: this.state.projectName,
+      }, _react2.default.createElement('option', { value: 'new' }, 'New Project'), projectListReact), _react2.default.createElement('br', null), _react2.default.createElement(_textField2.default, {
+        id: 'projectName',
+        value: this.state.projectName,
         hintText: 'New Project Name',
         disabled: this.state.optionDisabled,
         errorText: !this.state.projectName && !this.state.optionDisabled && errorText,
         onChange: this.onChangeProjectName.bind(this)
-      })), _react2.default.createElement('div', null, _react2.default.createElement(_textField2.default, { value: this.state.markerName,
+      })), _react2.default.createElement('div', null, _react2.default.createElement(_textField2.default, {
+        id: 'markerName',
+        value: this.state.markerName,
         hintText: 'Marker Name',
         errorText: !this.state.markerName && errorText,
         onChange: this.onChangeMarkerName.bind(this)
       }), _react2.default.createElement('br', null), _react2.default.createElement(_GMFileInput2.default, {
-        buttonLabel: 'Marker Labels',
+        id: 'markerFilename',
+        buttonLabel: 'Marker File',
         accept: '.csv',
-        onChange: this.onChangeMarkerLabelFilename.bind(this),
-        fileLabel: this.state.markerLabelFilename
-      }), _react2.default.createElement(_GMFileInput2.default, {
-        buttonLabel: 'Marker Values',
-        accept: '.csv',
-        onChange: this.onChangeMarkerValueFilename.bind(this),
-        fileLabel: this.state.markerValueFilename
-      })), _react2.default.createElement('br', null), _react2.default.createElement('div', null, _react2.default.createElement(_textField2.default, { value: this.state.traitName,
+        onChange: this.onChangeMarkerFilename.bind(this),
+        fileLabel: this.state.markerFilename
+      })), _react2.default.createElement('br', null), _react2.default.createElement('div', null, _react2.default.createElement(_textField2.default, {
+        id: 'traitName',
+        value: this.state.traitName,
         hintText: 'Trait Name',
         errorText: !this.state.traitName && errorText,
         onChange: this.onChangeTraitName.bind(this)
       }), _react2.default.createElement(_GMFileInput2.default, {
-        buttonLabel: 'Trait Labels',
+        id: 'traitFilename',
+        buttonLabel: 'Trait File',
         accept: '.csv',
-        onChange: this.onChangeTraitLabelFilename.bind(this),
-        fileLabel: this.state.traitLabelFilename
-      }), _react2.default.createElement(_GMFileInput2.default, {
-        buttonLabel: 'Trait Values',
-        accept: '.csv',
-        onChange: this.onChangeTraitValueFilename.bind(this),
-        fileLabel: this.state.traitValueFilename
+        onChange: this.onChangeTraitFilename.bind(this),
+        fileLabel: this.state.traitFilename
       })), _react2.default.createElement('div', null, _react2.default.createElement(_selectField2.default, {
         value: this.state.speciesValue,
         disabled: this.state.optionDisabled,
@@ -97575,7 +97531,7 @@ var GMImportDialog = function (_Component) {
         errorText: !this.state.speciesValue && !this.state.optionDisabled && errorText,
         onChange: this.onChangeSpecies.bind(this)
       }, speciesList), _react2.default.createElement('select', {
-        // id='species'
+        id: 'species',
         className: 'hidden',
         value: this.state.speciesValue,
         readOnly: true

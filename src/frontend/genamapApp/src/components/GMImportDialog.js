@@ -19,11 +19,9 @@ class GMImportDialog extends Component {
       projectValue: '',
       projectName: '',
       markerName: '',
-      markerLabelFilename: '',
-      markerValueFilename: '',
+      markerFilename: '',
       traitName: '',
-      traitLabelFilename: '',
-      traitValueFilename: '',
+      traitFilename: '',
       speciesValue: '',
       optionDisabled: true,
       species: config.species
@@ -39,10 +37,8 @@ class GMImportDialog extends Component {
     return ((!!this.state.projectValue && this.state.projectValue !== 'new' ||
             (this.state.projectValue === 'new' && !!this.state.projectName &&
             !!this.state.speciesValue)) &&
-            !!this.state.markerName && !!this.state.markerLabelFilename &&
-            !!this.state.markerValueFilename &&
-            !!this.state.traitName && !!this.state.traitLabelFilename &&
-            !!this.state.traitValueFilename)
+            !!this.state.markerName && !!this.state.markerFilename &&
+            !!this.state.traitName && !!this.state.traitFilename)
   }
 
   handleSubmit () {
@@ -86,24 +82,16 @@ class GMImportDialog extends Component {
     this.setState({markerName: event.target.value})
   }
 
-  onChangeMarkerLabelFilename (event) {
-    this.setState({markerLabelFilename: event.target.value.substr(12)})
-  }
-
-  onChangeMarkerValueFilename (event) {
-    this.setState({markerValueFilename: event.target.value.substr(12)})
+  onChangeMarkerFilename (event) {
+    this.setState({markerFilename: event.target.value.substr(12)})
   }
 
   onChangeTraitName (event) {
     this.setState({traitName: event.target.value})
   }
 
-  onChangeTraitLabelFilename (event) {
-    this.setState({traitLabelFilename: event.target.value.substr(12)})
-  }
-
-  onChangeTraitValueFilename (event) {
-    this.setState({traitValueFilename: event.target.value.substr(12)})
+  onChangeTraitFilename (event) {
+    this.setState({traitFilename: event.target.value.substr(12)})
   }
 
   onChangeSpecies (event, index, value) {
@@ -193,18 +181,11 @@ class GMImportDialog extends Component {
               />
               <br />
               <GMFileInput
-                id='markerLabelFilename'
-                buttonLabel='Marker Labels'
+                id='markerFilename'
+                buttonLabel='Marker File'
                 accept='.csv'
-                onChange={this.onChangeMarkerLabelFilename.bind(this)}
-                fileLabel={this.state.markerLabelFilename}
-              />
-              <GMFileInput
-                id='markerValueFilename'
-                buttonLabel='Marker Values'
-                accept='.csv'
-                onChange={this.onChangeMarkerValueFilename.bind(this)}
-                fileLabel={this.state.markerValueFilename}
+                onChange={this.onChangeMarkerFilename.bind(this)}
+                fileLabel={this.state.markerFilename}
               />
             </div>
             <br />
@@ -217,18 +198,11 @@ class GMImportDialog extends Component {
                 onChange={this.onChangeTraitName.bind(this)}
               />
               <GMFileInput
-                id='traitLabelFilename'
-                buttonLabel='Trait Labels'
+                id='traitFilename'
+                buttonLabel='Trait File'
                 accept='.csv'
-                onChange={this.onChangeTraitLabelFilename.bind(this)}
-                fileLabel={this.state.traitLabelFilename}
-              />
-              <GMFileInput
-                id='traitValueFilename'
-                buttonLabel='Trait Values'
-                accept='.csv'
-                onChange={this.onChangeTraitValueFilename.bind(this)}
-                fileLabel={this.state.traitValueFilename}
+                onChange={this.onChangeTraitFilename.bind(this)}
+                fileLabel={this.state.traitFilename}
               />
             </div>
             <div>
