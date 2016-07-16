@@ -445,6 +445,8 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             const fileName = `${id}.csv`
             const resultsPath = path.join(userPath, fileName)
 
+            console.log(req.body)
+
             var success = Scheduler.startJob(jobId, function (results) {
               results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
 
@@ -453,7 +455,11 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                   name: 'Matrix View',
                   filetype: 'resultFile',
                   path: resultsPath,
-                  project: req.body.project
+                  project: req.body.project,
+                  labels: {
+                    marker: req.body.markerLabel,
+                    trait: req.body.traitLabel
+                  }
                 }).exec(function (err, file) {
                   if (err) throw err
                 })

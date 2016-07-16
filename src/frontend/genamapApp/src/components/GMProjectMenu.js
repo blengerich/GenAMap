@@ -12,6 +12,17 @@ import AutoComplete from 'material-ui/lib/auto-complete'
 import GMImportDialog from './GMImportDialog'
 
 const GMProjectContent = React.createClass({
+  getDataUrl: function() {
+    switch (this.props.data.filetype) {
+      case 'resultFile':
+        const markerLabelFileId = this.props.data.labels.marker
+        const traitLabelFileId = this.props.data.labels.trait
+
+        return '/visualization/matrix/' + markerLabelFileId + '/' + traitLabelFileId + '/' + this.props.data.id
+      default:
+        return '/data/' + this.props.data.id
+    }
+  },
   getLeftIconName: function() {
     const filetype = this.props.data.filetype
     if (filetype === 'markerFile' || filetype === 'traitFile') {
@@ -49,6 +60,11 @@ const GMProjectContent = React.createClass({
     return (
       <IconMenu iconButtonElement={this.iconButtonElement()}>
         <MenuItem
+          primaryText={'Download ' + this.props.data.name}
+          onTouchTap={this.handleDownloadFile}
+          leftIcon={<FontIcon className='material-icons'>file_download</FontIcon>}
+        />
+        <MenuItem
           primaryText={'Delete ' + this.props.data.name}
           onTouchTap={this.handleDeleteFile}
           leftIcon={<FontIcon className='material-icons'>delete</FontIcon>}
@@ -67,6 +83,10 @@ const GMProjectContent = React.createClass({
   handleDeleteFile: function () {
     return this.props.actions.deleteFile(this.props.data.id)
   },
+  handleDownloadFile: function() {
+    // TODO: download file for user
+    return
+  },
   handleRenameFile: function () {
     return this.props.actions.renameFile(this.props.data.id)
   },
@@ -74,6 +94,7 @@ const GMProjectContent = React.createClass({
     return
   },
   render: function () {
+    const dataUrl = this.getDataUrl()
     const leftIconName = this.getLeftIconName()
     return (
       <ListItem
@@ -81,24 +102,13 @@ const GMProjectContent = React.createClass({
         leftIcon={<FontIcon className='material-icons'>{leftIconName}</FontIcon>}
         rightIconButton={this.rightIconMenu()}
         nestedLevel={1}>
-        <Link to={this.props.dataUrl}>{this.props.data.name}</Link>
+        <Link to={dataUrl}>{this.props.data.name}</Link>
       </ListItem>
     )
   }
 })
 
 const GMProject = React.createClass({
-  getDataUrl: function(file) {
-    switch (file.filetype) {
-      case 'resultFile':
-        const markerLabelFileId = (this.getFileIds('markerLabelFile'))[0]
-        const traitLabelFileId = (this.getFileIds('traitLabelFile'))[0]
-
-        return '/visualization/matrix/' + markerLabelFileId + '/' + traitLabelFileId + '/' + file.id
-      default:
-        return '/data/' + file.id
-    }
-  },
   getFileIds: function(filetype) {
     return this.props.project.files.filter(file => file.filetype === filetype).map(file => file.id)
   },
@@ -108,7 +118,6 @@ const GMProject = React.createClass({
         key={i}
         data={file}
         actions={this.props.actions}
-        dataUrl={this.getDataUrl(file)}
       />
     )
 
