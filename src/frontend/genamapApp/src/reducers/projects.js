@@ -20,10 +20,18 @@ const project = (state, action) => {
 const projects = (state = [], action) => {
   switch (action.type) {
     case IMPORT_DATA_RECEIVE:
-      return [
-        ...state,
-        project(undefined, action)
-      ]
+      if (state.every(p => p.id !== action.data.project.id)) {
+        return [
+          ...state,
+          project(undefined, action)
+        ]
+      } else {
+        return state.map(p => {
+          return (p.id === action.data.project.id)
+          ? project(p, action)
+          : p
+        })
+      }
     case LOAD_INITIAL_PROJECTS:
       return action.data
     case DELETE_FILE:
