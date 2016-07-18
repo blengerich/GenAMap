@@ -31,9 +31,6 @@ function getRandomInt(min, max) {
 
 
 var Graph = function(data, markerLabels, traitLabels) {
-	var fileLocation = 'example_data/test_node_small.csv';
-
-  // TODO: GET FROM LABEL FILES
   var numTraits = traitLabels.length
   var numMarkers = markerLabels.length
 
@@ -49,8 +46,8 @@ var Graph = function(data, markerLabels, traitLabels) {
   // Need to change percentages again to take into account sidebar
   var maxWidth =  windowWidth/1.25;
   var maxHeight = windowHeight/1.5;
-  var matrixHeight = cellHeight * numMarkers;
-  var matrixWidth = cellWidth * numTraits;
+  var matrixHeight = cellHeight * numTraits;
+  var matrixWidth = cellWidth * numMarkers;
 
   var margin = { top: 0, right: rightMargin, bottom: 5, left: 5 };
 
@@ -181,7 +178,7 @@ var Graph = function(data, markerLabels, traitLabels) {
         .attr("y2", mapHeight + margin.bottom);
 
     // horizontal labels
-    for (var i = 0; i < numMarkers; i++) {
+    for (var i = 0; i < numTraits; i++) {
       var row = axes.append("g")
                     .attr("class", "row")
                     .attr("transform", "translate(0," + (cellHeight * i) + ")");
@@ -190,7 +187,7 @@ var Graph = function(data, markerLabels, traitLabels) {
          .attr("text-anchor", "end")
          .attr("x", -5)
          .attr("y", 8)
-         .text(markerLabels[i]);
+         .text(traitLabels[i]);
     }
 
     axes.append("text")
@@ -198,10 +195,10 @@ var Graph = function(data, markerLabels, traitLabels) {
         .attr("text-anchor", "middle")
         .attr("y", mapHeight/2)
         .attr("transform", "translate(-35,0)rotate(-90,0," + mapHeight/2 + ")")
-        .text("Markers");
+        .text("Traits");
 
     // vertical labels
-    for (var i = 0; i < numTraits; i++) {
+    for (var i = 0; i < numMarkers; i++) {
       var col = d3.select(".axes")
                   .append("g")
                   .attr("class", "col")
@@ -212,7 +209,7 @@ var Graph = function(data, markerLabels, traitLabels) {
          .attr("text-anchor", "end")
          .attr("x", -5)
          .attr("y", 8)
-         .text(traitLabels[i]);
+         .text(markerLabels[i]);
     }
 
     axes.append("text")
@@ -221,7 +218,7 @@ var Graph = function(data, markerLabels, traitLabels) {
         .attr("y", mapHeight)
         .attr("x", mapWidth/2)
         .attr("transform", "translate(0,50)")
-        .text("Traits");
+        .text("Markers");
 
     // opaque bottom-left selector
     axes.append("rect")
@@ -240,21 +237,21 @@ var Graph = function(data, markerLabels, traitLabels) {
   function initGridLines() {
     var matrix = d3.select("#overallMatrix");
 
-    for (var i = 0; i < numMarkers; i++) {
+    for (var i = 0; i < numTraits; i++) {
       matrix.append("line")
             .attr("x1", 0)
             .attr("y1", cellHeight * i)
-            .attr("x2", cellWidth * numTraits)
+            .attr("x2", cellWidth * numMarkers)
             .attr("y2", cellHeight * i)
             .attr("stroke", "#fff");
     }
 
-    for (var i = 0; i < numTraits; i++) {
+    for (var i = 0; i < numMarkers; i++) {
       matrix.append("line")
             .attr("x1", cellWidth * i)
             .attr("y1", 0)
             .attr("x2", cellWidth * i)
-            .attr("y2", cellHeight * numMarkers)
+            .attr("y2", cellHeight * numTraits)
             .attr("stroke", "#fff");
     }
   }
@@ -301,8 +298,8 @@ var Graph = function(data, markerLabels, traitLabels) {
 
     // append cells
     cards.enter().append("rect")
-                    .attr("x", function(d) { return d.Trait * cellWidth; })
-                    .attr("y", function(d) { return d.Marker * cellHeight; })
+                    .attr("x", function(d) { return d.Marker * cellHeight; })
+                    .attr("y", function(d) { return d.Trait * cellWidth; })
                     .attr("class", "cell")
                     .attr("width", cellWidth)
                     .attr("height", cellHeight)
@@ -343,11 +340,11 @@ var Graph = function(data, markerLabels, traitLabels) {
   var maxOverlayDimension = 100;
   var overlayMapWidth, overlayMapHeight;
   if (numMarkers > numTraits) {
-    overlayMapHeight = maxOverlayDimension;
-    overlayMapWidth = maxOverlayDimension * (numTraits/numMarkers);
-  } else {
     overlayMapWidth = maxOverlayDimension;
-    overlayMapHeight = maxOverlayDimension * (numMarkers/numTraits);
+    overlayMapHeight = maxOverlayDimension * (numTraits/numMarkers);
+  } else {
+    overlayMapHeight = maxOverlayDimension;
+    overlayMapWidth = maxOverlayDimension * (numMarkers/numTraits);
   }
 
   var overlayCellWidth = 5;
@@ -384,8 +381,8 @@ var Graph = function(data, markerLabels, traitLabels) {
   var numCellsHorizontalLanding = mapWidth/10;
   var numCellsVerticalLanding = mapHeight/10;
 
-  var overlayWidthPercentage = numCellsHorizontalLanding/numTraits;
-  var overlayHeightPercentage = numCellsVerticalLanding/numMarkers;
+  var overlayWidthPercentage = numCellsHorizontalLanding/numMarkers;
+  var overlayHeightPercentage = numCellsVerticalLanding/numTraits;
 
   overlayWidth = overlayWidthPercentage*overlayMapWidth;
   overlayHeight = overlayHeightPercentage*overlayMapHeight;

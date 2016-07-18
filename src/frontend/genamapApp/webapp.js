@@ -445,8 +445,6 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             const fileName = `${id}.csv`
             const resultsPath = path.join(userPath, fileName)
 
-            console.log(req.body)
-
             var success = Scheduler.startJob(jobId, function (results) {
               results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
 
