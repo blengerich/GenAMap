@@ -74,7 +74,7 @@ svg:active{
   text-transform: uppercase;
   font-weight: 500;
   border-radius: 2px;
-  position: relative; 
+  position: relative;
   line-height: 36px;
   min-width: 30px;
   flex: 0 1 auto;
@@ -111,9 +111,6 @@ svg:active{
 }
 
 .axes .title {
-  font-size: 18px;
   font-family: sans-serif;
   font-weight: bold;
 }
-
-

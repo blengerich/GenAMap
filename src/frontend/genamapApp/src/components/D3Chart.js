@@ -10,20 +10,13 @@ const colorScale = d3.scale.quantile()
                         .domain([0, 1])
                         .range(colors);
 
-function hoverOnCell(d, trait, marker, correlation, mousePos) {
-  var labelText = "<h2>Trait: T" + trait + "</h2> <h2>Marker: M" + marker + "</h2> <p> Correlation: " + correlation + "</p>";
-  var tooltip = d3.select("#chart")
-                  .append("div")
-                  .attr("class", "tooltip")
-                  .html(labelText)
-                  .style("position", "absolute")
-                  .style("left", mousePos.pageX + "px")
-                  .style("top", mousePos.pageY + "px")
-}
-
-function hoverOutCell() {
-  d3.select(".tooltip").remove();
-}
+var axisOnZoom;
+var zoomFunction;
+var mapWidth;
+var mapHeight;
+var miniZoomed;
+var overlayWidth;
+var overlayHeight;
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
@@ -31,47 +24,182 @@ function getRandomInt(min, max) {
 
 
 var Graph = function(data, markerLabels, traitLabels) {
-  var numTraits = traitLabels.length
-  var numMarkers = markerLabels.length
+  /************************************
+  *** visualization setup functions ***
+  ************************************/
 
-	var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-	var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+  function trimmedLabel(s, threshold) {
+    return (s.length > threshold) ? (s.substring(0, threshold) + "..") : s
+  }
 
-	var leftMargin = 0.1 * windowWidth;
-	var rightMargin = 0.1 * windowWidth;
-	var traitMargin = 0.12 * windowWidth;
-	var cellWidth = 10;
-	var cellHeight = 10;
+  /* initialize axes and axis labels */
+  function initAxes() {
+    var axes = d3.select("#rootSvg")
+                 .append("g")
+                 .attr("class", "axes")
+                 .attr("transform", "translate(" + axisPadding + ",0)");
 
-  // Need to change percentages again to take into account sidebar
-  var maxWidth =  windowWidth/1.25;
-  var maxHeight = windowHeight/1.5;
-  var matrixHeight = cellHeight * numTraits;
-  var matrixWidth = cellWidth * numMarkers;
+    // borders
+    axes.append("line")
+        .attr("x2", mapWidth + margin.left)
+        .attr("y1", mapHeight + margin.bottom)
+        .attr("y2", mapHeight + margin.bottom);
+    axes.append("line")
+        .attr("y2", mapHeight + margin.bottom);
 
-  var margin = { top: 0, right: rightMargin, bottom: 5, left: 5 };
+    // horizontal labels
+    for (var i = 0; i < numTraits; i++) {
+      var row = axes.append("g")
+                    .attr("class", "row")
+                    .attr("transform", "translate(0," + (cellHeight * i) + ")");
 
-  mapWidth = Math.min(maxWidth, matrixWidth);
-  mapHeight = Math.min(maxHeight, matrixHeight);
+      row.append("text")
+         .attr("text-anchor", "end")
+         .attr("x", -5)
+         .attr("y", 8)
+         .text(trimmedLabel(traitLabels[i], 5));
+    }
 
-  var axisPadding = 50;
-  var baseLabelStyle = { fontSize: 10, innerMargin: 8 };
+    axes.append("text")
+        .attr("class", "title")
+        .attr("text-anchor", "middle")
+        .attr("y", mapHeight/2)
+        .attr("transform", "translate(" + (-axisPadding + baseLabelStyle.titleSize)
+            + ",0)rotate(-90,0," + mapHeight/2 + ")")
+        .text("Traits");
 
-  var totalWidth = axisPadding + margin.left + mapWidth;
-  var totalHeight = mapHeight + margin.bottom + axisPadding;
+    // vertical labels
+    for (var i = 0; i < numMarkers; i++) {
+      var col = d3.select(".axes")
+                  .append("g")
+                  .attr("class", "col")
+                  .attr("transform", "translate(" + (margin.left + cellWidth * i)
+                        + "," + (mapHeight + margin.bottom) + ")rotate(-90)");
 
-  d3.select('#chart')
-    .style({ "width": (mapWidth + margin.left) + "px" });
+      col.append("text")
+         .attr("text-anchor", "end")
+         .attr("x", -5)
+         .attr("y", 8)
+         .text(trimmedLabel(markerLabels[i], 5));
+    }
 
-  var zoom = d3.behavior.zoom()
-              .size([mapWidth, mapHeight])
-              .scaleExtent([1, 8])
-              .on("zoom", zoomFunction)
+    axes.append("text")
+        .attr("class", "title")
+        .attr("text-anchor", "middle")
+        .attr("y", mapHeight)
+        .attr("x", mapWidth/2)
+        .attr("transform", "translate(0," + axisPadding + ")")
+        .text("Markers");
 
+    // opaque bottom-left selector
+    axes.append("rect")
+        .attr("x", -(axisPadding + margin.left))
+        .attr("y", mapHeight + margin.bottom)
+        .attr("width", axisPadding + margin.left)
+        .attr("height", axisPadding + margin.bottom)
+        .attr("fill", "#fff");
 
-  function axisOnZoom(translateAmount, zoomAmount) {
+    d3.selectAll(".title")
+      .style("font-size", baseLabelStyle.titleSize + "px");
+    d3.selectAll(".row text")
+      .style("font-size", baseLabelStyle.fontSize + "px");
+    d3.selectAll(".col text")
+      .style("font-size", baseLabelStyle.fontSize + "px");
+  }
+
+  /* create spaces between cells */
+  function initGridLines() {
+    var matrix = d3.select("#overallMatrix");
+
+    for (var i = 0; i < numTraits; i++) {
+      matrix.append("line")
+            .attr("x1", 0)
+            .attr("y1", cellHeight * i)
+            .attr("x2", cellWidth * numMarkers)
+            .attr("y2", cellHeight * i)
+            .attr("stroke", "#fff");
+    }
+
+    for (var i = 0; i < numMarkers; i++) {
+      matrix.append("line")
+            .attr("x1", cellWidth * i)
+            .attr("y1", 0)
+            .attr("x2", cellWidth * i)
+            .attr("y2", cellHeight * numTraits)
+            .attr("stroke", "#fff");
+    }
+  }
+
+  function hoverOnCell(d, trait, marker, correlation, mousePos) {
+    var labelText = "<h2>Trait: " + traitLabels[trait] + "</h2> <h2>Marker: " +
+                    markerLabels[marker] + "</h2> <p> Correlation: " + correlation + "</p>";
+    var tooltip = d3.select("#chart")
+                    .append("div")
+                    .attr("class", "tooltip")
+                    .html(labelText)
+                    .style("position", "absolute")
+                    .style("left", mousePos.pageX + "px")
+                    .style("top", mousePos.pageY + "px")
+  }
+
+  function hoverOutCell() {
+    d3.select(".tooltip").remove();
+  }
+
+  /* parse correlation data into visualization */
+  function parseData() {
+    var parsedData = []
+    data.v.split(";").forEach(function(row, rowIndex) {
+      row.split(",").forEach(function(d, colIndex) {
+        parsedData.push({
+          value: +d,
+          Marker: rowIndex,
+          Trait: colIndex
+        })
+      })
+    })
+
+    var cards = svg.selectAll(".dots")
+                  .data(parsedData, function(d) { return d.Marker+':'+d.Trait;});
+
+    cards.append("title");
+
+    // append cells
+    cards.enter().append("rect")
+                    .attr("x", function(d) { return d.Marker * cellHeight; })
+                    .attr("y", function(d) { return d.Trait * cellWidth; })
+                    .attr("class", "cell")
+                    .attr("width", cellWidth)
+                    .attr("height", cellHeight)
+                    .attr("trait", function(d) { return d.Trait })
+                    .attr("marker", function(d) { return d.Marker })
+                    .attr("value", function(d) { return d.value })
+                    .on('mouseover', function(d) {
+                      var mousePos = d3.event;
+                      var trait = d.Trait;
+                      var marker = d.Marker;
+                      var correlation = d.value;
+                      hoverOnCell(d, trait, marker, correlation, mousePos);
+                      d3.select(d3.event.target).classed("highlight", true);
+                    })
+                    .on('mouseout', function(d) {
+                      hoverOutCell();
+                      d3.select(d3.event.target).classed("highlight", false);
+                    });
+    cards.transition().duration(100)
+          .style("fill", function(d) { return colorScale(d.value); });
+
+    cards.exit().remove();
+    initGridLines();
+  }
+
+  /*************************
+  **** zoom functions *****
+  *************************/
+
+  axisOnZoom = function(translateAmount, zoomAmount) {
     var newTextY = baseLabelStyle.innerMargin * zoomAmount;
-    var newFontSize = baseLabelStyle.fontSize * zoomAmount;
+    var newFontSize = Math.min(baseLabelStyle.fontSize * zoomAmount, baseLabelStyle.maxFontSize);
 
     // column text transform
     d3.selectAll(".col")
@@ -102,10 +230,11 @@ var Graph = function(data, markerLabels, traitLabels) {
       });
   }
 
-  function zoomed() {
+  zoomFunction = function() {
     svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     var zoomAmount = d3.event.scale;
     var translateAmount = d3.event.translate;
+
     axisOnZoom(translateAmount, zoomAmount);
 
     var overlay = d3.select("#map-background");
@@ -162,99 +291,56 @@ var Graph = function(data, markerLabels, traitLabels) {
     return [coordinates[0] * scale + translate[0], coordinates[1] * scale + translate[1]];
   }
 
-  /* add axis labels and gridlines */
-  function initAxes() {
-    var axes = d3.select("#rootSvg")
-                 .append("g")
-                 .attr("class", "axes")
-                 .attr("transform", "translate(" + axisPadding + ",0)");
-
-    // gridlines
-    axes.append("line")
-        .attr("x2", mapWidth + margin.left)
-        .attr("y1", mapHeight + margin.bottom)
-        .attr("y2", mapHeight + margin.bottom);
-    axes.append("line")
-        .attr("y2", mapHeight + margin.bottom);
-
-    // horizontal labels
-    for (var i = 0; i < numTraits; i++) {
-      var row = axes.append("g")
-                    .attr("class", "row")
-                    .attr("transform", "translate(0," + (cellHeight * i) + ")");
-
-      row.append("text")
-         .attr("text-anchor", "end")
-         .attr("x", -5)
-         .attr("y", 8)
-         .text(traitLabels[i]);
-    }
-
-    axes.append("text")
-        .attr("class", "title")
-        .attr("text-anchor", "middle")
-        .attr("y", mapHeight/2)
-        .attr("transform", "translate(-35,0)rotate(-90,0," + mapHeight/2 + ")")
-        .text("Traits");
-
-    // vertical labels
-    for (var i = 0; i < numMarkers; i++) {
-      var col = d3.select(".axes")
-                  .append("g")
-                  .attr("class", "col")
-                  .attr("transform", "translate(" + (margin.left + cellWidth * i)
-                        + "," + (mapHeight + margin.bottom) + ")rotate(-90)");
-
-      col.append("text")
-         .attr("text-anchor", "end")
-         .attr("x", -5)
-         .attr("y", 8)
-         .text(markerLabels[i]);
-    }
-
-    axes.append("text")
-        .attr("class", "title")
-        .attr("text-anchor", "middle")
-        .attr("y", mapHeight)
-        .attr("x", mapWidth/2)
-        .attr("transform", "translate(0,50)")
-        .text("Markers");
-
-    // opaque bottom-left selector
-    axes.append("rect")
-        .attr("x", -(axisPadding + margin.left))
-        .attr("y", mapHeight + margin.bottom)
-        .attr("width", axisPadding + margin.left)
-        .attr("height", axisPadding + margin.bottom)
-        .attr("fill", "#fff");
-
-    d3.selectAll(".row text")
-      .style("font-size", baseLabelStyle.fontSize + "px");
-    d3.selectAll(".col text")
-      .style("font-size", baseLabelStyle.fontSize + "px");
-  }
-
-  function initGridLines() {
+  miniZoomed = function() {
+    var translateAmount = d3.event.translate;
+    overlay.attr("transform", "translate(" + translateAmount + ")scale(" + 1/d3.event.scale + ")");
     var matrix = d3.select("#overallMatrix");
-
-    for (var i = 0; i < numTraits; i++) {
-      matrix.append("line")
-            .attr("x1", 0)
-            .attr("y1", cellHeight * i)
-            .attr("x2", cellWidth * numMarkers)
-            .attr("y2", cellHeight * i)
-            .attr("stroke", "#fff");
-    }
-
-    for (var i = 0; i < numMarkers; i++) {
-      matrix.append("line")
-            .attr("x1", cellWidth * i)
-            .attr("y1", 0)
-            .attr("x2", cellWidth * i)
-            .attr("y2", cellHeight * numTraits)
-            .attr("stroke", "#fff");
-    }
+    var zoomAmount = d3.event.scale;
+    var newArray = [translateAmount[0]*(mapWidth/overlayMapWidth),
+                    translateAmount[1]*(mapHeight/overlayMapHeight)];
+    matrix.attr("transform", "translate(" + newArray + ")scale(" + d3.event.scale + ")");
+    axisOnZoom(newArray, zoomAmount);
   }
+
+  /****************************
+  ***** begin main script *****
+  ****************************/
+
+  var numTraits = traitLabels.length
+  var numMarkers = markerLabels.length
+
+	var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+	var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+	var leftMargin = 0.1 * windowWidth;
+	var rightMargin = 0.1 * windowWidth;
+	var cellWidth = 10;
+	var cellHeight = 10;
+
+  // Need to change percentages again to take into account sidebar
+  var maxTotalWidth =  windowWidth/1.15;
+  var maxTotalHeight = windowHeight/1.3;
+  var matrixHeight = cellHeight * numTraits;
+  var matrixWidth = cellWidth * numMarkers;
+
+  var axisPadding = 80;
+  var margin = { top: 0, right: rightMargin, bottom: 5, left: 5 };
+
+  var totalWidth = Math.min(maxTotalWidth, matrixWidth + axisPadding + margin.left)
+  var totalHeight = Math.min(maxTotalHeight, matrixHeight + axisPadding + margin.bottom)
+
+  mapWidth = totalWidth - axisPadding - margin.left
+  mapHeight = totalHeight - axisPadding - margin.bottom
+
+  var baseLabelStyle = { fontSize: 10, maxFontSize: 18, titleSize: 20, innerMargin: 8 };
+
+  d3.select('#chart')
+    .style({ "width": (mapWidth + margin.left) + "px" });
+
+  var zoom = d3.behavior.zoom()
+              .size([mapWidth, mapHeight])
+              .scaleExtent([1, 8])
+              .on("zoom", zoomFunction)
 
   d3.selectAll("a[data-zoom]")
     .on("click", clicked);
@@ -278,64 +364,7 @@ var Graph = function(data, markerLabels, traitLabels) {
                   .attr("id", "overallMatrix");
 
   initAxes();
-
-  function parseData() {
-    var parsedData = []
-    data.v.split(";").forEach(function(row, rowIndex) {
-      row.split(",").forEach(function(d, colIndex) {
-        parsedData.push({
-          value: +d,
-          Marker: rowIndex,
-          Trait: colIndex
-        })
-      })
-    })
-
-    var cards = svg.selectAll(".dots")
-                  .data(parsedData, function(d) { return d.Marker+':'+d.Trait;});
-
-    cards.append("title");
-
-    // append cells
-    cards.enter().append("rect")
-                    .attr("x", function(d) { return d.Marker * cellHeight; })
-                    .attr("y", function(d) { return d.Trait * cellWidth; })
-                    .attr("class", "cell")
-                    .attr("width", cellWidth)
-                    .attr("height", cellHeight)
-                    .attr("trait", function(d) { return d.Trait })
-                    .attr("marker", function(d) { return d.Marker })
-                    .attr("value", function(d) { return d.value })
-                    .on('mouseover', function(d) {
-                      var mousePos = d3.event;
-                      var trait = d.Trait;
-                      var marker = d.Marker;
-                      var correlation = d.value;
-                      hoverOnCell(d, trait, marker, correlation, mousePos);
-                      d3.select(d3.event.target).classed("highlight", true);
-                    })
-                    .on('mouseout', function(d) {
-                      hoverOutCell();
-                      d3.select(d3.event.target).classed("highlight", false);
-                    });
-    cards.transition().duration(100)
-          .style("fill", function(d) { return colorScale(d.value); });
-
-    cards.exit().remove();
-    initGridLines();
-  }
-  parseData()
-
-  miniZoomed = function() {
-    var translateAmount = d3.event.translate;
-    overlay.attr("transform", "translate(" + translateAmount + ")scale(" + 1/d3.event.scale + ")");
-    var matrix = d3.select("#overallMatrix");
-    var zoomAmount = d3.event.scale;
-    var newArray = [translateAmount[0]*(mapWidth/overlayMapWidth),
-                    translateAmount[1]*(mapHeight/overlayMapHeight)];
-    matrix.attr("transform", "translate(" + newArray + ")scale(" + d3.event.scale + ")");
-    axisOnZoom(newArray, zoomAmount);
-  }
+  parseData();
 
   var maxOverlayDimension = 100;
   var overlayMapWidth, overlayMapHeight;
@@ -356,7 +385,7 @@ var Graph = function(data, markerLabels, traitLabels) {
                         .attr("class", "minimap")
                         .attr("width", overlayMapWidth)
                         .attr("height", overlayMapHeight)
-
+                        
   var minimapColors = ["#65e5cf", "#5bc8df", "#239faf", "#128479", "#5eacdd", "#1e69c4", "#2b90e2"];
 
   for (var col = 0; col < 20; col++) {
