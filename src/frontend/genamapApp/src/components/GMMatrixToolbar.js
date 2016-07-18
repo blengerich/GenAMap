@@ -125,7 +125,11 @@ const GMMatrixToolbar = React.createClass({
           left={this.props.left}
           right={this.props.right}
         >
-          <Slider id={"slider"} style={styles.slider} onChange={this.onThresholdChange} />
+          <Slider id={"slider"}
+            style={styles.slider}
+            onChange={this.onThresholdChange}
+            min={-1} max={1} defaultValue={0}
+          />
           <span style={styles.sliderValue}>{this.state.slider.threshold.toFixed(2)}</span>
           <GMSliderName />
           <FlatButton
@@ -149,8 +153,8 @@ const GMMatrixToolbar = React.createClass({
           <FlatButton
             label='Create a subset'
             icon={<FontIcon className='material-icons'>add</FontIcon>}
-            style={styles.action} 
-            onClick={this.props.subsetSelector}  
+            style={styles.action}
+            onClick={this.props.subsetSelector}
           />
           <FlatButton
             label='Sort'
