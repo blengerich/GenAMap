@@ -101,3 +101,13 @@ cc_library(
 	deps = ["//model:Model"],
 )
 
+cc_library(
+	name = "ICLasso",
+	srcs = ["ICLasso.cpp"],
+	hdrs = ["ICLasso.hpp"],
+	copts = ["-DBAZEL"],
+	deps = ["//model:Model",
+	        "//model:ModelOptions"],
+)
+
+

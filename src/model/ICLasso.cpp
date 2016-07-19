@@ -148,8 +148,36 @@ double bound_below(double a){
     return max(a, 0);
 }
 
-//Two return values?
-MatrixXd optimize_block_coord(MatrixXd, S, int maxiter, double a, double b){
+MatrixXd update_beta_mex(MatrixXd X, MatrixXd S, MatrixXd a, 
+                     MatrixXd b, double lambda, double gamma, MatrixXd Beta){
+    int p = X.cols();
+    MatrixXd beta_new = MatrixXd::Zero(p, 1);
+    int k, j;
+    for (k = 0; k < p; k++) {
+        beta_new(k,0) = Beta(k, 0);
+    }
+    double beta_k, upper_k, lower_k;
+    for (k = 0; k < p; k++) {
+        beta_k = S(k, 0);
+        for (j = 0; j < p; j++) {
+            if (j != k)
+                beta_k += X(k,j)*beta_new(j, 0);
+        }
+        beta_k = -1*beta_k/X(k, k);
+        upper_k = (gamma*a(k,0) + lambda)/X(k, k);
+        lower_k = -1*(gamma*b(k,0) + lambda)/X(k, k);
+        if (beta_k > upper_k) {
+            beta_new(k,0) = beta_k - upper_k;
+        } else if (beta_k < lower_k) {
+            beta_new(k,0) = beta_k - lower_k;
+        } else {
+            beta_new(k,0) = 0;
+        }
+    }
+    return beta_new;
+}
+
+MatrixXd optimize_block_coord_sigma(MatrixXd S, int maxiter, double a, double b){
     int p = X.cols();
     Beta = MatrixXd::Zero(p, 1);
     MatrixXd oldBeta;
@@ -162,8 +190,18 @@ MatrixXd optimize_block_coord(MatrixXd, S, int maxiter, double a, double b){
               (-Beta).unaryExpr(std::ptr_fun(bound_below<double>)));
 }
 
+MatrixXd optimize_block_coord_beta(MatrixXd S, int maxiter, double a, double b){
+    int p = X.cols();
+    Beta = MatrixXd::Zero(p, 1);
+    MatrixXd oldBeta;
+    for (int i = 0; i < maxiter; i++){
+        oldBeta = Beta;
+        Beta = update_beta_mex(X,S,a,b,lambda,gamma,Beta);
+        if ((Beta-oldBeta).norm() < 1e-3) break;
+    }
+    return Beta;
+}
 
-//DONE
 MatrixXd fused_prox_vector(MatrixXd beta, MatrixXd u, MatrixXd l){
     int len = beta.rows();
     w = MatrixXd::Zero(len, 1);
@@ -181,7 +219,7 @@ MatrixXd fused_prox_vector(MatrixXd beta, MatrixXd u, MatrixXd l){
 
 }
 
-//DONE
+
 double fused_prox_scalar(double beta, double u, double l){
     if (beta > u){
         return beta - u;
@@ -205,7 +243,6 @@ MatrixXd optimize_block_prox(MatrixXd S, int maxiter, double a, double b){
     L = 10;
     objVals = MatrixXd::Zero(maxiter, 1);
 
-    //grad?
     MatrixXd h_w;
     double grad, z, upper, lower;
 
@@ -260,10 +297,7 @@ MatrixXd optimize_block_prox(MatrixXd S, int maxiter, double a, double b){
 
 /* end helpers for optimize_theta */
 
-/* ISSUES: 1. index starting at 1? Resolved
-           2. options? Resolved
-           3. add new files?
-           4. compile new files?
+/* ISSUES: 1. test?
 */
 void ICLasso::optimize_theta(){
 
@@ -302,9 +336,10 @@ void ICLasso::optimize_theta(){
             s = remove_row(S, j);
             a = remove_row(A, j);
             b = remove_row(B, j);
-            //update sigma ISSUE
+
             MatrixXd sigma_j, beta;
-            sigma_j = optimize_block_coord(s, maxiter, a, b);
+            sigma_j = optimize_block_coord_sigma(s, maxiter, a, b);
+            beta = optimize_block_coord_beta(s, maxiter, a, b);
             for (i = 0; i < S.rows(); i++){
                 if (i != j) {
                     Sigma(i, j) = sigma_j(i, 0);
