@@ -115,6 +115,9 @@ const GMMatrixToolbar = React.createClass({
       }
     })
   },
+  subsetSelector: function(event) {
+    this.props.subset.subsetSelector(event);
+  },
   render: function () {
     return (
       <div>

@@ -269,9 +269,10 @@ var Graph = function(data, markerLabels, traitLabels) {
   }
 
   function clicked() {
+
     svg.call(zoom.event);
     // Record the coordinates (in data space) of the center (in screen space).
-    var center0 = [mapWidth/2, mapHeight/2], translate0 = zoom.translate(), coordinates0 = coordinates(center0);
+    var center0 = [mapWidth/2, mapHeight/2], translate0 = zoom.translate(), coordinates0 = coordinates(center0); 
     zoom.scale(zoom.scale() * Math.pow(2, +this.getAttribute("data-zoom")));
 
     // Translate back to the center.
@@ -455,6 +456,7 @@ var D3Chart = React.createClass({
       mouse: {x: 0, y: 0, startX: 0, startY: 0}
 		}
 	},
+
   subsetIndicator: function(trait1, marker1, trait2, marker2) {
     // Would be easier to have material-ui flatbutton instead of regular buttons
     // modfied with CSS, but I don't know how to render those in a string
