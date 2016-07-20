@@ -5,6 +5,7 @@ import { ADD_ACTIVITY, RUN_ANALYSIS, DELETE_PROJECT,
 const activity = (state, action) => {
   switch (action.type) {
     case ADD_ACTIVITY:
+      console.log(action)
       return {
         id: action.id,
         completed: false,
