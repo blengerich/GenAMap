@@ -70,7 +70,15 @@ MatrixXd LinearRegression::proximal_operator(VectorXd in, float lr) {
     }
 }
 
-void LinearRegression::updateBetaAll(MatrixXd b) {
+void LinearRegression::updateBeta_single(MatrixXd b) {
+    beta = b;
+}
+
+MatrixXd LinearRegression::getBeta_single() {
+    return beta;
+}
+
+void LinearRegression::updateBeta(MatrixXd b) {
     if (betaAll.rows() == 1){
         betaAll = b;
     }
@@ -80,6 +88,6 @@ void LinearRegression::updateBetaAll(MatrixXd b) {
     }
 }
 
-MatrixXd LinearRegression::getBetaAll() {
+MatrixXd LinearRegression::getBeta() {
     return betaAll;
 }

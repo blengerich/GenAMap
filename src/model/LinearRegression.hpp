@@ -40,8 +40,11 @@ public:
     LinearRegression();
     LinearRegression(const unordered_map<string, string>& options);
 
-    void updateBetaAll(MatrixXd);
-    MatrixXd getBetaAll();
+    void updateBeta_single(MatrixXd);
+    MatrixXd getBeta_single();
+
+    void updateBeta(MatrixXd);
+    MatrixXd getBeta();
 };
 
 
