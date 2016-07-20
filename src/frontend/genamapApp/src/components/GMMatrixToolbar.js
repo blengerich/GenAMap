@@ -12,10 +12,20 @@ import GMToolbar from './GMToolbar'
 
 const styles = {
   slider: {
-    flex: '3 1 auto'
+    flex: '5 1 auto'
+  },
+  sliderValue: {
+    position: 'relative',
+    fontSize: '14px',
+    fontFamily: 'Roboto,sans-serif',
+    fontWeight: 'bold',
+    flex: '0 1 auto',
+    bottom: '7px',
+    marginLeft: '15px',
+    marginRight: '20px'
   },
   action: {
-    flex: '0 1 auto'
+    flex: '2 1 auto'
   }
 }
 
@@ -39,29 +49,29 @@ const GMProjectSearch = React.createClass({
     )
   }
 })
-//rgb(0, 188, 212)
-const GMSliderTooltip = React.createClass({
+
+const GMSliderName = React.createClass({
   render: function() {
-    var toolTipStyle = {
-      "position": "absolute",
-      "fontSize": "12px",
-      "fontFamily": "sans-serif",
-      "fontWeight": "bold",
-      "left": 0
+    var labelStyle = {
+      position: 'absolute',
+      fontSize: '13px',
+      fontFamily: 'Roboto, sans-serif',
+      fontWeight: 'bold',
     };
 
     var slider = document.getElementById('slider');
     if (slider) {
       var sliderBounds = slider.getBoundingClientRect();
-      var left = slider.offsetLeft + sliderBounds.width;
-      var top = slider.offsetTop;
-      toolTipStyle.left = left + "px";
+      var left = slider.offsetLeft;
+      labelStyle.left = left + 'px';
+      labelStyle.bottom = '15px';
+      labelStyle.visibility = 'visible';
+    } else {
+      labelStyle.visibility = 'hidden';
     }
 
     return (
-      <div style={toolTipStyle}>
-          {this.props.value}
-      </div>
+      <span style={labelStyle}>CORRELATION THRESHOLD</span>
     )
   }
 })
@@ -114,12 +124,17 @@ const GMMatrixToolbar = React.createClass({
         <FlatButton label='Toggle Toolbar' onTouchTap={this.handleToggle} />
         <GMToolbar
           open={this.state.open}
-          height={100}
+          height={60}
           left={this.props.left}
           right={this.props.right}
         >
-          <Slider id={"slider"} style={styles.slider} onChange={this.onThresholdChange} />
-          <span style={{ "position": "relative", "marginLeft": "10px", "bottom": "10px" }}>0.5</span>
+          <Slider id={"slider"}
+            style={styles.slider}
+            onChange={this.onThresholdChange}
+            min={-1} max={1} defaultValue={0}
+          />
+          <span style={styles.sliderValue}>{this.state.slider.threshold.toFixed(2)}</span>
+          <GMSliderName />
           <FlatButton
             label="Switch visualization"
             icon={<FontIcon className="material-icons">show_chart</FontIcon>}
@@ -141,8 +156,8 @@ const GMMatrixToolbar = React.createClass({
           <FlatButton
             label='Create a subset'
             icon={<FontIcon className='material-icons'>add</FontIcon>}
-            style={styles.action} 
-            onClick={this.subsetSelector}  
+            style={styles.action}
+            onClick={this.props.subsetSelector}
           />
           <FlatButton
             label='Sort'

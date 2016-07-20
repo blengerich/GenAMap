@@ -241,15 +241,39 @@ app.post(config.api.createSessionUrl, function (req, res) {
   })
 })
 
-app.get(`${config.api.getActivityUrl}/:id`, function (req, res) {
-  var progress = Scheduler.checkJob(parseInt(req.params.id));
-  if (progress == 1) {
-    var jobResults = Scheduler.getJobResult(parseInt(req.params.id))
-    var results = JSON.parse(jobResults[0])
-    //var results = JSON.parse(jobResults[0].replace(/(\r\n|\n|\r)/gm,""))
-    return res.json({ progress, results })
-  }
+app.post(`${config.api.getActivityUrl}/:id`, function (req, res) {
+  const jobId = +req.params.id
+  const progress = Scheduler.checkJob(jobId)
+  const results = (Scheduler.getJobResult(jobId))[0].replace(/(\r\n|\n|\r)/gm,"")
+
   return res.json({ progress })
+})
+
+app.post(`${config.api.getAnalysisResultsUrl}`, function(req, res) {
+  const projectId = req.body.projectId
+
+  function checkFileExists(reqPath) {
+    /* check if result file has been written and added to database */
+    fs.stat(reqPath, function(err, stats) {
+      if (!err) {
+        app.models.file.findOne({ path: reqPath }, function(err, file) {
+          if (err) console.log(err)
+
+          if (!file) {
+            setTimeout(checkFileExists, 500, reqPath)
+          } else {
+            return res.json({ project: projectId, file })
+          }
+        })
+      } else if (err.code === 'ENOENT') {
+        setTimeout(checkFileExists, 500, reqPath)
+      } else {
+        console.log(err)
+      }
+    })
+  }
+
+  return checkFileExists(req.body.resultsPath)
 })
 
 app.get(`${config.api.dataUrl}/:id`, function (req, res) {
@@ -276,8 +300,11 @@ app.post(config.api.importDataUrl, function (req, res) {
   var busboy = new Busboy({ headers: req.headers })
   var projectId // eslint-disable-line no-unused-vars
   var projectObj = {}
-  var dataList = { marker: {}, trait: {} }
+  var dataList = { marker: {}, trait: {}, markerLabel: {}, traitLabel: {} }
   const userId = extractUserIdFromHeader(req.headers)
+
+  dataList.markerLabel.name = "Marker Label"
+  dataList.traitLabel.name = "Trait Label"
 
   busboy.on('field', function (fieldname, val, fieldnameTruncated,
                               valTruncated, encoding, mimetype) {
@@ -311,7 +338,12 @@ app.post(config.api.importDataUrl, function (req, res) {
     const fstream = fs.createWriteStream(fullPath)
     var data
     file.pipe(fstream);
-    (fieldname === 'markerFile') ? data = dataList.marker : data = dataList.trait
+    if (fieldname === 'markerFile') data = dataList.marker
+    else if (fieldname === 'traitFile') data = dataList.trait
+    else if (fieldname === 'markerLabelFile') data = dataList.markerLabel
+    else if (fieldname === 'traitLabelFile') data = dataList.traitLabel
+    else console.log("Unhandled file:", fieldname)
+
     data.filetype = fieldname
     data.path = fullPath
   })
@@ -320,6 +352,7 @@ app.post(config.api.importDataUrl, function (req, res) {
       // if (err) return res.status(500).json({err: err})
       if (err) throw err
       var files = []
+
       async.each(dataList,
         function (datum, callback) {
           datum.project = project.id
@@ -330,6 +363,7 @@ app.post(config.api.importDataUrl, function (req, res) {
           })
         }, function (err) {
           if (err) throw err
+
           return res.json({ project, files })
         }
       )
@@ -404,12 +438,32 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             }
             Scheduler.setX(jobId, markerData);
             Scheduler.setY(jobId, traitData);
-            var success = Scheduler.startJob(jobId, function (results) {
-              //results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
-              //console.log('results: ', results)
-            });
 
-            return res.json({ status: success, jobId: jobId })
+            const userId = extractUserIdFromHeader(req.headers)
+            const id = guid()
+            const userPath = path.join('./.tmp', userId)
+            const fileName = `${id}.csv`
+            const resultsPath = path.join(userPath, fileName)
+
+            var success = Scheduler.startJob(jobId, function (results) {
+              results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
+
+              fs.writeFile(resultsPath, results, function(err) {
+                app.models.file.create({
+                  name: 'Matrix View',
+                  filetype: 'resultFile',
+                  path: resultsPath,
+                  project: req.body.project,
+                  labels: {
+                    marker: req.body.markerLabel,
+                    trait: req.body.traitLabel
+                  }
+                }).exec(function (err, file) {
+                  if (err) throw err
+                })
+              })
+            })
+            return res.json({ status: success, jobId, resultsPath })
           })
         });
       });

@@ -29,14 +29,14 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     activityActions: {
-      onCancelClick: (id) => {
-        dispatch(cancelActivity(id))
+      onCancelClick: (activity) => {
+        dispatch(cancelActivity(activity))
       },
-      onPauseClick: (id) => {
-        dispatch(pauseActivity(id))
+      onPauseClick: (activity) => {
+        dispatch(pauseActivity(activity))
       },
-      onFetchUpdateActivity: (id) => {
-        dispatch(fetchUpdateActivity(id))
+      onFetchUpdateActivity: (activity) => {
+        dispatch(fetchUpdateActivity(activity))
       }
     }
   }

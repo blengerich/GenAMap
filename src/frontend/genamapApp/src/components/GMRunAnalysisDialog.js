@@ -50,11 +50,16 @@ const GMRunAnalysisDialog = React.createClass({
       projects: [],
       markers: [],
       traits: [],
+      markerLabels: [],
+      traitLabels: [],
       algorithms: config.algorithms,
       projectValue: '',
       markerValue: '',
       traitValue: '',
-      algorithmsValue: new Set()
+      markerLabelValue: '',
+      traitLabelValue: '',
+      algorithmsValue: new Set(),
+      resultsPath: ''
     }
   },
   componentWillReceiveProps: function (nextProps) {
@@ -65,14 +70,18 @@ const GMRunAnalysisDialog = React.createClass({
   },
   validateForm: function () {
     return (!!this.state.projectValue && !!this.state.markerValue &&
-            !!this.state.traitValue && this.state.algorithmsValue.size > 0)
+            !!this.state.traitValue && !!this.state.markerLabelValue &&
+            !!this.state.traitLabelValue && this.state.algorithmsValue.size > 0)
   },
   handleSubmit: function () {
     this.props.submit({
       project: this.state.projectValue,
       marker: this.state.markerValue,
       trait: this.state.traitValue,
-      algorithms: Array.from(this.state.algorithmsValue)
+      markerLabel: this.state.markerLabelValue,
+      traitLabel: this.state.traitLabelValue,
+      algorithms: Array.from(this.state.algorithmsValue),
+      resultsPath: this.state.resultsPath
     })
     this.setState(this.getInitialState())
     this.handleClose()
@@ -84,12 +93,19 @@ const GMRunAnalysisDialog = React.createClass({
     const project = this.props.projects[index]
     const markers = project.files.filter(file => file.filetype === 'markerFile')
     const traits = project.files.filter(file => file.filetype === 'traitFile')
+    const markerLabels = project.files.filter(file => file.filetype === 'markerLabelFile')
+    const traitLabels = project.files.filter(file => file.filetype === 'traitLabelFile')
+
     this.setState({
       projectValue: value,
       markers: markers,
       markerValue: '',
       traits: traits,
-      traitValue: ''
+      traitValue: '',
+      markerLabels: markerLabels,
+      markerLabelValue: '',
+      traitLabels: traitLabels,
+      traitLabelValue: ''
     })
   },
   onChangeMarker: function (event, index, value) {
@@ -97,6 +113,12 @@ const GMRunAnalysisDialog = React.createClass({
   },
   onChangeTrait: function (event, index, value) {
     this.setState({traitValue: value})
+  },
+  onChangeMarkerLabel: function(event, index, value) {
+    this.setState({markerLabelValue: value})
+  },
+  onChangeTraitLabel: function(event, index, value) {
+    this.setState({traitLabelValue: value})
   },
   onChangeAlgorithm: function (algorithm) {
     var a = this.state.algorithmsValue;
@@ -138,6 +160,18 @@ const GMRunAnalysisDialog = React.createClass({
     )
     const traitListReact = this.state.traits.map((trait, index) =>
       <option key={index} value={trait.id}>{trait.name}</option>
+    )
+    const markerLabelList = this.state.markerLabels.map((markerLabel, index) =>
+      <MenuItem key={index} value={markerLabel.id} primaryText={markerLabel.name} />
+    )
+    const markerLabelListReact = this.state.markerLabels.map((markerLabel, index) =>
+      <option key={index} value={markerLabel.id}>{markerLabel.name}</option>
+    )
+    const traitLabelList = this.state.traitLabels.map((traitLabel, index) =>
+      <MenuItem key={index} value={traitLabel.id} primaryText={traitLabel.name} />
+    )
+    const traitLabelListReact = this.state.traits.map((traitLabel, index) =>
+      <option key={index} value={traitLabel.id}>{traitLabel.name}</option>
     )
     const algorithmList = this.state.algorithms.map(algorithm =>
       <GMAlgorithmCard
@@ -197,6 +231,32 @@ const GMRunAnalysisDialog = React.createClass({
               </SelectField>
               <select id='trait' className='hidden' value={this.state.traitValue} readOnly>
                 {traitListReact}
+              </select>
+            </div>
+            <div>
+              <SelectField
+                value={this.state.markerLabelValue}
+                hintText='Choose Marker Labels'
+                errorText={!this.state.markerLabelValue && errorText}
+                onChange={this.onChangeMarkerLabel}
+              >
+                {markerLabelList}
+              </SelectField>
+              <select id='markerLabel' className='hidden' value={this.state.markerLabelValue} readOnly>
+                {markerLabelListReact}
+              </select>
+            </div>
+            <div>
+              <SelectField
+                value={this.state.traitLabelValue}
+                hintText='Choose Trait Labels'
+                errorText={!this.state.traitLabelValue && errorText}
+                onChange={this.onChangeTraitLabel}
+              >
+                {traitLabelList}
+              </SelectField>
+              <select id='traitLabel' className='hidden' value={this.state.traitLabelValue} readOnly>
+                {traitLabelListReact}
               </select>
             </div>
             <div style={styles.scroll}>
