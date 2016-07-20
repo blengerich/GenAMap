@@ -296,8 +296,10 @@ var Graph = function(data, markerLabels, traitLabels) {
     overlay.attr("transform", "translate(" + translateAmount + ")scale(" + 1/d3.event.scale + ")");
     var matrix = d3.select("#overallMatrix");
     var zoomAmount = d3.event.scale;
-    var newArray = [translateAmount[0]*(mapWidth/overlayMapWidth),
-                    translateAmount[1]*(mapHeight/overlayMapHeight)];
+    var newArray = [-translateAmount[0]*(matrixWidth/overlayMapWidth) * zoomAmount,
+                    -translateAmount[1]*(matrixHeight/overlayMapHeight) * zoomAmount];
+
+    //var newArray = [-translateAmount[0]*(numTraits/15), -translateAmount[1]*(numMarkers/15)];
     matrix.attr("transform", "translate(" + newArray + ")scale(" + d3.event.scale + ")");
     axisOnZoom(newArray, zoomAmount);
   }
