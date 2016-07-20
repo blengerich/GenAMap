@@ -22,7 +22,6 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-<<<<<<< HEAD
 var Graph = function(data, markerLabels, traitLabels) {
   /************************************
   *** visualization setup functions ***
@@ -68,54 +67,6 @@ var Graph = function(data, markerLabels, traitLabels) {
             + ",0)rotate(-90,0," + mapHeight/2 + ")")
         .text("Traits");
 
-=======
-
-var Graph = function(data, markerLabels, traitLabels) {
-  /************************************
-  *** visualization setup functions ***
-  ************************************/
-
-  function trimmedLabel(s, threshold) {
-    return (s.length > threshold) ? (s.substring(0, threshold) + "..") : s
-  }
-
-  /* initialize axes and axis labels */
-  function initAxes() {
-    var axes = d3.select("#rootSvg")
-                 .append("g")
-                 .attr("class", "axes")
-                 .attr("transform", "translate(" + axisPadding + ",0)");
-
-    // borders
-    axes.append("line")
-        .attr("x2", mapWidth + margin.left)
-        .attr("y1", mapHeight + margin.bottom)
-        .attr("y2", mapHeight + margin.bottom);
-    axes.append("line")
-        .attr("y2", mapHeight + margin.bottom);
-
-    // horizontal labels
-    for (var i = 0; i < numTraits; i++) {
-      var row = axes.append("g")
-                    .attr("class", "row")
-                    .attr("transform", "translate(0," + (cellHeight * i) + ")");
-
-      row.append("text")
-         .attr("text-anchor", "end")
-         .attr("x", -5)
-         .attr("y", 8)
-         .text(trimmedLabel(traitLabels[i], 5));
-    }
-
-    axes.append("text")
-        .attr("class", "title")
-        .attr("text-anchor", "middle")
-        .attr("y", mapHeight/2)
-        .attr("transform", "translate(" + (-axisPadding + baseLabelStyle.titleSize)
-            + ",0)rotate(-90,0," + mapHeight/2 + ")")
-        .text("Traits");
-
->>>>>>> master
     // vertical labels
     for (var i = 0; i < numMarkers; i++) {
       var col = d3.select(".axes")
@@ -123,7 +74,6 @@ var Graph = function(data, markerLabels, traitLabels) {
                   .attr("class", "col")
                   .attr("transform", "translate(" + (margin.left + cellWidth * i)
                         + "," + (mapHeight + margin.bottom) + ")rotate(-90)");
-<<<<<<< HEAD
 
       col.append("text")
          .attr("text-anchor", "end")
@@ -195,79 +145,6 @@ var Graph = function(data, markerLabels, traitLabels) {
     d3.select(".tooltip").remove();
   }
 
-=======
-
-      col.append("text")
-         .attr("text-anchor", "end")
-         .attr("x", -5)
-         .attr("y", 8)
-         .text(trimmedLabel(markerLabels[i], 5));
-    }
-
-    axes.append("text")
-        .attr("class", "title")
-        .attr("text-anchor", "middle")
-        .attr("y", mapHeight)
-        .attr("x", mapWidth/2)
-        .attr("transform", "translate(0," + axisPadding + ")")
-        .text("Markers");
-
-    // opaque bottom-left selector
-    axes.append("rect")
-        .attr("x", -(axisPadding + margin.left))
-        .attr("y", mapHeight + margin.bottom)
-        .attr("width", axisPadding + margin.left)
-        .attr("height", axisPadding + margin.bottom)
-        .attr("fill", "#fff");
-
-    d3.selectAll(".title")
-      .style("font-size", baseLabelStyle.titleSize + "px");
-    d3.selectAll(".row text")
-      .style("font-size", baseLabelStyle.fontSize + "px");
-    d3.selectAll(".col text")
-      .style("font-size", baseLabelStyle.fontSize + "px");
-  }
-
-  /* create spaces between cells */
-  function initGridLines() {
-    var matrix = d3.select("#overallMatrix");
-
-    for (var i = 0; i < numTraits; i++) {
-      matrix.append("line")
-            .attr("x1", 0)
-            .attr("y1", cellHeight * i)
-            .attr("x2", cellWidth * numMarkers)
-            .attr("y2", cellHeight * i)
-            .attr("stroke", "#fff");
-    }
-
-    for (var i = 0; i < numMarkers; i++) {
-      matrix.append("line")
-            .attr("x1", cellWidth * i)
-            .attr("y1", 0)
-            .attr("x2", cellWidth * i)
-            .attr("y2", cellHeight * numTraits)
-            .attr("stroke", "#fff");
-    }
-  }
-
-  function hoverOnCell(d, trait, marker, correlation, mousePos) {
-    var labelText = "<h2>Trait: " + traitLabels[trait] + "</h2> <h2>Marker: " +
-                    markerLabels[marker] + "</h2> <p> Correlation: " + correlation + "</p>";
-    var tooltip = d3.select("#chart")
-                    .append("div")
-                    .attr("class", "tooltip")
-                    .html(labelText)
-                    .style("position", "absolute")
-                    .style("left", mousePos.pageX + "px")
-                    .style("top", mousePos.pageY + "px")
-  }
-
-  function hoverOutCell() {
-    d3.select(".tooltip").remove();
-  }
-
->>>>>>> master
   /* parse correlation data into visualization */
   function parseData() {
     var parsedData = []
@@ -394,7 +271,7 @@ var Graph = function(data, markerLabels, traitLabels) {
 
     svg.call(zoom.event);
     // Record the coordinates (in data space) of the center (in screen space).
-    var center0 = [mapWidth/2, mapHeight/2], translate0 = zoom.translate(), coordinates0 = coordinates(center0); 
+    var center0 = [mapWidth/2, mapHeight/2], translate0 = zoom.translate(), coordinates0 = coordinates(center0);
     zoom.scale(zoom.scale() * Math.pow(2, +this.getAttribute("data-zoom")));
 
     // Translate back to the center.
@@ -508,7 +385,7 @@ var Graph = function(data, markerLabels, traitLabels) {
                         .attr("class", "minimap")
                         .attr("width", overlayMapWidth)
                         .attr("height", overlayMapHeight)
-                        
+
   var minimapColors = ["#65e5cf", "#5bc8df", "#239faf", "#128479", "#5eacdd", "#1e69c4", "#2b90e2"];
 
   for (var col = 0; col < 20; col++) {
@@ -578,10 +455,7 @@ var D3Chart = React.createClass({
       mouse: {x: 0, y: 0, startX: 0, startY: 0}
 		}
 	},
-<<<<<<< HEAD
-=======
 
->>>>>>> master
   subsetIndicator: function(trait1, marker1, trait2, marker2) {
     // Would be easier to have material-ui flatbutton instead of regular buttons
     // modfied with CSS, but I don't know how to render those in a string
