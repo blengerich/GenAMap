@@ -6,9 +6,9 @@ import fetch from './fetch'
 import config from '../../config'
 
 const colors = ["#c1f4ec","#91f2ed","#97e6fc","#95d1f9","#64b4dd","#65c5db","#66a9d8"];
-const colorScale = d3.scale.quantile()
-                        .domain([0, 1])
-                        .range(colors);
+const colorScale = d3.scale.linear()
+                        .domain([-1, 1])
+                        .range(["#c1f4ec", "#6672da"])
 
 var axisOnZoom;
 var zoomFunction;
@@ -523,7 +523,7 @@ var D3Chart = React.createClass({
     d3.select("#overallMatrix")
       .selectAll('.cell')
       .each(function(d) {
-        if (d.value < threshold) {
+        if (Math.abs(d.value) < threshold) {
           d3.select(this).style("fill", "#dcdcdc");
         } else {
           d3.select(this).style("fill", colorScale(d.value));
