@@ -5,23 +5,9 @@ import SelectField from 'material-ui/lib/select-field'
 import MenuItem from 'material-ui/lib/menus/menu-item'
 
 import GMAlgorithmCard from './GMAlgorithmCard'
-import fetch from './fetch'
 import config from '../../config'
 
 const styles = {
-  fileInput: {
-    cursor: 'pointer',
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    right: 0,
-    left: 0,
-    width: '100%',
-    opacity: 0
-  },
-  fileInputButton: {
-    marginRight: '7px'
-  },
   checkbox: {
     marginBottom: 16
   },
@@ -168,6 +154,11 @@ const GMRunAnalysisDialog = React.createClass({
   onChangeClusteringMethod: function(event, index, value) {
     this.setState({clusteringMethod: value})
   },
+  /**
+   * Test function to disable Tree Lasso since it is not currently implemented
+   * @param {string} algorithmName
+   * @return {Boolean}
+   */
   isDisabled: function (algorithmName) {
     return algorithmName === 'Tree Lasso'
   },
