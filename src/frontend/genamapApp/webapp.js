@@ -23,8 +23,6 @@ var http = require('http')
 var querystring = require('querystring')
 
 
-var favicon = require('serve-favicon');
-
 const getTokenContent = (token) => {
   try {
     const decoded = jwt.verify(token, config.secret)
@@ -47,7 +45,7 @@ app.use(express.static('static'))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use('/api/', expressjwt({ secret: config.secret }))
-app.use(favicon(__dirname + '/static/images/favicon.ico'));
+//app.use(favicon(__dirname + '/static/images/favicon.ico'));
 
 const waterlineConfig = {
   adapters: {
@@ -417,7 +415,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
         var traitConverter = new Converter({noheader:true});
         traitConverter.fromFile(traitFile.path, function(err, traitData) {
           if (err) console.log('Error getting trait for analysis: ', err)
-          // Job
+          // Create job
           const jobId = Scheduler.newJob({'algorithm_options': req.body.algorithmOptions, 'model_options': req.body.modelOptions})
           if (jobId === -1) {
             return res.json({msg: 'error creating job'});
@@ -450,7 +448,6 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             })
           })
           return res.json({ status: success, jobId, resultsPath })
-          //})
         });
       });
     });

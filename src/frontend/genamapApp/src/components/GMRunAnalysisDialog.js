@@ -147,8 +147,8 @@ const GMRunAnalysisDialog = React.createClass({
     this.setState({traitLabelValue: value})
   },
   onChangeModel: function (event, index, value) {
-    this.setState({modelValue: value})
-    this.setState({showAdvancedOptionsButton: true})
+    this.setState({modelValue: value,
+                  showAdvancedOptionsButton: true})
   },
   onChangeLambda: function(event) {
     this.setState({lambda : event.target.value})
@@ -167,9 +167,6 @@ const GMRunAnalysisDialog = React.createClass({
   },
   onChangeClusteringMethod: function(event, index, value) {
     this.setState({clusteringMethod: value})
-  },
-  onChangeAlgorithm: function (event, index, value) {
-    this.setState({algorithmValue: value})
   },
   isDisabled: function (algorithmName) {
     return algorithmName === 'Tree Lasso'
@@ -231,30 +228,7 @@ const GMRunAnalysisDialog = React.createClass({
     const clusteringMethodListReact = this.state.clusteringMethods.map((method, index) =>
       <option key={index} value={method}>{method}</option>
     )
-    /*const algorithmList = this.state.algorithms.map((model, index) =>
-      <MenuItem key={index} value={model.id} primaryText={model.name} />
-    )
-    const algorithmListReact = this.state.algorithms.map((model, index) =>
-      <option key={index} value={model.id}>{model.name}</option>
-    )*/
-    /*const modelList = this.state.models.map(model =>
-      <GMAlgorithmCard
-        key={model.id}
-        algorithm={model}
-        style={styles.scrollItem}
-        disabled={this.isDisabled(model.name)}
-        handleChangeAlgorithm={this.onChangeModel}
-      />
-    )
-    const algorithmList = this.state.algorithms.map(algorithm =>
-      <GMAlgorithmCard
-        key={algorithm.id}
-        algorithm={algorithm}
-        style={styles.scrollItem}
-        disabled={this.isDisabled(algorithm.name)}
-        handleChangeAlgorithm={this.onChangeAlgorithm}
-      />
-    )*/
+
     return (
       <div>
         <Dialog
@@ -400,30 +374,3 @@ const GMRunAnalysisDialog = React.createClass({
 })
 
 export default GMRunAnalysisDialog
-
-/*
-            <div style={styles.scroll}>
-              {modelList}
-            </div>
-            <div>
-              <h2>Algorithm</h2>
-            </div>
-            <div style={styles.scroll}>
-              {algorithmList}
-            </div>
-*/
-
-            /*
-            <div>
-              <SelectField
-                value={this.state.algorithmValue}
-                hintText='Choose Algorithm'
-                errorText={!this.state.algorithmValue && errorText}
-                onChange={this.onChangeAlgorithm}
-              >
-              {algorithmList}
-              </SelectField>
-              <select id='algorithm' className='hidden' value={this.state.algorithmValue} readOnly>
-                {algorithmListReact}
-              </select>
-            </div>*/
