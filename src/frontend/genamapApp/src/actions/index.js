@@ -143,6 +143,33 @@ function receiveDeleteFile (file, project) {
   }
 }
 
+export function downloadFile (file) {
+  let dataRequest = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+
+  return dispatch => {
+    return fetch(`${config.api.dataUrl}/${file}`, dataRequest)
+    .then(response => {
+      if (!response.ok) {
+        console.log('Could not download file')
+        Promise.reject(response.json())
+      } else {
+        return response.json()
+      }
+    }).then(response => {
+      const dataURI = 'data:text/csv;,' + response.data
+      var link = document.createElement('a')
+      link.download = response.file.path.substring(response.file.path.lastIndexOf('/') + 1)
+      link.href = dataURI
+      link.click()
+    })
+  }
+}
+
 export function deleteFile (file) {
   let request = {
     method: 'DELETE'
