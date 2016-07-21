@@ -336,9 +336,10 @@ app.post(config.api.importDataUrl, function (req, res) {
     const folderPath = path.join('./.tmp', userId)
     const fileName = `${id}.csv`
     const fullPath = path.join(folderPath, fileName)
-    mkdirp.sync(folderPath)
     const fstream = fs.createWriteStream(fullPath)
     var data
+    mkdirp.sync(folderPath)
+    //fieldname === 'markerFilename' ? data = dataList.marker : data = dataList.trait*/
     file.pipe(fstream);
     if (fieldname === 'markerFile') data = dataList.marker
     else if (fieldname === 'traitFile') data = dataList.trait
