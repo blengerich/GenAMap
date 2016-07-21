@@ -6,9 +6,15 @@ import fetch from './fetch'
 import config from '../../config'
 
 const colors = ["#c1f4ec","#91f2ed","#97e6fc","#95d1f9","#64b4dd","#65c5db","#66a9d8"];
-const colorScale = d3.scale.linear()
-                        .domain([-1, 1])
-                        .range(["#c1f4ec", "#6672da"])
+const negColorScale = d3.scale.linear()
+                        .domain([-1, 0])
+                        .range(["#990000", "#EEEEEE"]);
+const posColorScale = d3.scale.linear()
+                        .domain([0, 1])
+                        .range(["#EEEEEE", "#000099"]);
+function colorScale(x) {
+  return (x > 0 ? posColorScale(x) : negColorScale(x));
+} 
 
 var axisOnZoom;
 var zoomFunction;
