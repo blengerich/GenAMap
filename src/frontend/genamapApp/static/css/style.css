@@ -25,7 +25,7 @@ main {
 /* Change color of cell on hover */
 
 .highlight:hover {
-	fill: #5FB53F !important;
+	fill: #ff0000 !important;
 	opacity: 0.8 !important;
 }
 
@@ -74,7 +74,7 @@ svg:active{
   text-transform: uppercase;
   font-weight: 500;
   border-radius: 2px;
-  position: relative; 
+  position: relative;
   line-height: 36px;
   min-width: 30px;
   flex: 0 1 auto;
@@ -93,11 +93,12 @@ svg:active{
 .buttonContainer {
   position: absolute;
   right: 50px;
+  top: 50%;
 }
 
 .minimap {
 	position: absolute;
-  top: 50%;
+  top: 15%;
 	right: 24px;
 }
 
@@ -110,9 +111,6 @@ svg:active{
 }
 
 .axes .title {
-  font-size: 18px;
   font-family: sans-serif;
   font-weight: bold;
 }
-
-

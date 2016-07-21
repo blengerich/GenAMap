@@ -19,7 +19,7 @@ private:
     double tol;
 public:
     IterativeUpdate();
-    IterativeUpdate(const map<string, string>& options);
+    IterativeUpdate(const unordered_map<string, string>&);
 
     void setTolerance(double);
 

@@ -22,6 +22,7 @@ var jwt = require('jsonwebtoken')
 var http = require('http')
 var querystring = require('querystring')
 
+
 const getTokenContent = (token) => {
   try {
     const decoded = jwt.verify(token, config.secret)
@@ -44,6 +45,7 @@ app.use(express.static('static'))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use('/api/', expressjwt({ secret: config.secret }))
+//app.use(favicon(__dirname + '/static/images/favicon.ico'));
 
 const waterlineConfig = {
   adapters: {
@@ -241,15 +243,39 @@ app.post(config.api.createSessionUrl, function (req, res) {
   })
 })
 
-app.get(`${config.api.getActivityUrl}/:id`, function (req, res) {
-  var progress = Scheduler.checkJob(parseInt(req.params.id));
-  if (progress == 1) {
-    var jobResults = Scheduler.getJobResult(parseInt(req.params.id))
-    var results = JSON.parse(jobResults[0])
-    //var results = JSON.parse(jobResults[0].replace(/(\r\n|\n|\r)/gm,""))
-    return res.json({ progress, results })
-  }
+app.post(`${config.api.getActivityUrl}/:id`, function (req, res) {
+  const jobId = +req.params.id
+  const progress = Scheduler.checkJob(jobId)
+  const results = (Scheduler.getJobResult(jobId))[0].replace(/(\r\n|\n|\r)/gm,"")
+
   return res.json({ progress })
+})
+
+app.post(`${config.api.getAnalysisResultsUrl}`, function(req, res) {
+  const projectId = req.body.projectId
+
+  function checkFileExists(reqPath) {
+    /* check if result file has been written and added to database */
+    fs.stat(reqPath, function(err, stats) {
+      if (!err) {
+        app.models.file.findOne({ path: reqPath }, function(err, file) {
+          if (err) console.log(err)
+
+          if (!file) {
+            setTimeout(checkFileExists, 500, reqPath)
+          } else {
+            return res.json({ project: projectId, file })
+          }
+        })
+      } else if (err.code === 'ENOENT') {
+        setTimeout(checkFileExists, 500, reqPath)
+      } else {
+        console.log(err)
+      }
+    })
+  }
+
+  return checkFileExists(req.body.resultsPath)
 })
 
 app.get(`${config.api.dataUrl}/:id`, function (req, res) {
@@ -276,8 +302,11 @@ app.post(config.api.importDataUrl, function (req, res) {
   var busboy = new Busboy({ headers: req.headers })
   var projectId // eslint-disable-line no-unused-vars
   var projectObj = {}
-  var dataList = { marker: {}, trait: {} }
+  var dataList = { marker: {}, trait: {}, markerLabel: {}, traitLabel: {} }
   const userId = extractUserIdFromHeader(req.headers)
+
+  dataList.markerLabel.name = "Marker Label"
+  dataList.traitLabel.name = "Trait Label"
 
   busboy.on('field', function (fieldname, val, fieldnameTruncated,
                               valTruncated, encoding, mimetype) {
@@ -309,11 +338,15 @@ app.post(config.api.importDataUrl, function (req, res) {
     const fullPath = path.join(folderPath, fileName)
     const fstream = fs.createWriteStream(fullPath)
     var data
-
     mkdirp.sync(folderPath)
-    file.pipe(fstream)
+    //fieldname === 'markerFilename' ? data = dataList.marker : data = dataList.trait*/
+    file.pipe(fstream);
+    if (fieldname === 'markerFile') data = dataList.marker
+    else if (fieldname === 'traitFile') data = dataList.trait
+    else if (fieldname === 'markerLabelFile') data = dataList.markerLabel
+    else if (fieldname === 'traitLabelFile') data = dataList.traitLabel
+    else console.log("Unhandled file:", fieldname)
 
-    fieldname === 'markerFilename' ? data = dataList.marker : data = dataList.trait
     data.filetype = fieldname
     data.path = fullPath
   })
@@ -322,6 +355,7 @@ app.post(config.api.importDataUrl, function (req, res) {
       // if (err) return res.status(500).json({err: err})
       if (err) throw err
       var files = []
+
       async.each(dataList,
         function (datum, callback) {
           datum.project = project.id
@@ -332,6 +366,7 @@ app.post(config.api.importDataUrl, function (req, res) {
           })
         }, function (err) {
           if (err) throw err
+
           return res.json({ project, files })
         }
       )
@@ -353,18 +388,19 @@ var getAlgorithmType = function (id) {
 }
 
 /**
- * @param {Object} req - request object
- * @param {Object} req.body - request body
- * @param {number} req.body.project - project ID
- * @param {number} req.body.marker - marker ID
- * @param {number} req.body.trait - trait ID
- * @param {number[]} req.body.algorithms - list of algorithms
- * @param {Object} res - response object
+ * @param {Object} req
+ * @param {Object} [req.body]
+ * @param {Number} [req.body.project]
+ * @param {Number} [req.body.marker]
+ * @param {Number} [req.body.trait]
+ * @param {Object} [req.body.algorithmOptions]
+ * @param {Object} [req.body.modelOptions]
  * @example req.body = {
  *   project: 1,
  *   marker: 7,
  *   trait: 8,
- *   algorithms:[1, 3]
+ *   algorithmOptions: {type:1, options:{tolerance:0.01, learning_rate:0.01}},
+ *   modelOptions: {type:1, options: {lambda:0.01, L2_lambda: 0.01}}
  * }
  */
 app.post(config.api.runAnalysisUrl, function (req, res) {
@@ -380,57 +416,45 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
         var traitConverter = new Converter({noheader:true});
         traitConverter.fromFile(traitFile.path, function(err, traitData) {
           if (err) console.log('Error getting trait for analysis: ', err)
-          // Now that we have the data, create a job for each request
-          req.body.algorithms.forEach((model) => {
-            // Algorithm
-            const algorithmOptions = {
-              type: req.body.algorithmType || getAlgorithmType(model.id) || 1,
-              options: {
-                // max_iteration: req.body.max_iteration || 10,
-                tolerance: req.body.tolerance || 0.01,
-                learning_rate: req.body.learning_rate || 0.01
-              }
-            }
+          // Create job
+          const jobId = Scheduler.newJob({'algorithm_options': req.body.algorithmOptions, 'model_options': req.body.modelOptions})
+          if (jobId === -1) {
+            return res.json({msg: 'error creating job'});
+          }
+          Scheduler.setX(jobId, markerData);
+          Scheduler.setY(jobId, traitData);
 
-            // Model
-            const modelOptions = {
-              type: model.id || 1,
-              options: {
-                lambda: model.lambda || 0.05,
-                L2_lambda: model.L2_lambda || 0.01
-              }
-            }
-            // Job
-            const jobId = Scheduler.newJob({'algorithm_options': algorithmOptions, 'model_options': modelOptions})
-            if (jobId === -1) {
-              return res.json({msg: 'error creating job'});
-            }
-            Scheduler.setX(jobId, markerData);
-            Scheduler.setY(jobId, traitData);
-            var success = Scheduler.startJob(jobId, function (results) {
-              //results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
-              //console.log('results: ', results)
-            });
+          const userId = extractUserIdFromHeader(req.headers)
+          const id = guid()
+          const userPath = path.join('./.tmp', userId)
+          const fileName = `${id}.csv`
+          const resultsPath = path.join(userPath, fileName)
 
-            return res.json({ status: success, jobId: jobId })
+          var success = Scheduler.startJob(jobId, function (results) {
+            results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
+
+            fs.writeFile(resultsPath, results, function(err) {
+              app.models.file.create({
+                name: 'Matrix View',
+                filetype: 'resultFile',
+                path: resultsPath,
+                project: req.body.project,
+                labels: {
+                  marker: req.body.markerLabel,
+                  trait: req.body.traitLabel
+                }
+              }).exec(function (err, file) {
+                if (err) throw err
+              })
+            })
           })
+          return res.json({ status: success, jobId, resultsPath })
         });
       });
     });
   })
-
-  //return res.json({ status: true })
 })
 
-
-// TODO: implement checkJob [Issue: https://github.com/blengerich/GenAMap_V2/issues/42]
-/**
-* @param {Object} req
-* @param {Number} req.jobId
-app.post(config.api.checkJobUrl, function(req, res) {
-	// console.log(Scheduler.checkJob(jobId));
-})
-*/
 
 // TODO: implement cancelJob [Issue: https://github.com/blengerich/GenAMap_V2/issues/39]
 /**
@@ -438,24 +462,6 @@ app.post(config.api.checkJobUrl, function(req, res) {
 * @param {Number} req.jobId
 app.post(config.api.cancelJobUrl, function(req, res) {
 	// console.log(Scheduler.cancelJob(jobId));
-})
-*/
-
-// TODO: implement deleteAlgorithm [Issue: https://github.com/blengerich/GenAMap_V2/issues/40]
-/**
-* @param {Object} req
-* @param {Number} req.algorithmId
-app.post(config.api.deleteAlgorithmUrl, function(req, res) {
-	// console.log(Scheduler.deleteAlgorithm(algorithmId));
-})
-*/
-
-// TODO: implment deleteModel [Issue: https://github.com/blengerich/GenAMap_V2/issues/41]
-/**
-* @param {Object} req
-* @param {Number} req.modelId
-app.post(config.api.deleteModelUrl, function(req, res) {
-	// console.log(Scheduler.deleteModel(modelId));
 })
 */
 

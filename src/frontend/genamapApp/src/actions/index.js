@@ -23,6 +23,7 @@ export const PAUSE_ACTIVITY = 'PAUSE_ACTIVITY'
 export const RESTART_ACTIVITY = 'RESTART_ACTIVITY'
 export const REQUEST_UPDATE_ACTIVITY = 'REQUEST_UPDATE_ACTIVITY'
 export const RECEIVE_UPDATE_ACTIVITY = 'RECEIVE_UPDATE_ACTIVITY'
+export const RECEIVE_ANALYSIS_RESULTS = 'RECEIVE_ANALYSIS_RESULTS'
 export const LOGIN_REQUEST = 'LOGIN_REQUEST'
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
 export const LOGIN_FAILURE = 'LOGIN_FAILURE'
@@ -111,9 +112,11 @@ export function runAnalysis (data) {
       } else {
         return response.json()
       }
-    }).then(processedData => {
+    }).then(json => {
       var activity = {
-        id: processedData.jobId
+        id: json.jobId,
+        projectId: data.project,
+        resultsPath: json.resultsPath
       }
       dispatch(addActivity(activity))
     }).catch(err => console.log('Error: ', err))
@@ -137,6 +140,33 @@ function receiveDeleteFile (file, project) {
     type: DELETE_FILE,
     file,
     project
+  }
+}
+
+export function downloadFile (file) {
+  let dataRequest = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+
+  return dispatch => {
+    return fetch(`${config.api.dataUrl}/${file}`, dataRequest)
+    .then(response => {
+      if (!response.ok) {
+        console.log('Could not download file')
+        Promise.reject(response.json())
+      } else {
+        return response.json()
+      }
+    }).then(response => {
+      const dataURI = 'data:text/csv;,' + response.data
+      var link = document.createElement('a')
+      link.download = response.file.path.substring(response.file.path.lastIndexOf('/') + 1)
+      link.href = dataURI
+      link.click()
+    })
   }
 }
 
@@ -170,7 +200,9 @@ export function starFile (file) {
 export function addActivity (activity) {
   return {
     type: ADD_ACTIVITY,
-    id: activity.id
+    id: activity.id,
+    projectId: activity.projectId,
+    resultsPath: activity.resultsPath
   }
 }
 
@@ -211,19 +243,25 @@ export function requestUpdateActivity (activity) {
   }
 }
 
-export function receiveUpdateActivity (id, response) {
+export function receiveUpdateActivity (activity, response) {
   return {
     type: RECEIVE_UPDATE_ACTIVITY,
-    id,
+    id: activity.id,
     progress: response.progress,
-    results: response.results
+    projectId: activity.projectId,
+    resultsPath: activity.resultsPath
   }
 }
 
 export function fetchUpdateActivity (activity) {
   return (dispatch) => {
     dispatch(requestUpdateActivity(activity))
-    return fetch(`${config.api.getActivityUrl}/${activity}`)
+    let getActivityRequest = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }
+
+    return fetch(`${config.api.getActivityUrl}/${activity.id}`, getActivityRequest)
     .then(response => {
       if (!response.ok) {
         console.log('Could not fetch activity for activity ', activity)
@@ -232,7 +270,42 @@ export function fetchUpdateActivity (activity) {
       }
     }).then(response => {
       dispatch(receiveUpdateActivity(activity, response))
+      if (response.progress === 1) {
+        dispatch(requestAnalysisResults(activity))
+      }
     })
+  }
+}
+
+function requestAnalysisResults(activity) {
+  return (dispatch) => {
+    let getResultsRequest = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        projectId: activity.projectId,
+        resultsPath: activity.resultsPath
+      })
+    }
+
+    return fetch(`${config.api.getAnalysisResultsUrl}`, getResultsRequest)
+    .then(response => {
+      if (!response.ok) {
+        console.log('Could not fetch analysis results for Job', activity.id)
+      } else {
+        return response.json()
+      }
+    }).then(json => {
+      dispatch(receiveAnalysisResults(json))
+    })
+  }
+}
+
+function receiveAnalysisResults(data) {
+  return {
+    type: RECEIVE_ANALYSIS_RESULTS,
+    file: data.file,
+    project: data.project
   }
 }
 

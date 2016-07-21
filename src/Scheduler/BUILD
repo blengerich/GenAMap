@@ -16,13 +16,17 @@ cc_library(
     deps = ["@gtest//:main",
 		"//algorithm:Algorithm",
         "//algorithm:AlgorithmOptions",
-        #"//algorithm:BrentSearch",
-        #"//algorithm:GridSearch",
+        "//algorithm:BrentSearch",
+        "//algorithm:GridSearch",
         "//algorithm:IterativeUpdate",
         "//algorithm:ProximalGradientDescent",
-        "//model:lasso",
+        "//model:AdaMultiLasso",
+	"//model:GFlasso",
+	"//model:lasso",
+	"//model:LinearRegression",
         "//model:Model",
         "//model:ModelOptions",
+	"//model:TreeLasso",
         "//Scheduler:Job"]
 )
 

@@ -12,6 +12,29 @@ import AutoComplete from 'material-ui/lib/auto-complete'
 import GMImportDialog from './GMImportDialog'
 
 const GMProjectContent = React.createClass({
+  getDataUrl: function() {
+    switch (this.props.data.filetype) {
+      case 'resultFile':
+        const markerLabelFileId = this.props.data.labels.marker
+        const traitLabelFileId = this.props.data.labels.trait
+
+        return '/visualization/matrix/' + markerLabelFileId + '/' + traitLabelFileId + '/' + this.props.data.id
+      default:
+        return '/data/' + this.props.data.id
+    }
+  },
+  getLeftIconName: function() {
+    const filetype = this.props.data.filetype
+    if (filetype === 'markerFile' || filetype === 'traitFile') {
+      return 'assessment'
+    } else if (filetype === 'resultFile') {
+      return 'view_module'
+    } else if (filetype === 'markerLabelFile' || filetype === 'traitLabelFile') {
+      return 'label'
+    } else {
+      return ''
+    }
+  },
   iconButtonElement: function () {
     return (
       <IconButton touch={true}>
@@ -37,6 +60,11 @@ const GMProjectContent = React.createClass({
     return (
       <IconMenu iconButtonElement={this.iconButtonElement()}>
         <MenuItem
+          primaryText={'Download ' + this.props.data.name}
+          onTouchTap={this.handleDownloadFile}
+          leftIcon={<FontIcon className='material-icons'>file_download</FontIcon>}
+        />
+        <MenuItem
           primaryText={'Delete ' + this.props.data.name}
           onTouchTap={this.handleDeleteFile}
           leftIcon={<FontIcon className='material-icons'>delete</FontIcon>}
@@ -55,6 +83,10 @@ const GMProjectContent = React.createClass({
   handleDeleteFile: function () {
     return this.props.actions.deleteFile(this.props.data.id)
   },
+  handleDownloadFile: function() {
+    this.props.actions.downloadFile(this.props.data.id)
+    return
+  },
   handleRenameFile: function () {
     return this.props.actions.renameFile(this.props.data.id)
   },
@@ -62,19 +94,24 @@ const GMProjectContent = React.createClass({
     return
   },
   render: function () {
+    const dataUrl = this.getDataUrl()
+    const leftIconName = this.getLeftIconName()
     return (
       <ListItem
         className='gm-project__file'
-        leftIcon={<FontIcon className='material-icons'>assessment</FontIcon>}
+        leftIcon={<FontIcon className='material-icons'>{leftIconName}</FontIcon>}
         rightIconButton={this.rightIconMenu()}
         nestedLevel={1}>
-        <Link to={'/data/' + this.props.data.id}>{this.props.data.name}</Link>
+        <Link to={dataUrl}>{this.props.data.name}</Link>
       </ListItem>
     )
   }
 })
 
 const GMProject = React.createClass({
+  getFileIds: function(filetype) {
+    return this.props.project.files.filter(file => file.filetype === filetype).map(file => file.id)
+  },
   render: function () {
     const dataList = this.props.project.files.map((file, i) =>
       <GMProjectContent
@@ -83,6 +120,7 @@ const GMProject = React.createClass({
         actions={this.props.actions}
       />
     )
+
     return (
       <ListItem
         className='gm-project__container'

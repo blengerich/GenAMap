@@ -4,6 +4,7 @@ import FlatButton from 'material-ui/lib/flat-button'
 import FontIcon from 'material-ui/lib/font-icon'
 import IconButton from 'material-ui/lib/icon-button'
 import Avatar from 'material-ui/lib/avatar'
+import NavigationClose from 'material-ui/lib/svg-icons/navigation/close'
 
 import GMRunAnalysisDialogContainer from './GMRunAnalysisDialogContainer'
 import GMActivities from './GMActivities'
@@ -67,12 +68,20 @@ var GMTopMenu = React.createClass({
   },
   render: function () {
     var logosrc = 'images/' + this.state.logos[this.state.logoIndex]
+    const menuIcon =
+      <IconButton
+        iconClassName="material-icons"
+        onTouchTap={this.props.handleLeftIconTouch}
+      >
+        menu
+      </IconButton>
+      
     return (
       <div>
         <AppBar
           title=''
           style={Object.assign(this.props.style, styles.appBar)}
-          onLeftIconButtonTouchTap={this.props.handleLeftIconTouch}
+          iconElementLeft={menuIcon}
         >
           <Avatar src={logosrc} style={{alignSelf: 'center', border: 'none', order: 0}} />
           <h1 style={Object.assign({visibility: this.props.visibility}, styles.header)}>genamap</h1>

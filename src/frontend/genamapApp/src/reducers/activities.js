@@ -5,29 +5,32 @@ import { ADD_ACTIVITY, RUN_ANALYSIS, DELETE_PROJECT,
 const activity = (state, action) => {
   switch (action.type) {
     case ADD_ACTIVITY:
+      console.log(action)
       return {
         id: action.id,
-        text: action.text,
         completed: false,
         progress: 0.0,
+        projectId: action.projectId,
+        resultsPath: action.resultsPath,
         status: 'running'
       }
     case RECEIVE_UPDATE_ACTIVITY:
       if (action.progress == 1) {
         return {
           id: action.id,
-          text: action.text,
           completed: true,
           progress: 1.0,
-          status: 'completed',
-          results: action.results
+          projectId: action.projectId,
+          resultsPath: action.resultsPath,
+          status: 'completed'
         }
       } else {
         return {
           id: action.id,
-          text: action.text,
           completed: false,
           progress: action.progress,
+          projectId: action.projectId,
+          resultsPath: action.resultsPath,
           status: 'running'
         }
       }

@@ -34,6 +34,8 @@ private :
 public :
 
     BrentSearch();
+    BrentSearch(const unordered_map<string, string>&);
+
     // Setters and Getters
     void set_a(double);
     void set_b(double);
