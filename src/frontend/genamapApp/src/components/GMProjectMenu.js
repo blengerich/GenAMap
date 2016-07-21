@@ -101,7 +101,8 @@ const GMProjectContent = React.createClass({
         className='gm-project__file'
         leftIcon={<FontIcon className='material-icons'>{leftIconName}</FontIcon>}
         rightIconButton={this.rightIconMenu()}
-        nestedLevel={1}>
+        nestedLevel={3}
+      >
         <Link to={dataUrl}>{this.props.data.name}</Link>
       </ListItem>
     )
@@ -109,8 +110,18 @@ const GMProjectContent = React.createClass({
 })
 
 const GMProject = React.createClass({
-  getFileIds: function(filetype) {
-    return this.props.project.files.filter(file => file.filetype === filetype).map(file => file.id)
+  createFolderView: function(items, index, name) {
+    return (
+      <ListItem
+        primaryText={name}
+        leftIcon={<FontIcon className='material-icons'>folder</FontIcon>}
+        initiallyOpen={false}
+        primaryTogglesNestedList={true}
+        nestedItems={items}
+        nestedLevel={1}
+        key={index}
+      />
+    )
   },
   render: function () {
     const dataList = this.props.project.files.map((file, i) =>
@@ -121,6 +132,21 @@ const GMProject = React.createClass({
       />
     )
 
+    const folderNames =
+      [this.props.project.markerName, this.props.project.traitName, 'Visualizations']
+    const markerContentList = dataList.filter(item =>
+      item.props.data.filetype === 'markerFile' ||
+      item.props.data.filetype === 'markerLabelFile')
+    const traitContentList = dataList.filter(item =>
+      item.props.data.filetype === 'traitFile' ||
+      item.props.data.filetype === 'traitLabelFile')
+    const vizContentList = dataList.filter(item =>
+      item.props.data.filetype === 'resultFile')
+
+    const folderList = [markerContentList, traitContentList, vizContentList].map(
+      (items, i) => this.createFolderView(items, i, folderNames[i])
+    )
+
     return (
       <ListItem
         className='gm-project__container'
@@ -128,7 +154,7 @@ const GMProject = React.createClass({
         leftIcon={<FontIcon className='material-icons'>folder</FontIcon>}
         initiallyOpen={true}
         primaryTogglesNestedList={true}
-        nestedItems={dataList}
+        nestedItems={folderList}
       />
     )
   }

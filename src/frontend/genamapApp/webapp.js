@@ -302,11 +302,21 @@ app.post(config.api.importDataUrl, function (req, res) {
   var busboy = new Busboy({ headers: req.headers })
   var projectId // eslint-disable-line no-unused-vars
   var projectObj = {}
-  var dataList = { marker: {}, trait: {}, markerLabel: {}, traitLabel: {} }
+  var fileDataList = {
+    marker: {
+      name: 'Values'
+    },
+    trait: {
+      name: 'Values'
+    },
+    markerLabel: {
+      name: 'Labels'
+    },
+    traitLabel: {
+      name: 'Labels'
+    }
+  }
   const userId = extractUserIdFromHeader(req.headers)
-
-  dataList.markerLabel.name = "Marker Label"
-  dataList.traitLabel.name = "Trait Label"
 
   busboy.on('field', function (fieldname, val, fieldnameTruncated,
                               valTruncated, encoding, mimetype) {
@@ -318,10 +328,10 @@ app.post(config.api.importDataUrl, function (req, res) {
         projectObj.name = val
         break
       case 'markerName':
-        dataList.marker.name = val
+        projectObj.markerName = val
         break
       case 'traitName':
-        dataList.trait.name = val
+        projectObj.traitName = val
         break
       case 'species':
         projectObj.species = val
@@ -336,15 +346,15 @@ app.post(config.api.importDataUrl, function (req, res) {
     const folderPath = path.join('./.tmp', userId)
     const fileName = `${id}.csv`
     const fullPath = path.join(folderPath, fileName)
+    mkdirp.sync(folderPath)
     const fstream = fs.createWriteStream(fullPath)
     var data
-    mkdirp.sync(folderPath)
-    //fieldname === 'markerFilename' ? data = dataList.marker : data = dataList.trait*/
+    //fieldname === 'markerFilename' ? data = fileDataList.marker : data = fileDataList.trait*/
     file.pipe(fstream);
-    if (fieldname === 'markerFile') data = dataList.marker
-    else if (fieldname === 'traitFile') data = dataList.trait
-    else if (fieldname === 'markerLabelFile') data = dataList.markerLabel
-    else if (fieldname === 'traitLabelFile') data = dataList.traitLabel
+    if (fieldname === 'markerFile') data = fileDataList.marker
+    else if (fieldname === 'traitFile') data = fileDataList.trait
+    else if (fieldname === 'markerLabelFile') data = fileDataList.markerLabel
+    else if (fieldname === 'traitLabelFile') data = fileDataList.traitLabel
     else console.log("Unhandled file:", fieldname)
 
     data.filetype = fieldname
@@ -356,7 +366,7 @@ app.post(config.api.importDataUrl, function (req, res) {
       if (err) throw err
       var files = []
 
-      async.each(dataList,
+      async.each(fileDataList,
         function (datum, callback) {
           datum.project = project.id
           app.models.file.create(datum).exec(function (err, file) {
