@@ -115,6 +115,7 @@ export function runAnalysis (data) {
     }).then(json => {
       var activity = {
         id: json.jobId,
+        name: data.jobName,
         projectId: data.project,
         resultsPath: json.resultsPath
       }
@@ -201,6 +202,7 @@ export function addActivity (activity) {
   return {
     type: ADD_ACTIVITY,
     id: activity.id,
+    name: activity.name,
     projectId: activity.projectId,
     resultsPath: activity.resultsPath
   }
@@ -247,6 +249,7 @@ export function receiveUpdateActivity (activity, response) {
   return {
     type: RECEIVE_UPDATE_ACTIVITY,
     id: activity.id,
+    name: activity.name,
     progress: response.progress,
     projectId: activity.projectId,
     resultsPath: activity.resultsPath

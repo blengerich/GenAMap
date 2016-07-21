@@ -3,7 +3,6 @@ import { IMPORT_DATA_RECEIVE, LOAD_INITIAL_PROJECTS, DELETE_FILE, RECEIVE_ANALYS
 const project = (state, action) => {
   switch (action.type) {
     case IMPORT_DATA_RECEIVE:
-      console.log(action.data.project)
       const project = action.data.project
       project.files = action.data.files
       return project

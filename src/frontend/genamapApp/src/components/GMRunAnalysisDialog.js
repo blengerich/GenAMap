@@ -3,6 +3,7 @@ import Dialog from 'material-ui/lib/dialog'
 import FlatButton from 'material-ui/lib/flat-button'
 import SelectField from 'material-ui/lib/select-field'
 import MenuItem from 'material-ui/lib/menus/menu-item'
+import TextField from 'material-ui/lib/text-field'
 
 import GMAlgorithmCard from './GMAlgorithmCard'
 import config from '../../config'
@@ -40,6 +41,7 @@ const GMRunAnalysisDialog = React.createClass({
       traitLabels: [],
       algorithms: config.algorithms,
       models: config.models,
+      jobName: '',
       projectValue: '',
       markerValue: '',
       traitValue: '',
@@ -67,13 +69,15 @@ const GMRunAnalysisDialog = React.createClass({
     })
   },
   validateForm: function () {
-    return (!!this.state.projectValue && !!this.state.markerValue &&
+    return (!!this.state.jobName &&
+            !!this.state.projectValue && !!this.state.markerValue &&
             !!this.state.traitValue && !!this.state.markerLabelValue &&
             !!this.state.traitLabelValue && !!this.state.modelValue)
   },
   handleSubmit: function () {
     this.props.submit({
       project: this.state.projectValue,
+      jobName: this.state.jobName,
       marker: this.state.markerValue,
       trait: this.state.traitValue,
       markerLabel: this.state.markerLabelValue,
@@ -119,6 +123,9 @@ const GMRunAnalysisDialog = React.createClass({
       traitLabels: traitLabels,
       traitLabelValue: ''
     })
+  },
+  onChangeJobName: function (event) {
+    this.setState({jobName: event.target.value})
   },
   onChangeMarker: function (event, index, value) {
     this.setState({markerValue: value})
@@ -233,6 +240,14 @@ const GMRunAnalysisDialog = React.createClass({
         >
           <form name='runAnalysis'>
             <div>
+              <TextField
+                value={this.state.jobName}
+                hintText='Choose Job Name'
+                errorText={!this.state.jobName && errorText}
+                onChange={this.onChangeJobName}
+              />
+            </div>
+            <div>
               <SelectField
                 value={this.state.projectValue}
                 hintText='Choose Project'
@@ -307,7 +322,7 @@ const GMRunAnalysisDialog = React.createClass({
               {modelList}
               </SelectField>
               {(!!this.state.showAdvancedOptionsButton) ?
-                <FlatButton label='Show Advanced Options' secondary={true} onClick={this.handleShowAdvancedOptions} /> 
+                <FlatButton label='Show Advanced Options' secondary={true} onClick={this.handleShowAdvancedOptions} />
                 : null
               }
               <select id='model' className='hidden' value={this.state.modelValue} readOnly>
@@ -319,10 +334,10 @@ const GMRunAnalysisDialog = React.createClass({
                 ((this.state.modelValue == 1) ?
                   <div><div>L1 Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                        <div>L2 Lambda: <input type="number" value={this.state.lambdal2} onChange={this.onChangeLambdaL2}/></div>
-                  </div> : 
-                (this.state.modelValue == 2) ? 
+                  </div> :
+                (this.state.modelValue == 2) ?
                   <div><p>Lasso.cpp not implemented?</p></div> :
-                (this.state.modelValue == 3) ? 
+                (this.state.modelValue == 3) ?
                   <div><div>L1 Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                        <div>L2 Lambda: <input type="number" value={this.state.lambdal2} onChange={this.onChangeLambdaL2}/></div><br/>
                        <div>Mu: <input type="number" value={this.state.mu} onChange={this.onChangeMu}/></div>
@@ -331,17 +346,17 @@ const GMRunAnalysisDialog = React.createClass({
                   <div><div>Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                        <div>Gamma: <input type="number" value={this.state.gamma} onChange={this.onChangeGamma}/></div>
                   </div>  :
-                (this.state.modelValue == 5) ? 
+                (this.state.modelValue == 5) ?
                   <div><div>Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                        <div>Gamma: <input type="number" value={this.state.gamma} onChange={this.onChangeGamma}/></div><br/>
                        <div>Mu: <input type="number" value={this.state.mu} onChange={this.onChangeMu}/></div>
                   </div>  :
-                (this.state.modelValue == 6) ? 
+                (this.state.modelValue == 6) ?
                   <div><div>Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                        <div>Mu: <input type="number" value={this.state.mu} onChange={this.onChangeMu}/></div><br/>
                        <div>Threshold: <input type="number" value={this.state.threshold} onChange={this.onChangeThreshold}/></div>
                        <div>
-                        Clustering Method:  
+                        Clustering Method:
                         <SelectField
                           value={this.state.clusteringMethod}
                           hintText='Clustering Method'

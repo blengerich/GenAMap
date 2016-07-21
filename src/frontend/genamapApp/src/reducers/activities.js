@@ -5,9 +5,9 @@ import { ADD_ACTIVITY, RUN_ANALYSIS, DELETE_PROJECT,
 const activity = (state, action) => {
   switch (action.type) {
     case ADD_ACTIVITY:
-      console.log(action)
       return {
         id: action.id,
+        name: action.name,
         completed: false,
         progress: 0.0,
         projectId: action.projectId,
@@ -18,6 +18,7 @@ const activity = (state, action) => {
       if (action.progress == 1) {
         return {
           id: action.id,
+          name: action.name,
           completed: true,
           progress: 1.0,
           projectId: action.projectId,
@@ -27,6 +28,7 @@ const activity = (state, action) => {
       } else {
         return {
           id: action.id,
+          name: action.name,
           completed: false,
           progress: action.progress,
           projectId: action.projectId,
