@@ -92,13 +92,13 @@ int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 	// Determine the type of algorithm to create.
 	if (id >= 0) {
 		switch(options.type) {
-			case brent_search:
+			case algorithm_type::brent_search:
 				algorithms_map[id] = unique_ptr<BrentSearch>(new BrentSearch(options.options));
 				break;
-			case grid_search:
+			case algorithm_type::grid_search:
 				algorithms_map[id] = unique_ptr<GridSearch>(new GridSearch(options.options));
 				break;
-			case iterative_update:
+			case algorithm_type::iterative_update:
 				algorithms_map[id] = unique_ptr<IterativeUpdate>(new IterativeUpdate(options.options));
 				break;
 			case algorithm_type::proximal_gradient_descent: {
