@@ -84,7 +84,7 @@ const GMProjectContent = React.createClass({
     return this.props.actions.deleteFile(this.props.data.id)
   },
   handleDownloadFile: function() {
-    // TODO: download file for user
+    this.props.actions.downloadFile(this.props.data.id)
     return
   },
   handleRenameFile: function () {

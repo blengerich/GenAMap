@@ -1,6 +1,6 @@
 import { connect } from 'react-redux'
 
-import { deleteFile, importData, renameFile } from '../actions'
+import { deleteFile, downloadFile, importData, renameFile } from '../actions'
 import GMProjectMenu from './GMProjectMenu'
 
 const mapStateToProps = (state) => ({
@@ -11,6 +11,9 @@ const mapDispatchToProps = (dispatch) => ({
   projectActions: {
     deleteFile: (id) => {
       dispatch(deleteFile(id))
+    },
+    downloadFile: (id) => {
+      dispatch(downloadFile(id))
     },
     renameFile: (id) => {
       dispatch(renameFile(id))

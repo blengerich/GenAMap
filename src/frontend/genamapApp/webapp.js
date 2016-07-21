@@ -431,7 +431,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                 L2_lambda: model.L2_lambda || 0.01
               }
             }
-            // Job
+
             const jobId = Scheduler.newJob({'algorithm_options': algorithmOptions, 'model_options': modelOptions})
             if (jobId === -1) {
               return res.json({msg: 'error creating job'});

@@ -6,9 +6,15 @@ import fetch from './fetch'
 import config from '../../config'
 
 const colors = ["#c1f4ec","#91f2ed","#97e6fc","#95d1f9","#64b4dd","#65c5db","#66a9d8"];
-const colorScale = d3.scale.quantile()
+const negColorScale = d3.scale.linear()
+                        .domain([-1, 0])
+                        .range(["#990000", "#EEEEEE"]);
+const posColorScale = d3.scale.linear()
                         .domain([0, 1])
-                        .range(colors);
+                        .range(["#EEEEEE", "#000099"]);
+function colorScale(x) {
+  return (x > 0 ? posColorScale(x) : negColorScale(x));
+} 
 
 var axisOnZoom;
 var zoomFunction;
@@ -21,7 +27,6 @@ var overlayHeight;
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
-
 
 var Graph = function(data, markerLabels, traitLabels) {
   /************************************
@@ -272,7 +277,7 @@ var Graph = function(data, markerLabels, traitLabels) {
 
     svg.call(zoom.event);
     // Record the coordinates (in data space) of the center (in screen space).
-    var center0 = [mapWidth/2, mapHeight/2], translate0 = zoom.translate(), coordinates0 = coordinates(center0); 
+    var center0 = [mapWidth/2, mapHeight/2], translate0 = zoom.translate(), coordinates0 = coordinates(center0);
     zoom.scale(zoom.scale() * Math.pow(2, +this.getAttribute("data-zoom")));
 
     // Translate back to the center.
@@ -297,8 +302,10 @@ var Graph = function(data, markerLabels, traitLabels) {
     overlay.attr("transform", "translate(" + translateAmount + ")scale(" + 1/d3.event.scale + ")");
     var matrix = d3.select("#overallMatrix");
     var zoomAmount = d3.event.scale;
-    var newArray = [translateAmount[0]*(mapWidth/overlayMapWidth),
-                    translateAmount[1]*(mapHeight/overlayMapHeight)];
+    var newArray = [-translateAmount[0]*(matrixWidth/overlayMapWidth) * zoomAmount,
+                    -translateAmount[1]*(matrixHeight/overlayMapHeight) * zoomAmount];
+
+    //var newArray = [-translateAmount[0]*(numTraits/15), -translateAmount[1]*(numMarkers/15)];
     matrix.attr("transform", "translate(" + newArray + ")scale(" + d3.event.scale + ")");
     axisOnZoom(newArray, zoomAmount);
   }
@@ -386,7 +393,7 @@ var Graph = function(data, markerLabels, traitLabels) {
                         .attr("class", "minimap")
                         .attr("width", overlayMapWidth)
                         .attr("height", overlayMapHeight)
-                        
+
   var minimapColors = ["#65e5cf", "#5bc8df", "#239faf", "#128479", "#5eacdd", "#1e69c4", "#2b90e2"];
 
   for (var col = 0; col < 20; col++) {
@@ -460,7 +467,7 @@ var D3Chart = React.createClass({
   subsetIndicator: function(trait1, marker1, trait2, marker2) {
     // Would be easier to have material-ui flatbutton instead of regular buttons
     // modfied with CSS, but I don't know how to render those in a string
-    var labelText = "<h4> Selected Subset: </h4> " + 
+    var labelText = "<h4> Selected Subset: </h4> " +
                     "<p>" + trait1 + " - " + trait2 + "</p>" +
                     "<p>" + marker1 + " - " + marker2 + "</p>" +
                     "<button class='subsetButton' id='cancel'> Cancel </button>" +
@@ -494,7 +501,7 @@ var D3Chart = React.createClass({
 
     div.onmousemove = function (event) {
       setMousePosition(event);
-      if (that.state.element !== null) {          
+      if (that.state.element !== null) {
           that.state.element.style.width = Math.abs(that.state.mouse.x - that.state.mouse.startX) + 'px';
           that.state.element.style.height = Math.abs(that.state.mouse.y - that.state.mouse.startY) + 'px';
           that.state.element.style.left = (that.state.mouse.x - that.state.mouse.startX < 0) ? that.state.mouse.x + 'px' : that.state.mouse.startX + 'px';
@@ -505,7 +512,7 @@ var D3Chart = React.createClass({
     div.onclick = function(event) {
       if (that.state.element !== null) {
           that.setState({element : null});
-      } 
+      }
       else {
         that.state.mouse.startX = that.state.mouse.x;
         that.state.mouse.startY = that.state.mouse.y;
@@ -524,7 +531,7 @@ var D3Chart = React.createClass({
     d3.select("#overallMatrix")
       .selectAll('.cell')
       .each(function(d) {
-        if (d.value < threshold) {
+        if (Math.abs(d.value) < threshold) {
           d3.select(this).style("fill", "#dcdcdc");
         } else {
           d3.select(this).style("fill", colorScale(d.value));
@@ -558,7 +565,7 @@ var D3Chart = React.createClass({
           that.setState({subsetCells: subsetCells});
           that.setState({numClicked: that.state.numClicked + 1});
           if (that.state.numClicked == 2) {
-            that.subsetIndicator(that.state.subsetCells[0], that.state.subsetCells[1], 
+            that.subsetIndicator(that.state.subsetCells[0], that.state.subsetCells[1],
                                   that.state.subsetCells[2], that.state.subsetCells[3]);
             that.setState({numClicked: 0});
             var reset = that.state.subsetCells.slice(0, 0);
