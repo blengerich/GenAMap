@@ -30,14 +30,55 @@ const config = {
   }],
   algorithms: [{
     id: 1,
-    name: 'algorithm1',
-    image: 'https://goo.gl/CKW3lw',
-    info: 'info about algorithm1'
+    name: 'Brent Search',
+    image: '',
+    info: 'info about Brent Search'
   }, {
     id: 2,
-    name: 'algorithm2',
-    image: 'https://goo.gl/CKW3lw',
-    info: 'info about algorithm2'
+    name: 'Proximal Gradient Descent',
+    image: 'images/proximal_gradient_descent.png',
+    info: 'info about PGD'
+  }, {
+    id: 3,
+    name: 'Grid Search',
+    image: 'images/grid_search.png',
+    info: 'info about Grid Search'
+  }, {
+    id: 4,
+    name: 'Iterative Update',
+    image: '',
+    info: 'info about IU'
+  }],
+  models: [{
+    id: 1,
+    name: 'Linear Regression',
+    image: '',
+    info: 'info about Linear Regression'
+  }, {
+    id: 2,
+    name: 'Lasso',
+    image: 'images/proximal_gradient_descent.png',
+    info: 'info about PGD'
+  }, {
+    id: 3,
+    name: 'AdaMultiLasso',
+    image: 'images/grid_search.png',
+    info: 'info about Grid Search'
+  }, {
+    id: 4,
+    name: 'GfLasso',
+    image: '',
+    info: 'info about IU'
+  }, {
+    id: 5,
+    name: 'Multi-Population Lasso',
+    image: '',
+    info: 'info about IU'
+  }, {
+    id: 6,
+    name: 'Tree Lasso',
+    image: '',
+    info: 'info about IU'
   }]
 }
 

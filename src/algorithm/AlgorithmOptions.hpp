@@ -11,10 +11,10 @@ using namespace std;
 using namespace v8;
 
 enum algorithm_type {
-	brent_search = 0,
-	proximal_gradient_descent = 1,
-	grid_search = 2,
-	iterative_update = 3,
+	brent_search = 1,
+	proximal_gradient_descent = 2,
+	grid_search = 3,
+	iterative_update = 4,
 };
 
 typedef struct AlgorithmOptions_t {
