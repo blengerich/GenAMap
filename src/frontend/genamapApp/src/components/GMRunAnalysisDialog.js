@@ -60,7 +60,7 @@ const GMRunAnalysisDialog = React.createClass({
       markerLabelValue: '',
       traitLabelValue: '',
       algorithmValue: '',
-      algorithmOptions: {type: 1, options: {tolerance: 0.01, learning_rate: 0.01}}, //TODO: implement algorithmOptions in GUI
+      algorithmOptions: {type: 2, options: {tolerance: 0.01, learning_rate: 0.01}}, //TODO: implement algorithmOptions in GUI
       modelValue: '',
       lambda: 0.0,
       lambdal2: 0.0,

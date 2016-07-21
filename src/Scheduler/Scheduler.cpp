@@ -22,6 +22,8 @@
 #ifdef BAZEL
 #include "algorithm/Algorithm.hpp"
 #include "algorithm/AlgorithmOptions.hpp"
+#include "algorithm/BrentSearch.hpp"
+#include "algorithm/GridSearch.hpp"
 #include "algorithm/IterativeUpdate.hpp"
 #include "algorithm/ProximalGradientDescent.hpp"
 #include "model/AdaMultiLasso.hpp"
@@ -36,8 +38,10 @@
 #else
 #include "../algorithm/Algorithm.hpp"
 #include "../algorithm/AlgorithmOptions.hpp"
-#include "../algorithm/ProximalGradientDescent.hpp"
+#include "../algorithm/BrentSearch.hpp"
+#include "../algorithm/GridSearch.hpp"
 #include "../algorithm/IterativeUpdate.hpp"
+#include "../algorithm/ProximalGradientDescent.hpp"
 #include "../model/AdaMultiLasso.hpp"
 #include "../model/GFlasso.h"
 #include "../model/lasso.hpp"
@@ -88,15 +92,15 @@ int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 	// Determine the type of algorithm to create.
 	if (id >= 0) {
 		switch(options.type) {
-			/*case brent_search:
-				my_algorithm = new BrentSearch(options);
+			case brent_search:
+				algorithms_map[id] = unique_ptr<BrentSearch>(new BrentSearch(options.options));
 				break;
 			case grid_search:
-				my_algorithm = new GridSearch(options);
+				algorithms_map[id] = unique_ptr<GridSearch>(new GridSearch(options.options));
 				break;
 			case iterative_update:
-				my_algorithm = new IterativeUpdate(options);
-				break;*/
+				algorithms_map[id] = unique_ptr<IterativeUpdate>(new IterativeUpdate(options.options));
+				break;
 			case algorithm_type::proximal_gradient_descent: {
 				algorithms_map[id] = unique_ptr<ProximalGradientDescent>(new ProximalGradientDescent(options.options));	
 				break;
@@ -121,9 +125,6 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 				models_map[id] = unique_ptr<Gflasso>(new Gflasso(options.options));
 				break;
 			}
-			/*case lasso:
-				my_model = new Lasso(options.options);
-				break;*/
 			case linear_regression: {
 				models_map[id] = unique_ptr<LinearRegression>(new LinearRegression(options.options));
 				break;
@@ -227,30 +228,40 @@ void trainAlgorithmThread(uv_work_t* req) {
 	}
 
 	// TODO: as more algorithm/model types are created, add them here. [Issue: https://github.com/blengerich/GenAMap_V2/issues/25]
-	if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
-	    if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
-	        alg->run(model);
-	    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
-	        alg->run(model);
-	    } /*else if (dynamic_cast<Lasso*>(job->model)) {
-	        alg->run(dynamic_cast<Lasso*>(job->model)); 
-	    }*/ /*else if (dynamic_cast<Gflasso*>(job->model)) {
-	        alg->run(dynamic_cast<Gflasso*>(job->model));
-	    }*/ else {
-	        cerr << "Requested model type not implemented" << endl;
-	    }
+	if (BrentSearch* alg = dynamic_cast<BrentSearch*>(job->algorithm)) {
+		if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
+			alg->run(model);
+		} else {
+			cerr << "Requested algorithm Brent Search does not run on the requested model type" << endl;
+		}
+	} else if (GridSearch* alg = dynamic_cast<GridSearch*>(job->algorithm)) {
+		if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
+			alg->run(model);
+		} else {
+			cerr << "Requested algorithm GridSearch does not run on the requested model type" << endl;
+		}
 	} else if (IterativeUpdate* alg = dynamic_cast<IterativeUpdate*>(job->algorithm)) {
 		if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 			alg->run(model);	
-		} /*else if (dynamic_cast<Lasso*>(job->model)) {
-			alg->run(dynamic_cast<Lasso*>(job->model));	
-		}*/ /*else if (dynamic_cast<AdaMultiLasso*>(job->model)) {
-			alg->run(dynamic_cast<AdaMultiLasso*>(job->model));
-		}*/ /*else if (dynamic_cast<Gflasso*>(job->model)) {
-			alg->run(dynamic_cast<Gflasso*>(job->model));
-		}*/ else {
+		} else {
 			cerr << "Requested model type not implemented" << endl;
 		}
+	} else if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
+	    if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+	        alg->run(model);
+	    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
+	        alg->run(model);
+	    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+	        alg->run(model);
+	    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
+	    	alg->run(model);
+	    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
+	    	alg->run(model);
+	    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+	    	alg->run(model);
+	    } else {
+	        cerr << "Requested algorithm ProximalGradientDescent does not run on the requested model type" << endl;
+	    }
 	} else {
 		cerr << "Requested algorithm type not implemented" << endl;
 	}

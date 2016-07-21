@@ -452,19 +452,8 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
       });
     });
   })
-
-  //return res.json({ status: true })
 })
 
-
-// TODO: implement checkJob [Issue: https://github.com/blengerich/GenAMap_V2/issues/42]
-/**
-* @param {Object} req
-* @param {Number} req.jobId
-app.post(config.api.checkJobUrl, function(req, res) {
-	// console.log(Scheduler.checkJob(jobId));
-})
-*/
 
 // TODO: implement cancelJob [Issue: https://github.com/blengerich/GenAMap_V2/issues/39]
 /**
