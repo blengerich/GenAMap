@@ -23,7 +23,7 @@ class GMImportDialog extends Component {
       markerFileName: '',
       traitLabelFileName: '',
       traitName: '',
-      traitFilename: '',
+      traitFileName: '',
       speciesValue: '',
       optionDisabled: true,
       species: config.species
@@ -101,8 +101,8 @@ class GMImportDialog extends Component {
     this.setState({traitName: event.target.value})
   }
 
-  onChangeTraitFilename (event) {
-    this.setState({traitFilename: event.target.value.substr(12)})
+  onChangeTraitFileName (event) {
+    this.setState({traitFileName: event.target.value.substr(12)})
   }
 
   onChangeSpecies (event, index, value) {
@@ -192,18 +192,18 @@ class GMImportDialog extends Component {
               />
               <br />
               <GMFileInput
-                id='markerFilename'
+                id='markerFile'
                 buttonLabel='Marker File'
                 accept='.csv'
-                onChange={this.onChangeMarkerFilename.bind(this)}
-                fileLabel={this.state.markerFilename}
+                onChange={this.onChangeMarkerFileName.bind(this)}
+                fileLabel={this.state.markerFileName}
               />
               <GMFileInput
-                id='markerLabelFilename'
+                id='markerLabelFile'
                 buttonLabel='Marker Label File'
                 accept='.csv'
                 onChange={this.onChangeMarkerLabelFileName.bind(this)}
-                fileLabel={this.state.markerLabelFilename}
+                fileLabel={this.state.markerLabelFileName}
               />
             </div>
             <br />
@@ -216,14 +216,14 @@ class GMImportDialog extends Component {
                 onChange={this.onChangeTraitName.bind(this)}
               />
               <GMFileInput
-                id='traitFilename'
+                id='traitFile'
                 buttonLabel='Trait File'
                 accept='.csv'
-                onChange={this.onChangeTraitFilename.bind(this)}
-                fileLabel={this.state.traitFilename}
+                onChange={this.onChangeTraitFileName.bind(this)}
+                fileLabel={this.state.traitFileName}
               />
               <GMFileInput
-                id='traitLabelFileName'
+                id='traitLabelFile'
                 buttonLabel='Trait Label File'
                 accept='.csv'
                 onChange={this.onChangeTraitLabelFileName.bind(this)}
