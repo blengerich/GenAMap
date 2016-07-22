@@ -31,6 +31,14 @@ private :
     double min_val_param; // Search parameter at which the value is minimum
     double delta; // 2*Delta window will be set based on the optimal Grid Search result.
 
+    static constexpr double default_a = 0.0;
+    static constexpr double default_b = 0.0;
+    static constexpr double default_c = 0.0;
+    static constexpr double default_m = 0.0;
+    static constexpr double default_e = 0.0;
+    static constexpr double default_t = 0.0;
+    static constexpr double default_delta = 0.5; // Default window size = 1
+
 public :
 
     BrentSearch();

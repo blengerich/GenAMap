@@ -28,7 +28,7 @@ const config = {
   }, {
     name: 'Fly'
   }],
-  algorithms: [{
+  algorithms: [{ 
     id: 1,
     name: 'Brent Search',
     image: '',
@@ -49,6 +49,55 @@ const config = {
     image: '',
     info: 'info about IU'
   }],
+  algorithmsByModel: {
+  1 : [// Linear Regression 
+  {id: 2,
+    name: 'Proximal Gradient Descent',
+    image: 'images/proximal_gradient_descent.png',
+    info: 'info about PGD'
+  }],
+  2 : [// Lasso
+  { // TODO: is lasso abstract? 
+    id: 2,
+    name: 'Proximal Gradient Descent',
+    image: 'images/proximal_gradient_descent.png',
+    info: 'info about PGD'
+  }],
+  3 : [ //AdaMultiLasso
+  { 
+    id: 2,
+    name: 'Proximal Gradient Descent',
+    image: 'images/proximal_gradient_descent.png',
+    info: 'info about PGD'
+  }],
+  4 : [ // Gflasso
+  {
+    id: 2,
+    name: 'Proximal Gradient Descent',
+    image: 'images/proximal_gradient_descent.png',
+    info: 'info about PGD'
+  }],
+  5 : [ // MultiPopLasso
+  {
+    id: 2,
+    name: 'Proximal Gradient Descent',
+    image: 'images/proximal_gradient_descent.png',
+    info: 'info about PGD'
+  }],
+  6 : [// Tree Lasso
+  {
+    id: 4,
+    name: 'Iterative Update',
+    image: '',
+    info: 'info about IU'
+  },
+  {
+    id: 2,
+    name: 'Proximal Gradient Descent',
+    image: 'images/proximal_gradient_descent.png',
+    info: 'info about PGD'
+  }],
+  },
   models: [{
     id: 1,
     name: 'Linear Regression',

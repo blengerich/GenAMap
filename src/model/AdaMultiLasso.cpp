@@ -9,16 +9,28 @@
 using namespace std;
 
 AdaMultiLasso::AdaMultiLasso() {
-    lambda1 = 0;
-    lambda2 = 0;
-    mu = 1e-3;
+    lambda1 = default_lambda1;
+    lambda2 = default_lambda2;
+    mu = default_mu;
     initTrainingFlag = false;
 }
 
 AdaMultiLasso::AdaMultiLasso(const unordered_map<string, string>& opts) {
-    lambda1 = stod(opts.at("lambda"));
-    lambda2 = stod(opts.at("gamma"));
-    mu = stod(opts.at("mu"));
+    try {
+        lambda1 = stod(opts.at("lambda"));
+    } catch (std::out_of_range& oor) {
+        lambda1 = default_lambda1;
+    }
+    try {
+        lambda2 = stod(opts.at("gamma"));
+    } catch (std::out_of_range& oor) {
+        lambda2 = default_lambda2;
+    }
+    try {
+        mu = stod(opts.at("mu"));
+    } catch (std::out_of_range& oor) {
+        mu = default_mu;
+    }
     initTrainingFlag = false;
 }
 

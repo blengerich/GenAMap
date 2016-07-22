@@ -13,6 +13,8 @@ private:
     double l1Reg;
     MatrixXd rX;
     MatrixXd rY;
+
+    static constexpr double default_l1Reg = 0.0;
 public:
     SparseLMM();
     SparseLMM(const unordered_map<string, string>& options);

@@ -14,7 +14,11 @@ SparseLMM::SparseLMM(const unordered_map<string, string> &options) {
     K = MatrixXd::Zero(1,1);
     S = MatrixXd::Zero(1,1);
     initFlag = false;
-    l1Reg = stof(options.at("lambda"));
+    try {
+        l1Reg = stof(options.at("lambda"));
+    } catch(std::out_of_range& oor) {
+        l1Reg = default_l1Reg;
+    }
 }
 
 

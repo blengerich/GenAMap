@@ -245,19 +245,36 @@ void TreeLasso::setThreshold(double thred) {
 }
 
 TreeLasso::TreeLasso() {
-    lambda = 0;
-    clusteringMethod = "single";
-    threshold = 1;
-    mu = 0.01;
+    lambda = default_lambda;
+    clusteringMethod = default_clustering_method;
+    threshold = default_threshold;
+    mu = default_mu;
     T = 0;
     initGradientFlag = false;
 }
 
 TreeLasso::TreeLasso(const unordered_map<string, string> &options) {
-    lambda = stod(options.at("lambda"));
-    clusteringMethod = options.at("clusteringMethod");
-    threshold = stod(options.at("threshold"));
-    mu = stod(options.at("mu"));
+    try {
+        lambda = stod(options.at("lambda"));
+    }
+    catch (const std::out_of_range& oor) {
+        lambda = default_lambda;
+    }
+    try {
+        clusteringMethod = options.at("clusteringMethod");
+    } catch (const std::out_of_range& oor) {
+        clusteringMethod = default_clustering_method;
+    }
+    try {
+        threshold = stod(options.at("threshold"));
+    } catch (const std::out_of_range& oor) {
+        threshold = default_threshold;    
+    }
+    try {
+        mu = stod(options.at("mu"));
+    } catch (const std::out_of_range& oor) {
+        mu = default_mu;
+    }
     T = 0;
     initGradientFlag = false;
 }

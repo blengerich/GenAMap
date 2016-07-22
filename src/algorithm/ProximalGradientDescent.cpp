@@ -21,16 +21,29 @@ using namespace Eigen;
 using namespace std;
 
 ProximalGradientDescent::ProximalGradientDescent(const unordered_map<string, string>& opts) {
-    tolerance = stod(opts.at("tolerance"));
-    learningRate = stod(opts.at("learning_rate"));
+    try {
+        tolerance = stod(opts.at("tolerance"));
+    } catch(std::out_of_range& oor) {
+        tolerance = default_tolerance;
+    }
+    try {
+        learningRate = stod(opts.at("learning_rate"));
+    } catch(std::out_of_range& oor) {
+        learningRate = default_learning_rate;
+    }
+    try {
+        learningRate2 = stod(opts.at("learning_rate2"));
+    } catch(std::out_of_range& oor) {
+        learningRate2 = default_learning_rate2;
+    }
     prev_residue = numeric_limits<double>::max();
 }
 
 
 ProximalGradientDescent::ProximalGradientDescent() {
-    learningRate = 0.001;
-    learningRate2 = 0.001;
-    tolerance = 0.000001;
+    learningRate = default_learning_rate;
+    learningRate2 = default_learning_rate2;
+    tolerance = default_tolerance;
     prev_residue = numeric_limits<double>::max();
     innerStep1 = 10;
     innerStep2 = 10;

@@ -84,6 +84,11 @@ private:
     long countNodes();
     long countNoneZeroNodes();
 
+    static constexpr double default_lambda = 0;
+    static constexpr const char* default_clustering_method = "single";
+    static constexpr double default_threshold = 1;
+    static constexpr double default_mu = 0.01;
+
 public:
     void setX(MatrixXd);
     void setY(MatrixXd);

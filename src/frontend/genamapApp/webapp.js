@@ -21,7 +21,7 @@ var jwt = require('jsonwebtoken')
 // temp
 var http = require('http')
 var querystring = require('querystring')
-
+//var favicon = require('serve-favicon')
 
 const getTokenContent = (token) => {
   try {
@@ -187,14 +187,6 @@ var s4 = function () {
     .substring(1)
 }
 
-/* app.get('/add/:x/:y', function (req, res) {
-  return res.json({
-    x: parseInt(req.params.x),
-    y: parseInt(req.params.y),
-    answer: Scheduler.add(parseInt(req.params.x), parseInt(req.params.y))
-  });
-});*/
-
 app.post(config.api.createAccountUrl, function (req, res) {
   const username = req.body.username
   const password = req.body.password
@@ -344,24 +336,26 @@ app.post(config.api.importDataUrl, function (req, res) {
   })
 
   busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
-    const id = guid()
-    const folderPath = path.join('./.tmp', userId)
-    const fileName = `${id}.csv`
-    const fullPath = path.join(folderPath, fileName)
-    mkdirp.sync(folderPath)
-    const fstream = fs.createWriteStream(fullPath)
-    var data
-    //fieldname === 'markerFilename' ? data = fileDataList.marker : data = fileDataList.trait*/
-    file.pipe(fstream);
-    if (fieldname === 'markerFile') data = fileDataList.marker
-    else if (fieldname === 'traitFile') data = fileDataList.trait
-    else if (fieldname === 'markerLabelFile') data = fileDataList.markerLabel
-    else if (fieldname === 'traitLabelFile') data = fileDataList.traitLabel
-    else console.log("Unhandled file:", fieldname)
+    if (!!filename) {
+      const id = guid()
+      const folderPath = path.join('./.tmp', userId)
+      mkdirp.sync(folderPath)
+      const fileName = `${id}.csv`
+      const fullPath = path.join(folderPath, fileName)
+      const fstream = fs.createWriteStream(fullPath)
+      var data
+      file.pipe(fstream);
+      if (fieldname === 'markerFile') data = fileDataList.marker
+      else if (fieldname === 'traitFile') data = fileDataList.trait
+      else if (fieldname === 'markerLabelFile') data = fileDataList.markerLabel
+      else if (fieldname === 'traitLabelFile') data = fileDataList.traitLabel
+      else console.log("Unhandled file:", fieldname)
 
-    data.filetype = fieldname
-    data.path = fullPath
+      data.filetype = fieldname
+      data.path = fullPath
+    }
   })
+
   busboy.on('finish', function () {
     app.models.project.findOrCreate(projectObj).exec(function (err, project) {
       // if (err) return res.status(500).json({err: err})
@@ -370,27 +364,28 @@ app.post(config.api.importDataUrl, function (req, res) {
 
       async.each(fileDataList,
         function (datum, callback) {
-          datum.project = project.id
-          app.models.file.create(datum).exec(function (err, file) {
-            if (err) throw err
-            files.push(file)
+          if (!!datum.name && !!datum.filetype && !!datum.path) {
+            datum.project = project.id
+            app.models.file.create(datum).exec(function (err, file) {
+              if (err) throw err
+              files.push(file)
 
-            if (file.filetype === 'markerFile') {
-              marker.id = file.id
-              marker.files.push(file)
-            } else if (file.filetype === 'markerLabelFile') {
-              marker.labelId = file.id
-              marker.files.push(file)
-            } else if (file.filetype === 'traitFile') {
-              trait.id = file.id
-              trait.files.push(file)
-            } else if (file.filetype === 'traitLabelFile') {
-              trait.labelId = file.id
-              trait.files.push(file)
-            }
-
-            callback()
-          })
+              if (file.filetype === 'markerFile') {
+                marker.id = file.id
+                marker.files.push(file)
+              } else if (file.filetype === 'markerLabelFile') {
+                marker.labelId = file.id
+                marker.files.push(file)
+              } else if (file.filetype === 'traitFile') {
+                trait.id = file.id
+                trait.files.push(file)
+              } else if (file.filetype === 'traitLabelFile') {
+                trait.labelId = file.id
+                trait.files.push(file)
+              }
+              callback()
+            })
+          }
         }, function (err) {
           if (err) throw err
 

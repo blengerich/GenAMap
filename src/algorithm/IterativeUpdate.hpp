@@ -17,6 +17,8 @@ private:
     double residue;
     double prev_residue;
     double tol;
+
+    static constexpr double default_tolerance = 1e-5;
 public:
     IterativeUpdate();
     IterativeUpdate(const unordered_map<string, string>&);

@@ -10,8 +10,10 @@ using namespace std;
 
 IterativeUpdate::IterativeUpdate(const unordered_map<string, string>& options) {
     try {
-        setTolerance(stof(options.find("tolerance")->second));
-    } catch (exception& e) {}
+        setTolerance(stof(options.at("tolerance")));
+    } catch (std::out_of_range& oor) {
+        setTolerance(default_tolerance);
+    }
 }
 
 void IterativeUpdate::setTolerance(double t) {tol = t;}

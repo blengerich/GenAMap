@@ -46,6 +46,10 @@ private:
     vector<long> getPopulationIndex(long);
     void initC();
 
+    static constexpr double default_lambda = 0;
+    static constexpr double default_mu = 1;
+    static constexpr double default_gamma = 0;
+
 public:
     void setXY(MatrixXd, MatrixXd);
     void setLambda(double);

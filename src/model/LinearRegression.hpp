@@ -24,6 +24,9 @@ private:
     float L1_reg;
     float L2_reg;
     MatrixXd betaAll;
+
+    static constexpr float default_L1_reg = 0;
+    static constexpr float default_L2_reg = 0;
 public:
     void setL1_reg(float);
     void setL2_reg(float);
