@@ -3,6 +3,7 @@ import Dialog from 'material-ui/lib/dialog'
 import FlatButton from 'material-ui/lib/flat-button'
 import SelectField from 'material-ui/lib/select-field'
 import MenuItem from 'material-ui/lib/menus/menu-item'
+import TextField from 'material-ui/lib/text-field'
 
 import GMAlgorithmCard from './GMAlgorithmCard'
 import config from '../../config'
@@ -40,6 +41,7 @@ const GMRunAnalysisDialog = React.createClass({
       traitLabels: [],
       algorithms: config.algorithms,
       models: config.models,
+      jobName: '',
       projectValue: '',
       markerValue: '',
       traitValue: '',
@@ -67,17 +69,16 @@ const GMRunAnalysisDialog = React.createClass({
     })
   },
   validateForm: function () {
-    return (!!this.state.projectValue && !!this.state.markerValue &&
-            !!this.state.traitValue && !!this.state.markerLabelValue &&
-            !!this.state.traitLabelValue && !!this.state.modelValue)
+    return (!!this.state.jobName && !!this.state.projectValue &&
+            !!this.state.markerValue && !!this.state.traitValue &&
+            !!this.state.modelValue)
   },
   handleSubmit: function () {
     this.props.submit({
       project: this.state.projectValue,
+      jobName: this.state.jobName,
       marker: this.state.markerValue,
       trait: this.state.traitValue,
-      markerLabel: this.state.markerLabelValue,
-      traitLabel: this.state.traitLabelValue,
       algorithmOptions: this.state.algorithmOptions,
       modelOptions: {
         type: this.state.modelValue,
@@ -103,34 +104,25 @@ const GMRunAnalysisDialog = React.createClass({
   },
   onChangeProject: function (event, index, value) {
     const project = this.props.projects[index]
-    const markers = project.files.filter(file => file.filetype === 'markerFile')
-    const traits = project.files.filter(file => file.filetype === 'traitFile')
-    const markerLabels = project.files.filter(file => file.filetype === 'markerLabelFile')
-    const traitLabels = project.files.filter(file => file.filetype === 'traitLabelFile')
+    const markers = project.markers
+    const traits = project.traits
 
     this.setState({
       projectValue: value,
       markers: markers,
       markerValue: '',
       traits: traits,
-      traitValue: '',
-      markerLabels: markerLabels,
-      markerLabelValue: '',
-      traitLabels: traitLabels,
-      traitLabelValue: ''
+      traitValue: ''
     })
+  },
+  onChangeJobName: function (event) {
+    this.setState({jobName: event.target.value})
   },
   onChangeMarker: function (event, index, value) {
     this.setState({markerValue: value})
   },
   onChangeTrait: function (event, index, value) {
     this.setState({traitValue: value})
-  },
-  onChangeMarkerLabel: function(event, index, value) {
-    this.setState({markerLabelValue: value})
-  },
-  onChangeTraitLabel: function(event, index, value) {
-    this.setState({traitLabelValue: value})
   },
   onChangeModel: function (event, index, value) {
     this.setState({modelValue: value,
@@ -184,28 +176,16 @@ const GMRunAnalysisDialog = React.createClass({
       <option key={project.id} value={project.id}>{project.name}</option>
     )
     const markerList = this.state.markers.map((marker, index) =>
-      <MenuItem key={index} value={marker.id} primaryText={marker.name} />
+      <MenuItem key={index} value={marker} primaryText={marker.name} />
     )
     const markerListReact = this.state.markers.map((marker, index) =>
-      <option key={index} value={marker.id}>{marker.name}</option>
+      <option key={index} value={marker}>{marker.name}</option>
     )
     const traitList = this.state.traits.map((trait, index) =>
-      <MenuItem key={index} value={trait.id} primaryText={trait.name} />
+      <MenuItem key={index} value={trait} primaryText={trait.name} />
     )
     const traitListReact = this.state.traits.map((trait, index) =>
-      <option key={index} value={trait.id}>{trait.name}</option>
-    )
-    const markerLabelList = this.state.markerLabels.map((markerLabel, index) =>
-      <MenuItem key={index} value={markerLabel.id} primaryText={markerLabel.name} />
-    )
-    const markerLabelListReact = this.state.markerLabels.map((markerLabel, index) =>
-      <option key={index} value={markerLabel.id}>{markerLabel.name}</option>
-    )
-    const traitLabelList = this.state.traitLabels.map((traitLabel, index) =>
-      <MenuItem key={index} value={traitLabel.id} primaryText={traitLabel.name} />
-    )
-    const traitLabelListReact = this.state.traitLabels.map((traitLabel, index) =>
-      <option key={index} value={traitLabel.id}>{traitLabel.name}</option>
+      <option key={index} value={trait}>{trait.name}</option>
     )
     const modelList = this.state.models.map((model, index) =>
       <MenuItem key={index} value={model.id} primaryText={model.name} />
@@ -232,6 +212,14 @@ const GMRunAnalysisDialog = React.createClass({
           onRequestClose={this.handleClose}
         >
           <form name='runAnalysis'>
+            <div>
+              <TextField
+                value={this.state.jobName}
+                hintText='Choose Job Name'
+                errorText={!this.state.jobName && errorText}
+                onChange={this.onChangeJobName}
+              />
+            </div>
             <div>
               <SelectField
                 value={this.state.projectValue}
@@ -273,32 +261,6 @@ const GMRunAnalysisDialog = React.createClass({
             </div>
             <div>
               <SelectField
-                value={this.state.markerLabelValue}
-                hintText='Choose Marker Labels'
-                errorText={!this.state.markerLabelValue && errorText}
-                onChange={this.onChangeMarkerLabel}
-              >
-                {markerLabelList}
-              </SelectField>
-              <select id='markerLabel' className='hidden' value={this.state.markerLabelValue} readOnly>
-                {markerLabelListReact}
-              </select>
-            </div>
-            <div>
-              <SelectField
-                value={this.state.traitLabelValue}
-                hintText='Choose Trait Labels'
-                errorText={!this.state.traitLabelValue && errorText}
-                onChange={this.onChangeTraitLabel}
-              >
-                {traitLabelList}
-              </SelectField>
-              <select id='traitLabel' className='hidden' value={this.state.traitLabelValue} readOnly>
-                {traitLabelListReact}
-              </select>
-            </div>
-            <div>
-              <SelectField
                 value={this.state.modelValue}
                 hintText='Choose Model'
                 errorText={!this.state.modelValue && errorText}
@@ -307,7 +269,7 @@ const GMRunAnalysisDialog = React.createClass({
               {modelList}
               </SelectField>
               {(!!this.state.showAdvancedOptionsButton) ?
-                <FlatButton label='Show Advanced Options' secondary={true} onClick={this.handleShowAdvancedOptions} /> 
+                <FlatButton label='Show Advanced Options' secondary={true} onClick={this.handleShowAdvancedOptions} />
                 : null
               }
               <select id='model' className='hidden' value={this.state.modelValue} readOnly>
@@ -319,10 +281,10 @@ const GMRunAnalysisDialog = React.createClass({
                 ((this.state.modelValue == 1) ?
                   <div><div>L1 Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                        <div>L2 Lambda: <input type="number" value={this.state.lambdal2} onChange={this.onChangeLambdaL2}/></div>
-                  </div> : 
-                (this.state.modelValue == 2) ? 
+                  </div> :
+                (this.state.modelValue == 2) ?
                   <div><p>Lasso.cpp not implemented?</p></div> :
-                (this.state.modelValue == 3) ? 
+                (this.state.modelValue == 3) ?
                   <div><div>L1 Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                        <div>L2 Lambda: <input type="number" value={this.state.lambdal2} onChange={this.onChangeLambdaL2}/></div><br/>
                        <div>Mu: <input type="number" value={this.state.mu} onChange={this.onChangeMu}/></div>
@@ -331,17 +293,17 @@ const GMRunAnalysisDialog = React.createClass({
                   <div><div>Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                        <div>Gamma: <input type="number" value={this.state.gamma} onChange={this.onChangeGamma}/></div>
                   </div>  :
-                (this.state.modelValue == 5) ? 
+                (this.state.modelValue == 5) ?
                   <div><div>Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                        <div>Gamma: <input type="number" value={this.state.gamma} onChange={this.onChangeGamma}/></div><br/>
                        <div>Mu: <input type="number" value={this.state.mu} onChange={this.onChangeMu}/></div>
                   </div>  :
-                (this.state.modelValue == 6) ? 
+                (this.state.modelValue == 6) ?
                   <div><div>Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                        <div>Mu: <input type="number" value={this.state.mu} onChange={this.onChangeMu}/></div><br/>
                        <div>Threshold: <input type="number" value={this.state.threshold} onChange={this.onChangeThreshold}/></div>
                        <div>
-                        Clustering Method:  
+                        Clustering Method:
                         <SelectField
                           value={this.state.clusteringMethod}
                           hintText='Clustering Method'

@@ -14,7 +14,7 @@ const posColorScale = d3.scale.linear()
                         .range(["#EEEEEE", "#000099"]);
 function colorScale(x) {
   return (x > 0 ? posColorScale(x) : negColorScale(x));
-} 
+}
 
 var axisOnZoom;
 var zoomFunction;
@@ -247,9 +247,8 @@ var Graph = function(data, markerLabels, traitLabels) {
     // Get new calculations for transform and translate
     var newZoom = 1/zoomAmount;
 
-    /* Division amount (15/numTraits) and (15/numMarkers) is to make the rectangle translate the
-    proper amount, use 15 for both even though 20 columns because the example data is square (250*250) */
-    var newArray = [-translateAmount[0]*(15/numTraits), -translateAmount[1]*(15/numMarkers)]
+    var newArray = [-translateAmount[0]*(overlayMapWidth/matrixWidth)*newZoom,
+                    -translateAmount[1]*(overlayHeight/matrixHeight)*newZoom]
 
     if (newArray[0] === 0 && newArray[1] === 0) {
       var minimap = document.getElementById("map-background");

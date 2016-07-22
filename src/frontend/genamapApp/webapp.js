@@ -302,11 +302,23 @@ app.post(config.api.importDataUrl, function (req, res) {
   var busboy = new Busboy({ headers: req.headers })
   var projectId // eslint-disable-line no-unused-vars
   var projectObj = {}
-  var dataList = { marker: {}, trait: {}, markerLabel: {}, traitLabel: {} }
+  var marker = { files: [] }
+  var trait = { files: [] }
+  var fileDataList = {
+    marker: {
+      name: 'Marker Values'
+    },
+    trait: {
+      name: 'Trait Values'
+    },
+    markerLabel: {
+      name: 'Marker Labels'
+    },
+    traitLabel: {
+      name: 'Trait Labels'
+    }
+  }
   const userId = extractUserIdFromHeader(req.headers)
-
-  dataList.markerLabel.name = "Marker Label"
-  dataList.traitLabel.name = "Trait Label"
 
   busboy.on('field', function (fieldname, val, fieldnameTruncated,
                               valTruncated, encoding, mimetype) {
@@ -318,10 +330,10 @@ app.post(config.api.importDataUrl, function (req, res) {
         projectObj.name = val
         break
       case 'markerName':
-        dataList.marker.name = val
+        marker.name = val
         break
       case 'traitName':
-        dataList.trait.name = val
+        trait.name = val
         break
       case 'species':
         projectObj.species = val
@@ -336,15 +348,15 @@ app.post(config.api.importDataUrl, function (req, res) {
     const folderPath = path.join('./.tmp', userId)
     const fileName = `${id}.csv`
     const fullPath = path.join(folderPath, fileName)
+    mkdirp.sync(folderPath)
     const fstream = fs.createWriteStream(fullPath)
     var data
-    mkdirp.sync(folderPath)
-    //fieldname === 'markerFilename' ? data = dataList.marker : data = dataList.trait*/
+    //fieldname === 'markerFilename' ? data = fileDataList.marker : data = fileDataList.trait*/
     file.pipe(fstream);
-    if (fieldname === 'markerFile') data = dataList.marker
-    else if (fieldname === 'traitFile') data = dataList.trait
-    else if (fieldname === 'markerLabelFile') data = dataList.markerLabel
-    else if (fieldname === 'traitLabelFile') data = dataList.traitLabel
+    if (fieldname === 'markerFile') data = fileDataList.marker
+    else if (fieldname === 'traitFile') data = fileDataList.trait
+    else if (fieldname === 'markerLabelFile') data = fileDataList.markerLabel
+    else if (fieldname === 'traitLabelFile') data = fileDataList.traitLabel
     else console.log("Unhandled file:", fieldname)
 
     data.filetype = fieldname
@@ -356,18 +368,33 @@ app.post(config.api.importDataUrl, function (req, res) {
       if (err) throw err
       var files = []
 
-      async.each(dataList,
+      async.each(fileDataList,
         function (datum, callback) {
           datum.project = project.id
           app.models.file.create(datum).exec(function (err, file) {
             if (err) throw err
             files.push(file)
+
+            if (file.filetype === 'markerFile') {
+              marker.id = file.id
+              marker.files.push(file)
+            } else if (file.filetype === 'markerLabelFile') {
+              marker.labelId = file.id
+              marker.files.push(file)
+            } else if (file.filetype === 'traitFile') {
+              trait.id = file.id
+              trait.files.push(file)
+            } else if (file.filetype === 'traitLabelFile') {
+              trait.labelId = file.id
+              trait.files.push(file)
+            }
+
             callback()
           })
         }, function (err) {
           if (err) throw err
 
-          return res.json({ project, files })
+          return res.json({ project, files, marker, trait })
         }
       )
     })
@@ -406,12 +433,12 @@ var getAlgorithmType = function (id) {
 app.post(config.api.runAnalysisUrl, function (req, res) {
   var converter = new Converter({noheader:true});
   // Get marker file
-  app.models.file.findOne({ id: req.body.marker }).exec(function (err, markerFile) {
+  app.models.file.findOne({ id: req.body.marker.id }).exec(function (err, markerFile) {
     if (err) console.log('Error getting marker for analysis: ', err);
     converter.fromFile(markerFile.path, function(err, markerData) {
       if (err) console.log('Error getting marker for analysis: ', err);
       // Get trait file
-      app.models.file.findOne({ id: req.body.trait }).exec(function (err, traitFile) {
+      app.models.file.findOne({ id: req.body.trait.id }).exec(function (err, traitFile) {
         if (err) console.log('Error getting trait for analysis: ', err)
         var traitConverter = new Converter({noheader:true});
         traitConverter.fromFile(traitFile.path, function(err, traitData) {
@@ -440,8 +467,8 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                 path: resultsPath,
                 project: req.body.project,
                 labels: {
-                  marker: req.body.markerLabel,
-                  trait: req.body.traitLabel
+                  marker: req.body.marker.labelId,
+                  trait: req.body.trait.labelId
                 }
               }).exec(function (err, file) {
                 if (err) throw err

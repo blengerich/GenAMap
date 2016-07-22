@@ -101,7 +101,8 @@ const GMProjectContent = React.createClass({
         className='gm-project__file'
         leftIcon={<FontIcon className='material-icons'>{leftIconName}</FontIcon>}
         rightIconButton={this.rightIconMenu()}
-        nestedLevel={1}>
+        nestedLevel={3}
+      >
         <Link to={dataUrl}>{this.props.data.name}</Link>
       </ListItem>
     )
@@ -109,11 +110,8 @@ const GMProjectContent = React.createClass({
 })
 
 const GMProject = React.createClass({
-  getFileIds: function(filetype) {
-    return this.props.project.files.filter(file => file.filetype === filetype).map(file => file.id)
-  },
-  render: function () {
-    const dataList = this.props.project.files.map((file, i) =>
+  createFolderView: function(collection, index) {
+    const items = collection.files.map((file, i) =>
       <GMProjectContent
         key={i}
         data={file}
@@ -123,12 +121,33 @@ const GMProject = React.createClass({
 
     return (
       <ListItem
+        primaryText={collection.name}
+        leftIcon={<FontIcon className='material-icons'>folder</FontIcon>}
+        initiallyOpen={false}
+        primaryTogglesNestedList={true}
+        nestedItems={items}
+        nestedLevel={1}
+        key={index}
+      />
+    )
+  },
+  render: function () {
+    const project = this.props.project
+    const results = {
+      name: 'Results',
+      files: project.files.filter(file => file.filetype === 'resultFile')
+    }
+
+    const folderList = [...project.markers, ...project.traits, results].map(this.createFolderView)
+
+    return (
+      <ListItem
         className='gm-project__container'
         primaryText={this.props.project.name}
         leftIcon={<FontIcon className='material-icons'>folder</FontIcon>}
         initiallyOpen={true}
         primaryTogglesNestedList={true}
-        nestedItems={dataList}
+        nestedItems={folderList}
       />
     )
   }
