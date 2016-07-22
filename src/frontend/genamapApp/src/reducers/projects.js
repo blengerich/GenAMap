@@ -5,6 +5,8 @@ const project = (state, action) => {
     case IMPORT_DATA_RECEIVE:
       const project = action.data.project
       project.files = action.data.files
+      project.markers = [action.data.marker]
+      project.traits = [action.data.trait]
       return project
     case DELETE_FILE:
       const updatedFiles = state.files.filter(file => file.id !== action.file)

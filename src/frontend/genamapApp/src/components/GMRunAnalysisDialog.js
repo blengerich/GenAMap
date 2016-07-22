@@ -3,6 +3,7 @@ import Dialog from 'material-ui/lib/dialog'
 import FlatButton from 'material-ui/lib/flat-button'
 import SelectField from 'material-ui/lib/select-field'
 import MenuItem from 'material-ui/lib/menus/menu-item'
+import TextField from 'material-ui/lib/text-field'
 
 import GMAlgorithmCard from './GMAlgorithmCard'
 import config from '../../config'
@@ -39,6 +40,7 @@ const GMRunAnalysisDialog = React.createClass({
       traits: [],
       markerLabels: [],
       traitLabels: [],
+      jobName: '',
       projectValue: '',
       markerValue: '',
       traitValue: '',
@@ -86,17 +88,16 @@ const GMRunAnalysisDialog = React.createClass({
     })
   },
   validateForm: function () {
-    return (!!this.state.projectValue && !!this.state.markerValue &&
-            !!this.state.traitValue && !!this.state.markerLabelValue &&
-            !!this.state.traitLabelValue && !!this.state.modelValue)
+    return (!!this.state.jobName && !!this.state.projectValue &&
+            !!this.state.markerValue && !!this.state.traitValue &&
+            !!this.state.modelValue)
   },
   handleSubmit: function () {
     this.props.submit({
       project: this.state.projectValue,
+      jobName: this.state.jobName,
       marker: this.state.markerValue,
       trait: this.state.traitValue,
-      markerLabel: this.state.markerLabelValue,
-      traitLabel: this.state.traitLabelValue,
       algorithmOptions: {
         type: this.state.algorithmValue,
         options: {
@@ -139,34 +140,25 @@ const GMRunAnalysisDialog = React.createClass({
   },
   onChangeProject: function (event, index, value) {
     const project = this.props.projects[index]
-    const markers = project.files.filter(file => file.filetype === 'markerFile')
-    const traits = project.files.filter(file => file.filetype === 'traitFile')
-    const markerLabels = project.files.filter(file => file.filetype === 'markerLabelFile')
-    const traitLabels = project.files.filter(file => file.filetype === 'traitLabelFile')
+    const markers = project.markers
+    const traits = project.traits
 
     this.setState({
       projectValue: value,
       markers: markers,
       markerValue: '',
       traits: traits,
-      traitValue: '',
-      markerLabels: markerLabels,
-      markerLabelValue: '',
-      traitLabels: traitLabels,
-      traitLabelValue: ''
+      traitValue: ''
     })
+  },
+  onChangeJobName: function (event) {
+    this.setState({jobName: event.target.value})
   },
   onChangeMarker: function (event, index, value) {
     this.setState({markerValue: value})
   },
   onChangeTrait: function (event, index, value) {
     this.setState({traitValue: value})
-  },
-  onChangeMarkerLabel: function(event, index, value) {
-    this.setState({markerLabelValue: value})
-  },
-  onChangeTraitLabel: function(event, index, value) {
-    this.setState({traitLabelValue: value})
   },
   onChangeModel: function (event, index, value) {
     this.setState({modelValue: value,
@@ -235,13 +227,6 @@ const GMRunAnalysisDialog = React.createClass({
   onChangeLambdaInterval: function(event) {
     this.setState({lambda_interval: event.target.value})
   },
-  /**
-   * Test function to disable Tree Lasso since it is not currently implemented
-   * @param {string} algorithmName
-   * @return {Boolean}
-  isDisabled: function (algorithmName) {
-    return algorithmName === 'Tree Lasso'
-  },*/
   render: function () {
     const actions = [
       <FlatButton
@@ -264,28 +249,16 @@ const GMRunAnalysisDialog = React.createClass({
       <option key={project.id} value={project.id}>{project.name}</option>
     )
     const markerList = this.state.markers.map((marker, index) =>
-      <MenuItem key={index} value={marker.id} primaryText={marker.name} />
+      <MenuItem key={index} value={marker} primaryText={marker.name} />
     )
     const markerListReact = this.state.markers.map((marker, index) =>
-      <option key={index} value={marker.id}>{marker.name}</option>
+      <option key={index} value={marker}>{marker.name}</option>
     )
     const traitList = this.state.traits.map((trait, index) =>
-      <MenuItem key={index} value={trait.id} primaryText={trait.name} />
+      <MenuItem key={index} value={trait} primaryText={trait.name} />
     )
     const traitListReact = this.state.traits.map((trait, index) =>
-      <option key={index} value={trait.id}>{trait.name}</option>
-    )
-    const markerLabelList = this.state.markerLabels.map((markerLabel, index) =>
-      <MenuItem key={index} value={markerLabel.id} primaryText={markerLabel.name} />
-    )
-    const markerLabelListReact = this.state.markerLabels.map((markerLabel, index) =>
-      <option key={index} value={markerLabel.id}>{markerLabel.name}</option>
-    )
-    const traitLabelList = this.state.traitLabels.map((traitLabel, index) =>
-      <MenuItem key={index} value={traitLabel.id} primaryText={traitLabel.name} />
-    )
-    const traitLabelListReact = this.state.traitLabels.map((traitLabel, index) =>
-      <option key={index} value={traitLabel.id}>{traitLabel.name}</option>
+      <option key={index} value={trait}>{trait.name}</option>
     )
     const modelList = this.state.models.map((model, index) =>
       <MenuItem key={index} value={model.id} primaryText={model.name} />
@@ -316,6 +289,14 @@ const GMRunAnalysisDialog = React.createClass({
         >
           <form name='runAnalysis'>
             <div style={{width:'45%', float:'left'}}>
+              <div>
+                <TextField
+                  value={this.state.jobName}
+                  hintText='Choose Job Name'
+                  errorText={!this.state.jobName && errorText}
+                  onChange={this.onChangeJobName}
+                />
+              </div>
               <div>
                 <SelectField
                   value={this.state.projectValue}
@@ -353,32 +334,6 @@ const GMRunAnalysisDialog = React.createClass({
                 </SelectField>
                 <select id='trait' className='hidden' value={this.state.traitValue} readOnly>
                   {traitListReact}
-                </select>
-              </div>
-              <div>
-                <SelectField
-                  value={this.state.markerLabelValue}
-                  hintText='Choose Marker Labels'
-                  errorText={!this.state.markerLabelValue && errorText}
-                  onChange={this.onChangeMarkerLabel}
-                >
-                  {markerLabelList}
-                </SelectField>
-                <select id='markerLabel' className='hidden' value={this.state.markerLabelValue} readOnly>
-                  {markerLabelListReact}
-                </select>
-              </div>
-              <div>
-                <SelectField
-                  value={this.state.traitLabelValue}
-                  hintText='Choose Trait Labels'
-                  errorText={!this.state.traitLabelValue && errorText}
-                  onChange={this.onChangeTraitLabel}
-                >
-                  {traitLabelList}
-                </SelectField>
-                <select id='traitLabel' className='hidden' value={this.state.traitLabelValue} readOnly>
-                  {traitLabelListReact}
                 </select>
               </div>
             </div>
@@ -468,9 +423,9 @@ const GMRunAnalysisDialog = React.createClass({
                       </div> : 
                     (this.state.algorithmValue == 2) ? // Proximal Gradient Descent
                       <div>
-                        <div>a: <input type="number" value={this.state.learning_rate} onChange={this.onChangeLearningRate}/></div><br/>
-                        <div>b: <input type="number" value={this.state.learning_rate2} onChange={this.onChangeLearningRate2}/></div><br/>
-                        <div>c: <input type="number" value={this.state.tolerance} onChange={this.onChangeTolerance}/></div>
+                        <div>Learning Rate: <input type="number" value={this.state.learning_rate} onChange={this.onChangeLearningRate}/></div><br/>
+                        <div>Inner Learning Rate: <input type="number" value={this.state.learning_rate2} onChange={this.onChangeLearningRate2}/></div><br/>
+                        <div>Tolerance: <input type="number" value={this.state.tolerance} onChange={this.onChangeTolerance}/></div>
                       </div> :
                     (this.state.algorithmValue == 3) ? // Grid Search
                       <div>
