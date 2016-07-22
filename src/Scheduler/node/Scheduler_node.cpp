@@ -12,14 +12,14 @@
 #include <uv.h>
 #include <v8.h>
 
-#include "../../algorithm/ProximalGradientDescent.hpp"
-#include "../../algorithm/IterativeUpdate.hpp"
-#include "../../algorithm/Algorithm.hpp"
-#include "../../algorithm/AlgorithmOptions.hpp"
-#include "../../model/ModelOptions.hpp"
+#include "../../Algorithms/ProximalGradientDescent.hpp"
+#include "../../Algorithms/IterativeUpdate.hpp"
+#include "../../Algorithms/Algorithm.hpp"
+#include "../../Algorithms/AlgorithmOptions.hpp"
+#include "../../Models/ModelOptions.hpp"
 #include "../Job.hpp"
 #include "../Scheduler.hpp"
-#include "../../json/JsonCoder.hpp"
+#include "../../JSON/JsonCoder.hpp"
 
 using namespace std;
 using namespace v8;

@@ -5,11 +5,11 @@
 #include <iostream>
 
 #ifdef BAZEL
-#include "algorithm/Algorithm.hpp"
-#include "model/Model.hpp"
+#include "Algorithms/Algorithm.hpp"
+#include "Models/Model.hpp"
 #else
 #include "Algorithm.hpp"
-#include "../model/Model.hpp"
+#include "../Models/Model.hpp"
 #endif
 
 using namespace std;

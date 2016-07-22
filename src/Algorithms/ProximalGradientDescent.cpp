@@ -10,11 +10,11 @@
 #include <map>
 
 #ifdef BAZEL
-#include "model/AdaMultiLasso.hpp"
-#include "model/Model.hpp"
+#include "Models/AdaMultiLasso.hpp"
+#include "Models/Model.hpp"
 #else
-#include "../model/AdaMultiLasso.hpp"
-#include "../model/Model.hpp"
+#include "../Models/AdaMultiLasso.hpp"
+#include "../Models/Model.hpp"
 #endif
 
 using namespace Eigen;

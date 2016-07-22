@@ -12,9 +12,9 @@
 #include <unordered_map>
 
 #ifdef BAZEL
-#include "model/ModelOptions.hpp"
+#include "Models/ModelOptions.hpp"
 #else
-#include "../model/ModelOptions.hpp"
+#include "../Models/ModelOptions.hpp"
 #endif
 
 using namespace Eigen;

@@ -8,9 +8,9 @@
 #include <unordered_map>
 
 #ifdef BAZEL
-#include "model/Model.hpp"
+#include "Models/Model.hpp"
 #else
-#include "../model/Model.hpp"
+#include "../Models/Model.hpp"
 #endif
 
 class Algorithm {

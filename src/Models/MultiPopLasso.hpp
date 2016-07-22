@@ -8,11 +8,11 @@
 #include <iostream>
 #include <vector>
 
-#if BAZEL
-#include "model/Model.hpp"
+#ifdef BAZEL
+#include "Models/Model.hpp"
 #include "Math/Math.hpp"
 #else
-#include "../model/Model.hpp"
+#include "../Models/Model.hpp"
 #include "../Math/Math.hpp"
 #endif
 

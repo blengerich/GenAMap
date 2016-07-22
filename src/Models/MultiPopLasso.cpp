@@ -5,8 +5,7 @@
 #include <limits>
 
 #ifdef BAZEL
-#include "model/MultiPopLasso.hpp"
-
+#include "Models/MultiPopLasso.hpp"
 #else
 #include "MultiPopLasso.hpp"
 #endif

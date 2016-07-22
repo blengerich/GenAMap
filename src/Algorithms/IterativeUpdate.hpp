@@ -8,7 +8,7 @@
 #include <map>
 
 #include "Algorithm.hpp"
-#include "../model/TreeLasso.hpp"
+#include "../Models/TreeLasso.hpp"
 
 using namespace std;
 

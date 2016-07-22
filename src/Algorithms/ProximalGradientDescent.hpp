@@ -8,22 +8,22 @@
 #include <map>
 
 #ifdef BAZEL
-#include "algorithm/Algorithm.hpp"
-#include "model/AdaMultiLasso.hpp"
-#include "model/LinearRegression.hpp"
-#include "model/TreeLasso.hpp"
-#include "model/MultiPopLasso.hpp"
-#include "model/GFlasso.h"
-#include "model/SparseLMM.h"
+#include "Algorithms/Algorithm.hpp"
+#include "Models/AdaMultiLasso.hpp"
+#include "Models/LinearRegression.hpp"
+#include "Models/TreeLasso.hpp"
+#include "Models/MultiPopLasso.hpp"
+#include "Models/GFlasso.h"
+#include "Models/SparseLMM.h"
 #else
 #include "Algorithm.hpp"
 #include "AlgorithmOptions.hpp"
-#include "../model/LinearRegression.hpp"
-#include "../model/TreeLasso.hpp"
-#include "../model/MultiPopLasso.hpp"
-#include "../model/AdaMultiLasso.hpp"
-#include "../model/GFlasso.h"
-#include "../model/SparseLMM.h"
+#include "../Models/LinearRegression.hpp"
+#include "../Models/TreeLasso.hpp"
+#include "../Models/MultiPopLasso.hpp"
+#include "../Models/AdaMultiLasso.hpp"
+#include "../Models/GFlasso.h"
+#include "../Models/SparseLMM.h"
 #endif
 
 

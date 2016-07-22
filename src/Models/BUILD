@@ -6,14 +6,14 @@ cc_library(
 	hdrs = ["AdaMultiLasso.hpp"],
 	copts = ["-DBAZEL"],
 	deps = ["//Math:Math",
-			"//model:Model",]
+			"//Models:Model",]
 )
 
 cc_library(
 	name = "GFlasso",
 	srcs = ["GFlasso.cpp"],
 	hdrs = ["GFlasso.h"],
-	deps = ["//model:Model"])
+	deps = ["//Models:Model"])
 
 
 cc_library(
@@ -29,7 +29,7 @@ cc_library(
 	hdrs = ["LinearMixedModel.hpp"],
 	copts = ["-DBAZEL"],
 	deps = ["//Math:Math",
-			"//model:Model"]
+			"//Models:Model"]
 )
 
 cc_library(
@@ -37,8 +37,8 @@ cc_library(
 	srcs = ["LinearRegression.cpp"],
 	hdrs = ["LinearRegression.hpp"],
 	copts = ["-DBAZEL"],
-	deps = ["//model:Model",
-			"//model:ModelOptions"],
+	deps = ["//Models:Model",
+			"//Models:ModelOptions"],
 )
 
 cc_library(
@@ -61,7 +61,7 @@ cc_library(
 	srcs = ["MultiPopLasso.cpp"],
 	hdrs = ["MultiPopLasso.hpp"],
 	copts = ["-DBAZEL"],
-	deps = ["//model:Model",
+	deps = ["//Models:Model",
 		"//Math:Math"]
 )
 
@@ -96,8 +96,8 @@ cc_library(
     srcs = ["SparseLMM.cpp"],
     hdrs = ["SparseLMM.h"],
     copts = ["-DBAZEL"],
-    deps = ["//model:LinearMixedModel",
-            "//model:Model"],
+    deps = ["//Models:LinearMixedModel",
+            "//Models:Model"],
 )
 
 cc_library(
@@ -105,6 +105,5 @@ cc_library(
 	srcs = ["TreeLasso.cpp"],
 	hdrs = ["TreeLasso.hpp"],
 	copts = ["-DBAZEL"],
-	deps = ["//model:Model"],
+	deps = ["//Models:Model"],
 )
-

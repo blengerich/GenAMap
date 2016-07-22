@@ -20,10 +20,8 @@
 #include "Math/Math.hpp"
 #include "Model.hpp"
 #else
-
 #include "../Math/Math.hpp"
-#include "../model/Model.hpp"
-
+#include "../Models/Model.hpp"
 #endif
 
 using namespace std;

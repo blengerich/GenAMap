@@ -8,12 +8,12 @@
 #include <iostream>
 
 #ifdef BAZEL
-#include "algorithm/Algorithm.hpp"
-#include "model/LinearMixedModel.hpp"
+#include "Algorithms/Algorithm.hpp"
+#include "Models/LinearMixedModel.hpp"
 #else
 #include "Algorithm.hpp"
 #include "AlgorithmOptions.hpp"
-#include "../model/LinearMixedModel.hpp"
+#include "../Models/LinearMixedModel.hpp"
 #endif
 
 using namespace std;

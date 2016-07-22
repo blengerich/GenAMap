@@ -8,7 +8,7 @@
 #include <iostream>
 
 #ifdef BAZEL
-#include "model/ModelOptions.hpp"
+#include "Models/ModelOptions.hpp"
 #else
 #include "ModelOptions.hpp"
 #endif

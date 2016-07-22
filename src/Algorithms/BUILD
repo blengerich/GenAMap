@@ -4,7 +4,7 @@ cc_library(
 	name = "Algorithm",
 	srcs = ["Algorithm.cpp"],
 	hdrs = ["Algorithm.hpp"],
-	deps = ["//model:Model"],
+	deps = ["//Models:Model"],
 	copts = ["-DBAZEL"]
 )
 
@@ -19,10 +19,10 @@ cc_library(
 	name = "BrentSearch",
 	srcs = ["BrentSearch.cpp"],
 	hdrs = ["BrentSearch.hpp"],
-	deps = ["//algorithm:Algorithm",
-			"//algorithm:AlgorithmOptions",
-			"//algorithm:GridSearch",
-			"//model:LinearMixedModel"],
+	deps = ["//Algorithms:Algorithm",
+			"//Algorithms:AlgorithmOptions",
+			"//Algorithms:GridSearch",
+			"//Models:LinearMixedModel"],
 	copts = ["-DBAZEL"]
 )
 
@@ -30,24 +30,24 @@ cc_library(
 	name = "GridSearch",
 	srcs = ["GridSearch.cpp"],
 	hdrs = ["GridSearch.hpp"],
-	deps = ["//algorithm:Algorithm",
-			"//model:LinearMixedModel"],
+	deps = ["//Algorithms:Algorithm",
+			"//Models:LinearMixedModel"],
 	copts = ["-DBAZEL"])
 
 cc_library(
 	name = "ProximalGradientDescent",
 	srcs = ["ProximalGradientDescent.cpp"],
 	hdrs = ["ProximalGradientDescent.hpp"],
-	deps = ["//algorithm:Algorithm",
-		"//algorithm:AlgorithmOptions",
-		"//algorithm:BrentSearch",
-		"//model:AdaMultiLasso",
-		"//model:GFlasso",
-		"//model:LinearMixedModel",
-		"//model:LinearRegression",
-		"//model:TreeLasso",
-		"//model:MultiPopLasso",
-		"//model:SparseLMM",
+	deps = ["//Algorithms:Algorithm",
+		"//Algorithms:AlgorithmOptions",
+		"//Algorithms:BrentSearch",
+		"//Models:AdaMultiLasso",
+		"//Models:GFlasso",
+		"//Models:LinearMixedModel",
+		"//Models:LinearRegression",
+		"//Models:TreeLasso",
+		"//Models:MultiPopLasso",
+		"//Models:SparseLMM",
 		"//Math:Math"],
 	copts = ["-DBAZEL"]
 )
@@ -56,11 +56,11 @@ cc_library(
 	name = "IterativeUpdate",
 	srcs = ["IterativeUpdate.cpp"],
 	hdrs = ["IterativeUpdate.hpp"],
-	deps = ["//algorithm:Algorithm",
-		"//algorithm:AlgorithmOptions",
-		"//model:LinearRegression",
-		"//model:TreeLasso",
-		"//model:MultiPopLasso",
+	deps = ["//Algorithms:Algorithm",
+		"//Algorithms:AlgorithmOptions",
+		"//Models:LinearRegression",
+		"//Models:TreeLasso",
+		"//Models:MultiPopLasso",
 		"//Math:Math"],
 	copts = ["-DBAZEL"]
 )

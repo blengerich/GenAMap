@@ -6,15 +6,15 @@
 #include <Eigen/Dense>
 
 #ifdef BAZEL
-#include "algorithm/Algorithm.hpp"
-#include "algorithm/AlgorithmOptions.hpp"
-#include "model/Model.hpp"
-#include "model/ModelOptions.hpp"
+#include "Algorithms/Algorithm.hpp"
+#include "Algorithms/AlgorithmOptions.hpp"
+#include "Models/Model.hpp"
+#include "Models/ModelOptions.hpp"
 #else
-#include "../algorithm/Algorithm.hpp"
-#include "../algorithm/AlgorithmOptions.hpp"
-#include "../model/Model.hpp"
-#include "../model/ModelOptions.hpp"
+#include "../Algorithms/Algorithm.hpp"
+#include "../Algorithms/AlgorithmOptions.hpp"
+#include "../Models/Model.hpp"
+#include "../Models/ModelOptions.hpp"
 #endif
 
 using namespace std;

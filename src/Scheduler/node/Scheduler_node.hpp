@@ -8,14 +8,13 @@
 #include <uv.h>
 #include <v8.h>
 
-#include "../../algorithm/ProximalGradientDescent.hpp"
-#include "../../algorithm/IterativeUpdate.hpp"
-#include "../../algorithm/Algorithm.hpp"
+#include "../../Algorithms/ProximalGradientDescent.hpp"
+#include "../../Algorithms/IterativeUpdate.hpp"
+#include "../../Algorithms/Algorithm.hpp"
 #include "../Scheduler.hpp"
 
 using namespace std;
 using namespace v8;
-
 
 
 //////////////////////////////////////////////////////

@@ -11,7 +11,7 @@
 
 #ifdef BAZEL
 #include "Math/Math.hpp"
-#include "model/Model.hpp"
+#include "Models/Model.hpp"
 #else
 #include "../Math/Math.hpp"
 #include "Model.hpp"
