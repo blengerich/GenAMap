@@ -165,7 +165,6 @@ const GMRunAnalysisDialog = React.createClass({
                   showAdvancedOptionsButton: true,
                   availableAlgorithmList:this.state.algorithmsByModelList[value],
                   algorithmValue:this.state.algorithmsByModelList[value][0].id}) // always use the first algorithm listed as the default
-     // set default algorithm params
   },
   onChangeLambda: function(event) {
     this.setState({lambda : event.target.value})
@@ -411,15 +410,14 @@ const GMRunAnalysisDialog = React.createClass({
                   </div>
                   <div id='algorithmOptionsDiv'>
                     {(this.state.algorithmValue == 1) ? // Brent Search
-                      // TODO: use descriptive variable names (Haohan please fix Brent Search documentation)
                       <div>
-                        <div>a: <input type="number" value={this.state.a} onChange={this.onChangeA}/></div><br/>
-                        <div>b: <input type="number" value={this.state.b} onChange={this.onChangeB}/></div><br/>
-                        <div>c: <input type="number" value={this.state.c} onChange={this.onChangeC}/></div><br/>
-                        <div>m: <input type="number" value={this.state.m} onChange={this.onChangeM}/></div><br/>
-                        <div>e: <input type="number" value={this.state.e} onChange={this.onChangeE}/></div><br/>
+                        <div>Search Start: <input type="number" value={this.state.a} onChange={this.onChangeA}/></div><br/>
+                        <div>Search End: <input type="number" value={this.state.b} onChange={this.onChangeB}/></div><br/>
+                        <div>Estimate: <input type="number" value={this.state.c} onChange={this.onChangeC}/></div><br/>
+                        <div>Positive tolerance: <input type="number" value={this.state.m} onChange={this.onChangeM}/></div><br/>
+                        <div>Positive tolerance error: <input type="number" value={this.state.e} onChange={this.onChangeE}/></div><br/>
                         <div>t: <input type="number" value={this.state.t} onChange={this.onChangeT}/></div><br/>
-                        <div>delta: <input type="number" value={this.state.delta} onChange={this.onChangeDelta}/></div>
+                        <div>Delta: <input type="number" value={this.state.delta} onChange={this.onChangeDelta}/></div>
                       </div> : 
                     (this.state.algorithmValue == 2) ? // Proximal Gradient Descent
                       <div>

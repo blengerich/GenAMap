@@ -49,7 +49,7 @@ const config = {
     image: '',
     info: 'info about IU'
   }],
-  algorithmsByModel: { // TODO: make this actually right
+  algorithmsByModel: {
   1 : [// Linear Regression 
   {id: 2,
     name: 'Proximal Gradient Descent',

@@ -21,7 +21,7 @@ var jwt = require('jsonwebtoken')
 // temp
 var http = require('http')
 var querystring = require('querystring')
-var favicon = require('serve-favicon')
+//var favicon = require('serve-favicon')
 
 const getTokenContent = (token) => {
   try {
@@ -45,7 +45,7 @@ app.use(express.static('static'))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use('/api/', expressjwt({ secret: config.secret }))
-app.use(favicon(__dirname + '/static/images/favicon.ico'));
+//app.use(favicon(__dirname + '/static/images/favicon.ico'));
 
 const waterlineConfig = {
   adapters: {
@@ -369,7 +369,7 @@ app.post(config.api.importDataUrl, function (req, res) {
             app.models.file.create(datum).exec(function (err, file) {
               if (err) throw err
               files.push(file)
-            
+
               if (file.filetype === 'markerFile') {
                 marker.id = file.id
                 marker.files.push(file)

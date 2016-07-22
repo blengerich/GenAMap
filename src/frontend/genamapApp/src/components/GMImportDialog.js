@@ -36,12 +36,11 @@ class GMImportDialog extends Component {
   }
 
   validateForm () {
-    return ((!!this.state.projectValue && this.state.projectValue !== 'new' ||
-            (this.state.projectValue === 'new' && !!this.state.projectName &&
-            !!this.state.speciesValue)) &&
-            !!this.state.markerName && !!this.state.markerFileName &&
-            !!this.state.traitName && !!this.state.traitFileName &&
-            !!this.state.markerLabelFileName && !!this.state.traitLabelFileName)
+    return this.state.projectValue === 'new' ? 
+      (!!this.state.projectName && !!this.state.speciesValue) : // New projects only require a name and a species
+      (!!this.state.projectValue && // If we are using an existing project, we can add any amount of data
+        (!!this.state.markerName && !!this.state.markerFileName && !!this.state.markerLabelFileName) ||
+        (!!this.state.traitName && !!this.state.traitFileName && !!this.state.traitLabelFileName))
   }
 
   handleSubmit () {
@@ -187,7 +186,7 @@ class GMImportDialog extends Component {
                 id='markerName'
                 value={this.state.markerName}
                 hintText='Marker Name'
-                errorText={!this.state.markerName && errorText}
+                errorText={(this.state.markerFileName || this.state.markerLabelFileName) && !this.state.markerName && errorText}
                 onChange={this.onChangeMarkerName.bind(this)}
               />
               <br />
@@ -212,7 +211,7 @@ class GMImportDialog extends Component {
                 id='traitName'
                 value={this.state.traitName}
                 hintText='Trait Name'
-                errorText={!this.state.traitName && errorText}
+                errorText={(this.state.traitFileName || this.state.traitLabelFileName) && !this.state.traitName && errorText}
                 onChange={this.onChangeTraitName.bind(this)}
               />
               <GMFileInput
