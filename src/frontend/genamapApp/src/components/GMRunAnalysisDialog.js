@@ -109,19 +109,13 @@ const GMRunAnalysisDialog = React.createClass({
     const project = this.props.projects[index]
     const markers = project.files.filter(file => file.filetype === 'markerFile')
     const traits = project.files.filter(file => file.filetype === 'traitFile')
-    const markerLabels = project.files.filter(file => file.filetype === 'markerLabelFile')
-    const traitLabels = project.files.filter(file => file.filetype === 'traitLabelFile')
 
     this.setState({
       projectValue: value,
       markers: markers,
       markerValue: '',
       traits: traits,
-      traitValue: '',
-      markerLabels: markerLabels,
-      markerLabelValue: '',
-      traitLabels: traitLabels,
-      traitLabelValue: ''
+      traitValue: ''
     })
   },
   onChangeJobName: function (event) {
@@ -202,18 +196,6 @@ const GMRunAnalysisDialog = React.createClass({
     const traitListReact = this.state.traits.map((trait, index) =>
       <option key={index} value={trait.id}>{trait.name}</option>
     )
-    const markerLabelList = this.state.markerLabels.map((markerLabel, index) =>
-      <MenuItem key={index} value={markerLabel.id} primaryText={markerLabel.name} />
-    )
-    const markerLabelListReact = this.state.markerLabels.map((markerLabel, index) =>
-      <option key={index} value={markerLabel.id}>{markerLabel.name}</option>
-    )
-    const traitLabelList = this.state.traitLabels.map((traitLabel, index) =>
-      <MenuItem key={index} value={traitLabel.id} primaryText={traitLabel.name} />
-    )
-    const traitLabelListReact = this.state.traitLabels.map((traitLabel, index) =>
-      <option key={index} value={traitLabel.id}>{traitLabel.name}</option>
-    )
     const modelList = this.state.models.map((model, index) =>
       <MenuItem key={index} value={model.id} primaryText={model.name} />
     )
@@ -284,32 +266,6 @@ const GMRunAnalysisDialog = React.createClass({
               </SelectField>
               <select id='trait' className='hidden' value={this.state.traitValue} readOnly>
                 {traitListReact}
-              </select>
-            </div>
-            <div>
-              <SelectField
-                value={this.state.markerLabelValue}
-                hintText='Choose Marker Labels'
-                errorText={!this.state.markerLabelValue && errorText}
-                onChange={this.onChangeMarkerLabel}
-              >
-                {markerLabelList}
-              </SelectField>
-              <select id='markerLabel' className='hidden' value={this.state.markerLabelValue} readOnly>
-                {markerLabelListReact}
-              </select>
-            </div>
-            <div>
-              <SelectField
-                value={this.state.traitLabelValue}
-                hintText='Choose Trait Labels'
-                errorText={!this.state.traitLabelValue && errorText}
-                onChange={this.onChangeTraitLabel}
-              >
-                {traitLabelList}
-              </SelectField>
-              <select id='traitLabel' className='hidden' value={this.state.traitLabelValue} readOnly>
-                {traitLabelListReact}
               </select>
             </div>
             <div>

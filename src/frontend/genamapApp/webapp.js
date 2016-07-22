@@ -302,18 +302,20 @@ app.post(config.api.importDataUrl, function (req, res) {
   var busboy = new Busboy({ headers: req.headers })
   var projectId // eslint-disable-line no-unused-vars
   var projectObj = {}
+  var marker = { files: [] }
+  var trait = { files: [] }
   var fileDataList = {
     marker: {
-      name: 'Values'
+      name: 'Marker Values'
     },
     trait: {
-      name: 'Values'
+      name: 'Marker Values'
     },
     markerLabel: {
-      name: 'Labels'
+      name: 'Marker Labels'
     },
     traitLabel: {
-      name: 'Labels'
+      name: 'Marker Labels'
     }
   }
   const userId = extractUserIdFromHeader(req.headers)
@@ -328,10 +330,10 @@ app.post(config.api.importDataUrl, function (req, res) {
         projectObj.name = val
         break
       case 'markerName':
-        projectObj.markerName = val
+        marker.name = val
         break
       case 'traitName':
-        projectObj.traitName = val
+        trait.name = val
         break
       case 'species':
         projectObj.species = val
@@ -372,12 +374,19 @@ app.post(config.api.importDataUrl, function (req, res) {
           app.models.file.create(datum).exec(function (err, file) {
             if (err) throw err
             files.push(file)
+
+            if (file.filetype === 'markerFile' || file.filetype === 'markerLabelFile') {
+              marker.files.push(file)
+            } else if (file.filetype === 'traitFile' || file.filetype === 'traitLabelFile') {
+              trait.files.push(file)
+            }
+
             callback()
           })
         }, function (err) {
           if (err) throw err
 
-          return res.json({ project, files })
+          return res.json({ project, files, marker, trait })
         }
       )
     })

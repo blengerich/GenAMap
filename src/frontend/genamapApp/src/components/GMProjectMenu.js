@@ -110,10 +110,18 @@ const GMProjectContent = React.createClass({
 })
 
 const GMProject = React.createClass({
-  createFolderView: function(items, index, name) {
+  createFolderView: function(collection, index) {
+    const items = collection.files.map((file, i) =>
+      <GMProjectContent
+        key={i}
+        data={file}
+        actions={this.props.actions}
+      />
+    )
+
     return (
       <ListItem
-        primaryText={name}
+        primaryText={collection.name}
         leftIcon={<FontIcon className='material-icons'>folder</FontIcon>}
         initiallyOpen={false}
         primaryTogglesNestedList={true}
@@ -124,28 +132,13 @@ const GMProject = React.createClass({
     )
   },
   render: function () {
-    const dataList = this.props.project.files.map((file, i) =>
-      <GMProjectContent
-        key={i}
-        data={file}
-        actions={this.props.actions}
-      />
-    )
+    const project = this.props.project
+    const results = {
+      name: 'Results',
+      files: project.files.filter(file => file.filetype === 'resultFile')
+    }
 
-    const folderNames =
-      [this.props.project.markerName, this.props.project.traitName, 'Visualizations']
-    const markerContentList = dataList.filter(item =>
-      item.props.data.filetype === 'markerFile' ||
-      item.props.data.filetype === 'markerLabelFile')
-    const traitContentList = dataList.filter(item =>
-      item.props.data.filetype === 'traitFile' ||
-      item.props.data.filetype === 'traitLabelFile')
-    const vizContentList = dataList.filter(item =>
-      item.props.data.filetype === 'resultFile')
-
-    const folderList = [markerContentList, traitContentList, vizContentList].map(
-      (items, i) => this.createFolderView(items, i, folderNames[i])
-    )
+    const folderList = [...project.markers, ...project.traits, results].map(this.createFolderView)
 
     return (
       <ListItem
