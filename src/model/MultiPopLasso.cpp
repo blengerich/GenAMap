@@ -260,14 +260,26 @@ MatrixXd MultiPopLasso::predict(MatrixXd x, VectorXd pop){
 
 MultiPopLasso::MultiPopLasso() {
     initTrainingFlag = false;
-    lambda = 0;
-    mu = 1;
-    gamma = 0;
+    lambda = default_lambda;
+    mu = default_mu;
+    gamma = default_gamma;
 }
 
 MultiPopLasso::MultiPopLasso(const unordered_map<string, string> &options) {
     initTrainingFlag = false;
-    lambda = stod(options.at("lambda"));
-    mu = stod(options.at("mu"));
-    gamma = stod(options.at("gamma"));
+    try {
+        lambda = stod(options.at("lambda"));
+    } catch (std::out_of_range& oor) {
+        lambda = default_lambda;
+    }
+    try {
+        mu = stod(options.at("mu"));
+    } catch (std::out_of_range& oor) {
+        mu = default_mu;
+    }
+    try {
+        gamma = stod(options.at("gamma"));    
+    } catch (std::out_of_range& oor) {
+        gamma = default_gamma;
+    }
 }

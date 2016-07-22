@@ -18,15 +18,23 @@ using namespace std;
 
 
 LinearRegression::LinearRegression() {
-    L1_reg = 0;
-    L2_reg = 0;
+    L1_reg = default_L1_reg;
+    L2_reg = default_L2_reg;
     betaAll = MatrixXd::Ones(1,1);
 };
 
 
 LinearRegression::LinearRegression(const unordered_map<string, string>& options) {
-    L1_reg = stof(options.at("lambda"));
-    L2_reg = stof(options.at("L2_lambda"));
+    try {
+        L1_reg = stof(options.at("lambda"));
+    } catch (std::out_of_range& oor) {
+        L1_reg = default_L1_reg;
+    }
+    try {
+        L2_reg = stof(options.at("L2_lambda"));
+    } catch (std::out_of_range& oor) {
+        L2_reg = default_L2_reg;
+    }
     betaAll = MatrixXd::Ones(1,1);
 };
 

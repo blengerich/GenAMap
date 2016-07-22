@@ -45,6 +45,10 @@ private:
     void updateTheta();
     void updateRho();
 
+    static constexpr double default_lambda1 = 0;
+    static constexpr double default_lambda2 = 0;
+    static constexpr double default_mu = 1e-3;
+
 public:
     AdaMultiLasso();
     AdaMultiLasso(const unordered_map<string, string>&);
