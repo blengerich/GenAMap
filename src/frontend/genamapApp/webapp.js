@@ -309,13 +309,13 @@ app.post(config.api.importDataUrl, function (req, res) {
       name: 'Marker Values'
     },
     trait: {
-      name: 'Marker Values'
+      name: 'Trait Values'
     },
     markerLabel: {
       name: 'Marker Labels'
     },
     traitLabel: {
-      name: 'Marker Labels'
+      name: 'Trait Labels'
     }
   }
   const userId = extractUserIdFromHeader(req.headers)
@@ -375,9 +375,17 @@ app.post(config.api.importDataUrl, function (req, res) {
             if (err) throw err
             files.push(file)
 
-            if (file.filetype === 'markerFile' || file.filetype === 'markerLabelFile') {
+            if (file.filetype === 'markerFile') {
+              marker.id = file.id
               marker.files.push(file)
-            } else if (file.filetype === 'traitFile' || file.filetype === 'traitLabelFile') {
+            } else if (file.filetype === 'markerLabelFile') {
+              marker.labelId = file.id
+              marker.files.push(file)
+            } else if (file.filetype === 'traitFile') {
+              trait.id = file.id
+              trait.files.push(file)
+            } else if (file.filetype === 'traitLabelFile') {
+              trait.labelId = file.id
               trait.files.push(file)
             }
 
@@ -425,12 +433,12 @@ var getAlgorithmType = function (id) {
 app.post(config.api.runAnalysisUrl, function (req, res) {
   var converter = new Converter({noheader:true});
   // Get marker file
-  app.models.file.findOne({ id: req.body.marker }).exec(function (err, markerFile) {
+  app.models.file.findOne({ id: req.body.marker.id }).exec(function (err, markerFile) {
     if (err) console.log('Error getting marker for analysis: ', err);
     converter.fromFile(markerFile.path, function(err, markerData) {
       if (err) console.log('Error getting marker for analysis: ', err);
       // Get trait file
-      app.models.file.findOne({ id: req.body.trait }).exec(function (err, traitFile) {
+      app.models.file.findOne({ id: req.body.trait.id }).exec(function (err, traitFile) {
         if (err) console.log('Error getting trait for analysis: ', err)
         var traitConverter = new Converter({noheader:true});
         traitConverter.fromFile(traitFile.path, function(err, traitData) {
@@ -459,8 +467,8 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                 path: resultsPath,
                 project: req.body.project,
                 labels: {
-                  marker: req.body.markerLabel,
-                  trait: req.body.traitLabel
+                  marker: req.body.marker.labelId,
+                  trait: req.body.trait.labelId
                 }
               }).exec(function (err, file) {
                 if (err) throw err

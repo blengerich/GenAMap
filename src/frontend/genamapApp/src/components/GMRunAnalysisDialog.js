@@ -69,10 +69,9 @@ const GMRunAnalysisDialog = React.createClass({
     })
   },
   validateForm: function () {
-    return (!!this.state.jobName &&
-            !!this.state.projectValue && !!this.state.markerValue &&
-            !!this.state.traitValue && !!this.state.markerLabelValue &&
-            !!this.state.traitLabelValue && !!this.state.modelValue)
+    return (!!this.state.jobName && !!this.state.projectValue &&
+            !!this.state.markerValue && !!this.state.traitValue &&
+            !!this.state.modelValue)
   },
   handleSubmit: function () {
     this.props.submit({
@@ -80,8 +79,6 @@ const GMRunAnalysisDialog = React.createClass({
       jobName: this.state.jobName,
       marker: this.state.markerValue,
       trait: this.state.traitValue,
-      markerLabel: this.state.markerLabelValue,
-      traitLabel: this.state.traitLabelValue,
       algorithmOptions: this.state.algorithmOptions,
       modelOptions: {
         type: this.state.modelValue,
@@ -107,8 +104,8 @@ const GMRunAnalysisDialog = React.createClass({
   },
   onChangeProject: function (event, index, value) {
     const project = this.props.projects[index]
-    const markers = project.files.filter(file => file.filetype === 'markerFile')
-    const traits = project.files.filter(file => file.filetype === 'traitFile')
+    const markers = project.markers
+    const traits = project.traits
 
     this.setState({
       projectValue: value,
@@ -126,12 +123,6 @@ const GMRunAnalysisDialog = React.createClass({
   },
   onChangeTrait: function (event, index, value) {
     this.setState({traitValue: value})
-  },
-  onChangeMarkerLabel: function(event, index, value) {
-    this.setState({markerLabelValue: value})
-  },
-  onChangeTraitLabel: function(event, index, value) {
-    this.setState({traitLabelValue: value})
   },
   onChangeModel: function (event, index, value) {
     this.setState({modelValue: value,
@@ -185,16 +176,16 @@ const GMRunAnalysisDialog = React.createClass({
       <option key={project.id} value={project.id}>{project.name}</option>
     )
     const markerList = this.state.markers.map((marker, index) =>
-      <MenuItem key={index} value={marker.id} primaryText={marker.name} />
+      <MenuItem key={index} value={marker} primaryText={marker.name} />
     )
     const markerListReact = this.state.markers.map((marker, index) =>
-      <option key={index} value={marker.id}>{marker.name}</option>
+      <option key={index} value={marker}>{marker.name}</option>
     )
     const traitList = this.state.traits.map((trait, index) =>
-      <MenuItem key={index} value={trait.id} primaryText={trait.name} />
+      <MenuItem key={index} value={trait} primaryText={trait.name} />
     )
     const traitListReact = this.state.traits.map((trait, index) =>
-      <option key={index} value={trait.id}>{trait.name}</option>
+      <option key={index} value={trait}>{trait.name}</option>
     )
     const modelList = this.state.models.map((model, index) =>
       <MenuItem key={index} value={model.id} primaryText={model.name} />
