@@ -1,6 +1,6 @@
 var assert = require('chai').assert;
 var expect = require('chai').expect;
-var backend = require('../../../Scheduler/node/build/Release/scheduler.node');
+var backend = require('../../Scheduler/node/build/Release/scheduler.node');
 
 describe('Scheduler', function() {
 	var alg_opts = {'type': 2,

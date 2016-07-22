@@ -15,7 +15,7 @@ require('es6-promise').polyfill()
 require('isomorphic-fetch')
 
 var config = require('./config')
-var Scheduler = require('../../Scheduler/node/build/Release/scheduler.node')
+var Scheduler = require('../Scheduler/node/build/Release/scheduler.node')
 var jwt = require('jsonwebtoken')
 
 // temp

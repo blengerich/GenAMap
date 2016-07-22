@@ -22,7 +22,7 @@ if [ $rebuild_node -eq 1 ]
 fi
 
 if [ $node_tests -eq 1 ]
-	then cd /usr/src/genamap/src/frontend/genamapApp
+	then cd /usr/src/genamap/src/frontend
 	eval "npm install"
 	eval "mocha"
 fi
