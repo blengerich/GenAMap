@@ -16,16 +16,16 @@
 #include <vector>
 
 #ifdef BAZEL
-#include "algorithm/Algorithm.hpp"
-#include "algorithm/AlgorithmOptions.hpp"
-#include "model/ModelOptions.hpp"
+#include "Algorithms/Algorithm.hpp"
+#include "Algorithms/AlgorithmOptions.hpp"
+#include "Models/ModelOptions.hpp"
 #include "Scheduler/Job.hpp"
 #include "gtest/gtest_prod.h"
 #else
-#include "../algorithm/Algorithm.hpp"
-#include "../algorithm/AlgorithmOptions.hpp"
+#include "../Algorithms/Algorithm.hpp"
+#include "../Algorithms/AlgorithmOptions.hpp"
 #include "Job.hpp"
-#include "../model/ModelOptions.hpp"
+#include "../Models/ModelOptions.hpp"
 #endif
 
 
