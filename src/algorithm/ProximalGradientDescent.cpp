@@ -23,6 +23,7 @@ using namespace std;
 ProximalGradientDescent::ProximalGradientDescent(const unordered_map<string, string>& opts) {
     tolerance = stod(opts.at("tolerance"));
     learningRate = stod(opts.at("learning_rate"));
+    learningRate2 = stod(opts.at("learning_rate2"));
     prev_residue = numeric_limits<double>::max();
 }
 

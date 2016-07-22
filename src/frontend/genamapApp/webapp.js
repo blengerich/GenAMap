@@ -21,7 +21,7 @@ var jwt = require('jsonwebtoken')
 // temp
 var http = require('http')
 var querystring = require('querystring')
-
+var favicon = require('serve-favicon')
 
 const getTokenContent = (token) => {
   try {
@@ -45,7 +45,7 @@ app.use(express.static('static'))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use('/api/', expressjwt({ secret: config.secret }))
-//app.use(favicon(__dirname + '/static/images/favicon.ico'));
+app.use(favicon(__dirname + '/static/images/favicon.ico'));
 
 const waterlineConfig = {
   adapters: {
