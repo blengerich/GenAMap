@@ -9,6 +9,7 @@ cd /usr/src/genamap/src
 if [ $cpp_tests -eq 1 ]
 	then tests=(//model:Model_Tests //Stats:Stats_Tests //Scheduler:Scheduler_Tests)
 	flags="--test_verbose_timeout_warnings --spawn_strategy=standalone --test_output=all --color=yes --ignore_unsupported_sandboxing"
+	eval "bazel clean --spawn_strategy=standalone --ignore_unsupported_sandboxing 2>&1"
 	for test in "${tests[@]}"; do
 		cmd="bazel test $test ${flags}"
 		eval "$cmd 2>&1"
