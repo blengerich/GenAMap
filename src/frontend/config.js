@@ -13,6 +13,7 @@ const config = {
     createSessionUrl: '/sessions/create',
     createAccountUrl: '/user/create',
     getActivityUrl: '/activity',
+    cancelJobUrl: '/api/cancelJob',
     getAnalysisResultsUrl: '/analysis-results'
   },
   ui: {
@@ -29,102 +30,102 @@ const config = {
     name: 'Fly'
   }],
   algorithms: [{ 
-    id: 1,
+    id: 0,
     name: 'Brent Search',
     image: '',
     info: 'info about Brent Search'
   }, {
-    id: 2,
+    id: 1,
     name: 'Proximal Gradient Descent',
     image: 'images/proximal_gradient_descent.png',
     info: 'info about PGD'
   }, {
-    id: 3,
+    id: 2,
     name: 'Grid Search',
     image: 'images/grid_search.png',
     info: 'info about Grid Search'
   }, {
-    id: 4,
+    id: 3,
     name: 'Iterative Update',
     image: '',
     info: 'info about IU'
   }],
   algorithmsByModel: {
-  1 : [// Linear Regression 
-  {id: 2,
+  0 : [// Linear Regression 
+  {id: 1,
     name: 'Proximal Gradient Descent',
     image: 'images/proximal_gradient_descent.png',
     info: 'info about PGD'
   }],
-  2 : [// Lasso
+  1 : [// Lasso
   { // TODO: is lasso abstract? 
-    id: 2,
+    id: 1,
     name: 'Proximal Gradient Descent',
     image: 'images/proximal_gradient_descent.png',
     info: 'info about PGD'
   }],
-  3 : [ //AdaMultiLasso
+  2 : [ //AdaMultiLasso
   { 
-    id: 2,
+    id: 1,
     name: 'Proximal Gradient Descent',
     image: 'images/proximal_gradient_descent.png',
     info: 'info about PGD'
   }],
-  4 : [ // Gflasso
+  3 : [ // Gflasso
   {
-    id: 2,
+    id: 1,
     name: 'Proximal Gradient Descent',
     image: 'images/proximal_gradient_descent.png',
     info: 'info about PGD'
   }],
-  5 : [ // MultiPopLasso
+  4 : [ // MultiPopLasso
   {
-    id: 2,
+    id: 1,
     name: 'Proximal Gradient Descent',
     image: 'images/proximal_gradient_descent.png',
     info: 'info about PGD'
   }],
-  6 : [// Tree Lasso
+  5 : [// Tree Lasso
   {
-    id: 4,
+    id: 3,
     name: 'Iterative Update',
     image: '',
     info: 'info about IU'
   },
   {
-    id: 2,
+    id: 1,
     name: 'Proximal Gradient Descent',
     image: 'images/proximal_gradient_descent.png',
     info: 'info about PGD'
   }],
   },
   models: [{
-    id: 1,
+    id: 0,
     name: 'Linear Regression',
     image: '',
     info: 'info about Linear Regression'
   }, {
-    id: 2,
+    id: 1,
     name: 'Lasso',
     image: 'images/proximal_gradient_descent.png',
     info: 'info about PGD'
   }, {
-    id: 3,
+    id: 2,
     name: 'AdaMultiLasso',
     image: 'images/grid_search.png',
     info: 'info about Grid Search'
   }, {
-    id: 4,
+    id: 3,
     name: 'GfLasso',
     image: '',
     info: 'info about IU'
   }, {
-    id: 5,
+    id: 4,
     name: 'Multi-Population Lasso',
     image: '',
     info: 'info about IU'
   }, {
-    id: 6,
+    id: 5,
     name: 'Tree Lasso',
     image: '',
     info: 'info about IU'

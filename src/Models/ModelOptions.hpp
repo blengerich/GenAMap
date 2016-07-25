@@ -10,12 +10,12 @@ using namespace std;
 using namespace v8;
 
 enum model_type {
-	linear_regression = 1,
-	lasso = 2,
-	ada_multi_lasso = 3,
-	gf_lasso = 4,
-	multi_pop_lasso = 5,
-	tree_lasso = 6
+	linear_regression = 0,
+	lasso = 1,
+	ada_multi_lasso = 2,
+	gf_lasso = 3,
+	multi_pop_lasso = 4,
+	tree_lasso = 5
 };
 
 typedef struct ModelOptions_t {

@@ -481,11 +481,12 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
 // TODO: implement cancelJob [Issue: https://github.com/blengerich/GenAMap_V2/issues/39]
 /**
 * @param {Object} req
-* @param {Number} req.jobId
+* @param {Number} req.body.jobId
+**/
 app.post(config.api.cancelJobUrl, function(req, res) {
-	// console.log(Scheduler.cancelJob(jobId));
+	console.log("cancelling job", Scheduler.cancelJob(req.body.jobId));
 })
-*/
+
 
 app.get('/api/projects', function (req, res) {
   app.models.project.find().populate('files').exec(function (err, models) {

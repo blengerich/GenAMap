@@ -134,7 +134,7 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 				break;
 			}
 			case tree_lasso: {
-				models_map[id] = unique_ptr<Model>(new TreeLasso(options.options));
+				models_map[id] = unique_ptr<TreeLasso>(new TreeLasso(options.options));
 				break;
 			}
 			default:

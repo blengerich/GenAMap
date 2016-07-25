@@ -43,6 +43,10 @@ private :
     double mau; // Smootheness parameter  //todo: what is this?
     MatrixXd alpha_matrix;
 
+    static constexpr double default_lambda_flasso = 0.0;
+    static constexpr double default_gamma_flasso = 0.0;
+    static constexpr int default_flasso_type = GcFlasso;
+
 public :
     //Constructor to initialize the correlation graph and the
     //regularisation parameters
