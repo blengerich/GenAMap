@@ -26,6 +26,24 @@ Gflasso::Gflasso(MatrixXd corr_coff,double lambda,double gamma){
     lambda_flasso = lambda;
 }
 
+Gflasso::Gflasso(const unordered_map<string, string> &options) {
+    try {
+        lambda_flasso = stof(options.at("lambda"));
+    } catch (std::out_of_range& oor) {
+        lambda_flasso = default_lambda_flasso;
+    }
+    try {
+        gamma_flasso = stod(options.at("gamma"));
+    } catch (std::out_of_range& oor) {
+        gamma_flasso = default_gamma_flasso;
+    }
+    try {
+        flasso_type = stoi(options.at("flasso_type"));
+    } catch (std::out_of_range& oor) {
+        flasso_type = default_flasso_type;    
+    }
+}
+
 // Setting and getting various params of GFLasso model
 void Gflasso::set_params(double lambda,double gamma){
     lambda_flasso = lambda;
@@ -287,11 +305,4 @@ float Gflasso::getL() {
     MatrixXd X = this->get_X();
     return ((X.transpose()*X).eigenvalues()).real().maxCoeff() + edge_vertex_matrix.squaredNorm()/mau;
 
-}
-
-Gflasso::Gflasso(const unordered_map<string, string> &options) {
-    lambda_flasso = stof(options.at("lambda"));
-    gamma_flasso = stof(options.at("gamma"));
-    flasso_type = stoi(options.at("flasso"));
-    mau = stoi(options.at("mu"));
 }

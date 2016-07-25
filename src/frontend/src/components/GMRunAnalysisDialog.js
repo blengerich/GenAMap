@@ -90,7 +90,7 @@ const GMRunAnalysisDialog = React.createClass({
   validateForm: function () {
     return (!!this.state.jobName && !!this.state.projectValue &&
             !!this.state.markerValue && !!this.state.traitValue &&
-            !!this.state.modelValue)
+            this.state.modelValue !== '')
   },
   handleSubmit: function () {
     this.props.submit({
@@ -161,10 +161,15 @@ const GMRunAnalysisDialog = React.createClass({
     this.setState({traitValue: value})
   },
   onChangeModel: function (event, index, value) {
+    console.log(value)
+    console.log(this.state.algorithmsByModelList)
     this.setState({modelValue: value,
                   showAdvancedOptionsButton: true,
-                  availableAlgorithmList:this.state.algorithmsByModelList[value],
-                  algorithmValue:this.state.algorithmsByModelList[value][0].id}) // always use the first algorithm listed as the default
+                  availableAlgorithmList:this.state.algorithmsByModelList[value]},
+                  function() {
+                    console.log(this.state.availableAlgorithmList)
+                    this.setState({algorithmValue: this.state.availableAlgorithmList["0"].props.value})
+                  }.bind(this)) // always use the first algorithm listed as the default
   },
   onChangeLambda: function(event) {
     this.setState({lambda : event.target.value})
@@ -341,7 +346,7 @@ const GMRunAnalysisDialog = React.createClass({
                 <SelectField
                   value={this.state.modelValue}
                   hintText='Choose Model Type'
-                  errorText={!this.state.modelValue && errorText}
+                  errorText={this.state.modelValue === '' && errorText}
                   onChange={this.onChangeModel}
                 >
                 {modelList}
@@ -356,27 +361,27 @@ const GMRunAnalysisDialog = React.createClass({
               </div>
               {(this.state.showAdvancedOptions) ?
                 <div id='advancedOptionsDiv'>
-                  {(this.state.modelValue == 1) ?
+                  {(this.state.modelValue == 0) ?
                     <div><div>L1 Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                      <div>L2 Lambda: <input type="number" value={this.state.lambdal2} onChange={this.onChangeLambdaL2}/></div><br/>
                     </div> : 
-                  (this.state.modelValue == 2) ? 
+                  (this.state.modelValue == 1) ? 
                     <div><p>Lasso.cpp not implemented?</p></div> :
-                  (this.state.modelValue == 3) ? 
+                  (this.state.modelValue == 2) ? 
                     <div><div>L1 Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                          <div>L2 Lambda: <input type="number" value={this.state.lambdal2} onChange={this.onChangeLambdaL2}/></div><br/>
                          <div>Mu: <input type="number" value={this.state.mu} onChange={this.onChangeMu}/></div>
                     </div> :
-                  (this.state.modelValue == 4) ?
+                  (this.state.modelValue == 3) ?
                     <div><div>Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                          <div>Gamma: <input type="number" value={this.state.gamma} onChange={this.onChangeGamma}/></div>
                     </div>  :
-                  (this.state.modelValue == 5) ? 
+                  (this.state.modelValue == 4) ? 
                     <div><div>Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                          <div>Gamma: <input type="number" value={this.state.gamma} onChange={this.onChangeGamma}/></div><br/>
                          <div>Mu: <input type="number" value={this.state.mu} onChange={this.onChangeMu}/></div>
                     </div>  :
-                  (this.state.modelValue == 6) ? 
+                  (this.state.modelValue == 5) ? 
                     <div><div>Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                       <div>Mu: <input type="number" value={this.state.mu} onChange={this.onChangeMu}/></div><br/>
                       <div>Threshold: <input type="number" value={this.state.threshold} onChange={this.onChangeThreshold}/></div>
@@ -399,7 +404,7 @@ const GMRunAnalysisDialog = React.createClass({
                     <SelectField
                       value={this.state.algorithmValue}
                       hintText='Choose Algorithm Type'
-                      errorText={!this.state.algorithmValue && errorText}
+                      errorText={this.state.algorithmValue == '' && errorText}
                       onChange={this.onChangeAlgorithm}
                     >
                     {this.state.availableAlgorithmList}
@@ -409,7 +414,7 @@ const GMRunAnalysisDialog = React.createClass({
                     </select>
                   </div>
                   <div id='algorithmOptionsDiv'>
-                    {(this.state.algorithmValue == 1) ? // Brent Search
+                    {(this.state.algorithmValue == 0) ? // Brent Search
                       <div>
                         <div>Search Start: <input type="number" value={this.state.a} onChange={this.onChangeA}/></div><br/>
                         <div>Search End: <input type="number" value={this.state.b} onChange={this.onChangeB}/></div><br/>
@@ -419,19 +424,19 @@ const GMRunAnalysisDialog = React.createClass({
                         <div>t: <input type="number" value={this.state.t} onChange={this.onChangeT}/></div><br/>
                         <div>Delta: <input type="number" value={this.state.delta} onChange={this.onChangeDelta}/></div>
                       </div> : 
-                    (this.state.algorithmValue == 2) ? // Proximal Gradient Descent
+                    (this.state.algorithmValue == 1) ? // Proximal Gradient Descent
                       <div>
                         <div>Learning Rate: <input type="number" value={this.state.learning_rate} onChange={this.onChangeLearningRate}/></div><br/>
                         <div>Inner Learning Rate: <input type="number" value={this.state.learning_rate2} onChange={this.onChangeLearningRate2}/></div><br/>
                         <div>Tolerance: <input type="number" value={this.state.tolerance} onChange={this.onChangeTolerance}/></div>
                       </div> :
-                    (this.state.algorithmValue == 3) ? // Grid Search
+                    (this.state.algorithmValue == 2) ? // Grid Search
                       <div>
                         <div>Start: <input type="number" value={this.state.lambda_start_point} onChange={this.onChangeLambdaStartPoint}/></div><br/>
                         <div>End: <input type="number" value={this.state.lambda_end_point} onChange={this.onChangeLambdaEndPoint}/></div><br/>
                         <div>Interval: <input type="number" value={this.state.lambda_interval} onChange={this.onChangeLambdaInterval}/></div>
                       </div> :
-                    (this.state.algorithmValue == 4) ? // Iterative Update
+                    (this.state.algorithmValue == 3) ? // Iterative Update
                       <div>
                         <div>Tolerance: <input type="number" value={this.state.tolerance} onChange={this.onChangeTolerance}/></div>
                       </div> :
