@@ -161,15 +161,12 @@ const GMRunAnalysisDialog = React.createClass({
     this.setState({traitValue: value})
   },
   onChangeModel: function (event, index, value) {
-    console.log(value)
-    console.log(this.state.algorithmsByModelList)
     this.setState({modelValue: value,
                   showAdvancedOptionsButton: true,
-                  availableAlgorithmList:this.state.algorithmsByModelList[value]},
-                  function() {
-                    console.log(this.state.availableAlgorithmList)
+                  availableAlgorithmList: this.state.algorithmsByModelList[value]},
+                  function() { // always use the algorithm listed first as the default
                     this.setState({algorithmValue: this.state.availableAlgorithmList["0"].props.value})
-                  }.bind(this)) // always use the first algorithm listed as the default
+                  }.bind(this)) 
   },
   onChangeLambda: function(event) {
     this.setState({lambda : event.target.value})
