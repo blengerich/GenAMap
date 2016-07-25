@@ -29,10 +29,9 @@ public:
     bool getIsRunning();
     int getMaxIteration();
     void stop();
-    
-    virtual void run(Model*){};
-    
 
+    virtual void assertReadyToRun(){};
+    virtual void run(Model*){};
 
     virtual ~Algorithm(){};
 };

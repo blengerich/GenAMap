@@ -75,6 +75,11 @@ void ProximalGradientDescent::setInnerStep2(long d) {
     innerStep2 =d;
 }
 
+void ProximalGradientDescent::assertReadyToRun() {
+    throw runtime_error("Test Exception from PGD");
+}
+
+
 void ProximalGradientDescent::setUpRun() {
     isRunning = true;
     progress = 0.0;
@@ -105,7 +110,7 @@ void ProximalGradientDescent::run(Model *model) {
 }
 
 void ProximalGradientDescent::run(Gflasso * model) {
-    
+    setUpRun();
     int epoch = 0;
     double residue = model->cost();
     double theta = 1;
@@ -146,9 +151,16 @@ void ProximalGradientDescent::run(Gflasso * model) {
     }
     cout<<endl;
     model->updateBeta(best_beta);
+    finishRun();
 }
 
 void ProximalGradientDescent::run(LinearRegression *model) {
+    try {
+        assertReadyToRun();
+        model->assertReadyToRun();
+    } catch (const exception& e) {
+        rethrow_exception(current_exception());
+    }
     setUpRun();
     int epoch = 0;
     MatrixXd y = model->getY();
@@ -255,6 +267,12 @@ void ProximalGradientDescent::run(MultiPopLasso * model) {
 }
 
 void ProximalGradientDescent::run(AdaMultiLasso *model) {
+    /*try {
+        assertReadyToRun();
+        model->assertReadyToRun();
+    } catch (const exception& e) {
+        rethrow_exception(e);
+    }*/
     // this is not just proximal gradient descent, also including iteratively updating beta and w, v
     setUpRun();
     model->initTraining();

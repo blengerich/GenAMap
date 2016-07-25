@@ -57,6 +57,7 @@ public:
     void setPrevResidule(float);
     void setInnerStep1(long);
     void setInnerStep2(long);
+    void assertReadyToRun();
 
     void run(Model*);
     void run(LinearRegression*);

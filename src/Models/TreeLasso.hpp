@@ -97,6 +97,7 @@ public:
     void setLambda(double);
     void setMu(double);
     void initBeta();
+    void assertReadyToRun();
 
     void initIterativeUpdate();
     void initGradientUpdate();

@@ -80,6 +80,7 @@ public:
     void setXY(MatrixXd, MatrixXd);
     void initBeta();
 
+    void assertReadyToRun();
     void initTraining();
     MatrixXd proximal_derivative();
     MatrixXd proximal_operator(MatrixXd, float);

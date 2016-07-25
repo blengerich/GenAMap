@@ -28,6 +28,9 @@ private:
     static constexpr float default_L1_reg = 0;
     static constexpr float default_L2_reg = 0;
 public:
+    LinearRegression();
+    LinearRegression(const unordered_map<string, string>& options);
+
     void setL1_reg(float);
     void setL2_reg(float);
 
@@ -40,8 +43,7 @@ public:
     MatrixXd proximal_derivative();
     MatrixXd proximal_operator(VectorXd, float);
 
-    LinearRegression();
-    LinearRegression(const unordered_map<string, string>& options);
+    void assertReadyToRun();
 
     void updateBetaAll(MatrixXd);
     MatrixXd getBetaAll();

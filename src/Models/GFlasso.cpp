@@ -100,6 +100,11 @@ MatrixXd Gflasso::get_Y(){
 MatrixXd Gflasso::get_beta() {
     return beta;
 }
+
+void Gflasso::assertReadyToRun() {
+    throw runtime_error("Gflasso not implemented");
+}
+
 // Training functions : X,Y and other parameters
 void Gflasso::train(){
     std::cout << " Error : No Training Parameters are provided. Cannot perform GFLasso regression !" << std::endl;

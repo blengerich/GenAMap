@@ -28,7 +28,8 @@ public:
 
     MatrixXd predict();
     MatrixXd predict(MatrixXd);
-
+    
+    virtual void assertReadyToRun();
     virtual MatrixXd derivative();
     virtual MatrixXd proximal_derivative();
     virtual MatrixXd proximal_operator(MatrixXd, float);

@@ -51,10 +51,14 @@ public :
     //Constructor to initialize the correlation graph and the
     //regularisation parameters
     Gflasso();
+
     // Only regularization params are given
     Gflasso(double,double);
     // Regularization params along with corr coff. graph
     Gflasso(MatrixXd,double,double);
+    Gflasso(const unordered_map<string, string>&);
+
+    void assertReadyToRun();
 
     // Methods to set and get various input variables of GFLASSO
     void train();
@@ -101,8 +105,6 @@ public :
 
     // Lipschitz Constant
     float getL();
-
-    Gflasso(const unordered_map<string, string>&);
 };
 
 

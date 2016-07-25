@@ -188,19 +188,31 @@ void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 // Handles packaging of algorithm results to return to the frontend.
 // Called by libuv in event loop when async training completes.
 void trainAlgorithmComplete(uv_work_t* req, int status) {
+	cerr << status;
 	// Runs in event loop when algorithm completes.
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope handleScope(isolate);
 
 	Job_t* job = static_cast<Job_t*>(req->data);
-	
-	// Pack up the data to be returned to JS
-	const MatrixXd& result = job->model->getBeta();
 	Local<v8::Array> obj = v8::Array::New(isolate);
-	// TODO: Fewer convserions to return a matrix [Issue: https://github.com/blengerich/GenAMap_V2/issues/17]
-	obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
+
+	// If the job failed, the first argument says "Error", the second is the exception text.
+	if (job->exception) {
+		obj->Set(0, v8::String::NewFromUtf8(isolate, "Error"));
+		try {
+			rethrow_exception(job->exception);
+		} catch(const exception& e) {
+			obj->Set(1, v8::String::NewFromUtf8(isolate, e.what()));	
+		}
+	} else {
+		// Pack up the data to be returned to JS
+		const MatrixXd& result = job->model->getBeta();
+		// TODO: Fewer convserions to return a matrix [Issue: https://github.com/blengerich/GenAMap_V2/issues/17]
+		obj->Set(0, v8::String::NewFromUtf8(isolate, "Result"));
+		obj->Set(1, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));	
+	}
+	
 	Handle<Value> argv[] = { obj };
- 
 	// execute the callback
 	Local<Function>::New(isolate, job->callback)->Call(
 		isolate->GetCurrentContext()->Global(), 1, argv);

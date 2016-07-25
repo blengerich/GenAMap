@@ -24,7 +24,7 @@ public:
     IterativeUpdate(const unordered_map<string, string>&);
 
     void setTolerance(double);
-
+    void assertReadyToRun();
     void run(TreeLasso*);
     void stop();
 };

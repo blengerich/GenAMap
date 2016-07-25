@@ -108,6 +108,10 @@ void TreeLasso::setXY(MatrixXd m, MatrixXd n) {
     initBeta();
 }
 
+void TreeLasso::assertReadyToRun() {
+    throw runtime_error("TreeLasso not implemented yet");
+}
+
 void TreeLasso::initIterativeUpdate(){
     XX = X.transpose()*X;
 }

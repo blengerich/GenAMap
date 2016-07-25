@@ -4,6 +4,8 @@
 
 #include "AdaMultiLasso.hpp"
 
+//#include <exception>
+#include <stdexcept>
 #include <unordered_map>
 
 using namespace std;
@@ -214,6 +216,11 @@ double AdaMultiLasso::penalty_cost() {
     return result;
 }
 
+
+void AdaMultiLasso::assertReadyToRun() {
+    throw runtime_error("AdaMultiLasso not implemented");
+    //return (X.rows > 0 && X.rows == y.rows);
+}
 
 void AdaMultiLasso::initTraining() {
     if (!initTrainingFlag){

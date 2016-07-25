@@ -62,6 +62,7 @@ public:
     MatrixXd predict();
     MatrixXd predict(MatrixXd);
     MatrixXd predict(MatrixXd, VectorXd);
+    void assertReadyToRun();
     void initTraining();
 
     MatrixXd proximal_derivative();

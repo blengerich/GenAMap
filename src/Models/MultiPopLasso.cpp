@@ -41,6 +41,10 @@ double MultiPopLasso::groupPenalization() {
     return r;
 }
 
+void MultiPopLasso::assertReadyToRun() {
+    throw runtime_error("MultiPopLasso not implemented");
+}
+
 void MultiPopLasso::initTraining() {
     if (!initTrainingFlag){
         initTrainingFlag = true;

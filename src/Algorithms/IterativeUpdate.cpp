@@ -18,6 +18,10 @@ IterativeUpdate::IterativeUpdate(const unordered_map<string, string>& options) {
 
 void IterativeUpdate::setTolerance(double t) {tol = t;}
 
+void IterativeUpdate::assertReadyToRun() {
+    throw runtime_error("Iterative Update not implemented yet");
+}
+
 void IterativeUpdate::run(TreeLasso* tl) {
     double i = 0;
     MatrixXd bestBeta = tl->getBeta();

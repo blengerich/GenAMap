@@ -79,6 +79,10 @@ long LinearMixedModel::get_num_samples() {
     return this->X.rows();
 }
 
+void LinearMixedModel::assertReadyToRun() {
+    throw runtime_error("LinearMixedModel not implemented");
+}
+
 // Decomposition of Similarity Matrix ->
 // K = U*S*transpose(U)
 void LinearMixedModel::decomposition() {
