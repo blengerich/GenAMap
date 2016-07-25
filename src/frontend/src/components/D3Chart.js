@@ -29,6 +29,8 @@ function getRandomInt(min, max) {
 }
 
 var Graph = function(data, markerLabels, traitLabels) {
+  d3.select('#chart').selectAll('svg').remove()
+
   /************************************
   *** visualization setup functions ***
   ************************************/
@@ -387,7 +389,7 @@ var Graph = function(data, markerLabels, traitLabels) {
   var overlayCellHeight = 5;
 
   /* Some minimap code */
-  var svgGraphic = d3.select("body")
+  var svgGraphic = d3.select("#chart")
                       .append("svg")
                         .attr("class", "minimap")
                         .attr("width", overlayMapWidth)
@@ -443,8 +445,7 @@ var Graph = function(data, markerLabels, traitLabels) {
 
 var D3Chart = React.createClass({
   validateNewProps: function(nextProps) {
-    return (!this.props.data || !this.props.markerLabels || !this.props.traitLabels)
-          && (!!nextProps.data && !!nextProps.markerLabels && !!nextProps.traitLabels)
+    return (this.props.pageParams !== nextProps.pageParams)
   },
   componentWillReceiveProps: function(nextProps) {
     if (this.validateNewProps(nextProps)) {

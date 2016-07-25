@@ -26,24 +26,32 @@ const GMMatrixVisualization = React.createClass({
       }
     }
 
+    const vizData = { }
     return fetch(`${config.api.dataUrl}/${params.resultId}`, dataRequest)
     .then(response => {
       if (!response.ok) Promise.reject(response.json())
       return response.json()
     }).then(json => {
+      vizData.data = JSON.parse(json.data)
       this.setState({ data: JSON.parse(json.data) })
       return fetch(`${config.api.dataUrl}/${params.markerLabelId}`, dataRequest)
     }).then(response => {
       if (!response.ok) Promise.reject(response.json())
       return response.json()
     }).then(json => {
-      this.setState({ markerLabels: json.data.split('\n').filter(line => line.length > 0) })
+      vizData.markerLabels = json.data.split('\n').filter(line => line.length > 0)
       return fetch(`${config.api.dataUrl}/${params.traitLabelId}`, dataRequest)
     }).then(response => {
       if (!response.ok) Promise.reject(response.json())
       return response.json()
     }).then(json => {
-      this.setState({ traitLabels: json.data.split('\n').filter(line => line.length > 0) })
+      vizData.traitLabels = json.data.split('\n').filter(line => line.length > 0)
+      this.setState({
+        data: vizData.data,
+        markerLabels: vizData.markerLabels,
+        traitLabels: vizData.traitLabels,
+        pageParams: params
+      })
       return json
     }).catch(err => console.log(err))
 
@@ -83,6 +91,7 @@ const GMMatrixVisualization = React.createClass({
             data={this.state.data}
             markerLabels={this.state.markerLabels}
             traitLabels={this.state.traitLabels}
+            pageParams={this.state.pageParams}
             threshold={this.state.correlationThreshold}
             zoom={this.state.zoomEnabled}
           />
