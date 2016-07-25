@@ -3,11 +3,11 @@ var expect = require('chai').expect;
 var backend = require('../../Scheduler/node/build/Release/scheduler.node');
 
 describe('Scheduler', function() {
-	var alg_opts = {'type': 2,
+	var alg_opts = {'type': 1,
 				'options': {'tolerance': 0.01, 'learning_rate': 0.1}};
 	var bad_alg_opts = {'type': 10,
 				'options': {'tolerance': 0.01, 'learning_rate': 0.1}};
-	var model_opts = {'type': '1',
+	var model_opts = {'type': '0',
 				'options': {'lambda': 0.05, 'L2_lambda': 0.01}};
 	var bad_model_opts = {'type': 8,
 				'options': {'lambda': 0.05, 'L2_lambda': 0.01}}
