@@ -161,8 +161,6 @@ const GMRunAnalysisDialog = React.createClass({
     this.setState({traitValue: value})
   },
   onChangeModel: function (event, index, value) {
-    console.log(value)
-    console.log(this.state.algorithmsByModelList)
     this.setState({modelValue: value,
                   showAdvancedOptionsButton: true,
                   availableAlgorithmList: this.state.algorithmsByModelList[value]},

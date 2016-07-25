@@ -126,7 +126,6 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 				break;
 			}
 			case linear_regression: {
-				cerr << "creating lin reg" << endl;
 				models_map[id] = unique_ptr<LinearRegression>(new LinearRegression(options.options));
 				break;
 			}
@@ -151,9 +150,6 @@ bool Scheduler::setX(const int job_id, const Eigen::MatrixXd& X) {
 	if (getJob(job_id) && getJob(job_id)->model) {
 		getJob(job_id)->model->setX(X);
 		return true;
-		/*} else {
-			cerr << "Cannot set X matrix (check compatible dimensions)" << endl;
-		}*/
 	}
 	return false;
 }
@@ -163,9 +159,6 @@ bool Scheduler::setY(const int job_id, const Eigen::MatrixXd& Y) {
 	if (getJob(job_id) && getJob(job_id)->model) {
 		getJob(job_id)->model->setY(Y);
 		return true;
-		/*} else  {
-			cerr << "Cannot set Y matrix (check compatible dimensions)" << endl;
-		}*/
 	}
 	return false;
 }
