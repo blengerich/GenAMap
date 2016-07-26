@@ -267,12 +267,12 @@ void ProximalGradientDescent::run(MultiPopLasso * model) {
 }
 
 void ProximalGradientDescent::run(AdaMultiLasso *model) {
-    /*try {
+    try {
         assertReadyToRun();
         model->assertReadyToRun();
     } catch (const exception& e) {
-        rethrow_exception(e);
-    }*/
+        rethrow_exception(current_exception());
+    }
     // this is not just proximal gradient descent, also including iteratively updating beta and w, v
     setUpRun();
     model->initTraining();
@@ -334,7 +334,7 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
             best_beta = beta;
         }
         diff = abs(prev_residue - residue);
-        cout << "epoch: " << epoch << "\t" << "residue: " << residue << endl;
+        cerr << "epoch: " << epoch << "\t" << "residue: " << residue << endl;
 //        cout << "--------"<<endl;
 //        cout << beta << endl;
 //        cout << "--------"<<endl;

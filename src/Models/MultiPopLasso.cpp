@@ -3,12 +3,16 @@
 //
 
 #include <limits>
+#include <stdexcept>
 
 #ifdef BAZEL
 #include "Models/MultiPopLasso.hpp"
 #else
 #include "MultiPopLasso.hpp"
 #endif
+
+using namespace std;
+using namespace Eigen;
 
 void MultiPopLasso::setXY(MatrixXd m, MatrixXd n) {
     X = m;

@@ -17,6 +17,8 @@
 #include "Model.hpp"
 #endif
 
+using namespace Eigen;
+using namespace std;
 
 class AdaMultiLasso : public Model{
 private:

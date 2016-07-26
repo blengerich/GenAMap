@@ -4,11 +4,12 @@
 
 #include "AdaMultiLasso.hpp"
 
-//#include <exception>
+#include <Eigen/Dense>
 #include <stdexcept>
 #include <unordered_map>
 
 using namespace std;
+using namespace Eigen;
 
 AdaMultiLasso::AdaMultiLasso() {
     lambda1 = default_lambda1;

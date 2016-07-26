@@ -4,7 +4,7 @@
 
 #include "LinearRegression.hpp"
 #include <Eigen/Dense>
-#include <exception>
+#include <stdexcept>
 #include <iostream>
 #include <unordered_map>
 

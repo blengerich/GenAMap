@@ -2,9 +2,12 @@
 // Created by aditya gautam on 2/22/16.
 //
 #include "GFlasso.h"
-#include <unordered_map>
-#include <iostream>
 
+#include <iostream>
+#include <stdexcept>
+#include <unordered_map>
+
+using namespace std;
 using namespace Eigen;
 
 // Constructors with different parameters provided

@@ -9,7 +9,7 @@
 #include "Scheduler.hpp"
 
 #include <Eigen/Dense>
-#include <exception>
+#include <stdexcept>
 #include <iostream>
 #include <memory>
 #include <node.h>
@@ -147,7 +147,7 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 
 
 bool Scheduler::setX(const int job_id, const Eigen::MatrixXd& X) {
-	if (getJob(job_id) && getJob(job_id)->model) {
+	if (ValidJobId(job_id) && getJob(job_id)->model) {
 		getJob(job_id)->model->setX(X);
 		return true;
 	}
@@ -156,7 +156,7 @@ bool Scheduler::setX(const int job_id, const Eigen::MatrixXd& X) {
 
 
 bool Scheduler::setY(const int job_id, const Eigen::MatrixXd& Y) {
-	if (getJob(job_id) && getJob(job_id)->model) {
+	if (ValidJobId(job_id) && getJob(job_id)->model) {
 		getJob(job_id)->model->setY(Y);
 		return true;
 	}
@@ -178,13 +178,13 @@ int Scheduler::newJob(const JobOptions_t& options) {
 				jobs_map[my_job->job_id] = unique_ptr<Job_t>(my_job);
 				return job_id;
 			} else {
-				cerr << "error creating model" << endl;
+				throw runtime_error("Error creating model");
 			}
 		} else {
-			cerr << "error creating algorithm" << endl;
+			throw runtime_error("Error creating algorithm");
 		}
 	} else {
-		cerr << "could not get a new job id (queue may be full)" << endl;
+		throw runtime_error("could not get a new job id (queue may be full)");
 	}
 
 	delete my_job;
@@ -192,32 +192,24 @@ int Scheduler::newJob(const JobOptions_t& options) {
 }
 
 
-/*bool Scheduler::checkJobReadyToRun(const int job_id) {
+bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) {
 	if (!ValidJobId(job_id)) {
+		throw runtime_error("Job id must correspond to a job that has been created.");
 		return false;
 	}
 	Job_t* job = getJob(job_id);
-	return (job->model->checkReadyToRun() && job->algorithm->checkReadyToRun);
-}*/
 
-
-bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) {
-	/*if (!ValidJobId(job_id) || !checkJobReadyToRun(job_id)) {
-		return false;
-	}*/
-
-	Job_t* job = getJob(job_id);
-
-	if (!job) { // TODO: turn these into exceptions
-		cerr << "Job must not be null" << endl;
+	if (!job) {
+		throw runtime_error("Job must not be null.");
 		return false;
 	} else if (!job->algorithm || !job->model) {
-		cerr << "Job must have an algorithm and a model" << endl;
+		throw runtime_error("Job must have an algorithm and a model.");
 		return false;
 	} else if (job->algorithm->getIsRunning()) {
-		cerr << "Job already running" << endl;
+		throw runtime_error("Job is already running.");
 		return false;
 	}
+	cerr << job->algorithm->getIsRunning() << endl;
 	job->request.data = job;
 	uv_queue_work(uv_default_loop(), &(job->request), trainAlgorithmThread, completion);
 	usleep(10);	// TODO: fix this rare race condition (stopping job before the worker thread has started is bad) in a better way? [Issue: https://github.com/blengerich/GenAMap_V2/issues/27]
@@ -229,22 +221,18 @@ bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) 
 void trainAlgorithmThread(uv_work_t* req) {
 	Job_t* job = static_cast<Job_t*>(req->data);
 	if (!job) {
-		cerr << "Job must not be null" << endl;
-		return;
-	} else if (!job->algorithm || !job->model) {
-		cerr << "Job must have an algorithm and a model" << endl;
+		throw runtime_error("Job must not be null");
 		return;
 	}
 
 	// TODO: as more algorithm/model types are created, add them here. [Issue: https://github.com/blengerich/GenAMap_V2/issues/25]
 	try {
+		if (!job->algorithm || !job->model) {
+			throw runtime_error("Job must have an algorithm and a model");
+		}
 		if (BrentSearch* alg = dynamic_cast<BrentSearch*>(job->algorithm)) {
 			if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
-				try {
-					alg->run(model);
-				} catch (const exception &ex) {
-					job->exception = current_exception();
-				}
+				alg->run(model);
 			} else {
 				throw runtime_error("Requested algorithm Brent Search does not run on the requested model type");
 			}
@@ -252,40 +240,32 @@ void trainAlgorithmThread(uv_work_t* req) {
 			if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
 				alg->run(model);
 			} else {
-				cerr << "Requested algorithm GridSearch does not run on the requested model type" << endl;
+				throw runtime_error("Requested algorithm GridSearch does not run on the requested model type");
 			}
 		} else if (IterativeUpdate* alg = dynamic_cast<IterativeUpdate*>(job->algorithm)) {
 			if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 				alg->run(model);	
 			} else {
-				cerr << "Requested model type not implemented" << endl;
+				throw runtime_error("Requested algorithm IterativeUpdate does not run on the requested model type");
 			}
 		} else if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
 		    if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
-		    	try {
-		        	alg->run(model);
-		        } catch (const exception& ex) {
-		        	job->exception = current_exception();
-		        }
+	        	alg->run(model);
 		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
-		    	try {
-		        	alg->run(model);
-		        } catch (const exception& ex) {
-		        	job->exception = current_exception();
-		        }
+	        	alg->run(model);
 		    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
-		        	alg->run(model);
+	        	alg->run(model);
 		    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
-		    		alg->run(model);
+	    		alg->run(model);
 		    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
-		    		alg->run(model);
+	    		alg->run(model);
 		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 	    		alg->run(model);
 		    } else {
-		        cerr << "Requested algorithm ProximalGradientDescent does not run on the requested model type" << endl;
+		    	throw runtime_error("Requested algorithm ProximalGradientDescent does not run on the requested model type");
 		    }
 		} else {
-			cerr << "Requested algorithm type not implemented" << endl;
+			throw runtime_error("Requested algorithm type not implemented");
 		}
 	} catch (const exception& ex) {
 		job->exception = current_exception();
@@ -360,7 +340,11 @@ Model* Scheduler::getModel(const int model_id) {
 
 
 Job_t* Scheduler::getJob(const int job_id) {
-	return ValidJobId(job_id) ? jobs_map[job_id].get() : NULL;
+	if (ValidJobId(job_id)) {
+		return jobs_map[job_id].get();
+	}
+	throw runtime_error("Job ID does not match any jobs.");
+	return NULL;
 }
 
 

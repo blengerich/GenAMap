@@ -18,6 +18,7 @@
 
 
 using namespace std;
+using namespace Eigen;
 
 class MultiPopLasso : public Model {
 private:

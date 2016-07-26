@@ -5,12 +5,14 @@
 #ifndef ALGORITHMS_TREELASSO_HPP
 #define ALGORITHMS_TREELASSO_HPP
 
-#include <vector>
-#include <iostream>
 #include "Model.hpp"
+
+#include <iostream>
 #include <unordered_map>
+#include <vector>
 
 using namespace std;
+using namespace Eigen;
 
 struct treeNode{
     vector<long> trait;

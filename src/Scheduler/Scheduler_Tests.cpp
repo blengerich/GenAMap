@@ -18,7 +18,7 @@
 #include "Models/ModelOptions.hpp"
 
 using namespace std;
-
+using namespace Eigen;
 
 class SchedulerTest : public testing::Test {
 protected:

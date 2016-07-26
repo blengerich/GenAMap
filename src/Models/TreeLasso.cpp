@@ -4,8 +4,13 @@
 
 #include "TreeLasso.hpp"
 #include <limits>
-#include <queue>
 #include <stack>
+#include <stdexcept>
+#include <queue>
+
+using namespace std;
+using namespace Eigen;
+
 
 Tree::Tree() {
     root = 0;

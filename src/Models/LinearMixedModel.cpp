@@ -6,6 +6,9 @@
  */
 #include "LinearMixedModel.hpp"
 
+#include <stdexcept>
+
+using namespace std;
 using namespace Eigen;
 
 LinearMixedModel::LinearMixedModel() {
