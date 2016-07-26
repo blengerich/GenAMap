@@ -6,7 +6,6 @@
 #define ALGORITHMS_ALGORITHM_HPP
 
 #include <unordered_map>
-#include <iostream>
 
 #ifdef BAZEL
 #include "Models/Model.hpp"
@@ -33,7 +32,7 @@ public:
     void stop();
 
     virtual void assertReadyToRun(){};
-    virtual void run(Model*) = 0;//{cerr << "running algorithm base on model base" << endl;};
+    virtual void run(Model*);
     virtual void setUpRun(){};
     virtual void finishRun(){};
 

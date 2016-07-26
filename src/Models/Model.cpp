@@ -44,9 +44,7 @@ Model::Model(MatrixXd X, VectorXd y) {
     initBeta();
 }
 
-Model::Model(const unordered_map<string, string>& opts) {
-
-}
+Model::Model(const unordered_map<string, string>& opts) {}
 
 MatrixXd Model::derivative() {
     return VectorXd::Random(1);

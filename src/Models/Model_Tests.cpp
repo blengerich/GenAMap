@@ -2,9 +2,7 @@
 // Created by haohanwang on 2/20/16.
 //
 
-
 #include "gtest/gtest.h"
-#include <stdio.h>
 #include <queue>
 
 #include "Model.hpp"

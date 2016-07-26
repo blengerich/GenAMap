@@ -26,7 +26,6 @@ public:
 
     void setTolerance(double);
     void assertReadyToRun();
-    void run(Model*);
     void run(TreeLasso*);
     void stop();
 };

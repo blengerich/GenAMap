@@ -44,9 +44,6 @@ private:
     static constexpr double default_learning_rate2 = 0.001;
     static constexpr double default_tolerance = 0.000001;
 
-    //void runDispenser(Model*);
-
-
 public:
     ProximalGradientDescent();
     ProximalGradientDescent(const unordered_map<string, string>&);

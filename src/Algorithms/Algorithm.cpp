@@ -2,29 +2,14 @@
 // Created by haohanwang on 1/24/16.
 //
 
+#include "Algorithm.hpp"
+
 #include <stdexcept>
-#include <iostream>
 
 #ifdef BAZEL
-#include "Algorithms/Algorithm.hpp"
-#include "Models/AdaMultiLasso.hpp"
-#include "Models/GFlasso.h"
-#include "Models/LinearMixedModel.hpp"
-#include "Models/LinearRegression.hpp"
 #include "Models/Model.hpp"
-#include "Models/MultiPopLasso.hpp"
-#include "Models/SparseLMM.h"
-#include "Models/TreeLasso.hpp"
 #else
-#include "../Algorithms/Algorithm.hpp"
-#include "../Models/AdaMultiLasso.hpp"
-#include "../Models/GFlasso.h"
-#include "../Models/LinearMixedModel.hpp"
-#include "../Models/LinearRegression.hpp"
 #include "../Models/Model.hpp"
-#include "../Models/MultiPopLasso.hpp"
-#include "../Models/SparseLMM.h"
-#include "../Models/TreeLasso.hpp"
 #endif
 
 using namespace std;
@@ -54,4 +39,8 @@ bool Algorithm::getIsRunning() {
 
 void Algorithm::stop() {
 	shouldStop = true;
+}
+
+void Algorithm::run(Model* model) {
+	throw runtime_error("This algorithm is not implemented for the selected model.");
 }

@@ -62,22 +62,21 @@ void newJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
 	const JobOptions_t& options = JobOptions_t(isolate, options_v8);
-	int id;
 	try {
-		id = Scheduler::Instance()->newJob(options);
+		const int id = Scheduler::Instance()->newJob(options);
+		if (id < 0) {
+			isolate->ThrowException(Exception::Error(
+				String::NewFromUtf8(isolate, "Could not add another job")));
+			return;
+		}
+
+		Local<Integer> retval = Integer::New(isolate, id);
+		args.GetReturnValue().Set(retval);
 	} catch (const exception& e) {
 		isolate->ThrowException(Exception::Error(
 			String::NewFromUtf8(isolate, e.what())));
 		return;
 	}
-	if (id < 0) {
-		isolate->ThrowException(Exception::Error(
-			String::NewFromUtf8(isolate, "Could not add another job")));
-		return;
-	}
-
-	Local<Integer> retval = Integer::New(isolate, id);
-	args.GetReturnValue().Set(retval);
 }
 
 
@@ -223,8 +222,6 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 	} catch(const exception& e) {
 		// If the job failed, the second entry in the array is the exception text.
 		// Is this really a good way to return data? It is different than the result from getJobResult()
-		//obj->Set(0, v8::String::NewFromUtf8(isolate, "Error"));
-		//obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(MatrixXd()).c_str()));	
 		obj->Set(1, v8::String::NewFromUtf8(isolate, e.what()));	
 	}
 	

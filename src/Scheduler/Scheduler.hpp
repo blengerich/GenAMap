@@ -47,9 +47,6 @@ public:
 	bool setY(const int, const Eigen::MatrixXd&);
 	// returns true on success, false otherwise.
 
-	/*bool checkJobReadyToRun(const int);*/
-	// Returns true if the job has all parameters set and is ready to run.
-	
 	bool startJob(const int, void (*f)(uv_work_t*, int));
 	// Returns true if successfully queued, false otherwise.
 

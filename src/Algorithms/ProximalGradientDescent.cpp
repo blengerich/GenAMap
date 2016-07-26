@@ -99,7 +99,6 @@ void ProximalGradientDescent::finishRun() {
     progress = 1.0;
 }
 
-
 void ProximalGradientDescent::run(Model *model) {
     cerr << "The algorithm for this specific model is not implemented, runs on basic model"<<endl;    
     int epoch = 0;

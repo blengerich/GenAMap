@@ -3,6 +3,7 @@
 //
 
 #include "LinearRegression.hpp"
+
 #include <Eigen/Dense>
 #include <stdexcept>
 #include <iostream>

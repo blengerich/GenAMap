@@ -39,9 +39,7 @@ private :
     static constexpr double default_t = 0.0;
     static constexpr double default_delta = 0.5; // Default window size = 1
 
-
 public :
-
     BrentSearch();
     BrentSearch(const unordered_map<string, string>&);
 
@@ -72,7 +70,6 @@ public :
     void run(Model* model);
     // Run LLM model object pointer
     void run(LinearMixedModel *);
-    
 };
 
 #endif
