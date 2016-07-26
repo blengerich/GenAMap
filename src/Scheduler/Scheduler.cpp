@@ -209,7 +209,13 @@ bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) 
 		throw runtime_error("Job is already running.");
 		return false;
 	}
-	cerr << job->algorithm->getIsRunning() << endl;
+	try {
+		job->algorithm->assertReadyToRun();
+		job->model->assertReadyToRun();
+	} catch (const exception& ex) {
+		job->exception = current_exception();	// Must save the exception so that it can be passed between threads.
+		return false;
+	}
 	job->request.data = job;
 	uv_queue_work(uv_default_loop(), &(job->request), trainAlgorithmThread, completion);
 	usleep(10);	// TODO: fix this rare race condition (stopping job before the worker thread has started is bad) in a better way? [Issue: https://github.com/blengerich/GenAMap_V2/issues/27]
@@ -230,45 +236,80 @@ void trainAlgorithmThread(uv_work_t* req) {
 		if (!job->algorithm || !job->model) {
 			throw runtime_error("Job must have an algorithm and a model");
 		}
+		job->algorithm->assertReadyToRun();
+		job->model->assertReadyToRun();
+		job->algorithm->setUpRun();
+		// Object slicing makes this annoying
 		if (BrentSearch* alg = dynamic_cast<BrentSearch*>(job->algorithm)) {
-			if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
-				alg->run(model);
-			} else {
-				throw runtime_error("Requested algorithm Brent Search does not run on the requested model type");
-			}
-		} else if (GridSearch* alg = dynamic_cast<GridSearch*>(job->algorithm)) {
-			if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
-				alg->run(model);
-			} else {
-				throw runtime_error("Requested algorithm GridSearch does not run on the requested model type");
-			}
-		} else if (IterativeUpdate* alg = dynamic_cast<IterativeUpdate*>(job->algorithm)) {
-			if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
-				alg->run(model);	
-			} else {
-				throw runtime_error("Requested algorithm IterativeUpdate does not run on the requested model type");
-			}
-		} else if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
-		    if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
-	        	alg->run(model);
+			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+		        alg->run(model);
 		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
-	        	alg->run(model);
+		        alg->run(model);
 		    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
-	        	alg->run(model);
+		        alg->run(model);
 		    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
-	    		alg->run(model);
+		        alg->run(model);
 		    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
-	    		alg->run(model);
+		        alg->run(model);
 		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
-	    		alg->run(model);
+		        alg->run(model);
 		    } else {
-		    	throw runtime_error("Requested algorithm ProximalGradientDescent does not run on the requested model type");
+		        throw runtime_error("Requested model type not implemented");
+		    }
+		} else if (GridSearch* alg = dynamic_cast<GridSearch*>(job->algorithm)) {
+			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+		        alg->run(model);
+		    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
+		        alg->run(model);
+		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+		        alg->run(model);
+		    } else {
+		        throw runtime_error("Requested model type not implemented");
+		    }
+		} else if (IterativeUpdate* alg = dynamic_cast<IterativeUpdate*>(job->algorithm)) {
+			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+		        alg->run(model);
+		    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
+		        alg->run(model);
+		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+		        alg->run(model);
+		    } else {
+		        throw runtime_error("Requested model type not implemented");
+		    }
+		} else if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
+			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+		        alg->run(model);
+		    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
+		        alg->run(model);
+		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+		        alg->run(model);
+		    } else {
+		        throw runtime_error("Requested model type not implemented");
 		    }
 		} else {
 			throw runtime_error("Requested algorithm type not implemented");
 		}
+		job->algorithm->finishRun();
 	} catch (const exception& ex) {
-		job->exception = current_exception();
+		job->exception = current_exception();	// Must save the exception so that it can be passed between threads.
 	}
 }
 

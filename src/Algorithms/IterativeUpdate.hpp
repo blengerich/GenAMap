@@ -19,12 +19,14 @@ private:
     double tol;
 
     static constexpr double default_tolerance = 1e-5;
+
 public:
     IterativeUpdate();
     IterativeUpdate(const unordered_map<string, string>&);
 
     void setTolerance(double);
     void assertReadyToRun();
+    void run(Model*);
     void run(TreeLasso*);
     void stop();
 };

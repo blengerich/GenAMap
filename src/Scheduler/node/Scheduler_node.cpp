@@ -2,6 +2,7 @@
 
 #include "Scheduler_node.hpp"
 
+#include <Eigen/Dense>
 #include <exception>
 #include <iostream>
 #include <map>
@@ -21,6 +22,7 @@
 #include "../Scheduler.hpp"
 #include "../../JSON/JsonCoder.hpp"
 
+using namespace Eigen;
 using namespace std;
 using namespace v8;
 
@@ -93,16 +95,16 @@ void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 		const int job_id = (int)Local<Number>::Cast(args[0])->Value();
 		Job_t* job = Scheduler::Instance()->getJob(job_id);
+		job->exception = NULL;
 		job->callback.Reset(isolate, Local<Function>::Cast(args[1]));
 		job->job_id = job_id;
 		bool result = Scheduler::Instance()->startJob(job_id, trainAlgorithmComplete);
-		usleep(1);
+		//usleep(1);	// let the execution thread start -- necessary?
 		if (job->exception) {
 			rethrow_exception(job->exception);
 		}
 		args.GetReturnValue().Set(Boolean::New(isolate, result));
 	} catch (const exception& e) {
-		cerr << e.what() << endl;
 		isolate->ThrowException(Exception::Error(
 			String::NewFromUtf8(isolate, e.what())));
 		args.GetReturnValue().Set(Boolean::New(isolate, false));
@@ -200,29 +202,30 @@ void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 // Handles packaging of algorithm results to return to the frontend.
 // Called by libuv in event loop when async training completes.
 void trainAlgorithmComplete(uv_work_t* req, int status) {
-	cerr << status;
 	// Runs in event loop when algorithm completes.
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope handleScope(isolate);
-
 	Job_t* job = static_cast<Job_t*>(req->data);
 	Local<v8::Array> obj = v8::Array::New(isolate);
 
-	// If the job failed, the first argument says "Error", the second is the exception text.
-	// Is this really a good way to return data?
-	if (job->exception) {
-		obj->Set(0, v8::String::NewFromUtf8(isolate, "Error"));
-		try {
-			rethrow_exception(job->exception);
-		} catch(const exception& e) {
-			obj->Set(1, v8::String::NewFromUtf8(isolate, e.what()));	
-		}
-	} else {
+	try {
 		// Pack up the data to be returned to JS
-		const MatrixXd& result = job->model->getBeta();
+		const MatrixXd& result = Scheduler::Instance()->getJobResult(job->job_id);
 		// TODO: Fewer convserions to return a matrix [Issue: https://github.com/blengerich/GenAMap_V2/issues/17]
-		obj->Set(0, v8::String::NewFromUtf8(isolate, "Result"));
-		obj->Set(1, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));	
+		obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
+		
+		if (status < 0) { //libuv error
+			throw runtime_error("Libuv error (check server)");
+		}
+		if (job->exception) {
+			rethrow_exception(job->exception); 
+		}
+	} catch(const exception& e) {
+		// If the job failed, the second entry in the array is the exception text.
+		// Is this really a good way to return data? It is different than the result from getJobResult()
+		//obj->Set(0, v8::String::NewFromUtf8(isolate, "Error"));
+		//obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(MatrixXd()).c_str()));	
+		obj->Set(1, v8::String::NewFromUtf8(isolate, e.what()));	
 	}
 	
 	Handle<Value> argv[] = { obj };

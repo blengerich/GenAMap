@@ -15,7 +15,7 @@ var bad_alg_opts = {'type': 10,
 			'options': {'tolerance': 0.01, 'learning_rate': 0.1}};
 
 // Fake Data
-var smallX = [[1,2], [3,4]];
+var smallX = [[1,2], [3,2]];
 var smallY = [[1,2], [3,4]];
 
 var largeX = [];
@@ -61,7 +61,7 @@ describe('LinearRegression', function() {
 	describe('setX', function() {
 		var job_id = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
 		it('should return true when correctly done', function () {
-			assert.equal(true, backend.setX(job_id, smallX));
+			assert.isTrue(backend.setX(job_id, smallX));
 		});
 
 		it('should return false for a job that has not been created', function () {
@@ -74,7 +74,7 @@ describe('LinearRegression', function() {
 	describe('setY', function() {
 		var job_id = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
 		it('should return true when correctly done', function () {
-			assert.equal(true, backend.setY(job_id, smallY));
+			assert.isTrue(backend.setY(job_id, smallY));
 		});
 
 		it('should return false for a job that has not been created', function () {
@@ -86,34 +86,33 @@ describe('LinearRegression', function() {
 	describe('startJob', function() {
 		var job_id = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
 
-		it('return true for good job start', function() {
-			assert.equal(true, backend.setX(job_id, smallX));
-			assert.equal(true, backend.setY(job_id, smallY));
-			assert.equal(true, 
-				backend.startJob(job_id, function(results) {/* empty */} ));
+		it('throw error for bad options', function () {
+			assert.throws(function() {backend.startJob(-1, function() {})},
+				Error, 'Job ID does not match any jobs.');
+			assert.throws(function() {backend.startJob(job_id, function() {})},
+				Error, 'X and Y matrices of size (0,0), and (0,0) are not compatible.');
 		});
 
-		it('throw error for bad options', function () {
-			assert.throws(function() {backend.startJob(-1, function() {/*empty callback*/})},
-				Error, 'Job ID does not match any jobs.');
+		it('return true for good job start', function() {
+			assert.isTrue(backend.setX(job_id, smallX));
+			assert.isTrue(backend.setY(job_id, smallY));
+			assert.isTrue(backend.startJob(job_id, function(results) {} ));
 		});
 
 		var job_id2 = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
-
 		it('return true for second good job start', function() {
-			assert.equal(true, backend.setX(job_id2, largeX));
-			assert.equal(true, backend.setY(job_id2, largeY));
-			assert.equal(true, 
-				backend.startJob(job_id2, function(results) {/* empty */} ));
+			assert.isTrue(backend.setX(job_id2, largeX));
+			assert.isTrue(backend.setY(job_id2, largeY));
+			assert.isTrue(backend.startJob(job_id2, function(results) {} ));
 		});
 
 		it('throw error for trying to start already running job', function() {
-			assert.throws(function() { backend.startJob(job_id2, function() {/* empty */} )},
+			assert.throws(function() { backend.startJob(job_id2, function() {} )},
 				Error, 'Job is already running.');
 		});
 
 		it('throw error for second bad options', function () {
-			assert.throws(function() {backend.startJob(-1, function() {/*empty callback*/})},
+			assert.throws(function() {backend.startJob(-1, function() {})},
 				Error, 'Job ID does not match any jobs.');
 		});
 	});
@@ -122,71 +121,64 @@ describe('LinearRegression', function() {
 	describe('getJobResult', function() {
 		var job_id = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
 		
-		it('return filled results matrix for good job run', function() {
-			assert.equal(true, backend.setX(job_id, smallX));
-			assert.equal(true, backend.setY(job_id, smallY));
-			assert.equal(true, 
-				backend.startJob(job_id, function(results) {
-					assert.equal(backend.getJobResult(job_id), results);} ));
+		it('return filled results matrix for good job run', function(done) {
+			assert.isTrue(backend.setX(job_id, smallX));
+			assert.isTrue(backend.setY(job_id, smallY));
+			assert.isTrue(backend.startJob(job_id, function(results) {
+				assert.deepEqual(backend.getJobResult(job_id), results);
+				done();}));
 		});
 	});
 
 
-	/*describe('checkJob', function() {
+	describe('checkJob', function() {
 		var job_id = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
 		it('large job progress = 0 before starting', function() {
-			assert.equal(true, backend.setX(job_id, largeX));
-			assert.equal(true, backend.setY(job_id, largeY));
+			assert.isTrue(backend.setX(job_id, largeX));
+			assert.isTrue(backend.setY(job_id, largeY));
 			assert.equal(0, backend.checkJob(job_id));
 		});
 
-		it('large job progress < 1 before ending', function() {
-			backend.startJob(job_id, function(results) {} );
-			while (backend.checkJob(job_id) == 0) {}
+		it('large job progress < 1 before ending and == 1 on ending', function(done) {
+			backend.startJob(job_id, function(results) {
+				assert.equal(backend.checkJob(job_id), 1);
+				assert.deepEqual(backend.getJobResult(job_id), results);
+				done();
+			} );
+			while (backend.checkJob(job_id) == 0) {}	// wait for job to actually start
 			assert.isBelow(backend.checkJob(job_id), 1, 'job progress should be less than 1 immediately after starting');
-		});
-
-		var job_id2 = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
-		it('large job progress = 1 after ending', function() {
-			backend.startJob(job_id2, function(results) {
-					assert.equal(backend.checkJob(job_id2), 1);
-					assert.deepEqual(backend.getJobResult(job_id2), results);
-			});
 		});
 
 		var job_id3 = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
 		it('small job progress = 0 before starting', function() {
-			assert.equal(true, backend.setX(job_id3, smallX));
-			assert.equal(true, backend.setY(job_id3, smallY));
+			assert.isTrue(backend.setX(job_id3, smallX));
+			assert.isTrue(backend.setY(job_id3, smallY));
 			assert.equal(0, backend.checkJob(job_id3));
 		});
 
-		it('small job progress = 1 after ending', function() { 
+		it('small job progress = 1 after ending', function(done) { 
 			backend.startJob(job_id3, function(results) {
-					assert.equal(backend.checkJob(job_id3), 1);
-					assert.deepEqual(backend.getJobResult(job_id3), results);
-				});
+				assert.equal(1, backend.checkJob(job_id3));
+				assert.deepEqual(backend.getJobResult(job_id3), results);
+				done();
+			});
 		});
 
 		var job_id4 = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
 		it('large job progress = 0 before starting', function() {
-			assert.equal(true, backend.setX(job_id4, largeX));
-			assert.equal(true, backend.setY(job_id4, largeY));
+			assert.isTrue(backend.setX(job_id4, largeX));
+			assert.isTrue(backend.setY(job_id4, largeY));
 			assert.equal(0, backend.checkJob(job_id4));
 		});
 
-		it('large job progress < 1 before ending', function() {
-			backend.startJob(job_id4, function(results) {} );
+		it('large job progress < 1 before ending and == 1 on ending', function(done) {
+			backend.startJob(job_id4, function(results) {
+				assert.equal(backend.checkJob(job_id4), 1);
+				assert.deepEqual(backend.getJobResult(job_id4), results);
+				done();
+			} );
 			while (backend.checkJob(job_id4) == 0) {}
-			assert.isBelow(backend.checkJob(job_id4), 1, 'job progress should be less than 1 immediately after starting')
+			assert.isBelow(backend.checkJob(job_id4), 1, 'job progress should be less than 1 immediately after starting');
 		});
-
-		var job_id5 = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
-		it('large job progress = 1 after ending', function() {
-			backend.startJob(job_id5, function(results) {
-					assert.equal(backend.checkJob(job_id5), 1);
-					assert.deepEqual(backend.getJobResult(job_id5), results);
-			});
-		});
-	});*/
+	});
 });

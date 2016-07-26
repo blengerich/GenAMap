@@ -219,8 +219,16 @@ double AdaMultiLasso::penalty_cost() {
 
 
 void AdaMultiLasso::assertReadyToRun() {
-    throw runtime_error("AdaMultiLasso not implemented");
-    //return (X.rows > 0 && X.rows == y.rows);
+	if (!((X.rows() > 0) && (X.rows() == y.rows())
+		&& (X.cols() > 0) && (y.cols() > 0))) {
+		throw runtime_error("X and Y matrices not compatible");
+	}
+	if (!((snpsFeature1.rows() > 0) && (snpsFeature1.cols() > 0)
+		&& (snpsFeature2.rows() > 0) && (snpsFeature2.cols() > 0)))
+		// TODO: check feature sizes against X, Y
+	{
+		throw runtime_error("SNP Feature matrices not compatible");
+	}
 }
 
 void AdaMultiLasso::initTraining() {

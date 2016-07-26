@@ -6,6 +6,7 @@
 #define ALGORITHMS_ALGORITHM_HPP
 
 #include <unordered_map>
+#include <iostream>
 
 #ifdef BAZEL
 #include "Models/Model.hpp"
@@ -19,6 +20,7 @@ protected:
     int maxIteration;
     bool isRunning;
     bool shouldStop;
+    
 public:
     Algorithm();
     Algorithm(const unordered_map<string, string>);
@@ -31,7 +33,10 @@ public:
     void stop();
 
     virtual void assertReadyToRun(){};
-    virtual void run(Model*){};
+    virtual void run(Model*) = 0;//{cerr << "running algorithm base on model base" << endl;};
+    virtual void setUpRun(){};
+    virtual void finishRun(){};
+
 
     virtual ~Algorithm(){};
 };
