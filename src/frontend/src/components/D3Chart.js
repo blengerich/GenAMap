@@ -6,15 +6,9 @@ import fetch from './fetch'
 import config from '../../config'
 
 const colors = ["#c1f4ec","#91f2ed","#97e6fc","#95d1f9","#64b4dd","#65c5db","#66a9d8"];
-const negColorScale = d3.scale.linear()
-                        .domain([-1, 0])
-                        .range(["#990000", "#EEEEEE"]);
-const posColorScale = d3.scale.linear()
-                        .domain([0, 1])
-                        .range(["#EEEEEE", "#000099"]);
-function colorScale(x) {
-  return (x > 0 ? posColorScale(x) : negColorScale(x));
-}
+const colorScale = d3.scale.linear()
+                      .domain([-1, 0, 1])
+                      .range(["#990000", "#EEEEEE", "#000099"]);
 
 var axisOnZoom;
 var zoomFunction;
@@ -37,6 +31,53 @@ var Graph = function(data, markerLabels, traitLabels) {
 
   function trimmedLabel(s, threshold) {
     return (s.length > threshold) ? (s.substring(0, threshold) + "..") : s
+  }
+
+  /* initialize legend */
+  function legend() {
+    const legendWidth = 95
+    const margin = 5
+    var legendBody = d3.select("#chart")
+                        .append("svg")
+                        .attr("width", legendWidth + 2 * margin)
+                        .attr("class", "legend")
+                          .append("g")
+                          .attr("transform", "translate(" + margin + ",0)")
+                          .attr("id", "legendBody")
+
+    legendBody.append("text")
+              .text("Correlation")
+              .attr("x", legendWidth/2)
+              .attr("dy", "1em")
+              .style("text-anchor", "middle")
+              .style("font-weight", "bold")
+
+    const numRowCells = 500
+    const cellWidth = legendWidth/numRowCells
+    const cellHeight = 10
+
+    const legendColorScale = d3.scale.linear()
+                               .domain([0, numRowCells/2, numRowCells])
+                               .range(["#990000", "#EEEEEE", "#000099"])
+
+    for (var i = 0; i < numRowCells; i++) {
+      legendBody.append("rect")
+                .attr("x", i * cellWidth)
+                .attr("y", 15)
+                .attr("width", cellWidth)
+                .attr("height", cellHeight)
+                .style("fill", legendColorScale(i))
+    }
+
+    const mapCorr = d3.scale.linear().domain([-1, 1]).range([0, legendWidth])
+    const markers = [-1, 0, 1].map((i) => {
+      legendBody.append("text")
+                .text(i)
+                .attr("x", mapCorr(i))
+                .attr("y", 25)
+                .attr("dy", "0.8em")
+                .style("text-anchor", "middle")
+    })
   }
 
   /* initialize axes and axis labels */
@@ -327,7 +368,7 @@ var Graph = function(data, markerLabels, traitLabels) {
 	var cellHeight = 10;
 
   // Need to change percentages again to take into account sidebar
-  var maxTotalWidth =  windowWidth/1.15;
+  var maxTotalWidth =  windowWidth/1.2;
   var maxTotalHeight = windowHeight/1.3;
   var matrixHeight = cellHeight * numTraits;
   var matrixWidth = cellWidth * numMarkers;
@@ -372,6 +413,7 @@ var Graph = function(data, markerLabels, traitLabels) {
                 .append("g")
                   .attr("id", "overallMatrix");
 
+  legend();
   initAxes();
   parseData();
 
@@ -395,26 +437,10 @@ var Graph = function(data, markerLabels, traitLabels) {
                         .attr("width", overlayMapWidth)
                         .attr("height", overlayMapHeight)
 
-  var minimapColors = ["#65e5cf", "#5bc8df", "#239faf", "#128479", "#5eacdd", "#1e69c4", "#2b90e2"];
-
-  for (var col = 0; col < 20; col++) {
-    for (var row = 0; row < 20; row++) {
-      var random = getRandomInt(0,7);
-      var color = minimapColors[random];
-
-      svgGraphic.append("rect")
-                  .attr("x", col*overlayCellWidth)
-                  .attr("y", row*overlayCellHeight)
-                  .attr("rx", 4)
-                  .attr("ry", 4)
-                  .attr("class", "cell")
-                  .attr("width", overlayCellWidth)
-                  .attr("height", overlayCellHeight)
-                  .attr("value", 1)
-                  .style("fill", color)
-                  .style("fill-opacity", "0.8");
-    }
-  }
+  svgGraphic.append("rect")
+    .attr("width", overlayMapWidth)
+    .attr("height", overlayMapHeight)
+    .style("fill", "#5eacdd")
 
   var numCellsHorizontalLanding = mapWidth/10;
   var numCellsVerticalLanding = mapHeight/10;
@@ -592,21 +618,21 @@ var D3Chart = React.createClass({
           <ul className="buttonContainer">
             <li className="zoomButton">
               <a id="zoom-in" data-zoom="+1">
-                <FloatingActionButton>
+                <FloatingActionButton mini={true}>
                   <FontIcon className="material-icons">add</FontIcon>
                 </FloatingActionButton>
               </a>
             </li>
             <li className="zoomButton">
               <a id="zoom-out" data-zoom="-1">
-                <FloatingActionButton>
+                <FloatingActionButton mini={true}>
                   <FontIcon className="material-icons">remove</FontIcon>
                 </FloatingActionButton>
               </a>
             </li>
             <li className="zoomButton">
               <a id="reset" data-zoom="-8">
-                <FloatingActionButton>
+                <FloatingActionButton mini={true}>
                   <FontIcon className="material-icons">settings_backup_restore</FontIcon>
                 </FloatingActionButton>
               </a>

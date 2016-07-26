@@ -92,8 +92,18 @@ svg:active{
 
 .buttonContainer {
   position: absolute;
-  right: 50px;
-  top: 50%;
+  right: 40px;
+  top: 60%;
+}
+
+.legend {
+  position: absolute;
+  top: 30%;
+  right: 30px;
+}
+
+.legend text {
+  font: 10px sans-serif;
 }
 
 .minimap {
