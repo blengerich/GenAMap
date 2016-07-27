@@ -37,7 +37,7 @@ var Graph = function(data, markerLabels, traitLabels) {
   function legend() {
     const legendWidth = 95
     const margin = 5
-    var legendBody = d3.select("#chart")
+    var legendBody = d3.select("#bottomPanel")
                         .append("svg")
                         .attr("width", legendWidth + 2 * margin)
                         .attr("class", "legend")
@@ -368,8 +368,8 @@ var Graph = function(data, markerLabels, traitLabels) {
 	var cellHeight = 10;
 
   // Need to change percentages again to take into account sidebar
-  var maxTotalWidth =  windowWidth/1.2;
-  var maxTotalHeight = windowHeight/1.3;
+  var maxTotalWidth =  windowWidth * 0.95;
+  var maxTotalHeight = windowHeight * 0.65;
   var matrixHeight = cellHeight * numTraits;
   var matrixWidth = cellWidth * numMarkers;
 
@@ -385,7 +385,9 @@ var Graph = function(data, markerLabels, traitLabels) {
   var baseLabelStyle = { fontSize: 10, maxFontSize: 18, titleSize: 20, innerMargin: 8 };
 
   d3.select('#chart')
-    .style({ "width": (mapWidth + margin.left) + "px" });
+    .style({
+      "width": (mapWidth + margin.left) + "px"
+    })
 
   var zoom = d3.behavior.zoom()
               .size([mapWidth, mapHeight])
@@ -431,7 +433,7 @@ var Graph = function(data, markerLabels, traitLabels) {
   var overlayCellHeight = 5;
 
   /* Some minimap code */
-  var svgGraphic = d3.select("#chart")
+  var svgGraphic = d3.select("#bottomPanel")
                       .append("svg")
                         .attr("class", "minimap")
                         .attr("width", overlayMapWidth)
@@ -615,6 +617,8 @@ var D3Chart = React.createClass({
 		return (
       <div>
         <div id="chart" style={{ "marginTop": "25px" }}>
+        </div>
+        <div id="bottomPanel">
           <ul className="buttonContainer">
             <li className="zoomButton">
               <a id="zoom-in" data-zoom="+1">
