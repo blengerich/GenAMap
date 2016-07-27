@@ -1,5 +1,6 @@
 import React from 'react'
 import FontIcon from 'material-ui/lib/font-icon'
+import FlatButton from 'material-ui/lib/flat-button'
 import FloatingActionButton from 'material-ui/lib/floating-action-button'
 
 import fetch from './fetch'
@@ -491,25 +492,44 @@ var D3Chart = React.createClass({
       mouse: {x: 0, y: 0, startX: 0, startY: 0}
 		}
 	},
-
-  subsetIndicator: function(trait1, marker1, trait2, marker2) {
-    // Would be easier to have material-ui flatbutton instead of regular buttons
-    // modfied with CSS, but I don't know how to render those in a string
-    var labelText = "<h4> Selected Subset: </h4> " +
-                    "<p>" + trait1 + " - " + trait2 + "</p>" +
-                    "<p>" + marker1 + " - " + marker2 + "</p>" +
-                    "<button class='subsetButton' id='cancel'> Cancel </button>" +
-                    "<button class='subsetButton' id='add'> Add </button>";
-    var selector = d3.select("#chart")
-                      .append("div")
-                        .attr("class", "selector")
-                        .html(labelText)
-                        .style("position", "absolute")
-                        .style("left", "80px")
-                        .style("top", "300px");
+  addSubset: function() {
+    this.resetSubsetCells()
+  },
+  resetSubsetCells: function() {
+    this.setState({
+      subsetCells: [],
+      subsetTooltip: null
+    })
+    d3.select(".marquee").remove()
+  },
+  subsetIndicator: function(trait1, marker1, trait2, marker2, mouseEvent) {
+    const position = d3.select('.marquee').node().getBoundingClientRect()
+    console.log(position)
+    const selectorStyle = {
+      "position": "absolute",
+      "right": position.right + position.width/2,
+      "bottom": position.bottom + position.height/2
+    }
+    const tooltip = (
+      <div className='selector' style={selectorStyle}>
+        <h4> Selected Subset: </h4>
+        <p>{trait1 + " - " + trait2}</p>
+        <p>{marker1 + " - " + marker2}</p>
+        <FlatButton
+          label='Cancel'
+          secondary={true}
+          onClick={this.resetSubsetCells}
+        />
+        <FlatButton
+          label='Add'
+          primary={true}
+          onClick={this.addSubset}
+        />
+      </div>
+    )
+    this.setState({ subsetTooltip: tooltip })
   },
   drawMarquee: function(div) {
-
     var that = this;
 
     function setMousePosition(event) {
@@ -585,6 +605,7 @@ var D3Chart = React.createClass({
       d3.select("#overallMatrix")
         .selectAll('.cell')
         .on("click", function() {
+          var mouseEvent = window.event;
           // Allocates a new array so uses more memory, but online said it was safer lol
           var subsetCells = that.state.subsetCells.slice();
           // Just adding the name here for display purposes, add the whole cell ('this') if wanted
@@ -594,7 +615,8 @@ var D3Chart = React.createClass({
           that.setState({numClicked: that.state.numClicked + 1});
           if (that.state.numClicked == 2) {
             that.subsetIndicator(that.state.subsetCells[0], that.state.subsetCells[1],
-                                  that.state.subsetCells[2], that.state.subsetCells[3]);
+                                  that.state.subsetCells[2], that.state.subsetCells[3],
+                                  mouseEvent);
             that.setState({numClicked: 0});
             var reset = that.state.subsetCells.slice(0, 0);
             that.setState({subsetCells: reset});
@@ -617,6 +639,7 @@ var D3Chart = React.createClass({
 		return (
       <div>
         <div id="chart" style={{ "marginTop": "25px" }}>
+          {this.state.subsetTooltip}
         </div>
         <div id="bottomPanel">
           <ul className="buttonContainer">
