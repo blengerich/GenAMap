@@ -104,6 +104,8 @@ describe('LinearRegression', function() {
 			assert.isTrue(backend.setX(job_id2, largeX));
 			assert.isTrue(backend.setY(job_id2, largeY));
 			assert.isTrue(backend.startJob(job_id2, function(results) {} ));
+			assert.throws(function() { backend.startJob(job_id2, function() {} )},
+				Error, 'Job is already running.');
 		});
 
 		it('throw error for trying to start already running job', function() {

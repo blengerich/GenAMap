@@ -3,6 +3,7 @@
 //
 
 #include "TreeLasso.hpp"
+#include <iostream>
 #include <limits>
 #include <stack>
 #include <stdexcept>

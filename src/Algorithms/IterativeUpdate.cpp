@@ -22,6 +22,16 @@ void IterativeUpdate::assertReadyToRun() {
     throw runtime_error("Iterative Update not implemented yet");
 }
 
+void IterativeUpdate::run(Model* model) {
+    if (!model) {
+        throw runtime_error("Model not initialized");
+    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(model)) {
+        run(model);
+    } else {
+        throw runtime_error("Bad type of model for Algorithm: IterativeUpdate");
+    }
+}
+
 void IterativeUpdate::run(TreeLasso* tl) {
     double i = 0;
     MatrixXd bestBeta = tl->getBeta();

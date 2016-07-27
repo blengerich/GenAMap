@@ -57,7 +57,8 @@ public:
     void setLambda1(double);
     void setLambda2(double);
 
-    void setSnpsFeature1(MatrixXd);
+    void setAttributeMatrix(const string& str, MatrixXd* Z);
+    void setSnpsFeature1(MatrixXd); // TODO: can these be pass by ref? Currently having problems if we pass the same array twice
     void setSnpsFeature2(MatrixXd);
     void setSnpsFeature(MatrixXd);
     MatrixXd getSnpsFeature1();

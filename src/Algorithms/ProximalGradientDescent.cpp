@@ -44,6 +44,16 @@ ProximalGradientDescent::ProximalGradientDescent(const unordered_map<string, str
     } catch(std::out_of_range& oor) {
         learningRate2 = default_learning_rate2;
     }
+    try {
+        innerStep1 = stoi(opts.at("innerStep1"));
+    } catch(std::out_of_range& oor) {
+        innerStep1 = default_inner_step1;
+    }
+    try {
+        innerStep2 = stoi(opts.at("innerStep2"));
+    } catch(std::out_of_range& oor) {
+        innerStep2 = default_inner_step2;
+    }
     prev_residue = numeric_limits<double>::max();
 }
 
@@ -53,8 +63,8 @@ ProximalGradientDescent::ProximalGradientDescent() {
     learningRate2 = default_learning_rate2;
     tolerance = default_tolerance;
     prev_residue = numeric_limits<double>::max();
-    innerStep1 = 10;
-    innerStep2 = 10;
+    innerStep1 = default_inner_step1;
+    innerStep2 = default_inner_step2;
 }
 
 
@@ -318,7 +328,8 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
             best_beta = beta;
         }
         diff = abs(prev_residue - residue);
-        cerr << "epoch: " << epoch << "\t" << "residue: " << residue << endl;
+        //cerr << "epoch: " << epoch << "\tresidue: " << residue << "\ndiff: " << diff << endl;
+        prev_residue = residue;
 //        cout << "--------"<<endl;
 //        cout << beta << endl;
 //        cout << "--------"<<endl;

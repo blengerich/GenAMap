@@ -52,52 +52,24 @@ const config = {
   }],
   algorithmsByModel: {
   0 : [// Linear Regression 
-  {id: 1,
-    name: 'Proximal Gradient Descent',
-    image: 'images/proximal_gradient_descent.png',
-    info: 'info about PGD'
-  }],
-  1 : [// Lasso
-  { // TODO: is lasso abstract? 
-    id: 1,
-    name: 'Proximal Gradient Descent',
-    image: 'images/proximal_gradient_descent.png',
-    info: 'info about PGD'
-  }],
+    1 // Proximal Gradient Descent
+  ],
+  1 : [// Lasso // TODO: is lasso abstract? 
+    1 // Proximal Gradient Descent
+  ],
   2 : [ //AdaMultiLasso
-  { 
-    id: 1,
-    name: 'Proximal Gradient Descent',
-    image: 'images/proximal_gradient_descent.png',
-    info: 'info about PGD'
-  }],
+    1 // Proximal Gradient Descent
+  ],
   3 : [ // Gflasso
-  {
-    id: 1,
-    name: 'Proximal Gradient Descent',
-    image: 'images/proximal_gradient_descent.png',
-    info: 'info about PGD'
-  }],
+    1 // Proximal Gradient Descent
+  ],
   4 : [ // MultiPopLasso
-  {
-    id: 1,
-    name: 'Proximal Gradient Descent',
-    image: 'images/proximal_gradient_descent.png',
-    info: 'info about PGD'
-  }],
+    1 // Proximal Gradient Descent
+  ],
   5 : [// Tree Lasso
-  {
-    id: 3,
-    name: 'Iterative Update',
-    image: '',
-    info: 'info about IU'
-  },
-  {
-    id: 1,
-    name: 'Proximal Gradient Descent',
-    image: 'images/proximal_gradient_descent.png',
-    info: 'info about PGD'
-  }],
+    3, // Iterative Update
+    1  // Proximal Gradient Descent
+  ],
   },
   models: [{
     id: 0,
@@ -111,7 +83,7 @@ const config = {
     info: 'info about PGD'
   }, {
     id: 2,
-    name: 'AdaMultiLasso',
+    name: 'Adaptive Multi-Task Lasso',
     image: 'images/grid_search.png',
     info: 'info about Grid Search'
   }, {

@@ -163,6 +163,15 @@ bool Scheduler::setY(const int job_id, const Eigen::MatrixXd& Y) {
 	return false;
 }
 
+// TODO: merge setX and setY into this function?
+bool Scheduler::setModelAttributeMatrix(const int job_id, const string& str, Eigen::MatrixXd* Z) {
+	if (ValidJobId(job_id) && getJob(job_id)->model) {
+		getJob(job_id)->model->setAttributeMatrix(str, Z);
+		return true;
+	}
+	return false;	
+}
+
 
 int Scheduler::newJob(const JobOptions_t& options) {
 	Job_t* my_job = new Job_t();
@@ -213,7 +222,8 @@ bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) 
 		job->algorithm->assertReadyToRun();
 		job->model->assertReadyToRun();
 	} catch (const exception& ex) {
-		job->exception = current_exception();	// Must save the exception so that it can be passed between threads.
+		//job->exception = current_exception();	// Must save the exception so that it can be passed between threads - but this is running in main thread?
+		rethrow_exception(current_exception());
 		return false;
 	}
 	job->request.data = job;
@@ -238,9 +248,9 @@ void trainAlgorithmThread(uv_work_t* req) {
 		}
 		job->algorithm->assertReadyToRun();
 		job->model->assertReadyToRun();
-		job->algorithm->setUpRun();
 		// Object slicing makes this annoying
 		if (BrentSearch* alg = dynamic_cast<BrentSearch*>(job->algorithm)) {
+			alg->setUpRun();
 			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
 		        alg->run(model);
 		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
@@ -256,7 +266,9 @@ void trainAlgorithmThread(uv_work_t* req) {
 		    } else {
 		        throw runtime_error("Requested model type not implemented");
 		    }
+		    alg->finishRun();
 		} else if (GridSearch* alg = dynamic_cast<GridSearch*>(job->algorithm)) {
+			alg->setUpRun();
 			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
 		        alg->run(model);
 		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
@@ -272,7 +284,9 @@ void trainAlgorithmThread(uv_work_t* req) {
 		    } else {
 		        throw runtime_error("Requested model type not implemented");
 		    }
+		    alg->finishRun();
 		} else if (IterativeUpdate* alg = dynamic_cast<IterativeUpdate*>(job->algorithm)) {
+			alg->setUpRun();
 			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
 		        alg->run(model);
 		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
@@ -288,7 +302,9 @@ void trainAlgorithmThread(uv_work_t* req) {
 		    } else {
 		        throw runtime_error("Requested model type not implemented");
 		    }
+		    alg->finishRun();
 		} else if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
+			alg->setUpRun();
 			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
 		        alg->run(model);
 		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
@@ -304,10 +320,10 @@ void trainAlgorithmThread(uv_work_t* req) {
 		    } else {
 		        throw runtime_error("Requested model type not implemented");
 		    }
+		    alg->finishRun();
 		} else {
 			throw runtime_error("Requested algorithm type not implemented");
 		}
-		job->algorithm->finishRun();
 	} catch (const exception& ex) {
 		job->exception = current_exception();	// Must save the exception so that it can be passed between threads.
 	}
@@ -390,7 +406,26 @@ Job_t* Scheduler::getJob(const int job_id) {
 
 
 MatrixXd Scheduler::getJobResult(const int job_id) {
-	return ValidJobId(job_id) ? getJob(job_id)->model->getBeta() : MatrixXd();
+	if (ValidJobId(job_id)) {
+		Job_t* job = getJob(job_id);
+		if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+	        return model->getBeta();
+	    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
+	        return model->getBeta();
+	    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+	        return model->getBeta();
+	    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
+	        return model->getBeta();
+	    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
+	        return model->getBeta();
+	    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+	        return model->getBeta();
+	    } else {
+	    	return model->getBeta();
+	    }
+	} else {
+		return MatrixXd();
+	}
 }
 
 ////////////////////////////////////////////////////////

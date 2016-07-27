@@ -43,6 +43,8 @@ private:
     static constexpr double default_learning_rate = 0.001;
     static constexpr double default_learning_rate2 = 0.001;
     static constexpr double default_tolerance = 0.000001;
+    static constexpr long default_inner_step1 = 10;
+    static constexpr long default_inner_step2 = 10;
 
 public:
     ProximalGradientDescent();

@@ -62,8 +62,8 @@ const GMRunAnalysisDialog = React.createClass({
       // Algorithm parameters
       algorithms: config.algorithms,
       algorithmsByModelList : Object.keys(config.algorithmsByModel).map((value, index) =>
-        config.algorithmsByModel[value].map((algorithm, index) => 
-          <MenuItem key={index} value={algorithm.id} primaryText={algorithm.name} />)),
+        config.algorithmsByModel[value].map((algorithm_index, index) => 
+          <MenuItem key={index} value={config.algorithms[algorithm_index].id} primaryText={config.algorithms[algorithm_index].name} />)),
       availableAlgorithmList: [],
       algorithmValue: '',
       learning_rate: 0.001,

@@ -202,7 +202,11 @@ void NullFunc(uv_work_t* req, int status) {};
 
 
 TEST_F(SchedulerTest, Train_Not_Found) {
-	ASSERT_FALSE(my_scheduler->startJob(-1, NullFunc));
+    try {
+	   my_scheduler->startJob(-1, NullFunc);
+    } catch (const exception& e) {
+        EXPECT_STREQ("Job id must correspond to a job that has been created.", e.what());
+    }
 }
 
 

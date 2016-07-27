@@ -55,6 +55,20 @@ void setY(const FunctionCallbackInfo<Value>& args) {
 	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
 
+// Arguments: job_id, string of attribute name, matrix to use
+void setModelAttributeMatrix(const FunctionCallbackInfo<Value>& args) {
+	bool result = false;
+	Isolate* isolate = args.GetIsolate();
+	if (ArgsHaveJobID(args, 0)) {
+		const int job_id = (int)Local<Number>::Cast(args[0])->Value();
+		const string attribute_name(*v8::String::Utf8Value(args[1]->ToString()));
+		Local<v8::Array> ar = Local<v8::Array>::Cast(args[2]);
+		MatrixXd* mat = v8toEigen(ar);
+		result = Scheduler::Instance()->setModelAttributeMatrix(job_id, attribute_name, mat);
+	}
+	args.GetReturnValue().Set(Boolean::New(isolate, result));	
+}
+
 
 // Creates a new job, but does not run it. Synchronous.
 // Arguments: JSON to be converted to JobOptions_t
@@ -94,11 +108,11 @@ void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 		const int job_id = (int)Local<Number>::Cast(args[0])->Value();
 		Job_t* job = Scheduler::Instance()->getJob(job_id);
-		job->exception = NULL;
+		job->exception = nullptr;
 		job->callback.Reset(isolate, Local<Function>::Cast(args[1]));
 		job->job_id = job_id;
 		bool result = Scheduler::Instance()->startJob(job_id, trainAlgorithmComplete);
-		//usleep(1);	// let the execution thread start -- necessary?
+		usleep(1);	// let the execution thread start -- necessary?
 		if (job->exception) {
 			rethrow_exception(job->exception);
 		}
