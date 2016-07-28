@@ -360,7 +360,7 @@ app.post(config.api.importDataUrl, function (req, res) {
     app.models.project.findOrCreate(projectObj).exec(function (err, project) {
       // if (err) return res.status(500).json({err: err})
       if (err) throw err
-      var files = []
+      var files = [] // not really used right now
 
       async.each(fileDataList,
         function (datum, callback) {
