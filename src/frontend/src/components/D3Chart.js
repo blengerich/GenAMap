@@ -492,9 +492,6 @@ var D3Chart = React.createClass({
       mouse: {x: 0, y: 0, startX: 0, startY: 0}
 		}
 	},
-  addSubset: function() {
-    this.resetSubsetCells()
-  },
   resetSubsetCells: function() {
     this.setState({
       subsetCells: [],
@@ -504,11 +501,13 @@ var D3Chart = React.createClass({
   },
   subsetIndicator: function(trait1, marker1, trait2, marker2, mouseEvent) {
     const position = d3.select('.marquee').node().getBoundingClientRect()
-    console.log(position)
+    const addSubset = function() {
+      this.resetSubsetCells()
+    }
     const selectorStyle = {
       "position": "absolute",
-      "right": position.right + position.width/2,
-      "bottom": position.bottom + position.height/2
+      "left": position.left + position.width/2,
+      "top": position.top + position.height/2
     }
     const tooltip = (
       <div className='selector' style={selectorStyle}>
@@ -523,7 +522,7 @@ var D3Chart = React.createClass({
         <FlatButton
           label='Add'
           primary={true}
-          onClick={this.addSubset}
+          onClick={addSubset}
         />
       </div>
     )
