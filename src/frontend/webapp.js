@@ -296,6 +296,7 @@ app.post(config.api.importDataUrl, function (req, res) {
   var projectObj = {}
   var marker = { files: [] }
   var trait = { files: [] }
+  //var snpsFeature = { files: [] }
   var fileDataList = {
     marker: {
       name: 'Marker Values'
@@ -308,7 +309,10 @@ app.post(config.api.importDataUrl, function (req, res) {
     },
     traitLabel: {
       name: 'Trait Labels'
-    }
+    }/*,
+    snpsFeature: {
+      name: 'SNPs Features'
+    }*/
   }
   const userId = extractUserIdFromHeader(req.headers)
 
@@ -330,6 +334,9 @@ app.post(config.api.importDataUrl, function (req, res) {
       case 'species':
         projectObj.species = val
         break
+      /*case 'snpsFeature':
+        snpsFeature.name = val
+        break*/
       default:
         console.log('Unhandled fieldname "' + fieldname + '" of value "' + val + '"')
     }
@@ -349,6 +356,7 @@ app.post(config.api.importDataUrl, function (req, res) {
       else if (fieldname === 'traitFile') data = fileDataList.trait
       else if (fieldname === 'markerLabelFile') data = fileDataList.markerLabel
       else if (fieldname === 'traitLabelFile') data = fileDataList.traitLabel
+      //else if (fieldname === 'snpsFeatureFile') data = fileDataList.snpsFeature
       else console.log("Unhandled file:", fieldname)
 
       data.filetype = fieldname
@@ -382,14 +390,17 @@ app.post(config.api.importDataUrl, function (req, res) {
               } else if (file.filetype === 'traitLabelFile') {
                 trait.labelId = file.id
                 trait.files.push(file)
-              }
+              } /*else if (file.filetype === 'snpsFeatureFile') {
+                snpsFeature.id = file.id
+                snpsFeature.files.push(file)
+              }*/
               callback()
             })
           }
         }, function (err) {
           if (err) throw err
 
-          return res.json({ project, files, marker, trait })
+          return res.json({ project, files, marker, trait/*, snpsFeature*/})
         }
       )
     })
@@ -398,7 +409,7 @@ app.post(config.api.importDataUrl, function (req, res) {
   req.pipe(busboy)
 })
 
-var getAlgorithmType = function (id) {
+/*var getAlgorithmType = function (id) {
   var algorithmTypes = {
     1: 1,
     2: 1,
@@ -407,7 +418,7 @@ var getAlgorithmType = function (id) {
     5: 1
   }
   return algorithmTypes[id]
-}
+}*/
 
 /**
  * @param {Object} req
@@ -421,6 +432,7 @@ var getAlgorithmType = function (id) {
  *   project: 1,
  *   marker: 7,
  *   trait: 8,
+ *   other_data: [{name: 'snpsFeature1' id: 1}, {}]
  *   algorithmOptions: {type:1, options:{tolerance:0.01, learning_rate:0.01}},
  *   modelOptions: {type:1, options: {lambda:0.01, L2_lambda: 0.01}}
  * }
@@ -445,6 +457,22 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           }
           Scheduler.setX(jobId, markerData);
           Scheduler.setY(jobId, traitData);
+          // Add any extra files
+          if (req.body.other_data) {
+            var results = req.body.other_data.filter((value, index) => 
+              app.models.file.findOne({id: value.id}).exec(function(err, attributeFile) {
+                if (err) console.log('Error getting attribute' + value.name + 'for analysis: ' + err);
+                if (attributeFile) {
+                  var attributeConverter = new Converter({noheader: true});
+                  attributeConverter.fromFile(attributeFile.path, function(err, attributeData) {
+                    if (err) console.log('Error getting extra data for analysis: ', err);
+                    backend.setModelAttributeMatrix(jobId, value.name, attributeData);
+                  })
+                }
+              })
+            );
+          }
+          /*results.map((value, index) => assert(value));*/
 
           const userId = extractUserIdFromHeader(req.headers)
           const id = guid()

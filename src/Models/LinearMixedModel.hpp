@@ -78,6 +78,7 @@ public:
     void set_num_samples(int num_samples);
     // Search objective functions
     double f(double);
+    void assertReadyToRun();
     void init();
 };
 

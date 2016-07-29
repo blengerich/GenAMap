@@ -9,7 +9,7 @@
 #include "Scheduler.hpp"
 
 #include <Eigen/Dense>
-#include <exception>
+#include <stdexcept>
 #include <iostream>
 #include <memory>
 #include <node.h>
@@ -147,7 +147,7 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 
 
 bool Scheduler::setX(const int job_id, const Eigen::MatrixXd& X) {
-	if (getJob(job_id) && getJob(job_id)->model) {
+	if (ValidJobId(job_id) && getJob(job_id)->model) {
 		getJob(job_id)->model->setX(X);
 		return true;
 	}
@@ -156,11 +156,20 @@ bool Scheduler::setX(const int job_id, const Eigen::MatrixXd& X) {
 
 
 bool Scheduler::setY(const int job_id, const Eigen::MatrixXd& Y) {
-	if (getJob(job_id) && getJob(job_id)->model) {
+	if (ValidJobId(job_id) && getJob(job_id)->model) {
 		getJob(job_id)->model->setY(Y);
 		return true;
 	}
 	return false;
+}
+
+// TODO: merge setX and setY into this function?
+bool Scheduler::setModelAttributeMatrix(const int job_id, const string& str, Eigen::MatrixXd* Z) {
+	if (ValidJobId(job_id) && getJob(job_id)->model) {
+		getJob(job_id)->model->setAttributeMatrix(str, Z);
+		return true;
+	}
+	return false;	
 }
 
 
@@ -178,13 +187,13 @@ int Scheduler::newJob(const JobOptions_t& options) {
 				jobs_map[my_job->job_id] = unique_ptr<Job_t>(my_job);
 				return job_id;
 			} else {
-				cerr << "error creating model" << endl;
+				throw runtime_error("Error creating model");
 			}
 		} else {
-			cerr << "error creating algorithm" << endl;
+			throw runtime_error("Error creating algorithm");
 		}
 	} else {
-		cerr << "could not get a new job id (queue may be full)" << endl;
+		throw runtime_error("could not get a new job id (queue may be full)");
 	}
 
 	delete my_job;
@@ -194,19 +203,27 @@ int Scheduler::newJob(const JobOptions_t& options) {
 
 bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) {
 	if (!ValidJobId(job_id)) {
+		throw runtime_error("Job id must correspond to a job that has been created.");
 		return false;
 	}
-
 	Job_t* job = getJob(job_id);
 
 	if (!job) {
-		cerr << "Job must not be null" << endl;
+		throw runtime_error("Job must not be null.");
 		return false;
 	} else if (!job->algorithm || !job->model) {
-		cerr << "Job must have an algorithm and a model" << endl;
+		throw runtime_error("Job must have an algorithm and a model.");
 		return false;
 	} else if (job->algorithm->getIsRunning()) {
-		cerr << "Job already running" << endl;
+		throw runtime_error("Job is already running.");
+		return false;
+	}
+	try {
+		job->algorithm->assertReadyToRun();
+		job->model->assertReadyToRun();
+	} catch (const exception& ex) {
+		//job->exception = current_exception();	// Must save the exception so that it can be passed between threads - but this is running in main thread?
+		rethrow_exception(current_exception());
 		return false;
 	}
 	job->request.data = job;
@@ -220,50 +237,95 @@ bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) 
 void trainAlgorithmThread(uv_work_t* req) {
 	Job_t* job = static_cast<Job_t*>(req->data);
 	if (!job) {
-		cerr << "Job must not be null" << endl;
-		return;
-	} else if (!job->algorithm || !job->model) {
-		cerr << "Job must have an algorithm and a model" << endl;
+		throw runtime_error("Job must not be null");
 		return;
 	}
 
 	// TODO: as more algorithm/model types are created, add them here. [Issue: https://github.com/blengerich/GenAMap_V2/issues/25]
-	if (BrentSearch* alg = dynamic_cast<BrentSearch*>(job->algorithm)) {
-		if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
-			alg->run(model);
-		} else {
-			cerr << "Requested algorithm Brent Search does not run on the requested model type" << endl;
+	try {
+		if (!job->algorithm || !job->model) {
+			throw runtime_error("Job must have an algorithm and a model");
 		}
-	} else if (GridSearch* alg = dynamic_cast<GridSearch*>(job->algorithm)) {
-		if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
-			alg->run(model);
+		job->algorithm->assertReadyToRun();
+		job->model->assertReadyToRun();
+		// Object slicing makes this annoying
+		if (BrentSearch* alg = dynamic_cast<BrentSearch*>(job->algorithm)) {
+			alg->setUpRun();
+			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+		        alg->run(model);
+		    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
+		        alg->run(model);
+		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+		        alg->run(model);
+		    } else {
+		        throw runtime_error("Requested model type not implemented");
+		    }
+		    alg->finishRun();
+		} else if (GridSearch* alg = dynamic_cast<GridSearch*>(job->algorithm)) {
+			alg->setUpRun();
+			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+		        alg->run(model);
+		    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
+		        alg->run(model);
+		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+		        alg->run(model);
+		    } else {
+		        throw runtime_error("Requested model type not implemented");
+		    }
+		    alg->finishRun();
+		} else if (IterativeUpdate* alg = dynamic_cast<IterativeUpdate*>(job->algorithm)) {
+			alg->setUpRun();
+			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+		        alg->run(model);
+		    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
+		        alg->run(model);
+		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+		        alg->run(model);
+		    } else {
+		        throw runtime_error("Requested model type not implemented");
+		    }
+		    alg->finishRun();
+		} else if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
+			alg->setUpRun();
+			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+		        alg->run(model);
+		    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
+		        alg->run(model);
+		    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
+		        alg->run(model);
+		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+		        alg->run(model);
+		    } else {
+		        throw runtime_error("Requested model type not implemented");
+		    }
+		    alg->finishRun();
 		} else {
-			cerr << "Requested algorithm GridSearch does not run on the requested model type" << endl;
+			throw runtime_error("Requested algorithm type not implemented");
 		}
-	} else if (IterativeUpdate* alg = dynamic_cast<IterativeUpdate*>(job->algorithm)) {
-		if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
-			alg->run(model);	
-		} else {
-			cerr << "Requested model type not implemented" << endl;
-		}
-	} else if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
-	    if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
-	        alg->run(model);
-	    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
-	        alg->run(model);
-	    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
-	        alg->run(model);
-	    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
-	    	alg->run(model);
-	    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
-	    	alg->run(model);
-	    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
-	    	alg->run(model);
-	    } else {
-	        cerr << "Requested algorithm ProximalGradientDescent does not run on the requested model type" << endl;
-	    }
-	} else {
-		cerr << "Requested algorithm type not implemented" << endl;
+	} catch (const exception& ex) {
+		job->exception = current_exception();	// Must save the exception so that it can be passed between threads.
 	}
 }
 
@@ -335,12 +397,35 @@ Model* Scheduler::getModel(const int model_id) {
 
 
 Job_t* Scheduler::getJob(const int job_id) {
-	return ValidJobId(job_id) ? jobs_map[job_id].get() : NULL;
+	if (ValidJobId(job_id)) {
+		return jobs_map[job_id].get();
+	}
+	throw runtime_error("Job ID does not match any jobs.");
+	return NULL;
 }
 
 
 MatrixXd Scheduler::getJobResult(const int job_id) {
-	return ValidJobId(job_id) ? getJob(job_id)->model->getBeta() : MatrixXd();
+	if (ValidJobId(job_id)) {
+		Job_t* job = getJob(job_id);
+		if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+	        return model->getBeta();
+	    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
+	        return model->getBeta();
+	    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+	        return model->getBeta();
+	    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
+	        return model->getBeta();
+	    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
+	        return model->getBeta();
+	    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+	        return model->getBeta();
+	    } else {
+	    	return model->getBeta();
+	    }
+	} else {
+		return MatrixXd();
+	}
 }
 
 ////////////////////////////////////////////////////////

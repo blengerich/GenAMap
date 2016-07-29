@@ -2,9 +2,12 @@
 // Created by aditya gautam on 2/22/16.
 //
 #include "GFlasso.h"
-#include <unordered_map>
-#include <iostream>
 
+#include <iostream>
+#include <stdexcept>
+#include <unordered_map>
+
+using namespace std;
 using namespace Eigen;
 
 // Constructors with different parameters provided
@@ -100,6 +103,11 @@ MatrixXd Gflasso::get_Y(){
 MatrixXd Gflasso::get_beta() {
     return beta;
 }
+
+void Gflasso::assertReadyToRun() {
+    throw runtime_error("Gflasso not implemented");
+}
+
 // Training functions : X,Y and other parameters
 void Gflasso::train(){
     std::cout << " Error : No Training Parameters are provided. Cannot perform GFLasso regression !" << std::endl;

@@ -2,13 +2,13 @@
 // Created by haohanwang on 1/24/16.
 //
 
-#include <iostream>
+#include "Algorithm.hpp"
+
+#include <stdexcept>
 
 #ifdef BAZEL
-#include "Algorithms/Algorithm.hpp"
 #include "Models/Model.hpp"
 #else
-#include "Algorithm.hpp"
 #include "../Models/Model.hpp"
 #endif
 
@@ -41,7 +41,6 @@ void Algorithm::stop() {
 	shouldStop = true;
 }
 
-/*
-void Algorithm::run(Model*) {
-	cout<<"This algorithm is not implemented for current model"<<endl;
-}*/
+void Algorithm::run(Model* model) {
+	throw runtime_error("This algorithm is not implemented for the selected model.");
+}

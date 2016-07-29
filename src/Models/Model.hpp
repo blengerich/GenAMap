@@ -19,6 +19,7 @@ protected:
 public:
     void setX(const MatrixXd&);
     void setY(const MatrixXd&);
+    virtual void setAttributeMatrix(const string&, MatrixXd*);
     void initBeta();
     void initBeta(MatrixXd);
     void updateBeta(MatrixXd);
@@ -28,7 +29,8 @@ public:
 
     MatrixXd predict();
     MatrixXd predict(MatrixXd);
-
+    
+    virtual void assertReadyToRun(){};
     virtual MatrixXd derivative();
     virtual MatrixXd proximal_derivative();
     virtual MatrixXd proximal_operator(MatrixXd, float);

@@ -47,6 +47,8 @@ public:
 	bool setY(const int, const Eigen::MatrixXd&);
 	// returns true on success, false otherwise.
 
+	bool setModelAttributeMatrix(const int, const string&, Eigen::MatrixXd*);
+	// returns true on success, false otherwise.
 
 	bool startJob(const int, void (*f)(uv_work_t*, int));
 	// Returns true if successfully queued, false otherwise.
@@ -56,7 +58,6 @@ public:
 
 	bool cancelJob(const int);
 	// Cancels a potentially running job.
-
 
 	Model* getModel(const int);
 	Algorithm* getAlgorithm(const int);

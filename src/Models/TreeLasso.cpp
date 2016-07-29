@@ -3,9 +3,15 @@
 //
 
 #include "TreeLasso.hpp"
+#include <iostream>
 #include <limits>
-#include <queue>
 #include <stack>
+#include <stdexcept>
+#include <queue>
+
+using namespace std;
+using namespace Eigen;
+
 
 Tree::Tree() {
     root = 0;
@@ -106,6 +112,10 @@ void TreeLasso::setXY(MatrixXd m, MatrixXd n) {
     X = m;
     y = n;
     initBeta();
+}
+
+void TreeLasso::assertReadyToRun() {
+    throw runtime_error("TreeLasso not implemented yet");
 }
 
 void TreeLasso::initIterativeUpdate(){

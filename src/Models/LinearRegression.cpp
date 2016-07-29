@@ -3,9 +3,11 @@
 //
 
 #include "LinearRegression.hpp"
+
 #include <Eigen/Dense>
-#include <unordered_map>
+#include <stdexcept>
 #include <iostream>
+#include <unordered_map>
 
 #ifdef BAZEL
 #include "Models/ModelOptions.hpp"
@@ -38,6 +40,16 @@ LinearRegression::LinearRegression(const unordered_map<string, string>& options)
     betaAll = MatrixXd::Ones(1,1);
 };
 
+void LinearRegression::assertReadyToRun() {
+    // X and y matrices must be initialized with the same number of rows for a LR run to make sense.
+    const bool ready = ((X.rows() > 0) && (X.rows() == y.rows())
+                     && (X.cols() > 0) && (y.cols() > 0));
+    const string err_str = "X and Y matrices of size (" + to_string(X.rows()) + "," + to_string(X.cols()) + "), and ("
+            + to_string(y.rows()) + "," + to_string(y.cols()) + ") are not compatible.";
+    if (!ready) {
+        throw runtime_error(err_str);
+    }
+}
 
 void LinearRegression::setL1_reg(float l1) { L1_reg = l1; };
 

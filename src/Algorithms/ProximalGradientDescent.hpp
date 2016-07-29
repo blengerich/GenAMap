@@ -40,23 +40,18 @@ private:
 
     bool checkVectorConvergence(VectorXd, VectorXd, double);
 
-    void setUpRun();
-    void finishRun();
-
     static constexpr double default_learning_rate = 0.001;
     static constexpr double default_learning_rate2 = 0.001;
     static constexpr double default_tolerance = 0.000001;
+    static constexpr long default_inner_step1 = 10;
+    static constexpr long default_inner_step2 = 10;
 
 public:
     ProximalGradientDescent();
     ProximalGradientDescent(const unordered_map<string, string>&);
 
-    void setLearningRate(float);
-    void setTolerance(float);
-    void setLearningRate2(float);
-    void setPrevResidule(float);
-    void setInnerStep1(long);
-    void setInnerStep2(long);
+    void setUpRun();
+    void finishRun();
 
     void run(Model*);
     void run(LinearRegression*);
@@ -65,6 +60,14 @@ public:
     void run(AdaMultiLasso*);
     void run(Gflasso*);
     void run(SparseLMM*);
+
+    void setLearningRate(float);
+    void setTolerance(float);
+    void setLearningRate2(float);
+    void setPrevResidule(float);
+    void setInnerStep1(long);
+    void setInnerStep2(long);
+    void assertReadyToRun();
 
     /*void stop();*/
 };

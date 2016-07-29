@@ -1,6 +1,7 @@
 #ifndef JOB_HPP
 #define JOB_HPP
 
+#include <exception>
 #include <uv.h>
 #include <v8.h>
 #include <Eigen/Dense>
@@ -26,6 +27,7 @@ typedef struct Job_t {
 	int job_id;
 	Algorithm* algorithm;
 	Model* model;
+	exception_ptr exception;
 } Job_t;
 
 typedef struct JobOptions_t {

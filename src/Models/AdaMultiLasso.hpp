@@ -17,6 +17,8 @@
 #include "Model.hpp"
 #endif
 
+using namespace Eigen;
+using namespace std;
 
 class AdaMultiLasso : public Model{
 private:
@@ -55,7 +57,8 @@ public:
     void setLambda1(double);
     void setLambda2(double);
 
-    void setSnpsFeature1(MatrixXd);
+    void setAttributeMatrix(const string& str, MatrixXd* Z);
+    void setSnpsFeature1(MatrixXd); // TODO: can these be pass by ref? Currently having problems if we pass the same array twice
     void setSnpsFeature2(MatrixXd);
     void setSnpsFeature(MatrixXd);
     MatrixXd getSnpsFeature1();
@@ -80,6 +83,7 @@ public:
     void setXY(MatrixXd, MatrixXd);
     void initBeta();
 
+    void assertReadyToRun();
     void initTraining();
     MatrixXd proximal_derivative();
     MatrixXd proximal_operator(MatrixXd, float);

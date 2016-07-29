@@ -3,12 +3,16 @@
 //
 
 #include <limits>
+#include <stdexcept>
 
 #ifdef BAZEL
 #include "Models/MultiPopLasso.hpp"
 #else
 #include "MultiPopLasso.hpp"
 #endif
+
+using namespace std;
+using namespace Eigen;
 
 void MultiPopLasso::setXY(MatrixXd m, MatrixXd n) {
     X = m;
@@ -39,6 +43,10 @@ double MultiPopLasso::groupPenalization() {
         r += tmp.row(i).squaredNorm();
     }
     return r;
+}
+
+void MultiPopLasso::assertReadyToRun() {
+    throw runtime_error("MultiPopLasso not implemented");
 }
 
 void MultiPopLasso::initTraining() {

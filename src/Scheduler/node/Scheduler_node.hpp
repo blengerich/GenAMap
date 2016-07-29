@@ -27,6 +27,9 @@ void setX(const v8::FunctionCallbackInfo<v8::Value>& args);
 void setY(const v8::FunctionCallbackInfo<v8::Value>& args);
 // Arguments: job_num, JSON Matrix
 
+void setModelAttributeMatrix(const v8::FunctionCallbackInfo<v8::Value>& args);
+// Arguments: job_num, attribute name, JSON Matrix
+
 void newJob(const v8::FunctionCallbackInfo<v8::Value>& args);
 // Arguments: JSON to be converted to JobOptions_t
 
@@ -90,6 +93,7 @@ bool ArgsHaveJobID(const FunctionCallbackInfo<Value>& args, const int position);
 void Init(Handle<Object> exports, Handle<Object> module) {
 	NODE_SET_METHOD(exports, "setX", setX);
 	NODE_SET_METHOD(exports, "setY", setY);
+	NODE_SET_METHOD(exports, "setModelAttributeMatrix", setModelAttributeMatrix);
 	NODE_SET_METHOD(exports, "newJob", newJob);
 	NODE_SET_METHOD(exports, "startJob", startJob);
 	NODE_SET_METHOD(exports, "checkJob", checkJob);

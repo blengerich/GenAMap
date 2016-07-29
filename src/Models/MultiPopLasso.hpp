@@ -18,6 +18,7 @@
 
 
 using namespace std;
+using namespace Eigen;
 
 class MultiPopLasso : public Model {
 private:
@@ -62,6 +63,7 @@ public:
     MatrixXd predict();
     MatrixXd predict(MatrixXd);
     MatrixXd predict(MatrixXd, VectorXd);
+    void assertReadyToRun();
     void initTraining();
 
     MatrixXd proximal_derivative();

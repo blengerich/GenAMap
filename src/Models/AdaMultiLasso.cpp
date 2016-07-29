@@ -4,9 +4,12 @@
 
 #include "AdaMultiLasso.hpp"
 
+#include <Eigen/Dense>
+#include <stdexcept>
 #include <unordered_map>
 
 using namespace std;
+using namespace Eigen;
 
 AdaMultiLasso::AdaMultiLasso() {
     lambda1 = default_lambda1;
@@ -32,6 +35,16 @@ AdaMultiLasso::AdaMultiLasso(const unordered_map<string, string>& opts) {
         mu = default_mu;
     }
     initTrainingFlag = false;
+}
+
+void AdaMultiLasso::setAttributeMatrix(const string& str, MatrixXd* Z) {
+    if (str == "snpsFeature1") {
+        setSnpsFeature1(*Z);
+    } else if (str == "snpsFeature2") {
+        setSnpsFeature2(*Z);
+    } else {
+        throw runtime_error("AdaMultiLasso models have no attribute with name" + str);
+    }
 }
 
 void AdaMultiLasso::setLambda1(double d) {
@@ -169,21 +182,11 @@ MatrixXd AdaMultiLasso::getFormattedBeta() {
 }
 
 void AdaMultiLasso::setX(MatrixXd xd) {
-    try {
-        throw 20;
-    }
-    catch (int) {
-        cerr << "TreeLasso does not support setX() and setY() individually, please use setXY instead";
-    }
+    X = xd;
 }
 
-void AdaMultiLasso::setY(MatrixXd xd) {
-    try {
-        throw 20;
-    }
-    catch (int) {
-        cerr << "TreeLasso does not support setX() and setY() individually, please use setXY instead";
-    }
+void AdaMultiLasso::setY(MatrixXd yd) {
+    y = yd;
 }
 
 void AdaMultiLasso::setXY(MatrixXd m, MatrixXd n) {
@@ -214,6 +217,20 @@ double AdaMultiLasso::penalty_cost() {
     return result;
 }
 
+
+void AdaMultiLasso::assertReadyToRun() {
+	if (!((X.rows() > 0) && (X.rows() == y.rows())
+		&& (X.cols() > 0) && (y.cols() > 0))) {
+		throw runtime_error("X and Y matrices of size (" + to_string(X.rows()) + "," + to_string(X.cols()) + "), and (" +
+            to_string(y.rows()) + "," + to_string(y.cols()) + ") are not compatible.");
+	}
+	if (!((snpsFeature1.rows() > 0) && (snpsFeature1.cols() > 0)
+		&& (snpsFeature2.rows() > 0) && (snpsFeature2.cols() > 0)))
+		// TODO: check feature sizes against X, Y - Haohan, how should these matrices be related?
+	{
+		throw runtime_error("SNP Feature matrices not compatible");
+	}
+}
 
 void AdaMultiLasso::initTraining() {
     if (!initTrainingFlag){

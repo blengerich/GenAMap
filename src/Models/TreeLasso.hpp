@@ -5,12 +5,13 @@
 #ifndef ALGORITHMS_TREELASSO_HPP
 #define ALGORITHMS_TREELASSO_HPP
 
-#include <vector>
-#include <iostream>
 #include "Model.hpp"
+
 #include <unordered_map>
+#include <vector>
 
 using namespace std;
+using namespace Eigen;
 
 struct treeNode{
     vector<long> trait;
@@ -97,6 +98,7 @@ public:
     void setLambda(double);
     void setMu(double);
     void initBeta();
+    void assertReadyToRun();
 
     void initIterativeUpdate();
     void initGradientUpdate();

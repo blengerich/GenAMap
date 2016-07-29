@@ -2,6 +2,7 @@
 
 #include "Scheduler_node.hpp"
 
+#include <Eigen/Dense>
 #include <exception>
 #include <iostream>
 #include <map>
@@ -21,6 +22,7 @@
 #include "../Scheduler.hpp"
 #include "../../JSON/JsonCoder.hpp"
 
+using namespace Eigen;
 using namespace std;
 using namespace v8;
 
@@ -53,6 +55,20 @@ void setY(const FunctionCallbackInfo<Value>& args) {
 	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
 
+// Arguments: job_id, string of attribute name, matrix to use
+void setModelAttributeMatrix(const FunctionCallbackInfo<Value>& args) {
+	bool result = false;
+	Isolate* isolate = args.GetIsolate();
+	if (ArgsHaveJobID(args, 0)) {
+		const int job_id = (int)Local<Number>::Cast(args[0])->Value();
+		const string attribute_name(*v8::String::Utf8Value(args[1]->ToString()));
+		Local<v8::Array> ar = Local<v8::Array>::Cast(args[2]);
+		MatrixXd* mat = v8toEigen(ar);
+		result = Scheduler::Instance()->setModelAttributeMatrix(job_id, attribute_name, mat);
+	}
+	args.GetReturnValue().Set(Boolean::New(isolate, result));	
+}
+
 
 // Creates a new job, but does not run it. Synchronous.
 // Arguments: JSON to be converted to JobOptions_t
@@ -60,15 +76,21 @@ void newJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
 	const JobOptions_t& options = JobOptions_t(isolate, options_v8);
-	const int id = Scheduler::Instance()->newJob(options);
-	if (id < 0) {
+	try {
+		const int id = Scheduler::Instance()->newJob(options);
+		if (id < 0) {
+			isolate->ThrowException(Exception::Error(
+				String::NewFromUtf8(isolate, "Could not add another job")));
+			return;
+		}
+
+		Local<Integer> retval = Integer::New(isolate, id);
+		args.GetReturnValue().Set(retval);
+	} catch (const exception& e) {
 		isolate->ThrowException(Exception::Error(
-			String::NewFromUtf8(isolate, "Could not add another job")));
+			String::NewFromUtf8(isolate, e.what())));
 		return;
 	}
-
-	Local<Integer> retval = Integer::New(isolate, id);
-	args.GetReturnValue().Set(retval);
 }
 
 
@@ -78,32 +100,28 @@ void newJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	// Inspect arguments.
+	try {
+		if (!ArgsHaveJobID(args, 0)) {
+			args.GetReturnValue().Set(Boolean::New(isolate, false));
+			return;
+		}
 
-	if (!ArgsHaveJobID(args, 0)) {
-		args.GetReturnValue().Set(Boolean::New(isolate, false));
-		return;
-	}
-
-	const int job_id = (int)Local<Number>::Cast(args[0])->Value();
-	Job_t* job = Scheduler::Instance()->getJob(job_id);
-	if (!job) {
-		isolate->ThrowException(Exception::TypeError(
-			String::NewFromUtf8(isolate, "Job id must correspond to a job that has been created.")));
-		args.GetReturnValue().Set(Boolean::New(isolate, false));
-		return;
-	}
-
-	if (job->algorithm->getIsRunning()) {
+		const int job_id = (int)Local<Number>::Cast(args[0])->Value();
+		Job_t* job = Scheduler::Instance()->getJob(job_id);
+		job->exception = nullptr;
+		job->callback.Reset(isolate, Local<Function>::Cast(args[1]));
+		job->job_id = job_id;
+		bool result = Scheduler::Instance()->startJob(job_id, trainAlgorithmComplete);
+		usleep(1);	// let the execution thread start -- necessary?
+		if (job->exception) {
+			rethrow_exception(job->exception);
+		}
+		args.GetReturnValue().Set(Boolean::New(isolate, result));
+	} catch (const exception& e) {
 		isolate->ThrowException(Exception::Error(
-			String::NewFromUtf8(isolate, "Job is already running.")));
+			String::NewFromUtf8(isolate, e.what())));
 		args.GetReturnValue().Set(Boolean::New(isolate, false));
-		return;
 	}
-
-	job->callback.Reset(isolate, Local<Function>::Cast(args[1]));
-	job->job_id = job_id;
-	bool result = Scheduler::Instance()->startJob(job_id, trainAlgorithmComplete);
-	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
 
 // Checks the status of an algorithm, given the algorithm's job number.
@@ -130,19 +148,24 @@ void checkJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 // Returns: MatrixXd of results, empty on error.
 void getJobResult(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
+	try {
+		// Check argument types.
+		if (!ArgsHaveJobID(args, 0)) {
+			args.GetReturnValue().Set(Boolean::New(isolate, false));
+			return;
+		}
 
-	// Check argument types.
-	if (!ArgsHaveJobID(args, 0)) {
-		args.GetReturnValue().Set(Boolean::New(isolate, false));
-		return;
+		int job_id = (int)Local<Number>::Cast(args[0])->Value();
+		const MatrixXd& result = Scheduler::Instance()->getJobResult(job_id);
+		Local<v8::Array> obj = v8::Array::New(isolate);
+		// TODO: Fewer convserions to return a matrix [Issue: https://github.com/blengerich/GenAMap_V2/issues/17]
+		obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
+		args.GetReturnValue().Set(obj);
 	}
-
-	int job_id = (int)Local<Number>::Cast(args[0])->Value();
-	const MatrixXd& result = Scheduler::Instance()->getJobResult(job_id);
-	Local<v8::Array> obj = v8::Array::New(isolate);
-	// TODO: Fewer convserions to return a matrix [Issue: https://github.com/blengerich/GenAMap_V2/issues/17]
-	obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
-	args.GetReturnValue().Set(obj);
+	catch (const exception& e) {
+		isolate->ThrowException(Exception::Error(
+			String::NewFromUtf8(isolate, e.what())));
+	}
 }
 
 
@@ -158,11 +181,15 @@ void cancelJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 		args.GetReturnValue().Set(Boolean::New(isolate, false));
 		return;
 	}
-
-	const int job_id = (int)Local<Integer>::Cast(args[0])->Value();
-	const bool success = Scheduler::Instance()->cancelJob(job_id);
-	Handle<Boolean> retval = Boolean::New(isolate, success);
-	args.GetReturnValue().Set(retval);
+	try {
+		const int job_id = (int)Local<Integer>::Cast(args[0])->Value();
+		const bool success = Scheduler::Instance()->cancelJob(job_id);
+		Handle<Boolean> retval = Boolean::New(isolate, success);
+		args.GetReturnValue().Set(retval);
+	} catch(const exception& e) {
+		isolate->ThrowException(Exception::Error(
+			String::NewFromUtf8(isolate, e.what())));
+	}
 }
 
 
@@ -191,16 +218,28 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 	// Runs in event loop when algorithm completes.
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope handleScope(isolate);
-
 	Job_t* job = static_cast<Job_t*>(req->data);
-	
-	// Pack up the data to be returned to JS
-	const MatrixXd& result = job->model->getBeta();
 	Local<v8::Array> obj = v8::Array::New(isolate);
-	// TODO: Fewer convserions to return a matrix [Issue: https://github.com/blengerich/GenAMap_V2/issues/17]
-	obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
+
+	try {
+		// Pack up the data to be returned to JS
+		const MatrixXd& result = Scheduler::Instance()->getJobResult(job->job_id);
+		// TODO: Fewer convserions to return a matrix [Issue: https://github.com/blengerich/GenAMap_V2/issues/17]
+		obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
+		
+		if (status < 0) { //libuv error
+			throw runtime_error("Libuv error (check server)");
+		}
+		if (job->exception) {
+			rethrow_exception(job->exception); 
+		}
+	} catch(const exception& e) {
+		// If the job failed, the second entry in the array is the exception text.
+		// Is this really a good way to return data? It is different than the result from getJobResult()
+		obj->Set(1, v8::String::NewFromUtf8(isolate, e.what()));	
+	}
+	
 	Handle<Value> argv[] = { obj };
- 
 	// execute the callback
 	Local<Function>::New(isolate, job->callback)->Call(
 		isolate->GetCurrentContext()->Global(), 1, argv);

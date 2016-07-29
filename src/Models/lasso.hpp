@@ -31,6 +31,7 @@ public:
     float getLambda(void);
     float getLearningRate(void);
 
+    virtual void assertReadyToRun();
     void train();
     void train(MatrixXd, VectorXd, float, float, float);
 

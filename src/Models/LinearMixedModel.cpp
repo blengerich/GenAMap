@@ -6,6 +6,9 @@
  */
 #include "LinearMixedModel.hpp"
 
+#include <stdexcept>
+
+using namespace std;
 using namespace Eigen;
 
 LinearMixedModel::LinearMixedModel() {
@@ -77,6 +80,10 @@ void  LinearMixedModel::set_num_samples(int num_samples) {
 
 long LinearMixedModel::get_num_samples() {
     return this->X.rows();
+}
+
+void LinearMixedModel::assertReadyToRun() {
+    throw runtime_error("LinearMixedModel not implemented");
 }
 
 // Decomposition of Similarity Matrix ->
