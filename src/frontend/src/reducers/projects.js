@@ -1,12 +1,28 @@
 import { IMPORT_DATA_RECEIVE, LOAD_INITIAL_PROJECTS, DELETE_FILE, RECEIVE_ANALYSIS_RESULTS } from '../actions'
 
-const project = (state, action) => {
+const addOrReplace = (arr, e, field) => {
+  if (arr.every (p => p[field] !== e[field])) {
+    return [...arr, e]
+  } else {
+    return arr.map(p => {
+      return (p[field] === e[field]) ? e : p
+    })
+  }
+}
+
+const initialProject = {
+  files: [],
+  markers: [],
+  traits: []
+}
+
+const project = (state = initialProject, action) => {
   switch (action.type) {
     case IMPORT_DATA_RECEIVE:
       const project = action.data.project
-      project.files = action.data.files
-      project.markers = [action.data.marker]
-      project.traits = [action.data.trait]
+      project.files = state.files.concat(action.data.files)
+      project.markers = addOrReplace(state.markers, action.data.marker, 'name')
+      project.traits = addOrReplace(state.traits, action.data.trait, 'name')
       return project
     case DELETE_FILE:
       const updatedFiles = state.files.filter(file => file.id !== action.file)

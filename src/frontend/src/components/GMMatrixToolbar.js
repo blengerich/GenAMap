@@ -121,7 +121,6 @@ const GMMatrixToolbar = React.createClass({
   render: function () {
     return (
       <div>
-        <FlatButton label='Toggle Toolbar' onTouchTap={this.handleToggle} />
         <GMToolbar
           open={this.state.open}
           height={60}
