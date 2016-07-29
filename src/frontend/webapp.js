@@ -458,16 +458,20 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           Scheduler.setX(jobId, markerData);
           Scheduler.setY(jobId, traitData);
           // Add any extra files
-          var results = other_data.filter((value, index) => 
-            app.models.file.findOne({id: value.id}).exec(function(err, attributeFile) {
-              if (err) console.log('Error getting attribute' + value.name + 'for analysis: ' + err);
-              var attributeConverter = new Converter({noheader: true});
-              attributeConverter.fromFile(attributeFile.path, function(err, attributeData) {
-                if (err) console.log('Error getting extra data for analysis: ', err);
-                backend.setModelAttributeMatrix(jobId, value.name, attributeData);
+          if (req.body.other_data) {
+            var results = req.body.other_data.filter((value, index) => 
+              app.models.file.findOne({id: value.id}).exec(function(err, attributeFile) {
+                if (err) console.log('Error getting attribute' + value.name + 'for analysis: ' + err);
+                if (attributeFile) {
+                  var attributeConverter = new Converter({noheader: true});
+                  attributeConverter.fromFile(attributeFile.path, function(err, attributeData) {
+                    if (err) console.log('Error getting extra data for analysis: ', err);
+                    backend.setModelAttributeMatrix(jobId, value.name, attributeData);
+                  })
+                }
               })
-            })
-          );
+            );
+          }
           /*results.map((value, index) => assert(value));*/
 
           const userId = extractUserIdFromHeader(req.headers)
