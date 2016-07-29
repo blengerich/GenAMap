@@ -199,10 +199,10 @@ describe('AdaMultiLasso', function() {
 			backend.startJob(job_id, function(results) {
 				assert.equal(backend.checkJob(job_id), 1);
 				assert.deepEqual(backend.getJobResult(job_id), results);
-				done();
 			} );
 			while (backend.checkJob(job_id) == 0) {}	// wait for job to actually start
 			assert.isBelow(backend.checkJob(job_id), 1, 'job progress should be less than 1 immediately after starting');
+			done();
 		});
 	});
 });
