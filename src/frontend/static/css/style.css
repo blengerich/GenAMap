@@ -25,7 +25,7 @@ main {
 /* Change color of cell on hover */
 
 .highlight:hover {
-	fill: #ff0000 !important;
+	fill: #00FF00 !important;
 	opacity: 0.8 !important;
 }
 
@@ -90,16 +90,36 @@ svg:active{
   padding-left: 20px;
 }
 
+#bottomPanel {
+  position: relative;
+  border-top: 1px solid gray;
+  margin-top: 10px;
+}
+
 .buttonContainer {
   position: absolute;
-  right: 50px;
-  top: 50%;
+  top: 10px;
+  left: 85%;
+}
+
+.buttonContainer li {
+  float: left;
+}
+
+.legend {
+  position: absolute;
+  top: 10px;
+  left: 5%;
+}
+
+.legend text {
+  font: 10px sans-serif;
 }
 
 .minimap {
 	position: absolute;
-  top: 15%;
-	right: 24px;
+  top: 10px;
+  left: 75%;
 }
 
 .axes line {

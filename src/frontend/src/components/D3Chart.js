@@ -1,20 +1,15 @@
 import React from 'react'
 import FontIcon from 'material-ui/lib/font-icon'
+import FlatButton from 'material-ui/lib/flat-button'
 import FloatingActionButton from 'material-ui/lib/floating-action-button'
 
 import fetch from './fetch'
 import config from '../../config'
 
 const colors = ["#c1f4ec","#91f2ed","#97e6fc","#95d1f9","#64b4dd","#65c5db","#66a9d8"];
-const negColorScale = d3.scale.linear()
-                        .domain([-1, 0])
-                        .range(["#990000", "#EEEEEE"]);
-const posColorScale = d3.scale.linear()
-                        .domain([0, 1])
-                        .range(["#EEEEEE", "#000099"]);
-function colorScale(x) {
-  return (x > 0 ? posColorScale(x) : negColorScale(x));
-}
+const colorScale = d3.scale.linear()
+                      .domain([-1, 0, 1])
+                      .range(["#990000", "#EEEEEE", "#000099"]);
 
 var axisOnZoom;
 var zoomFunction;
@@ -29,12 +24,61 @@ function getRandomInt(min, max) {
 }
 
 var Graph = function(data, markerLabels, traitLabels) {
+  d3.select('#chart').selectAll('svg').remove()
+
   /************************************
   *** visualization setup functions ***
   ************************************/
 
   function trimmedLabel(s, threshold) {
     return (s.length > threshold) ? (s.substring(0, threshold) + "..") : s
+  }
+
+  /* initialize legend */
+  function legend() {
+    const legendWidth = 95
+    const margin = 5
+    var legendBody = d3.select("#bottomPanel")
+                        .append("svg")
+                        .attr("width", legendWidth + 2 * margin)
+                        .attr("class", "legend")
+                          .append("g")
+                          .attr("transform", "translate(" + margin + ",0)")
+                          .attr("id", "legendBody")
+
+    legendBody.append("text")
+              .text("Correlation")
+              .attr("x", legendWidth/2)
+              .attr("dy", "1em")
+              .style("text-anchor", "middle")
+              .style("font-weight", "bold")
+
+    const numRowCells = 500
+    const cellWidth = legendWidth/numRowCells
+    const cellHeight = 10
+
+    const legendColorScale = d3.scale.linear()
+                               .domain([0, numRowCells/2, numRowCells])
+                               .range(["#990000", "#EEEEEE", "#000099"])
+
+    for (var i = 0; i < numRowCells; i++) {
+      legendBody.append("rect")
+                .attr("x", i * cellWidth)
+                .attr("y", 15)
+                .attr("width", cellWidth)
+                .attr("height", cellHeight)
+                .style("fill", legendColorScale(i))
+    }
+
+    const mapCorr = d3.scale.linear().domain([-1, 1]).range([0, legendWidth])
+    const markers = [-1, 0, 1].map((i) => {
+      legendBody.append("text")
+                .text(i)
+                .attr("x", mapCorr(i))
+                .attr("y", 25)
+                .attr("dy", "0.8em")
+                .style("text-anchor", "middle")
+    })
   }
 
   /* initialize axes and axis labels */
@@ -325,8 +369,8 @@ var Graph = function(data, markerLabels, traitLabels) {
 	var cellHeight = 10;
 
   // Need to change percentages again to take into account sidebar
-  var maxTotalWidth =  windowWidth/1.15;
-  var maxTotalHeight = windowHeight/1.3;
+  var maxTotalWidth =  windowWidth * 0.95;
+  var maxTotalHeight = windowHeight * 0.65;
   var matrixHeight = cellHeight * numTraits;
   var matrixWidth = cellWidth * numMarkers;
 
@@ -342,7 +386,9 @@ var Graph = function(data, markerLabels, traitLabels) {
   var baseLabelStyle = { fontSize: 10, maxFontSize: 18, titleSize: 20, innerMargin: 8 };
 
   d3.select('#chart')
-    .style({ "width": (mapWidth + margin.left) + "px" });
+    .style({
+      "width": (mapWidth + margin.left) + "px"
+    })
 
   var zoom = d3.behavior.zoom()
               .size([mapWidth, mapHeight])
@@ -370,6 +416,7 @@ var Graph = function(data, markerLabels, traitLabels) {
                 .append("g")
                   .attr("id", "overallMatrix");
 
+  legend();
   initAxes();
   parseData();
 
@@ -387,32 +434,16 @@ var Graph = function(data, markerLabels, traitLabels) {
   var overlayCellHeight = 5;
 
   /* Some minimap code */
-  var svgGraphic = d3.select("body")
+  var svgGraphic = d3.select("#bottomPanel")
                       .append("svg")
                         .attr("class", "minimap")
                         .attr("width", overlayMapWidth)
                         .attr("height", overlayMapHeight)
 
-  var minimapColors = ["#65e5cf", "#5bc8df", "#239faf", "#128479", "#5eacdd", "#1e69c4", "#2b90e2"];
-
-  for (var col = 0; col < 20; col++) {
-    for (var row = 0; row < 20; row++) {
-      var random = getRandomInt(0,7);
-      var color = minimapColors[random];
-
-      svgGraphic.append("rect")
-                  .attr("x", col*overlayCellWidth)
-                  .attr("y", row*overlayCellHeight)
-                  .attr("rx", 4)
-                  .attr("ry", 4)
-                  .attr("class", "cell")
-                  .attr("width", overlayCellWidth)
-                  .attr("height", overlayCellHeight)
-                  .attr("value", 1)
-                  .style("fill", color)
-                  .style("fill-opacity", "0.8");
-    }
-  }
+  svgGraphic.append("rect")
+    .attr("width", overlayMapWidth)
+    .attr("height", overlayMapHeight)
+    .style("fill", "#5eacdd")
 
   var numCellsHorizontalLanding = mapWidth/10;
   var numCellsVerticalLanding = mapHeight/10;
@@ -443,8 +474,7 @@ var Graph = function(data, markerLabels, traitLabels) {
 
 var D3Chart = React.createClass({
   validateNewProps: function(nextProps) {
-    return (!this.props.data || !this.props.markerLabels || !this.props.traitLabels)
-          && (!!nextProps.data && !!nextProps.markerLabels && !!nextProps.traitLabels)
+    return (this.props.pageParams !== nextProps.pageParams)
   },
   componentWillReceiveProps: function(nextProps) {
     if (this.validateNewProps(nextProps)) {
@@ -462,25 +492,43 @@ var D3Chart = React.createClass({
       mouse: {x: 0, y: 0, startX: 0, startY: 0}
 		}
 	},
-
-  subsetIndicator: function(trait1, marker1, trait2, marker2) {
-    // Would be easier to have material-ui flatbutton instead of regular buttons
-    // modfied with CSS, but I don't know how to render those in a string
-    var labelText = "<h4> Selected Subset: </h4> " +
-                    "<p>" + trait1 + " - " + trait2 + "</p>" +
-                    "<p>" + marker1 + " - " + marker2 + "</p>" +
-                    "<button class='subsetButton' id='cancel'> Cancel </button>" +
-                    "<button class='subsetButton' id='add'> Add </button>";
-    var selector = d3.select("#chart")
-                      .append("div")
-                        .attr("class", "selector")
-                        .html(labelText)
-                        .style("position", "absolute")
-                        .style("left", "80px")
-                        .style("top", "300px");
+  resetSubsetCells: function() {
+    this.setState({
+      subsetCells: [],
+      subsetTooltip: null
+    })
+    d3.select(".marquee").remove()
+  },
+  subsetIndicator: function(trait1, marker1, trait2, marker2, mouseEvent) {
+    const position = d3.select('.marquee').node().getBoundingClientRect()
+    const addSubset = function() {
+      this.resetSubsetCells()
+    }
+    const selectorStyle = {
+      "position": "absolute",
+      "left": position.left + position.width/2,
+      "top": position.top + position.height/2
+    }
+    const tooltip = (
+      <div className='selector' style={selectorStyle}>
+        <h4> Selected Subset: </h4>
+        <p>{trait1 + " - " + trait2}</p>
+        <p>{marker1 + " - " + marker2}</p>
+        <FlatButton
+          label='Cancel'
+          secondary={true}
+          onClick={this.resetSubsetCells}
+        />
+        <FlatButton
+          label='Add'
+          primary={true}
+          onClick={addSubset}
+        />
+      </div>
+    )
+    this.setState({ subsetTooltip: tooltip })
   },
   drawMarquee: function(div) {
-
     var that = this;
 
     function setMousePosition(event) {
@@ -556,6 +604,7 @@ var D3Chart = React.createClass({
       d3.select("#overallMatrix")
         .selectAll('.cell')
         .on("click", function() {
+          var mouseEvent = window.event;
           // Allocates a new array so uses more memory, but online said it was safer lol
           var subsetCells = that.state.subsetCells.slice();
           // Just adding the name here for display purposes, add the whole cell ('this') if wanted
@@ -565,7 +614,8 @@ var D3Chart = React.createClass({
           that.setState({numClicked: that.state.numClicked + 1});
           if (that.state.numClicked == 2) {
             that.subsetIndicator(that.state.subsetCells[0], that.state.subsetCells[1],
-                                  that.state.subsetCells[2], that.state.subsetCells[3]);
+                                  that.state.subsetCells[2], that.state.subsetCells[3],
+                                  mouseEvent);
             that.setState({numClicked: 0});
             var reset = that.state.subsetCells.slice(0, 0);
             that.setState({subsetCells: reset});
@@ -588,24 +638,27 @@ var D3Chart = React.createClass({
 		return (
       <div>
         <div id="chart" style={{ "marginTop": "25px" }}>
+          {this.state.subsetTooltip}
+        </div>
+        <div id="bottomPanel">
           <ul className="buttonContainer">
             <li className="zoomButton">
               <a id="zoom-in" data-zoom="+1">
-                <FloatingActionButton>
+                <FloatingActionButton mini={true}>
                   <FontIcon className="material-icons">add</FontIcon>
                 </FloatingActionButton>
               </a>
             </li>
             <li className="zoomButton">
               <a id="zoom-out" data-zoom="-1">
-                <FloatingActionButton>
+                <FloatingActionButton mini={true}>
                   <FontIcon className="material-icons">remove</FontIcon>
                 </FloatingActionButton>
               </a>
             </li>
             <li className="zoomButton">
               <a id="reset" data-zoom="-8">
-                <FloatingActionButton>
+                <FloatingActionButton mini={true}>
                   <FontIcon className="material-icons">settings_backup_restore</FontIcon>
                 </FloatingActionButton>
               </a>

@@ -162,7 +162,7 @@ export function downloadFile (file) {
         return response.json()
       }
     }).then(response => {
-      const dataURI = 'data:text/csv;,' + response.data
+      const dataURI = 'data:text/csv;base64,' + btoa(response.data.replace(/\n/g, '\r\n'))
       var link = document.createElement('a')
       link.download = response.file.path.substring(response.file.path.lastIndexOf('/') + 1)
       link.href = dataURI
