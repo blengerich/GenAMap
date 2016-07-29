@@ -153,15 +153,17 @@ const GMRunAnalysisDialog = React.createClass({
     const snpsFeatures = project.snpsFeatures
     console.log(snpsFeatures)
 
+
     this.setState({
       projectValue: value,
       markers: markers,
-      markerValue: len(markers) ? markers[0] : '',
+      markerValue: markers.length > 0 ? markers[0] : '',
       traits: traits,
-      traitValue: len(traits) ? traits[0] : '',
-      snpsFeature: snpsFeatures,
-      snpsFeatureValue: ''
+      traitValue: traits.length > 0 ? traits[0] : '',
+      /*snpsFeature: snpsFeatures,
+      snpsFeatureValue: snpsFeatures.length > 0 ? snpsFeatures[0] : ''*/
     })
+    
   },
   onChangeJobName: function (event) {
     this.setState({jobName: event.target.value})
@@ -190,7 +192,7 @@ const GMRunAnalysisDialog = React.createClass({
                   availableAlgorithmList: this.state.algorithmsByModelList[value]},
                   function() { // always use the algorithm listed first as the default
                     this.setState({algorithmValue: this.state.availableAlgorithmList["0"].props.value})
-                  }.bind(this)) 
+                  }) 
   },
   onChangeLambda: function(event) {
     this.setState({lambda : event.target.value})
@@ -328,6 +330,19 @@ const GMRunAnalysisDialog = React.createClass({
                   onChange={this.onChangeJobName}
                 />
               </div>
+              <div id='modelTypeDiv'>
+                <SelectField
+                  value={this.state.modelValue}
+                  hintText='Choose Model Type'
+                  errorText={this.state.modelValue === '' && errorText}
+                  onChange={this.onChangeModel}
+                >
+                {modelList}
+                </SelectField>
+                <select id='model' className='hidden' value={this.state.modelValue} readOnly>
+                  {modelListReact}
+                </select>
+              </div>
               <div id='projectValueDiv'>
                 <SelectField
                   value={this.state.projectValue}
@@ -341,17 +356,34 @@ const GMRunAnalysisDialog = React.createClass({
                   {projectListReact}
                 </select>
               </div>
-              <div id='modelTypeDiv'>
+              <div id="markerValDiv">
                 <SelectField
-                  value={this.state.modelValue}
-                  hintText='Choose Model Type'
-                  errorText={this.state.modelValue === '' && errorText}
-                  onChange={this.onChangeModel}
+                  value={this.state.markerValue}
+                  hintText='Choose Marker'
+                  errorText={!this.state.markerValue && errorText}
+                  onChange={this.onChangeMarker}
                 >
-                {modelList}
+                  <MenuItem value={'new'} primaryText='New Trait File' />
+                  {markerList}
                 </SelectField>
-                <select id='model' className='hidden' value={this.state.modelValue} readOnly>
-                  {modelListReact}
+                <select id='marker' className='hidden' value={this.state.markerValue} readOnly>
+                  <option value='new'>New SNP File</option>
+                  {markerListReact}
+                </select>
+              </div>
+              <div id="traitValDiv">
+                <SelectField
+                  value={this.state.traitValue}
+                  hintText='Choose Trait'
+                  errorText={!this.state.traitValue && errorText}
+                  onChange={this.onChangeTrait}
+                >
+                  <MenuItem value={'new'} primaryText='New Trait File' />
+                  {traitList}
+                </SelectField>
+                <select id='trait' className='hidden' value={this.state.traitValue} readOnly>
+                  <option value='new'>New Trait File</option>
+                  {traitListReact}
                 </select>
               </div>
               <div id='extraFilesDiv'>
@@ -374,7 +406,27 @@ const GMRunAnalysisDialog = React.createClass({
                       <option value='new'>New SNP File</option>
                       {snpsFeatureListReact}
                     </select>
-                  </div> :
+                    <div id='snpsFeatureDiv'>
+                    {(this.state.snpsFeatureValue === 'new') ?
+                      <div>
+                        <TextField
+                          id='snpsFeature'
+                          value={this.state.snpsFeatureName}
+                          hintText='SNPs Feature Name'
+                          errorText={this.state.snpsFeatureFileName && !this.state.snpsFeatureName && errorText}
+                          onChange={this.onChangeSnpsFeatureName}
+                        />
+                        <GMFileInput
+                          id='snpsFeatureFile'
+                          buttonLabel='SNPs Feature File'
+                          accept='.csv'
+                          onChange={this.onChangeSnpsFeatureFileName}
+                          fileLabel={this.state.snpsFeatureFileName}
+                        />
+                      </div>
+                    : null}
+                    </div>
+                  </div>:
                 (this.state.modelValue == 3) ? // Gflasso
                   <div>Gflasso has not been implemented yet</div>  :
                 (this.state.modelValue == 4) ? // Multi-Population Lasso
@@ -382,50 +434,6 @@ const GMRunAnalysisDialog = React.createClass({
                 (this.state.modelValue == 5) ? // Tree Lasso
                   <div>TreeLasso has not been implemented yet</div>  :
                 null}
-              </div>
-              {(this.state.snpsFeatureValue === 'new') ? // Selected "import new file"
-                <div id='snpsFeatureDiv'>
-                  <TextField
-                    id='snpsFeature'
-                    value={this.state.snpsFeatureName}
-                    hintText='SNPs Feature Name'
-                    errorText={this.state.snpsFeatureFileName && !this.state.snpsFeatureName && errorText}
-                    onChange={this.onChangeSnpsFeatureName.bind(this)}
-                  />
-                  <GMFileInput
-                    id='snpsFeatureFile'
-                    buttonLabel='SNPs Feature File'
-                    accept='.csv'
-                    onChange={this.onChangeSnpsFeatureFileName.bind(this)}
-                    fileLabel={this.state.snpsFeatureFileName}
-                  />
-                </div>
-              : null}
-              <div id="markerValDiv">
-                <SelectField
-                  value={this.state.markerValue}
-                  hintText='Choose Marker'
-                  errorText={!this.state.markerValue && errorText}
-                  onChange={this.onChangeMarker}
-                >
-                  {markerList}
-                </SelectField>
-                <select id='marker' className='hidden' value={this.state.markerValue} readOnly>
-                  {markerListReact}
-                </select>
-              </div>
-              <div id="traitValDiv">
-                <SelectField
-                  value={this.state.traitValue}
-                  hintText='Choose Trait'
-                  errorText={!this.state.traitValue && errorText}
-                  onChange={this.onChangeTrait}
-                >
-                  {traitList}
-                </SelectField>
-                <select id='trait' className='hidden' value={this.state.traitValue} readOnly>
-                  {traitListReact}
-                </select>
               </div>
             </div>
             <div id='rightHalfDiv' style={{width:'35%', float:'right'}}>              
