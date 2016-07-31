@@ -19,10 +19,10 @@ using namespace Eigen;
 using namespace std;
 
 
-ICLasso::ICLasso(double l1 = 1, double l2 = 1, double g = 1) {
-    lambda1 = l1;
-    lambda2 = l2;
-    gamma = g;
+ICLasso::ICLasso() {
+    lambda1 = 1;
+    lambda2 = 1;
+    gamma = 1;
 };
 
 void ICLasso::set_X(MatrixXd new_X){
@@ -71,23 +71,24 @@ double sign(double x){
     if (x > 0) return 1;
     if (x < 0) return -1;
     return 0;
-}；
+};
 
 /* end helpers for cost */
 
 double ICLasso::cost() {
     int n = X.cols();
     MatrixXd YXBeta = Y-X*Beta;
-    MatrixXd squared = YXBeta.unaryExpr(std::ptr_fun(square<double>));
+    MatrixXd squared = YXBeta.unaryExpr(std::ptr_fun(square));
     double loss1 = squared.sum()/n;
     double loss2 = (cov(Y)*Theta).trace() - log(Theta.determinant());
-    double pen1 = Beta.abs().sum();
-    double pen2 = Theta.abs().sum();
+    double pen1 = Beta.cwiseAbs().sum();
+    double pen2 = Theta.cwiseAbs().sum();
     double pen3 = 0;
+    double incr;
     int size_T = Theta.rows();
     for (int i = 0; i < size_T; i++){
         for (int j = i+1; j < size_T; j++){
-            incr = ((Beta.col(i) + sign(Theta(i,j))*Beta.col(j)).abs().sum());
+            incr = ((Beta.col(i) + sign(Theta(i,j))*Beta.col(j)).cwiseAbs().sum());
             pen3 = pen3 + abs(Theta(i, j))*incr;
         }
     }
@@ -95,14 +96,15 @@ double ICLasso::cost() {
 };
 
 /* Helpers for optimize_theta */
-double cost_theta(MatrixXd S, MatrixXd Beta, MatrixXd Theta, lambda, gamma) {
+double cost_theta(MatrixXd S, MatrixXd Beta, MatrixXd Theta, double lambda, double gamma) {
     double loss = (S*Theta).trace()-log(Theta.determinant());
-    double pen2 = Theta.abs().sum();
+    double pen2 = Theta.cwiseAbs().sum();
     double pen3 = 0;
     int size_T = Theta.rows();
+    double incr;
     for (int i = 0; i < size_T; i++){
         for (int j = i+1; j < size_T; j++){
-            incr = ((Beta.col(i) + sign(Theta(i,j))*Beta.col(j)).abs().sum());
+            incr = ((Beta.col(i) + sign(Theta(i,j))*Beta.col(j)).cwiseAbs().sum());
             pen3 = pen3 + abs(Theta(i, j))*incr;
         }
     }
@@ -128,7 +130,7 @@ MatrixXd remove_col(MatrixXd X, int j){
     return result;
 };
 
-void change_theta(MatrixXd C, int j){
+void change_theta(MatrixXd C, MatrixXd Theta, int j){
     for (int i = 0; i < Theta.cols(); i++){
         if (i != j){
             Theta(i, j) = Theta(j, j) * C(i, j);
@@ -136,7 +138,7 @@ void change_theta(MatrixXd C, int j){
     }
 };
 
-void symmetrize(int j){
+void symmetrize(MatrixXd Theta, int j){
     for (int i = 0; i < Theta.cols(); i++){
         if (i != j){
             Theta(j, i) = Theta(i, j);
@@ -145,7 +147,7 @@ void symmetrize(int j){
 };
 
 double bound_below(double a){
-    return max(a, 0);
+    return std::max(a, 0.0);
 }
 
 MatrixXd update_beta_mex(MatrixXd X, MatrixXd S, MatrixXd a, 
@@ -177,22 +179,25 @@ MatrixXd update_beta_mex(MatrixXd X, MatrixXd S, MatrixXd a,
     return beta_new;
 }
 
-MatrixXd optimize_block_coord_sigma(MatrixXd S, int maxiter, double a, double b){
+MatrixXd optimize_block_coord_sigma(MatrixXd X,
+       MatrixXd S, int maxiter, MatrixXd a, MatrixXd b, double lambda, 
+       double gamma){
     int p = X.cols();
-    Beta = MatrixXd::Zero(p, 1);
+    MatrixXd Beta = MatrixXd::Zero(p, 1);
     MatrixXd oldBeta;
     for (int i = 0; i < maxiter; i++){
         oldBeta = Beta;
         Beta = update_beta_mex(X,S,a,b,lambda,gamma,Beta);
         if ((Beta-oldBeta).norm() < 1e-3) break;
     }
-    return -X*(Beta.unaryExpr(std::ptr_fun(bound_below<double>))-
-              (-Beta).unaryExpr(std::ptr_fun(bound_below<double>)));
+    return -X*(Beta.unaryExpr(std::ptr_fun(bound_below))-
+              (-Beta).unaryExpr(std::ptr_fun(bound_below)));
 }
 
-MatrixXd optimize_block_coord_beta(MatrixXd S, int maxiter, double a, double b){
+MatrixXd optimize_block_coord_beta(MatrixXd X, 
+    MatrixXd S, int maxiter, MatrixXd a, MatrixXd b, double lambda, double gamma){
     int p = X.cols();
-    Beta = MatrixXd::Zero(p, 1);
+    MatrixXd Beta = MatrixXd::Zero(p, 1);
     MatrixXd oldBeta;
     for (int i = 0; i < maxiter; i++){
         oldBeta = Beta;
@@ -202,17 +207,15 @@ MatrixXd optimize_block_coord_beta(MatrixXd S, int maxiter, double a, double b){
     return Beta;
 }
 
-MatrixXd fused_prox_vector(MatrixXd beta, MatrixXd u, MatrixXd l){
+MatrixXd fused_prox_vector(MatrixXd beta, double u, double l){
     int len = beta.rows();
-    w = MatrixXd::Zero(len, 1);
+    MatrixXd w = MatrixXd::Zero(len, 1);
     for (int i = 0; i < len; i++){
         double beta_c = beta(i, 0);
-        double u_c = u(i, 0);
-        double l_c = l(i, 0);
-        if (beta_c > u_c){
-            beta(i, 0) = beta_c - u_c;
-        } else if (beta_c < l_c){
-            beta(i, 0) = beta_c - l_c;
+        if (beta_c > u){
+            beta(i, 0) = beta_c - u;
+        } else if (beta_c < l){
+            beta(i, 0) = beta_c - l;
         }
     }
     return w;
@@ -228,77 +231,77 @@ double fused_prox_scalar(double beta, double u, double l){
     } else {
         return 0;
     }
-
 }
 
-MatrixXd optimize_block_prox(MatrixXd S, int maxiter, double a, double b){
+/* type issues with Q and h_beta */
 
-    //get dimension
-    int n = X.rows();
+// MatrixXd optimize_block_prox(MatrixXd X, 
+//      MatrixXd s, int maxiter, double a, double b, double lambda, double gamma){
 
-    //initialize variables
-    Beta = MatrixXd::Zero(n, 1);
-    MatrixXd w = Beta;
-    theta = 1;
-    L = 10;
-    objVals = MatrixXd::Zero(maxiter, 1);
+//     //get dimension
+//     int n = X.rows();
 
-    MatrixXd h_w;
-    double grad, z, upper, lower;
+//     //initialize variables
+//     MatrixXd Beta = MatrixXd::Zero(n, 1);
+//     MatrixXd w = Beta;
+//     double theta = 1;
+//     double L = 10;
+//     MatrixXd objVals = MatrixXd::Zero(maxiter, 1);
 
-    //optimize Beta
-    for (int iter = 0; iter < maxiter; iter++){
-        //computer gradient
-        grad = (X*w) + s;
+//     MatrixXd h_w, grad, z, beta_new;
+//     double upper, lower, h_beta, Q;
 
-        //compute new estimate of beta using line search
-        h_w = w.transpose()*X*w/2 + s.transpose()*w;
-        while (true){
-            z = w - (1/L)*grad;
-            upper = (gamma*a + lambda)/L;
-            lower = -(gamma*b + lambda)/L;
-            beta_new = fused_prox_vector(z,upper,lower);
-            h_beta = beta_new.transpose()*X*beta_new/2 + s.transpose()*beta_new;
-            Q = h_w + (beta_new-w).transpose()*grad
-                + L*((beta_new-w).cwiseProduct(beta_new-w)).sum()/2;
-            if (h_beta <= Q) break;
-            else L = 2*L;
+//     //optimize Beta
+//     for (int iter = 0; iter < maxiter; iter++){
+//         //computer gradient
+//         grad = (X*w) + s;
 
-            //update w and theta
-            theta_new = (1 + sqrt(1 + 4*theta*theta))/2;
-            w = beta_new + (theta-1)/(theta_new)*(beta_new-beta);
+//         //compute new estimate of beta using line search
+//         h_w = w.transpose()*X*w/2 + s.transpose()*w;
+//         while (true){
+//             z = w - (1/L)*grad;
+//             upper = (gamma*a + lambda)/L;
+//             lower = -(gamma*b + lambda)/L;
+//             beta_new = fused_prox_vector(z,upper,lower);
+//             h_beta = (beta_new.transpose()*X*beta_new)(0,0)/2 + (s.transpose()*beta_new)(0, 0);
+//             Q = h_w + (beta_new-w).transpose()*grad
+//                 + L*((beta_new-w).cwiseProduct(beta_new-w)).sum()/2;
+//             if (h_beta <= Q) break;
+//             else L = 2*L;
 
-            //store current objective value
-            objVals(iter, 0) = h_beta + (gamma*a+lambda).transpose()*
-                               beta_new.unaryExpr(std::ptr_fun(bound_below<double>) + 
-                               (gamma*b+lambda).transpose()*
-                               (-beta_new).unaryExpr(std::ptr_fun(bound_below<double>);
+//             //update w and theta
+//             theta_new = (1 + sqrt(1 + 4*theta*theta))/2;
+//             w = beta_new + (theta-1)/(theta_new)*(beta_new-beta);
 
-            //store new variables
-            beta = beta_new;
-            theta = theta_new;
-                    % check convergence
-            if (iter >= 5 && abs(objVals(iter, 0)-objVals(iter-1, 0))/abs(objVals(iter-1, 0)) < 1e-8)
-            break;
+//             //store current objective value
+//             objVals(iter, 0) = h_beta + (gamma*a+lambda).transpose()*
+//                                beta_new.unaryExpr(std::ptr_fun(bound_below<double>) + 
+//                                (gamma*b+lambda).transpose()*
+//                                (-beta_new).unaryExpr(std::ptr_fun(bound_below<double>);
 
-
-        }
-    }
-
-    //calculate sigma
-    sigma = -X*(beta_new.unaryExpr(std::ptr_fun(bound_below<double>)-
-                (-beta_new).unaryExpr(std::ptr_fun(bound_below<double>));
-    return sigma;
+//             //store new variables
+//             beta = beta_new;
+//             theta = theta_new;
+//                     % check convergence
+//             if (iter >= 5 && abs(objVals(iter, 0)-objVals(iter-1, 0))/abs(objVals(iter-1, 0)) < 1e-8)
+//             break;
 
 
-}
+//         }
+//     }
+
+//     //calculate sigma
+//     sigma = -X*(beta_new.unaryExpr(std::ptr_fun(bound_below<double>)-
+//                 (-beta_new).unaryExpr(std::ptr_fun(bound_below<double>));
+//     return sigma;
+
+
+// }
 
 
 
 /* end helpers for optimize_theta */
 
-/* ISSUES: 1. test?
-*/
 void ICLasso::optimize_theta(){
 
     //get dimensions ISSUE
@@ -310,8 +313,8 @@ void ICLasso::optimize_theta(){
     MatrixXd B = MatrixXd::Zero(q, q);
     for (int j = 0; j < q; j++){
         for (int k = 0; k < q; k++){
-            A(j, k) = abs(Beta.col(j) + Beta.col(k)).abs().sum()/2;
-            B(j, k) = abs(Beta.col(j) - Beta.col(k)).abs().sum()/2;
+            A(j, k) = (Beta.col(j) + Beta.col(k)).cwiseAbs().sum()/2;
+            B(j, k) = (Beta.col(j) - Beta.col(k)).cwiseAbs().sum()/2;
         }
         A(j, j) = 0;
         B(j, j) = 0;
@@ -328,7 +331,7 @@ void ICLasso::optimize_theta(){
 
     int i = 0;
     //run optimization to obtain estimate of covariance
-    for (int iter = 0; iter < option.maxiter; iter++){
+    for (int iter = 0; iter < maxiter; iter++){
         //iterate through each block
         C = MatrixXd::Zero(q, q);
         for (int j = 0; j < q; j++){
@@ -338,8 +341,8 @@ void ICLasso::optimize_theta(){
             b = remove_row(B, j);
 
             MatrixXd sigma_j, beta;
-            sigma_j = optimize_block_coord_sigma(s, maxiter, a, b);
-            beta = optimize_block_coord_beta(s, maxiter, a, b);
+            sigma_j = optimize_block_coord_sigma(X, s, maxiter, a, b, lambda, gamma);
+            beta = optimize_block_coord_beta(X, s, maxiter, a, b, lambda, gamma);
             for (i = 0; i < S.rows(); i++){
                 if (i != j) {
                     Sigma(i, j) = sigma_j(i, 0);
@@ -370,8 +373,8 @@ void ICLasso::optimize_theta(){
         MatrixXd removed_C = remove_row(C, j);
         Theta(j, j) = 1/(Sigma(j, j) + 
                (removed_Sigma.col(j).transpose() * removed_C.col(j))(0, 0));
-        change_theta(C, j);
-        symmetrize(j);
+        change_theta(C, Theta, j);
+        symmetrize(Theta, j);
     }
 
 };

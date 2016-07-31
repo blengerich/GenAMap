@@ -6,20 +6,21 @@
 #define ALGORITHMS_LINEARREGRESSION_HPP
 
 
-#include "Model.hpp"
-
 #include <Eigen/Dense>
 #include <unordered_map>
+//#include "Model.hpp"
 
 #ifdef BAZEL
 #include "model/ModelOptions.hpp"
+#include "Model.hpp"
 #else
 #include "../model/ModelOptions.hpp"
+#include "../model/Model.hpp"
 #endif
 
 using namespace Eigen;
 
-class LinearRegression : public virtual Model {
+class ICLasso : public virtual Model {
 private:
     MatrixXd X; //n * p
     MatrixXd Y; //n * 1
@@ -31,13 +32,15 @@ private:
     MatrixXd Theta;
 
 public:
+    //constructor
+    ICLasso();
     void set_X(MatrixXd);
     void set_Y(MatrixXd);
     void set_XY(MatrixXd, MatrixXd);
     void set_lambda1(double);
     void set_lambda2(double);
     void set_gamma(double);
-    void set_theta(double);
+    void set_theta(MatrixXd);
     double cost();
     void optimize_theta();
 
