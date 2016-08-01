@@ -11,8 +11,16 @@ var mapWidth;
 var mapHeight;
 var miniZoomed;
 
+var colorScale;
+var xScale;
+var yScale;
+
 var Graph = function() {
   d3.select('#manhattanChart').selectAll('svg').remove()
+
+  /************************************
+  *** visualization setup functions ***
+  ************************************/
 
   /* initialize axes and axis labels */
   function initAxes() {
@@ -71,6 +79,66 @@ var Graph = function() {
       .style("font-size", baseLabelStyle.fontSize + "px");
   }
 
+  // parse marker data
+  function parseData() {
+    // TODO: connect to runAnalysis
+    const dataPath = 'tempData'
+    const markerLabelFile = 'markerLabelsReal.txt'
+    const pValsFile = 'pvals.txt'
+
+    var maxPosition = 0
+    var maxPValLog = 0
+    var maxChromosome = 0
+
+    var markerData = []
+
+    d3.text(dataPath + "/" + markerLabelFile, function(text) {
+      var markerData =
+      d3.tsv.parseRows(text, function(d) {
+        maxChromosome = Math.max(maxChromosome, +d[1])
+        maxPosition = Math.max(maxPosition, +d[2])
+        return {
+          marker: d[0],
+          chromosome: +d[1],
+          position: +d[2]
+        }
+      })
+
+      d3.text(dataPath + "/" + pValsFile, function(text) {
+        d3.csv.parseRows(text, function(d, i) {
+          const log10 = (x) => Math.log(x)/Math.log(10)
+          maxPValLog = Math.max(maxPValLog, -log10(+d[0]))
+          markerData[i].pVal = -log10(+d[0])
+        })
+
+        colorScale = d3.scale.linear()
+                              .domain([0, maxChromosome])
+                              .range(["red", "blue"])
+        xScale = d3.scale.linear()
+                          .domain([0, maxPosition])
+                          .range([0, mapWidth])
+        yScale = d3.scale.linear()
+                          .domain([0, maxPValLog * 1.2])
+                          .range([mapHeight, 0])
+
+        var cards = svg.selectAll('circle')
+                       .data(markerData, function(d) { return d.marker })
+
+        cards.enter().append('circle')
+                     .attr('cx', function(d) { return xScale(d.position) })
+                     .attr('cy', function(d) { return yScale(d.pVal) })
+                     .attr('class', 'cell')
+                     .attr('r', cellRadius)
+                     .attr('value', function(d) { return d.pVal })
+
+        cards.transition().duration(100)
+             .attr('fill', function(d) { return colorScale(d.chromosome) })
+
+        cards.exit().remove()
+      })
+    })
+  }
+
   /****************************
   ***** begin main script *****
   ****************************/
@@ -80,6 +148,8 @@ var Graph = function() {
 
   const totalWidth =  windowWidth * 0.95;
   const totalHeight = windowHeight * 0.65;
+
+  var cellRadius = 5;
 
   var leftMargin = 0.1 * windowWidth;
 	var rightMargin = 0.1 * windowWidth;
@@ -107,14 +177,14 @@ var Graph = function() {
                   .attr("id", "manhattanMap")
 
   initAxes()
+  parseData()
 }
 
 var GMManhattanChart = React.createClass({
   validateNewProps(nextProps) {
-    return !!nextProps
+    return (this.props.pageParams !== nextProps.pageParams)
   },
   componentWillReceiveProps(nextProps) {
-    console.log(nextProps)
     if (this.validateNewProps(nextProps)) {
       this.setState({
         points: Graph()

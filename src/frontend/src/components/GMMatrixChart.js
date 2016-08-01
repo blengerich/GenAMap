@@ -6,7 +6,6 @@ import FloatingActionButton from 'material-ui/lib/floating-action-button'
 import fetch from './fetch'
 import config from '../../config'
 
-const colors = ["#c1f4ec","#91f2ed","#97e6fc","#95d1f9","#64b4dd","#65c5db","#66a9d8"];
 const colorScale = d3.scale.linear()
                       .domain([-1, 0, 1])
                       .range(["#990000", "#EEEEEE", "#000099"]);
