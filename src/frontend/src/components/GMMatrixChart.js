@@ -24,7 +24,7 @@ function getRandomInt(min, max) {
 }
 
 var Graph = function(data, markerLabels, traitLabels) {
-  d3.select('#chart').selectAll('svg').remove()
+  d3.select('#matrixChart').selectAll('svg').remove()
 
   /************************************
   *** visualization setup functions ***
@@ -38,7 +38,7 @@ var Graph = function(data, markerLabels, traitLabels) {
   function legend() {
     const legendWidth = 95
     const margin = 5
-    var legendBody = d3.select("#bottomPanel")
+    var legendBody = d3.select("#matrixBottomPanel")
                         .append("svg")
                         .attr("width", legendWidth + 2 * margin)
                         .attr("class", "legend")
@@ -182,7 +182,7 @@ var Graph = function(data, markerLabels, traitLabels) {
   function hoverOnCell(d, trait, marker, correlation, mousePos) {
     var labelText = "<h2>Trait: " + traitLabels[trait] + "</h2> <h2>Marker: " +
                     markerLabels[marker] + "</h2> <p> Correlation: " + correlation + "</p>";
-    var tooltip = d3.select("#chart")
+    var tooltip = d3.select("#matrixChart")
                     .append("div")
                     .attr("class", "tooltip")
                     .html(labelText)
@@ -385,7 +385,7 @@ var Graph = function(data, markerLabels, traitLabels) {
 
   var baseLabelStyle = { fontSize: 10, maxFontSize: 18, titleSize: 20, innerMargin: 8 };
 
-  d3.select('#chart')
+  d3.select('#matrixChart')
     .style({
       "width": (mapWidth + margin.left) + "px"
     })
@@ -401,7 +401,7 @@ var Graph = function(data, markerLabels, traitLabels) {
   d3.select("#reset")
     .on("click", reset);
 
-  var svg = d3.select("#chart")
+  var svg = d3.select("#matrixChart")
               .append("svg")
               .attr("id", "rootSvg")
               .attr("width", totalWidth)
@@ -434,7 +434,7 @@ var Graph = function(data, markerLabels, traitLabels) {
   var overlayCellHeight = 5;
 
   /* Some minimap code */
-  var svgGraphic = d3.select("#bottomPanel")
+  var svgGraphic = d3.select("#matrixBottomPanel")
                       .append("svg")
                         .attr("class", "minimap")
                         .attr("width", overlayMapWidth)
@@ -472,7 +472,7 @@ var Graph = function(data, markerLabels, traitLabels) {
   var overlay = d3.select("#map-background");
 }
 
-var D3Chart = React.createClass({
+var GMMatrixChart = React.createClass({
   validateNewProps: function(nextProps) {
     return (this.props.pageParams !== nextProps.pageParams)
   },
@@ -567,7 +567,7 @@ var D3Chart = React.createClass({
         that.state.element.className = 'marquee'
         that.state.element.style.left = that.state.mouse.x + 'px';
         that.state.element.style.top = that.state.mouse.y + 'px';
-        document.getElementById('chart').appendChild(that.state.element);
+        document.getElementById('matrixChart').appendChild(that.state.element);
       }
     }
   },
@@ -637,10 +637,10 @@ var D3Chart = React.createClass({
 	render: function() {
 		return (
       <div>
-        <div id="chart" style={{ "marginTop": "25px" }}>
+        <div id="matrixChart" style={{ "marginTop": "25px" }}>
           {this.state.subsetTooltip}
         </div>
-        <div id="bottomPanel">
+        <div id="matrixBottomPanel">
           <ul className="buttonContainer">
             <li className="zoomButton">
               <a id="zoom-in" data-zoom="+1">
@@ -670,4 +670,4 @@ var D3Chart = React.createClass({
 	}
 });
 
-export default D3Chart
+export default GMMatrixChart
