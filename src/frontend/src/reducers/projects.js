@@ -2,7 +2,7 @@ import { IMPORT_DATA_RECEIVE, LOAD_INITIAL_PROJECTS, DELETE_FILE, RECEIVE_ANALYS
 
 const addOrReplace = (arr, e, field) => {
   if (!e || !e.id)
-    return
+    return arr
 
   if (arr.every (p => p[field] !== e[field])) {
     return [...arr, e]
@@ -23,7 +23,6 @@ const initialProject = {
 const project = (state = initialProject, action) => {
   switch (action.type) {
     case IMPORT_DATA_RECEIVE:
-    console.log("data received")
       const project = action.data.project
       project.files = state.files.concat(action.data.files)
       project.markers = addOrReplace(state.markers, action.data.marker, 'name')

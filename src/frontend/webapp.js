@@ -396,10 +396,11 @@ app.post(config.api.importDataUrl, function (req, res) {
               }
               callback()
             })
+          } else {
+            callback()
           }
         }, function (err) {
           if (err) throw err
-          console.log("returning")
 
           return res.json({ project, files, marker, trait, snpsFeature })
         }
