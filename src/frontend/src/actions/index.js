@@ -51,7 +51,6 @@ function importDataReceive (data) {
 }
 
 function createFormData (form) {
-  console.log(form.elements)
   let formData = new window.FormData()
   for (var i = 0; i < form.length; i++) {
     if (form.elements[i].id) {

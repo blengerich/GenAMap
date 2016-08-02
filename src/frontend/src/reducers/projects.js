@@ -23,7 +23,6 @@ const initialProject = {
 const project = (state = initialProject, action) => {
   switch (action.type) {
     case IMPORT_DATA_RECEIVE:
-    console.log(action.data)
       const project = action.data.project
       project.files = state.files.concat(action.data.files)
       project.markers = addOrReplace(state.markers, action.data.marker, 'name')

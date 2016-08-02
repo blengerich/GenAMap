@@ -157,7 +157,6 @@ const GMRunAnalysisDialog = React.createClass({
     const markers = project.markers
     const traits = project.traits
     const snpsFeatures = project.snpsFeatures
-    console.log(snpsFeatures)
 
 
     this.setState({
