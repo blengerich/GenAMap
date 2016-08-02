@@ -365,7 +365,7 @@ app.post(config.api.importDataUrl, function (req, res) {
   })
 
   busboy.on('finish', function () {
-    app.models.project.findOrCreate(projectObj).exec(function (err, project) {
+    const projectFinish = function (err, project) {
       // if (err) return res.status(500).json({err: err})
       if (err) throw err
       var files = [] // not really used right now
@@ -405,6 +405,14 @@ app.post(config.api.importDataUrl, function (req, res) {
           return res.json({ project, files, marker, trait, snpsFeature })
         }
       )
+    }
+
+    app.models.project.findOne({ id: projectId }).exec(function (err, project) {
+      if (!project) {
+        app.models.project.findOrCreate(projectObj).exec(projectFinish)
+      } else {
+        projectFinish(err, project)
+      }
     })
   })
 
