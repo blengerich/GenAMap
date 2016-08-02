@@ -548,20 +548,18 @@ app.get('/api/algorithms', function (req, res) {
   /*
   model_type = {
     linear_regression: 1,
-    lasso: 2,
-    ada_multi_lasso: 3,
-    gf_lasso: 4,
-    multi_pop_lasso: 5,
-    tree_lasso: 6
+    ada_multi_lasso: 2,
+    gf_lasso: 3,
+    multi_pop_lasso: 4,
+    tree_lasso: 5
   };
   */
   return res.json([
     {name: 'Linear Regression', id: 1}
-    /* {name: "Lasso", id: 2},
-    {name: "Ada Multi Lasso", id: 3},
-    {name: "GF Lasso", id: 4},
-    {name: "Multi Pop Lasso": 5},
-    {name: "Tree Lasso", id: 6} */
+    /*{name: "Ada Multi Lasso", id: 2},
+    {name: "GF Lasso", id: 3},
+    {name: "Multi Pop Lasso": 4},
+    {name: "Tree Lasso", id: 5} */
   ])
 })
 
