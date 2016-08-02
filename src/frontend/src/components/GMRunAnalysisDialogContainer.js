@@ -12,6 +12,9 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = (dispatch) => ({
   submit: (data) => {
     dispatch(runAnalysis(data))
+  },
+  importSNP: (data) => {
+    dispatch(importData(data))
   }
 })
 

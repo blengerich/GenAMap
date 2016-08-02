@@ -69,7 +69,7 @@ const GMRunAnalysisDialog = React.createClass({
       // Algorithm parameters
       algorithms: config.algorithms,
       algorithmsByModelList : Object.keys(config.algorithmsByModel).map((value, index) =>
-        config.algorithmsByModel[value].map((algorithm_index, index) => 
+        config.algorithmsByModel[value].map((algorithm_index, index) =>
           <MenuItem key={index} value={config.algorithms[algorithm_index].id} primaryText={config.algorithms[algorithm_index].name} />)),
       availableAlgorithmList: [],
       algorithmValue: '',
@@ -137,6 +137,17 @@ const GMRunAnalysisDialog = React.createClass({
       other_data: [{name: 'snpsFeature1', id:this.state.snpsFeatureValue}],
       resultsPath: this.state.resultsPath
     })
+
+    if (!!this.state.snpsFeatureFileName && !!this.state.snpsFeatureName) {
+      var form = {
+        elements: [
+          document.getElementById('snpsFeatureFile'),
+          document.getElementById('snpsFeature')
+        ]
+      }
+      this.props.importSNP(form)
+    }
+
     this.setState(this.getInitialState())
     this.handleClose()
   },
@@ -163,7 +174,7 @@ const GMRunAnalysisDialog = React.createClass({
       /*snpsFeature: snpsFeatures,
       snpsFeatureValue: snpsFeatures.length > 0 ? snpsFeatures[0] : ''*/
     })
-    
+
   },
   onChangeJobName: function (event) {
     this.setState({jobName: event.target.value})
@@ -192,7 +203,7 @@ const GMRunAnalysisDialog = React.createClass({
                   availableAlgorithmList: this.state.algorithmsByModelList[value]},
                   function() { // always use the algorithm listed first as the default
                     this.setState({algorithmValue: this.state.availableAlgorithmList["0"].props.value})
-                  }) 
+                  })
   },
   onChangeLambda: function(event) {
     this.setState({lambda : event.target.value})
@@ -388,7 +399,7 @@ const GMRunAnalysisDialog = React.createClass({
               </div>
               <div id='extraFilesDiv'>
                 {(this.state.modelValue == 0) ? // Linear Regression
-                  <div></div> : 
+                  <div></div> :
                 (this.state.modelValue == 1) ? // Lasso
                   <div></div> :
                 (this.state.modelValue == 2) ? // Adaptive Multi-task Lasso
@@ -436,10 +447,10 @@ const GMRunAnalysisDialog = React.createClass({
                 null}
               </div>
             </div>
-            <div id='rightHalfDiv' style={{width:'35%', float:'right'}}>              
+            <div id='rightHalfDiv' style={{width:'35%', float:'right'}}>
               <div>
                 {(!!this.state.showAdvancedOptionsButton) ?
-                  <FlatButton label='Show Advanced Options' secondary={true} onClick={this.handleShowAdvancedOptions} /> 
+                  <FlatButton label='Show Advanced Options' secondary={true} onClick={this.handleShowAdvancedOptions} />
                   : null
                 }
               </div>
@@ -448,7 +459,7 @@ const GMRunAnalysisDialog = React.createClass({
                   {(this.state.modelValue == 0) ? // Linear Regression
                     <div><div>L1 Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                      <div>L2 Lambda: <input type="number" value={this.state.lambdal2} onChange={this.onChangeLambdaL2}/></div><br/>
-                    </div> : 
+                    </div> :
                   (this.state.modelValue == 1) ? // Lasso
                     <div><p>Lasso.cpp not implemented?</p></div> :
                   (this.state.modelValue == 2) ? // Adaptive Multi-task Lasso
@@ -469,7 +480,7 @@ const GMRunAnalysisDialog = React.createClass({
                     <div><div>Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                       <div>Mu: <input type="number" value={this.state.mu} onChange={this.onChangeMu}/></div><br/>
                       <div>Threshold: <input type="number" value={this.state.threshold} onChange={this.onChangeThreshold}/></div>
-                      <div>Clustering Method:  
+                      <div>Clustering Method:
                         <SelectField
                           value={this.state.clusteringMethod}
                           hintText='Clustering Method'
@@ -484,7 +495,7 @@ const GMRunAnalysisDialog = React.createClass({
                       </div>
                     </div>
                   : null}
-                  <div id='algorithmSelectDiv'> 
+                  <div id='algorithmSelectDiv'>
                     <SelectField
                       value={this.state.algorithmValue}
                       hintText='Choose Algorithm Type'
@@ -507,7 +518,7 @@ const GMRunAnalysisDialog = React.createClass({
                         <div>Positive tolerance error: <input type="number" value={this.state.e} onChange={this.onChangeE}/></div><br/>
                         <div>t: <input type="number" value={this.state.t} onChange={this.onChangeT}/></div><br/>
                         <div>Delta: <input type="number" value={this.state.delta} onChange={this.onChangeDelta}/></div>
-                      </div> : 
+                      </div> :
                     (this.state.algorithmValue == 1) ? // Proximal Gradient Descent
                       <div>
                         <div>Learning Rate: <input type="number" value={this.state.learning_rate} onChange={this.onChangeLearningRate}/></div><br/>
