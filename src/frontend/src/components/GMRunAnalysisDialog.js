@@ -141,11 +141,12 @@ const GMRunAnalysisDialog = React.createClass({
     if (!!this.state.snpsFeatureFileName && !!this.state.snpsFeatureName) {
       var form = {
         elements: [
+          document.getElementById('project'),
           document.getElementById('snpsFeatureFile'),
           document.getElementById('snpsFeature')
         ]
       }
-      this.props.importSNP(form)
+      this.props.importData(form)
     }
 
     this.setState(this.getInitialState())

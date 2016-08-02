@@ -1,6 +1,6 @@
 import { connect } from 'react-redux'
 
-import { runAnalysis } from '../actions'
+import { runAnalysis, importData } from '../actions'
 import GMRunAnalysisDialog from './GMRunAnalysisDialog'
 
 const mapStateToProps = (state, ownProps) => ({
@@ -13,7 +13,7 @@ const mapDispatchToProps = (dispatch) => ({
   submit: (data) => {
     dispatch(runAnalysis(data))
   },
-  importSNP: (data) => {
+  importData: (data) => {
     dispatch(importData(data))
   }
 })
