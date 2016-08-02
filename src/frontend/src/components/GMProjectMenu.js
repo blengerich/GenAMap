@@ -138,7 +138,10 @@ const GMProject = React.createClass({
       files: project.files.filter(file => file.filetype === 'resultFile')
     }
 
-    const folderList = [...project.markers, ...project.traits, results].map(this.createFolderView)
+    const folderList = [...project.markers,
+                        ...project.traits,
+                        ...project.snpsFeatures,
+                        results].map(this.createFolderView)
 
     return (
       <ListItem
