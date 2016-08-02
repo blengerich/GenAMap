@@ -146,8 +146,15 @@ void symmetrize(MatrixXd Theta, int j){
     }
 };
 
-double bound_below(double a){
-    return std::max(a, 0.0);
+MatrixXd bound_below(MatrixXd X){
+    for (int i = 0; i < X.rows(); i++){
+        for (int j = 0; j < X.cols(); j++){
+            if (X(i, j) < 0){
+                X(i, j) = 0;
+            }
+        }
+    }
+    return X;
 }
 
 MatrixXd update_beta_mex(MatrixXd X, MatrixXd S, MatrixXd a, 
@@ -190,8 +197,7 @@ MatrixXd optimize_block_coord_sigma(MatrixXd X,
         Beta = update_beta_mex(X,S,a,b,lambda,gamma,Beta);
         if ((Beta-oldBeta).norm() < 1e-3) break;
     }
-    return -X*(Beta.unaryExpr(std::ptr_fun(bound_below))-
-              (-Beta).unaryExpr(std::ptr_fun(bound_below)));
+    return -X*(bound_below(Beta)-bound_below(-Beta));
 }
 
 MatrixXd optimize_block_coord_beta(MatrixXd X, 
@@ -207,15 +213,15 @@ MatrixXd optimize_block_coord_beta(MatrixXd X,
     return Beta;
 }
 
-MatrixXd fused_prox_vector(MatrixXd beta, double u, double l){
+MatrixXd fused_prox_vector(MatrixXd beta, MatrixXd u, MatrixXd l){
     int len = beta.rows();
     MatrixXd w = MatrixXd::Zero(len, 1);
     for (int i = 0; i < len; i++){
         double beta_c = beta(i, 0);
-        if (beta_c > u){
-            beta(i, 0) = beta_c - u;
-        } else if (beta_c < l){
-            beta(i, 0) = beta_c - l;
+        if (beta_c > u(i, 0)){
+            beta(i, 0) = beta_c - u(i, 0);
+        } else if (beta_c < l(i, 0)){
+            beta(i, 0) = beta_c - l(i, 0);
         }
     }
     return w;
@@ -233,70 +239,77 @@ double fused_prox_scalar(double beta, double u, double l){
     }
 }
 
+
+MatrixXd cwiseAdd(MatrixXd X, double p){
+    for (int i = 0; i < X.rows(); i++){
+        for (int j = 0; j < X.cols(); j++){
+            X(i, j) = X(i, j) + p;
+        }
+    }
+    return X;
+}
+
 /* type issues with Q and h_beta */
 
-// MatrixXd optimize_block_prox(MatrixXd X, 
-//      MatrixXd s, int maxiter, double a, double b, double lambda, double gamma){
+MatrixXd optimize_block_prox(MatrixXd X, 
+     MatrixXd s, int maxiter, MatrixXd a, MatrixXd b, double lambda, double gamma){
 
-//     //get dimension
-//     int n = X.rows();
+    //get dimension
+    int n = X.rows();
 
-//     //initialize variables
-//     MatrixXd Beta = MatrixXd::Zero(n, 1);
-//     MatrixXd w = Beta;
-//     double theta = 1;
-//     double L = 10;
-//     MatrixXd objVals = MatrixXd::Zero(maxiter, 1);
+    //initialize variables
+    MatrixXd Beta = MatrixXd::Zero(n, 1);
+    MatrixXd w = Beta;
+    double theta = 1;
+    double L = 10;
+    MatrixXd objVals = MatrixXd::Zero(maxiter, 1);
 
-//     MatrixXd h_w, grad, z, beta_new;
-//     double upper, lower, h_beta, Q;
+    MatrixXd h_w, grad, z, beta_new, upper, lower;
+    double h_beta, Q;
+    double theta_new;
 
-//     //optimize Beta
-//     for (int iter = 0; iter < maxiter; iter++){
-//         //computer gradient
-//         grad = (X*w) + s;
+    //optimize Beta
+    for (int iter = 0; iter < maxiter; iter++){
+        //computer gradient
+        grad = (X*w) + s;
 
-//         //compute new estimate of beta using line search
-//         h_w = w.transpose()*X*w/2 + s.transpose()*w;
-//         while (true){
-//             z = w - (1/L)*grad;
-//             upper = (gamma*a + lambda)/L;
-//             lower = -(gamma*b + lambda)/L;
-//             beta_new = fused_prox_vector(z,upper,lower);
-//             h_beta = (beta_new.transpose()*X*beta_new)(0,0)/2 + (s.transpose()*beta_new)(0, 0);
-//             Q = h_w + (beta_new-w).transpose()*grad
-//                 + L*((beta_new-w).cwiseProduct(beta_new-w)).sum()/2;
-//             if (h_beta <= Q) break;
-//             else L = 2*L;
+        //compute new estimate of beta using line search
+        h_w = w.transpose()*X*w/2 + s.transpose()*w;
+        while (true){
+            z = w - (1/L)*grad;
+            upper = cwiseAdd(gamma*a, lambda)/L;
+            lower = -cwiseAdd(gamma*b, lambda)/L;
+            beta_new = fused_prox_vector(z,upper,lower);
+            h_beta = ((beta_new.transpose()*X*beta_new)/2 + (s.transpose()*beta_new))(0, 0);
+            Q = (h_w + (beta_new-w).transpose()*grad)(0,0)+
+                L*((beta_new-w).cwiseProduct(beta_new-w)).sum()/2;
+            if (h_beta <= Q) break;
+            else L = 2*L;
 
-//             //update w and theta
-//             theta_new = (1 + sqrt(1 + 4*theta*theta))/2;
-//             w = beta_new + (theta-1)/(theta_new)*(beta_new-beta);
+            //update w and theta
+            theta_new = (1 + sqrt(1 + 4*theta*theta))/2;
+            w = beta_new + (theta-1)/(theta_new)*(beta_new-Beta);
 
-//             //store current objective value
-//             objVals(iter, 0) = h_beta + (gamma*a+lambda).transpose()*
-//                                beta_new.unaryExpr(std::ptr_fun(bound_below<double>) + 
-//                                (gamma*b+lambda).transpose()*
-//                                (-beta_new).unaryExpr(std::ptr_fun(bound_below<double>);
+            //store current objective value
+            objVals(iter, 0) = h_beta + (cwiseAdd(gamma*a, lambda).transpose()*bound_below(beta_new))(0,0) + 
+                               (cwiseAdd(gamma*b, lambda).transpose()*bound_below(-beta_new))(0, 0);
 
-//             //store new variables
-//             beta = beta_new;
-//             theta = theta_new;
-//                     % check convergence
-//             if (iter >= 5 && abs(objVals(iter, 0)-objVals(iter-1, 0))/abs(objVals(iter-1, 0)) < 1e-8)
-//             break;
+            //store new variables
+            Beta = beta_new;
+            theta = theta_new;
+            if (iter >= 5 && abs(objVals(iter, 0)-objVals(iter-1, 0))/abs(objVals(iter-1, 0)) < 1e-8)
+            break;
 
 
-//         }
-//     }
+        }
+    }
 
-//     //calculate sigma
-//     sigma = -X*(beta_new.unaryExpr(std::ptr_fun(bound_below<double>)-
-//                 (-beta_new).unaryExpr(std::ptr_fun(bound_below<double>));
-//     return sigma;
+    //calculate sigma
+    MatrixXd sigma = -X*(bound_below(beta_new)-bound_below(-beta_new));
+    return sigma;
 
 
-// }
+}
 
 
 
