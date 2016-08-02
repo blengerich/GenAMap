@@ -86,7 +86,7 @@ var Graph = function() {
     const markerLabelFile = 'markerLabelsReal.txt'
     const pValsFile = 'pvals.txt'
 
-    var maxPosition = 0
+    // used for scaling axes
     var maxPValLog = 0
     var maxChromosome = 0
 
@@ -96,14 +96,30 @@ var Graph = function() {
       var markerData =
       d3.tsv.parseRows(text, function(d) {
         maxChromosome = Math.max(maxChromosome, +d[1])
-        maxPosition = Math.max(maxPosition, +d[2])
         return {
           marker: d[0],
           chromosome: +d[1],
-          position: +d[2]
+          chromosomePosition: +d[2]
         }
       })
 
+      // get cummulative positions
+      var cummulativePosition = new Array(maxChromosome + 1).fill(0)
+      markerData.forEach(function (d, i) {
+        cummulativePosition[d.chromosome] = Math.max(cummulativePosition[d.chromosome], d.chromosomePosition)
+      })
+
+      for (var i = 1; i <= maxChromosome; i++) {
+        cummulativePosition[i] = cummulativePosition[i] + cummulativePosition[i - 1] + 1
+      }
+
+      var maxPosition = 0
+      markerData.forEach(function (d, i) {
+        d.position = d.chromosomePosition + cummulativePosition[d.chromosome - 1] + 1
+        maxPosition = Math.max(maxPosition, d.position)
+      })
+
+      // finalize visualization
       d3.text(dataPath + "/" + pValsFile, function(text) {
         d3.csv.parseRows(text, function(d, i) {
           const log10 = (x) => Math.log(x)/Math.log(10)
