@@ -139,14 +139,8 @@ const GMRunAnalysisDialog = React.createClass({
     })
 
     if (!!this.state.snpsFeatureFileName && !!this.state.snpsFeatureName) {
-      var form = {
-        elements: [
-          document.getElementById('project'),
-          document.getElementById('snpsFeatureFile'),
-          document.getElementById('snpsFeature')
-        ]
-      }
-      this.props.importData(form)
+      // TODO: try to submit only part of form
+      this.props.importData(document.forms.runAnalysis)
     }
 
     this.setState(this.getInitialState())
@@ -364,7 +358,13 @@ const GMRunAnalysisDialog = React.createClass({
                 >
                   {projectList}
                 </SelectField>
-                <select id='project' className='hidden' value={this.state.projectValue} readOnly>
+                <select
+                  id='project'
+                  className='hidden'
+                  value={this.state.projectValue}
+                  importOnSubmit={true}
+                  readOnly
+                >
                   {projectListReact}
                 </select>
               </div>
@@ -375,7 +375,7 @@ const GMRunAnalysisDialog = React.createClass({
                   errorText={!this.state.markerValue && errorText}
                   onChange={this.onChangeMarker}
                 >
-                  <MenuItem value={'new'} primaryText='New Trait File' />
+                  <MenuItem value={'new'} primaryText='New Marker File' />
                   {markerList}
                 </SelectField>
                 <select id='marker' className='hidden' value={this.state.markerValue} readOnly>
@@ -427,6 +427,7 @@ const GMRunAnalysisDialog = React.createClass({
                           hintText='SNPs Feature Name'
                           errorText={this.state.snpsFeatureFileName && !this.state.snpsFeatureName && errorText}
                           onChange={this.onChangeSnpsFeatureName}
+                          importOnSubmit={true}
                         />
                         <GMFileInput
                           id='snpsFeatureFile'
@@ -434,6 +435,7 @@ const GMRunAnalysisDialog = React.createClass({
                           accept='.csv'
                           onChange={this.onChangeSnpsFeatureFileName}
                           fileLabel={this.state.snpsFeatureFileName}
+                          importOnSubmit={true}
                         />
                       </div>
                     : null}
