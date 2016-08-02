@@ -79,6 +79,25 @@ var Graph = function() {
       .style("font-size", baseLabelStyle.fontSize + "px");
   }
 
+  /* hover tooltip */
+  function hoverOnCell(d, mousePos) {
+    var labelText = "<h2>Marker: " + d.marker + "</h2>"
+                  + "<p><b>Chromosome: </b>" + d.chromosome + "</p>"
+                  + "<p><b>Position: </b>" + d.chromosomePosition + "</p>"
+                  + "<p><b>p-value: </b>" + d.pVal + "</p>"
+    var tooltip = d3.select("#manhattanChart")
+                    .append("div")
+                    .attr("class", "tooltip")
+                    .html(labelText)
+                    .style("position", "absolute")
+                    .style("left", mousePos.pageX + "px")
+                    .style("top", mousePos.pageY + "px")
+  }
+
+  function hoverOutCell() {
+    d3.select(".tooltip").remove();
+  }
+
   // parse marker data
   function parseData() {
     // TODO: connect to runAnalysis
@@ -146,6 +165,15 @@ var Graph = function() {
                      .attr('class', 'cell')
                      .attr('r', cellRadius)
                      .attr('value', function(d) { return d.pVal })
+                     .on('mouseover', function(d) {
+                       var mousePos = d3.event;
+                       hoverOnCell(d, mousePos);
+                       d3.select(d3.event.target).classed("manhattanHighlight", true);
+                     })
+                     .on('mouseout', function(d) {
+                       hoverOutCell();
+                       d3.select(d3.event.target).classed("manhattanHighlight", false);
+                     });
 
         cards.transition().duration(100)
              .attr('fill', function(d) { return colorScale(d.chromosome) })

@@ -228,11 +228,11 @@ var Graph = function(data, markerLabels, traitLabels) {
                       var marker = d.Marker;
                       var correlation = d.value;
                       hoverOnCell(d, trait, marker, correlation, mousePos);
-                      d3.select(d3.event.target).classed("highlight", true);
+                      d3.select(d3.event.target).classed("matrixHighlight", true);
                     })
                     .on('mouseout', function(d) {
                       hoverOutCell();
-                      d3.select(d3.event.target).classed("highlight", false);
+                      d3.select(d3.event.target).classed("matrixHighlight", false);
                     });
     cards.transition().duration(100)
           .style("fill", function(d) { return colorScale(d.value); });

@@ -24,9 +24,14 @@ main {
 
 /* Change color of cell on hover */
 
-.highlight:hover {
+.matrixHighlight:hover {
 	fill: #00FF00 !important;
 	opacity: 0.8 !important;
+}
+
+.manhattanHighlight:hover {
+  fill: #00FF00 !important;
+  opacity: 0.8 !important;
 }
 
 /* Make pointer a hand on matrix pan */
