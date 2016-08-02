@@ -400,9 +400,7 @@ const GMRunAnalysisDialog = React.createClass({
               <div id='extraFilesDiv'>
                 {(this.state.modelValue == 0) ? // Linear Regression
                   <div></div> :
-                (this.state.modelValue == 1) ? // Lasso
-                  <div></div> :
-                (this.state.modelValue == 2) ? // Adaptive Multi-task Lasso
+                (this.state.modelValue == 1) ? // Adaptive Multi-task Lasso
                   <div>
                     <SelectField
                       value={this.state.snpsFeatureValue}
@@ -440,11 +438,11 @@ const GMRunAnalysisDialog = React.createClass({
                     : null}
                     </div>
                   </div>:
-                (this.state.modelValue == 3) ? // Gflasso
+                (this.state.modelValue == 2) ? // Gflasso
                   <div>Gflasso has not been implemented yet</div>  :
-                (this.state.modelValue == 4) ? // Multi-Population Lasso
+                (this.state.modelValue == 3) ? // Multi-Population Lasso
                   <div>Multi-Population Lasso has not been implemented yet</div>  :
-                (this.state.modelValue == 5) ? // Tree Lasso
+                (this.state.modelValue == 4) ? // Tree Lasso
                   <div>TreeLasso has not been implemented yet</div>  :
                 null}
               </div>
@@ -462,23 +460,21 @@ const GMRunAnalysisDialog = React.createClass({
                     <div><div>L1 Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                      <div>L2 Lambda: <input type="number" value={this.state.lambdal2} onChange={this.onChangeLambdaL2}/></div><br/>
                     </div> :
-                  (this.state.modelValue == 1) ? // Lasso
-                    <div><p>Lasso.cpp not implemented?</p></div> :
-                  (this.state.modelValue == 2) ? // Adaptive Multi-task Lasso
+                  (this.state.modelValue == 1) ? // Adaptive Multi-task Lasso
                     <div><div>L1 Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                          <div>L2 Lambda: <input type="number" value={this.state.lambdal2} onChange={this.onChangeLambdaL2}/></div><br/>
                          <div>Mu: <input type="number" value={this.state.mu} onChange={this.onChangeMu}/></div>
                     </div> :
-                  (this.state.modelValue == 3) ? // Gflasso
+                  (this.state.modelValue == 2) ? // Gflasso
                     <div><div>Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                          <div>Gamma: <input type="number" value={this.state.gamma} onChange={this.onChangeGamma}/></div>
                     </div>  :
-                  (this.state.modelValue == 4) ? // Multi-Population Lasso
+                  (this.state.modelValue == 3) ? // Multi-Population Lasso
                     <div><div>Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                          <div>Gamma: <input type="number" value={this.state.gamma} onChange={this.onChangeGamma}/></div><br/>
                          <div>Mu: <input type="number" value={this.state.mu} onChange={this.onChangeMu}/></div>
                     </div>  :
-                  (this.state.modelValue == 5) ? // Tree Lasso
+                  (this.state.modelValue == 4) ? // Tree Lasso
                     <div><div>Lambda: <input type="number" value={this.state.lambda} onChange={this.onChangeLambda}/></div><br/>
                       <div>Mu: <input type="number" value={this.state.mu} onChange={this.onChangeMu}/></div><br/>
                       <div>Threshold: <input type="number" value={this.state.threshold} onChange={this.onChangeThreshold}/></div>
