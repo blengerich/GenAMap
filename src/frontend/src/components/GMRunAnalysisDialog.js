@@ -41,7 +41,7 @@ const GMRunAnalysisDialog = React.createClass({
       projects: [],
       markers: [],
       traits: [],
-      snpsFeatures: [],
+      snpsFeatures: [], // features 1 and 2 have the same possibilities
       markerLabels: [],
       traitLabels: [],
       jobName: '',
@@ -51,9 +51,12 @@ const GMRunAnalysisDialog = React.createClass({
       markerLabelValue: '',
       traitLabelValue: '',
       resultsPath: '',
-      snpsFeatureValue: '',
-      snpsFeatureName: '',
-      snpsFeatureFileName: '',
+      snpsFeatures1Value: '',
+      snpsFeatures1Name: '',
+      snpsFeatures1FileName: '',
+      snpsFeatures2Value: '',
+      snpsFeatures2Name: '',
+      snpsFeatures2FileName: '',
       // Model parameters
       models: config.models,
       modelValue: '',
@@ -134,11 +137,14 @@ const GMRunAnalysisDialog = React.createClass({
           clusteringMethod: this.state.clusteringMethod
         }
       },
-      other_data: [{name: 'snpsFeature1', id:this.state.snpsFeatureValue}],
+      other_data: [
+        {name: 'snpsFeatures1', id:this.state.snpsFeatures1Value},
+        {name: 'snpsFeatures2', id:this.state.snpsFeatures2Value ? this.state.snpsFeatures2Value : this.state.snpsFeatures1Value}
+      ],
       resultsPath: this.state.resultsPath
     })
 
-    if (!!this.state.snpsFeatureFileName && !!this.state.snpsFeatureName) {
+    if (!!this.state.snpsFeatures1FileName && !!this.state.snpsFeatures1Name) {
       // TODO: try to submit only part of form
       this.props.importData(document.forms.runAnalysis)
     }
@@ -165,8 +171,9 @@ const GMRunAnalysisDialog = React.createClass({
       markerValue: markers.length > 0 ? markers[0] : '',
       traits: traits,
       traitValue: traits.length > 0 ? traits[0] : '',
-      /*snpsFeature: snpsFeatures,
-      snpsFeatureValue: snpsFeatures.length > 0 ? snpsFeatures[0] : ''*/
+      snpsFeatures: snpsFeatures ? snpsFeatures : [],
+      snpsFeatures1Value: snpsFeatures.length > 0 ? snpsFeatures[0] : '',
+      snpsFeatures2Value: snpsFeatures.length > 0 ? snpsFeatures[0] : ''
     })
 
   },
@@ -179,18 +186,25 @@ const GMRunAnalysisDialog = React.createClass({
   onChangeTrait: function (event, index, value) {
     this.setState({traitValue: value})
   },
-  onChangeSnpsFeature: function(event, index, value) {
-    this.setState({snpsFeatureValue: value})
+  // Model Options
+  onChangeSnpsFeatures1: function(event, index, value) {
+    this.setState({snpsFeatures1Value: value})
   },
-
-  onChangeSnpsFeatureName (event) {
-    this.setState({snpsFeatureName: event.target.value})
+  onChangeSnpsFeatures2: function(event, index, value) {
+    this.setState({snpsFeatures2Value: value})
   },
-
-  onChangeSnpsFeatureFileName (event) {
-    this.setState({snpsFeatureFileName: event.target.value.substr(12)})
+  onChangesnpsFeatures1Name (event) {
+    this.setState({snpsFeatures1Name: event.target.value})
   },
-
+  onChangesnpsFeatures2Name (event) {
+    this.setState({snpsFeatures2Name: event.target.value})
+  },
+  onChangesnpsFeatures1FileName (event) {
+    this.setState({snpsFeatures1FileName: event.target.value.substr(12)})
+  },
+  onChangesnpsFeatures2FileName (event) {
+    this.setState({snpsFeatures2FileName: event.target.value.substr(12)})
+  },
   onChangeModel: function (event, index, value) {
     this.setState({modelValue: value,
                   showAdvancedOptionsButton: true,
@@ -205,6 +219,7 @@ const GMRunAnalysisDialog = React.createClass({
   onChangeLambdaL2: function(event) {
     this.setState({lambdal2: event.target.value})
   },
+  // Algorithm Options
   onChangeGamma: function(event) {
     this.setState({gamma: event.target.value})
   },
@@ -298,10 +313,10 @@ const GMRunAnalysisDialog = React.createClass({
     const modelListReact = this.state.models.map((model, index) =>
       <option key={index} value={model.id}>{model.name}</option>
     )
-    const snpsFeatureList = this.state.snpsFeatures.map((f, index) =>
+    const snpsFeaturesList = this.state.snpsFeatures.map((f, index) =>
       <MenuItem key={index} value={f.id} primaryText={f.name} />
     )
-    const snpsFeatureListReact = this.state.snpsFeatures.map((f, index) =>
+    const snpsFeaturesListReact = this.state.snpsFeatures.map((f, index) =>
       <option key={index} value={f.id}>{f.name}</option>
     )
     const clusteringMethodList = this.state.clusteringMethods.map((method, index) =>
@@ -401,41 +416,80 @@ const GMRunAnalysisDialog = React.createClass({
                 {(this.state.modelValue == 0) ? // Linear Regression
                   <div></div> :
                 (this.state.modelValue == 1) ? // Adaptive Multi-task Lasso
-                  <div>
-                    <SelectField
-                      value={this.state.snpsFeatureValue}
-                      hintText='Choose SNP Feature'
-                      errorText={!this.state.snpsFeatureValue && errorText}
-                      onChange={this.onChangeSnpsFeature}
-                    >
-                      <MenuItem value={'new'} primaryText='New SNP File' />
-                      {snpsFeatureList}
-                    </SelectField>
-                    <select id='marker' className='hidden' value={this.state.snpsFeatureValue} readOnly>
-                      <option value='new'>New SNP File</option>
-                      {snpsFeatureListReact}
-                    </select>
-                    <div id='snpsFeatureDiv'>
-                    {(this.state.snpsFeatureValue === 'new') ?
-                      <div>
-                        <TextField
-                          id='snpsFeature'
-                          value={this.state.snpsFeatureName}
-                          hintText='SNPs Feature Name'
-                          errorText={this.state.snpsFeatureFileName && !this.state.snpsFeatureName && errorText}
-                          onChange={this.onChangeSnpsFeatureName}
-                          importOnSubmit={true}
-                        />
-                        <GMFileInput
-                          id='snpsFeatureFile'
-                          buttonLabel='SNPs Feature File'
-                          accept='.csv'
-                          onChange={this.onChangeSnpsFeatureFileName}
-                          fileLabel={this.state.snpsFeatureFileName}
-                          importOnSubmit={true}
-                        />
+                  <div id='snpsFeaturesDiv'>
+                    <div id='snpsFeatures1Div'>
+                      <SelectField
+                        value={this.state.snpsFeatures1Value}
+                        hintText='Choose SNP Features (L1)'
+                        errorText={!this.state.snpsFeatures1Value && errorText}
+                        onChange={this.onChangeSnpsFeatures1}
+                      >
+                        <MenuItem value={'new'} primaryText='New SNP File' />
+                        {snpsFeaturesList}
+                      </SelectField>
+                      <select id='marker' className='hidden' value={this.state.snpsFeatures1Value} readOnly>
+                        <option value='new'>New SNP Feature File</option>
+                        {snpsFeaturesListReact}
+                      </select>
+                      <div id='newSnpsFeatures1Div'>
+                      {(this.state.snpsFeatures1Value === 'new') ?
+                        <div>
+                          <TextField
+                            id='snpsFeature1'
+                            value={this.state.snpsFeatures1Name}
+                            hintText='SNPs Feature Name'
+                            errorText={this.state.snpsFeatures1FileName && !this.state.snpsFeatures1Name && errorText}
+                            onChange={this.onChangesnpsFeatures1Name}
+                            importOnSubmit={true}
+                          />
+                          <GMFileInput
+                            id='snpsFeaturesFile'
+                            buttonLabel='SNPs Feature File'
+                            accept='.csv'
+                            onChange={this.onChangesnpsFeatures1FileName}
+                            fileLabel={this.state.snpsFeatures1FileName}
+                            importOnSubmit={true}
+                          />
+                        </div>
+                      : null}
                       </div>
-                    : null}
+                    </div>
+                    <div id='snpsFeatures2Div'>
+                      <SelectField
+                        value={this.state.snpsFeatures2Value}
+                        hintText='Choose SNP Features (L2)'
+                        /*errorText={!this.state.snpsFeatures2Value && errorText}*/
+                        onChange={this.onChangeSnpsFeatures2}
+                      >
+                        <MenuItem value={'new'} primaryText='New SNP File' />
+                        {snpsFeaturesList}
+                      </SelectField>
+                      <select id='marker' className='hidden' value={this.state.snpsFeatures2Value} readOnly>
+                        <option value='new'>New SNP File</option>
+                        {snpsFeaturesListReact}
+                      </select>
+                      <div id='newSnpsFeatures2Div'>
+                      {(this.state.snpsFeatures2Value === 'new') ?
+                        <div>
+                          <TextField
+                            id='snpsFeature2'
+                            value={this.state.snpsFeatures2Name}
+                            hintText='SNPs Feature Name'
+                            errorText={this.state.snpsFeatures2FileName && !this.state.snpsFeatures2Name && errorText}
+                            onChange={this.onChangesnpsFeatures2Name}
+                            importOnSubmit={true}
+                          />
+                          <GMFileInput
+                            id='snpsFeaturesFile'
+                            buttonLabel='SNPs Feature File'
+                            accept='.csv'
+                            onChange={this.onChangesnpsFeatures2FileName}
+                            fileLabel={this.state.snpsFeatures2FileName}
+                            importOnSubmit={true}
+                          />
+                        </div>
+                      : null}
+                      </div>
                     </div>
                   </div>:
                 (this.state.modelValue == 2) ? // Gflasso

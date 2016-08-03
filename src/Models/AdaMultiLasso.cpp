@@ -38,10 +38,12 @@ AdaMultiLasso::AdaMultiLasso(const unordered_map<string, string>& opts) {
 }
 
 void AdaMultiLasso::setAttributeMatrix(const string& str, MatrixXd* Z) {
-    if (str == "snpsFeature1") {
-        setSnpsFeature1(*Z);
-    } else if (str == "snpsFeature2") {
-        setSnpsFeature2(*Z);
+    if (str == "snpsFeatures1") {
+        setSnpsFeatures1(*Z);
+    } else if (str == "snpsFeatures2") {
+        setSnpsFeatures2(*Z);
+    } else if (str == "snpsFeatures") {
+        setSnpsFeatures(*Z);
     } else {
         throw runtime_error("AdaMultiLasso models have no attribute with name" + str);
     }
@@ -55,25 +57,25 @@ void AdaMultiLasso::setLambda2(double d) {
     lambda2 = d;
 }
 
-void AdaMultiLasso::setSnpsFeature1(MatrixXd xd) {
-    snpsFeature1 = xd;
+void AdaMultiLasso::setSnpsFeatures1(MatrixXd xd) {
+    snpsFeatures1 = xd;
 }
 
-void AdaMultiLasso::setSnpsFeature2(MatrixXd xd) {
-    snpsFeature2 = xd;
+void AdaMultiLasso::setSnpsFeatures2(MatrixXd xd) {
+    snpsFeatures2 = xd;
 }
 
-void AdaMultiLasso::setSnpsFeature(MatrixXd xd) {
-    setSnpsFeature1(xd);
-    setSnpsFeature2(xd);
+void AdaMultiLasso::setSnpsFeatures(MatrixXd xd) {
+    setSnpsFeatures1(xd);
+    setSnpsFeatures2(xd);
 }
 
-MatrixXd AdaMultiLasso::getSnpsFeature1() {
-    return snpsFeature1;
+MatrixXd AdaMultiLasso::getSnpsFeatures1() {
+    return snpsFeatures1;
 }
 
-MatrixXd AdaMultiLasso::getSnpsFeature2() {
-    return snpsFeature2;
+MatrixXd AdaMultiLasso::getSnpsFeatures2() {
+    return snpsFeatures2;
 }
 
 VectorXd AdaMultiLasso::getW() {
@@ -94,42 +96,42 @@ void AdaMultiLasso::updateV(VectorXd xd) {
 }
 
 VectorXd AdaMultiLasso::gradient_w() {
-    long c = snpsFeature1.cols();
+    long c = snpsFeatures1.cols();
     long k = beta.cols();
 //    updateTheta();
     VectorXd grad = VectorXd::Zero(c);
     for (long j=0;j<c;j++){
-        grad(j) += (-k*snpsFeature1.col(j).array()/theta.array()).sum();
-        grad(j) += (snpsFeature1.col(j).transpose()*(beta.array().abs().matrix())).array().sum();
+        grad(j) += (-k*snpsFeatures1.col(j).array()/theta.array()).sum();
+        grad(j) += (snpsFeatures1.col(j).transpose()*(beta.array().abs().matrix())).array().sum();
     }
     return grad;
 }
 
 VectorXd AdaMultiLasso::gradient_v() {
-    long c = snpsFeature2.cols();
+    long c = snpsFeatures2.cols();
     long k = beta.cols();
 //    updateRho();
     VectorXd grad = VectorXd::Zero(c);
     for (long j=0;j<c;j++){
-        grad(j) += (-k*snpsFeature1.col(j).array()/theta.array()).sum();
-        grad(j) += (snpsFeature1.col(j).transpose()*(beta.array().abs().matrix())).array().sum();  // double check this shortcut
+        grad(j) += (-k*snpsFeatures1.col(j).array()/theta.array()).sum();
+        grad(j) += (snpsFeatures1.col(j).transpose()*(beta.array().abs().matrix())).array().sum();  // double check this shortcut
     }
     return grad;
 }
 
 void AdaMultiLasso::updateTheta() {
-    long c = snpsFeature1.rows();
+    long c = snpsFeatures1.rows();
     theta = VectorXd::Zero(c);
     for (long j=0; j<c; j++){
-        theta(j) = snpsFeature1.row(j)*w;;
+        theta(j) = snpsFeatures1.row(j)*w;;
     }
 }
 
 void AdaMultiLasso::updateRho() {
-    long c = snpsFeature2.rows();
+    long c = snpsFeatures2.rows();
     rho = VectorXd::Zero(c);
     for (long j=0; j<c; j++){
-        rho(j) = snpsFeature2.row(j)*v;
+        rho(j) = snpsFeatures2.row(j)*v;
     }
 }
 
@@ -140,20 +142,20 @@ void AdaMultiLasso::updateTheta_Rho() {
 }
 
 void AdaMultiLasso::initTheta() {
-    w = VectorXd::Ones(snpsFeature1.cols());
-    long r = snpsFeature1.rows();
+    w = VectorXd::Ones(snpsFeatures1.cols());
+    long r = snpsFeatures1.rows();
     theta = VectorXd::Zero(r);
     for (long j=0; j<r; j++){
-        theta(j) = snpsFeature1.row(j)*w;
+        theta(j) = snpsFeatures1.row(j)*w;
     }
 }
 
 void AdaMultiLasso::initRho() {
-    v = VectorXd::Ones(snpsFeature2.cols());
-    long r = snpsFeature2.rows();
+    v = VectorXd::Ones(snpsFeatures2.cols());
+    long r = snpsFeatures2.rows();
     rho = VectorXd::Zero(r);
     for (long j=0; j<r; j++){
-        rho(j) = snpsFeature2.row(j)*v;
+        rho(j) = snpsFeatures2.row(j)*v;
     }
 }
 
@@ -219,15 +221,16 @@ double AdaMultiLasso::penalty_cost() {
 
 
 void AdaMultiLasso::assertReadyToRun() {
+    // X and Y must be compatible
 	if (!((X.rows() > 0) && (X.rows() == y.rows())
 		&& (X.cols() > 0) && (y.cols() > 0))) {
 		throw runtime_error("X and Y matrices of size (" + to_string(X.rows()) + "," + to_string(X.cols()) + "), and (" +
             to_string(y.rows()) + "," + to_string(y.cols()) + ") are not compatible.");
 	}
-	if (!((snpsFeature1.rows() > 0) && (snpsFeature1.cols() > 0)
-		&& (snpsFeature2.rows() > 0) && (snpsFeature2.cols() > 0)))
-		// TODO: check feature sizes against X, Y - Haohan, how should these matrices be related?
-	{
+    // SNPs features must have p rows (the number of markers)
+	if (!((snpsFeatures1.rows() > 0) && (snpsFeatures1.cols() > 0)
+		&& (snpsFeatures2.rows() > 0) && (snpsFeatures2.cols() > 0)
+        && (snpsFeatures1.rows() == X.cols()) && (snpsFeatures2.rows() == X.cols()))) {
 		throw runtime_error("SNP Feature matrices not compatible");
 	}
 }
@@ -245,14 +248,14 @@ void AdaMultiLasso::initTraining() {
         MatrixXd tmpY = MatrixXd::Zero(n*taskNum, 1);
         VectorXd tmpT = VectorXd::Zero(c*taskNum);
         VectorXd tmpR = VectorXd::Zero(c*taskNum);
-        MatrixXd tmpS1 = MatrixXd::Zero(c*taskNum, snpsFeature1.cols());
-        MatrixXd tmpS2 = MatrixXd::Zero(c*taskNum, snpsFeature2.cols());
+        MatrixXd tmpS1 = MatrixXd::Zero(c*taskNum, snpsFeatures1.cols());
+        MatrixXd tmpS2 = MatrixXd::Zero(c*taskNum, snpsFeatures2.cols());
         for (long j=0;j<taskNum;j++){
             for (long k=0;k<c;k++){
                 tmpT(k*taskNum+j) = theta(k);
                 tmpR(k*taskNum+j) = rho(k);
-                tmpS1.row(k*taskNum+j) = snpsFeature1.row(k);
-                tmpS2.row(k*taskNum+j) = snpsFeature2.row(k);
+                tmpS1.row(k*taskNum+j) = snpsFeatures1.row(k);
+                tmpS2.row(k*taskNum+j) = snpsFeatures2.row(k);
             }
         }
         for (long i=0;i<n;i++){
@@ -267,8 +270,8 @@ void AdaMultiLasso::initTraining() {
         y = tmpY;
         theta = tmpT;
         rho = tmpR;
-        snpsFeature1 = tmpS1;
-        snpsFeature2 = tmpS2;
+        snpsFeatures1 = tmpS1;
+        snpsFeatures2 = tmpS2;
         initBeta();
         initC();
         L = ((X.transpose()*X).eigenvalues()).real().maxCoeff() + C.norm()/mu;

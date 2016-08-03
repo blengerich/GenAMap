@@ -296,7 +296,7 @@ app.post(config.api.importDataUrl, function (req, res) {
   var projectObj = {}
   var marker = { files: [] }
   var trait = { files: [] }
-  var snpsFeature = { files: [] }
+  var snpsFeatures = { files: [] }
   var fileDataList = {
     marker: {
       name: 'Marker Values'
@@ -310,7 +310,7 @@ app.post(config.api.importDataUrl, function (req, res) {
     traitLabel: {
       name: 'Trait Labels'
     },
-    snpsFeature: {
+    snpsFeatures: {
       name: 'SNPs Features'
     }
   }
@@ -334,8 +334,8 @@ app.post(config.api.importDataUrl, function (req, res) {
       case 'species':
         projectObj.species = val
         break
-      case 'snpsFeature':
-        snpsFeature.name = val
+      case 'snpsFeatures':
+        snpsFeatures.name = val
         break
       default:
         console.log('Unhandled fieldname "' + fieldname + '" of value "' + val + '"')
@@ -356,7 +356,7 @@ app.post(config.api.importDataUrl, function (req, res) {
       else if (fieldname === 'traitFile') data = fileDataList.trait
       else if (fieldname === 'markerLabelFile') data = fileDataList.markerLabel
       else if (fieldname === 'traitLabelFile') data = fileDataList.traitLabel
-      else if (fieldname === 'snpsFeatureFile') data = fileDataList.snpsFeature
+      else if (fieldname === 'snpsFeaturesFile') data = fileDataList.snpsFeatures
       else console.log("Unhandled file:", fieldname)
 
       data.filetype = fieldname
@@ -390,9 +390,9 @@ app.post(config.api.importDataUrl, function (req, res) {
               } else if (file.filetype === 'traitLabelFile') {
                 trait.labelId = file.id
                 trait.files.push(file)
-              } else if (file.filetype === 'snpsFeatureFile') {
-                snpsFeature.id = file.id
-                snpsFeature.files.push(file)
+              } else if (file.filetype === 'snpsFeaturesFile') {
+                snpsFeatures.id = file.id
+                snpsFeatures.files.push(file)
               }
               callback()
             })
@@ -402,7 +402,7 @@ app.post(config.api.importDataUrl, function (req, res) {
         }, function (err) {
           if (err) throw err
 
-          return res.json({ project, files, marker, trait, snpsFeature })
+          return res.json({ project, files, marker, trait, snpsFeatures })
         }
       )
     }
@@ -490,24 +490,29 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           const fileName = `${id}.csv`
           const resultsPath = path.join(userPath, fileName)
 
-          var success = Scheduler.startJob(jobId, function (results) {
-            results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
+          try {
+            var success = Scheduler.startJob(jobId, function (results) {
+              // TODO: streamline this results passing - multiple types of data?
+              results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
 
-            fs.writeFile(resultsPath, results, function(err) {
-              app.models.file.create({
-                name: 'Matrix View',
-                filetype: 'resultFile',
-                path: resultsPath,
-                project: req.body.project,
-                labels: {
-                  marker: req.body.marker.labelId,
-                  trait: req.body.trait.labelId
-                }
-              }).exec(function (err, file) {
-                if (err) throw err
+              fs.writeFile(resultsPath, results, function(err) {
+                app.models.file.create({
+                  name: 'Matrix View',
+                  filetype: 'resultFile',
+                  path: resultsPath,
+                  project: req.body.project,
+                  labels: {
+                    marker: req.body.marker.labelId,
+                    trait: req.body.trait.labelId
+                  }
+                }).exec(function (err, file) {
+                  if (err) throw err
+                })
               })
             })
-          })
+          } catch (err) {
+            console.log(err)
+          }
           return res.json({ status: success, jobId, resultsPath })
         });
       });
