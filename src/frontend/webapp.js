@@ -296,7 +296,7 @@ app.post(config.api.importDataUrl, function (req, res) {
   var projectObj = {}
   var marker = { files: [] }
   var trait = { files: [] }
-  var snpsFeatures = { files: [] }
+  var snpsFeature = { files: [] }
   var fileDataList = {
     marker: {
       name: 'Marker Values'
@@ -310,7 +310,7 @@ app.post(config.api.importDataUrl, function (req, res) {
     traitLabel: {
       name: 'Trait Labels'
     },
-    snpsFeatures: {
+    snpsFeature: {
       name: 'SNPs Features'
     }
   }
@@ -325,17 +325,17 @@ app.post(config.api.importDataUrl, function (req, res) {
       case 'projectName':
         projectObj.name = val
         break
+      case 'species':
+        projectObj.species = val
+        break
       case 'markerName':
         marker.name = val
         break
       case 'traitName':
         trait.name = val
         break
-      case 'species':
-        projectObj.species = val
-        break
-      case 'snpsFeatures':
-        snpsFeatures.name = val
+      case 'snpsFeature':
+        snpsFeature.name = val
         break
       default:
         console.log('Unhandled fieldname "' + fieldname + '" of value "' + val + '"')
@@ -356,7 +356,7 @@ app.post(config.api.importDataUrl, function (req, res) {
       else if (fieldname === 'traitFile') data = fileDataList.trait
       else if (fieldname === 'markerLabelFile') data = fileDataList.markerLabel
       else if (fieldname === 'traitLabelFile') data = fileDataList.traitLabel
-      else if (fieldname === 'snpsFeaturesFile') data = fileDataList.snpsFeatures
+      else if (fieldname === 'snpsFeatureFile') data = fileDataList.snpsFeature
       else console.log("Unhandled file:", fieldname)
 
       data.filetype = fieldname
@@ -390,9 +390,9 @@ app.post(config.api.importDataUrl, function (req, res) {
               } else if (file.filetype === 'traitLabelFile') {
                 trait.labelId = file.id
                 trait.files.push(file)
-              } else if (file.filetype === 'snpsFeaturesFile') {
-                snpsFeatures.id = file.id
-                snpsFeatures.files.push(file)
+              } else if (file.filetype === 'snpsFeatureFile') {
+                snpsFeature.id = file.id
+                snpsFeature.files.push(file)
               }
               callback()
             })
@@ -402,7 +402,7 @@ app.post(config.api.importDataUrl, function (req, res) {
         }, function (err) {
           if (err) throw err
 
-          return res.json({ project, files, marker, trait, snpsFeatures })
+          return res.json({ project, files, marker, trait, snpsFeature })
         }
       )
     }
@@ -436,8 +436,8 @@ app.post(config.api.importDataUrl, function (req, res) {
  *   modelOptions: {type:1, options: {lambda:0.01, L2_lambda: 0.01}}
  * }
  */
+
 app.post(config.api.runAnalysisUrl, function (req, res) {
-  console.log(req.body.other_data)
   var converter = new Converter({noheader:true});
   // Get marker file
   app.models.file.findOne({ id: req.body.marker.id }).exec(function (err, markerFile) {
@@ -457,53 +457,67 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           }
           Scheduler.setX(jobId, markerData);
           Scheduler.setY(jobId, traitData);
+          
+          const startJobFinish = function() {
+            const userId = extractUserIdFromHeader(req.headers)
+            const id = guid()
+            const userPath = path.join('./.tmp', userId)
+            const fileName = `${id}.csv`
+            const resultsPath = path.join(userPath, fileName)
+
+            try {
+              var success = Scheduler.startJob(jobId, function (results) {
+                // TODO: streamline this results passing - multiple types of data?
+                results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
+
+                fs.writeFile(resultsPath, results, function(err) {
+                  app.models.file.create({
+                    name: 'Matrix View',
+                    filetype: 'resultFile',
+                    path: resultsPath,
+                    project: req.body.project,
+                    labels: {
+                      marker: req.body.marker.labelId,
+                      trait: req.body.trait.labelId
+                    }
+                  }).exec(function (err, file) {
+                    if (err) throw err
+                  })
+                })
+              })
+            } catch (err) {
+              console.log(err)
+            }
+            return res.json({ status: success, jobId, resultsPath })
+          }
+
           // Add any extra files
-          if (req.body.other_data) {
-            var results = req.body.other_data.filter((value, index) =>
+          if (req.body.other_data.length > 0) {
+            req.body.other_data.map((value, index) =>
               app.models.file.findOne({id: value.id}).exec(function(err, attributeFile) {
                 if (err) console.log('Error getting attribute' + value.name + 'for analysis: ' + err);
                 if (attributeFile) {
                   var attributeConverter = new Converter({noheader: true});
                   attributeConverter.fromFile(attributeFile.path, function(err, attributeData) {
                     if (err) console.log('Error getting extra data for analysis: ', err);
-                    backend.setModelAttributeMatrix(jobId, value.name, attributeData);
+                    try {
+                      Scheduler.setModelAttributeMatrix(jobId, value.name, attributeData);
+                      if (index == req.body.other_data.length -1) {
+                        startJobFinish();
+                      }
+                    } catch (err) {
+                      console.log(err);
+                      return false;
+                    }
                   })
                 }
               })
-            );
+            )
+          } else {
+            startJobFinish();
           }
           /*results.map((value, index) => assert(value));*/
-
-          const userId = extractUserIdFromHeader(req.headers)
-          const id = guid()
-          const userPath = path.join('./.tmp', userId)
-          const fileName = `${id}.csv`
-          const resultsPath = path.join(userPath, fileName)
-
-          try {
-            var success = Scheduler.startJob(jobId, function (results) {
-              // TODO: streamline this results passing - multiple types of data?
-              results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
-
-              fs.writeFile(resultsPath, results, function(err) {
-                app.models.file.create({
-                  name: 'Matrix View',
-                  filetype: 'resultFile',
-                  path: resultsPath,
-                  project: req.body.project,
-                  labels: {
-                    marker: req.body.marker.labelId,
-                    trait: req.body.trait.labelId
-                  }
-                }).exec(function (err, file) {
-                  if (err) throw err
-                })
-              })
-            })
-          } catch (err) {
-            console.log(err)
-          }
-          return res.json({ status: success, jobId, resultsPath })
+          
         });
       });
     });

@@ -51,12 +51,12 @@ const GMRunAnalysisDialog = React.createClass({
       markerLabelValue: '',
       traitLabelValue: '',
       resultsPath: '',
-      snpsFeatures1Value: '',
-      snpsFeatures1Name: '',
-      snpsFeatures1FileName: '',
-      snpsFeatures2Value: '',
-      snpsFeatures2Name: '',
-      snpsFeatures2FileName: '',
+      snpsFeature1Value: '',
+      /*snpsFeature1Name: '',
+      snpsFeature1FileName: '',*/
+      snpsFeature2Value: '',
+      /*snpsFeature2Name: '',
+      snpsFeature2FileName: '',*/
       // Model parameters
       models: config.models,
       modelValue: '',
@@ -103,13 +103,13 @@ const GMRunAnalysisDialog = React.createClass({
             this.state.modelValue !== '')
   },
   handleSubmit: function () {
-    if (!!this.state.snpsFeatures1FileName && !!this.state.snpsFeatures1Name) {
+    /*if ((!!this.state.snpsFeature1FileName && !!this.state.snpsFeature1Name) || 
+      (!!this.state.snpsFeature2FileName && !!this.state.snpsFeature2Name)) {
       // TODO: try to submit only part of form
       this.props.importData(document.forms.runAnalysis)
-    }
-    // Need to set this.state.snpsFeatures1Value to the newly created ID
-
-    /*
+      
+    }*/
+    // Need to set this.state.snpsFeature1Value to the newly created ID
     this.props.submit({
       project: this.state.projectValue,
       jobName: this.state.jobName,
@@ -145,11 +145,11 @@ const GMRunAnalysisDialog = React.createClass({
         }
       },
       other_data: [
-        {name: 'snpsFeatures1', id:this.state.snpsFeatures1Value},
-        {name: 'snpsFeatures2', id:this.state.snpsFeatures2Value ? this.state.snpsFeatures2Value : this.state.snpsFeatures1Value}
+        {name: 'snpsFeature1', id:this.state.snpsFeature1Value.id},
+        {name: 'snpsFeature2', id:this.state.snpsFeature2Value ? this.state.snpsFeature2Value.id : this.state.snpsFeature1Value.id}
       ],
       resultsPath: this.state.resultsPath
-    })*/
+    })
 
     this.setState(this.getInitialState())
     this.handleClose()
@@ -174,8 +174,8 @@ const GMRunAnalysisDialog = React.createClass({
       traits: traits,
       traitValue: traits.length > 0 ? traits[0] : '',
       snpsFeatures: snpsFeatures ? snpsFeatures : [],
-      snpsFeatures1Value: snpsFeatures.length > 0 ? snpsFeatures[0] : '',
-      snpsFeatures2Value: snpsFeatures.length > 0 ? snpsFeatures[0] : ''
+      snpsFeature1Value: snpsFeatures.length > 0 ? snpsFeatures[0] : '',
+      snpsFeature2Value: snpsFeatures.length > 0 ? snpsFeatures[0] : ''
     })
 
   },
@@ -189,24 +189,24 @@ const GMRunAnalysisDialog = React.createClass({
     this.setState({traitValue: value})
   },
   // Model Options
-  onChangeSnpsFeatures1: function(event, index, value) {
-    this.setState({snpsFeatures1Value: value})
+  onChangeSnpsFeature1: function(event, index, value) {
+    this.setState({snpsFeature1Value: value})
   },
-  onChangeSnpsFeatures2: function(event, index, value) {
-    this.setState({snpsFeatures2Value: value})
+  onChangeSnpsFeature2: function(event, index, value) {
+    this.setState({snpsFeature2Value: value})
   },
-  onChangesnpsFeatures1Name (event) {
-    this.setState({snpsFeatures1Name: event.target.value})
+  /*onChangesnpsFeature1Name (event) {
+    this.setState({snpsFeature1Name: event.target.value})
   },
-  onChangesnpsFeatures2Name (event) {
-    this.setState({snpsFeatures2Name: event.target.value})
+  onChangesnpsFeature2Name (event) {
+    this.setState({snpsFeature2Name: event.target.value})
   },
-  onChangesnpsFeatures1FileName (event) {
-    this.setState({snpsFeatures1FileName: event.target.value.substr(12)})
+  onChangesnpsFeature1FileName (event) {
+    this.setState({snpsFeature1FileName: event.target.value.substr(12)})
   },
-  onChangesnpsFeatures2FileName (event) {
-    this.setState({snpsFeatures2FileName: event.target.value.substr(12)})
-  },
+  onChangesnpsFeature2FileName (event) {
+    this.setState({snpsFeature2FileName: event.target.value.substr(12)})
+  },*/
   onChangeModel: function (event, index, value) {
     this.setState({modelValue: value,
                   showAdvancedOptionsButton: true,
@@ -315,11 +315,11 @@ const GMRunAnalysisDialog = React.createClass({
     const modelListReact = this.state.models.map((model, index) =>
       <option key={index} value={model.id}>{model.name}</option>
     )
-    const snpsFeaturesList = this.state.snpsFeatures.map((f, index) =>
-      <MenuItem key={index} value={f.id} primaryText={f.name} />
+    const snpsFeatureList = this.state.snpsFeatures.map((f, index) =>
+      <MenuItem key={index} value={f} primaryText={f.name} />
     )
-    const snpsFeaturesListReact = this.state.snpsFeatures.map((f, index) =>
-      <option key={index} value={f.id}>{f.name}</option>
+    const snpsFeatureListReact = this.state.snpsFeatures.map((f, index) =>
+      <option key={index} value={f}>{f.name}</option>
     )
     const clusteringMethodList = this.state.clusteringMethods.map((method, index) =>
       <MenuItem key={index} value={method} primaryText={method} />
@@ -418,80 +418,36 @@ const GMRunAnalysisDialog = React.createClass({
                 {(this.state.modelValue == 0) ? // Linear Regression
                   <div></div> :
                 (this.state.modelValue == 1) ? // Adaptive Multi-task Lasso
-                  <div id='snpsFeaturesDiv'>
-                    <div id='snpsFeatures1Div'>
+                  <div id='snpsFeatureDiv'>
+                    <div id='snpsFeature1Div'>
                       <SelectField
-                        value={this.state.snpsFeatures1Value}
+                        value={this.state.snpsFeature1Value}
                         hintText='Choose SNP Features (L1)'
-                        errorText={!this.state.snpsFeatures1Value && errorText}
-                        onChange={this.onChangeSnpsFeatures1}
+                        errorText={!this.state.snpsFeature1Value && errorText}
+                        onChange={this.onChangeSnpsFeature1}
                       >
                         <MenuItem value={'new'} primaryText='New SNP File' />
-                        {snpsFeaturesList}
+                        {snpsFeatureList}
                       </SelectField>
-                      <select id='snpsFeatures' className='hidden' value={this.state.snpsFeatures1Value} readOnly>
+                      <select id='snpsFeature' className='hidden' value={this.state.snpsFeature1Value} readOnly>
                         <option value='new'>New SNP Feature File</option>
-                        {snpsFeaturesListReact}
+                        {snpsFeatureListReact}
                       </select>
-                      <div id='newSnpsFeatures1Div'>
-                      {(this.state.snpsFeatures1Value === 'new') ?
-                        <div>
-                          <TextField
-                            id='snpsFeatures'
-                            value={this.state.snpsFeatures1Name}
-                            hintText='SNPs Feature Name'
-                            errorText={this.state.snpsFeatures1FileName && !this.state.snpsFeatures1Name && errorText}
-                            onChange={this.onChangesnpsFeatures1Name}
-                            importOnSubmit={true}
-                          />
-                          <GMFileInput
-                            id='snpsFeaturesFile'
-                            buttonLabel='SNPs Feature File'
-                            accept='.csv'
-                            onChange={this.onChangesnpsFeatures1FileName}
-                            fileLabel={this.state.snpsFeatures1FileName}
-                            importOnSubmit={true}
-                          />
-                        </div>
-                      : null}
-                      </div>
                     </div>
-                    <div id='snpsFeatures2Div'>
+                    <div id='snpsFeature2Div'>
                       <SelectField
-                        value={this.state.snpsFeatures2Value}
+                        value={this.state.snpsFeature2Value}
                         hintText='Choose SNP Features (L2)'
-                        /*errorText={!this.state.snpsFeatures2Value && errorText}*/
-                        onChange={this.onChangeSnpsFeatures2}
+                        /*errorText={!this.state.snpsFeature2Value && errorText}*/
+                        onChange={this.onChangeSnpsFeature2}
                       >
                         <MenuItem value={'new'} primaryText='New SNP File' />
-                        {snpsFeaturesList}
+                        {snpsFeatureList}
                       </SelectField>
-                      <select id='snpsFeatures' className='hidden' value={this.state.snpsFeatures2Value} readOnly>
+                      <select id='snpsFeature' className='hidden' value={this.state.snpsFeature2Value} readOnly>
                         <option value='new'>New SNP File</option>
-                        {snpsFeaturesListReact}
+                        {snpsFeatureListReact}
                       </select>
-                      <div id='newSnpsFeatures2Div'>
-                      {(this.state.snpsFeatures2Value === 'new') ?
-                        <div>
-                          <TextField
-                            id='snpsFeatures'
-                            value={this.state.snpsFeatures2Name}
-                            hintText='SNPs Feature Name'
-                            errorText={this.state.snpsFeatures2FileName && !this.state.snpsFeatures2Name && errorText}
-                            onChange={this.onChangesnpsFeatures2Name}
-                            importOnSubmit={true}
-                          />
-                          <GMFileInput
-                            id='snpsFeaturesFile'
-                            buttonLabel='SNPs Feature File'
-                            accept='.csv'
-                            onChange={this.onChangesnpsFeatures2FileName}
-                            fileLabel={this.state.snpsFeatures2FileName}
-                            importOnSubmit={true}
-                          />
-                        </div>
-                      : null}
-                      </div>
                     </div>
                   </div>:
                 (this.state.modelValue == 2) ? // Gflasso
@@ -603,3 +559,53 @@ const GMRunAnalysisDialog = React.createClass({
 })
 
 export default GMRunAnalysisDialog
+
+
+/*
+<div id='newsnpsFeature1Div'>
+{(this.state.snpsFeature1Value === 'new') ?
+  <div>
+    <TextField
+      id='snpsFeature'
+      value={this.state.snpsFeature1Name}
+      hintText='SNPs Feature Name'
+      errorText={this.state.snpsFeature1FileName && !this.state.snpsFeature1Name && errorText}
+      onChange={this.onChangesnpsFeature1Name}
+      importOnSubmit={true}
+    />
+    <GMFileInput
+      id='snpsFeatureFile'
+      buttonLabel='SNPs Feature File'
+      accept='.csv'
+      onChange={this.onChangesnpsFeature1FileName}
+      fileLabel={this.state.snpsFeature1FileName}
+      importOnSubmit={true}
+    />
+  </div>
+: null}
+</div>
+
+<div id='newsnpsFeature2Div'>
+{(this.state.snpsFeature2Value === 'new') ?
+  <div>
+    <TextField
+      id='snpsFeature'
+      value={this.state.snpsFeature2Name}
+      hintText='SNPs Feature Name'
+      errorText={this.state.snpsFeature2FileName && !this.state.snpsFeature2Name && errorText}
+      onChange={this.onChangesnpsFeature2Name}
+      importOnSubmit={true}
+    />
+    <GMFileInput
+      id='snpsFeatureFile'
+      buttonLabel='SNPs Feature File'
+      accept='.csv'
+      onChange={this.onChangesnpsFeature2FileName}
+      fileLabel={this.state.snpsFeature2FileName}
+      importOnSubmit={true}
+    />
+  </div>
+: null}
+</div>
+
+*/

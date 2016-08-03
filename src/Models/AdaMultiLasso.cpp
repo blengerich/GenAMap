@@ -38,11 +38,11 @@ AdaMultiLasso::AdaMultiLasso(const unordered_map<string, string>& opts) {
 }
 
 void AdaMultiLasso::setAttributeMatrix(const string& str, MatrixXd* Z) {
-    if (str == "snpsFeatures1") {
+    if (str == "snpsFeatures1" || str == "snpsFeature1") {
         setSnpsFeatures1(*Z);
-    } else if (str == "snpsFeatures2") {
+    } else if (str == "snpsFeatures2" || str == "snpsFeature2") {
         setSnpsFeatures2(*Z);
-    } else if (str == "snpsFeatures") {
+    } else if (str == "snpsFeatures" || str == "snpsFeature") {
         setSnpsFeatures(*Z);
     } else {
         throw runtime_error("AdaMultiLasso models have no attribute with name" + str);

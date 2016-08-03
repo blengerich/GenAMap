@@ -18,13 +18,15 @@ class GMImportDialog extends Component {
       open: false,
       projectValue: '',
       projectName: '',
+      speciesValue: '',
       markerLabelFileName: '',
       markerName: '',
       markerFileName: '',
       traitLabelFileName: '',
       traitName: '',
       traitFileName: '',
-      speciesValue: '',
+      snpsFeatureFileName: '',
+      snpsFeatureName: '',
       optionDisabled: true,
       species: config.species
     }
@@ -80,6 +82,10 @@ class GMImportDialog extends Component {
     this.setState({projectName: event.target.value})
   }
 
+  onChangeSpecies (event, index, value) {
+    this.setState({speciesValue: value})
+  }
+
   onChangeMarkerLabelFileName (event) {
     this.setState({markerLabelFileName: event.target.value.substr(12)})
   }
@@ -104,8 +110,13 @@ class GMImportDialog extends Component {
     this.setState({traitFileName: event.target.value.substr(12)})
   }
 
-  onChangeSpecies (event, index, value) {
-    this.setState({speciesValue: value})
+  onChangesnpsFeatureName (event) {
+    console.log(event)
+    this.setState({snpsFeatureName: event.target.value})
+  }
+
+  onChangesnpsFeatureFileName (event) {
+    this.setState({snpsFeatureFileName: event.target.value.substr(12)})
   }
 
   render () {
@@ -182,6 +193,25 @@ class GMImportDialog extends Component {
               />
             </div>
             <div>
+              <SelectField
+                value={this.state.speciesValue}
+                disabled={this.state.optionDisabled}
+                hintText='Choose Species'
+                errorText={!this.state.speciesValue && !this.state.optionDisabled && errorText}
+                onChange={this.onChangeSpecies.bind(this)}
+              >
+                {speciesList}
+              </SelectField>
+              <select
+                id='species'
+                className='hidden'
+                value={this.state.speciesValue}
+                readOnly
+              >
+                {speciesListReact}
+              </select>
+            </div>
+            <div>
               <TextField
                 id='markerName'
                 value={this.state.markerName}
@@ -229,24 +259,23 @@ class GMImportDialog extends Component {
                 fileLabel={this.state.traitLabelFileName}
               />
             </div>
-            <div>
-              <SelectField
-                value={this.state.speciesValue}
-                disabled={this.state.optionDisabled}
-                hintText='Choose Species'
-                errorText={!this.state.speciesValue && !this.state.optionDisabled && errorText}
-                onChange={this.onChangeSpecies.bind(this)}
-              >
-                {speciesList}
-              </SelectField>
-              <select
-                id='species'
-                className='hidden'
-                value={this.state.speciesValue}
-                readOnly
-              >
-                {speciesListReact}
-              </select>
+            <div id="snpFeaturesDiv">
+              <TextField
+                id='snpsFeature'
+                value={this.state.snpsFeatureName}
+                hintText='SNPs Features Name'
+                errorText={this.state.snpsFeatureFileName && !this.state.snpsFeatureName && errorText}
+                onChange={this.onChangesnpsFeatureName.bind(this)}
+                importOnSubmit={true}
+              />
+              <GMFileInput
+                id='snpsFeatureFile'
+                buttonLabel='SNPs Feature File'
+                accept='.csv'
+                onChange={this.onChangesnpsFeatureFileName.bind(this)}
+                fileLabel={this.state.snpsFeatureFileName}
+                importOnSubmit={true}
+              />
             </div>
           </form>
         </Dialog>

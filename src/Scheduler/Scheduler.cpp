@@ -165,11 +165,16 @@ bool Scheduler::setY(const int job_id, const Eigen::MatrixXd& Y) {
 
 // TODO: merge setX and setY into this function?
 bool Scheduler::setModelAttributeMatrix(const int job_id, const string& str, Eigen::MatrixXd* Z) {
-	if (ValidJobId(job_id) && getJob(job_id)->model) {
-		getJob(job_id)->model->setAttributeMatrix(str, Z);
-		return true;
+	try {
+		if (ValidJobId(job_id) && getJob(job_id)->model) {
+			getJob(job_id)->model->setAttributeMatrix(str, Z);
+			return true;
+		}
+		return false;
+	} catch (const exception & e) {
+		rethrow_exception(current_exception());
+		return false;
 	}
-	return false;	
 }
 
 
