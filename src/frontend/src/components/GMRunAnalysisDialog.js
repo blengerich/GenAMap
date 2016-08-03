@@ -103,6 +103,13 @@ const GMRunAnalysisDialog = React.createClass({
             this.state.modelValue !== '')
   },
   handleSubmit: function () {
+    if (!!this.state.snpsFeatures1FileName && !!this.state.snpsFeatures1Name) {
+      // TODO: try to submit only part of form
+      this.props.importData(document.forms.runAnalysis)
+    }
+    // Need to set this.state.snpsFeatures1Value to the newly created ID
+
+    /*
     this.props.submit({
       project: this.state.projectValue,
       jobName: this.state.jobName,
@@ -142,12 +149,7 @@ const GMRunAnalysisDialog = React.createClass({
         {name: 'snpsFeatures2', id:this.state.snpsFeatures2Value ? this.state.snpsFeatures2Value : this.state.snpsFeatures1Value}
       ],
       resultsPath: this.state.resultsPath
-    })
-
-    if (!!this.state.snpsFeatures1FileName && !!this.state.snpsFeatures1Name) {
-      // TODO: try to submit only part of form
-      this.props.importData(document.forms.runAnalysis)
-    }
+    })*/
 
     this.setState(this.getInitialState())
     this.handleClose()
@@ -427,7 +429,7 @@ const GMRunAnalysisDialog = React.createClass({
                         <MenuItem value={'new'} primaryText='New SNP File' />
                         {snpsFeaturesList}
                       </SelectField>
-                      <select id='marker' className='hidden' value={this.state.snpsFeatures1Value} readOnly>
+                      <select id='snpsFeatures' className='hidden' value={this.state.snpsFeatures1Value} readOnly>
                         <option value='new'>New SNP Feature File</option>
                         {snpsFeaturesListReact}
                       </select>
@@ -435,7 +437,7 @@ const GMRunAnalysisDialog = React.createClass({
                       {(this.state.snpsFeatures1Value === 'new') ?
                         <div>
                           <TextField
-                            id='snpsFeature1'
+                            id='snpsFeatures'
                             value={this.state.snpsFeatures1Name}
                             hintText='SNPs Feature Name'
                             errorText={this.state.snpsFeatures1FileName && !this.state.snpsFeatures1Name && errorText}
@@ -464,7 +466,7 @@ const GMRunAnalysisDialog = React.createClass({
                         <MenuItem value={'new'} primaryText='New SNP File' />
                         {snpsFeaturesList}
                       </SelectField>
-                      <select id='marker' className='hidden' value={this.state.snpsFeatures2Value} readOnly>
+                      <select id='snpsFeatures' className='hidden' value={this.state.snpsFeatures2Value} readOnly>
                         <option value='new'>New SNP File</option>
                         {snpsFeaturesListReact}
                       </select>
@@ -472,7 +474,7 @@ const GMRunAnalysisDialog = React.createClass({
                       {(this.state.snpsFeatures2Value === 'new') ?
                         <div>
                           <TextField
-                            id='snpsFeature2'
+                            id='snpsFeatures'
                             value={this.state.snpsFeatures2Name}
                             hintText='SNPs Feature Name'
                             errorText={this.state.snpsFeatures2FileName && !this.state.snpsFeatures2Name && errorText}
