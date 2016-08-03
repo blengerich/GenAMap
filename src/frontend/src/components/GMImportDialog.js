@@ -110,12 +110,12 @@ class GMImportDialog extends Component {
     this.setState({traitFileName: event.target.value.substr(12)})
   }
 
-  onChangesnpsFeatureName (event) {
+  onChangeSnpsFeatureName (event) {
     console.log(event)
     this.setState({snpsFeatureName: event.target.value})
   }
 
-  onChangesnpsFeatureFileName (event) {
+  onChangeSnpsFeatureFileName (event) {
     this.setState({snpsFeatureFileName: event.target.value.substr(12)})
   }
 
@@ -265,7 +265,7 @@ class GMImportDialog extends Component {
                 value={this.state.snpsFeatureName}
                 hintText='SNPs Features Name'
                 errorText={this.state.snpsFeatureFileName && !this.state.snpsFeatureName && errorText}
-                onChange={this.onChangesnpsFeatureName.bind(this)}
+                onChange={this.onChangeSnpsFeatureName.bind(this)}
                 importOnSubmit={true}
               />
               <GMFileInput
@@ -273,7 +273,7 @@ class GMImportDialog extends Component {
                 buttonLabel='SNPs Feature File'
                 accept='.csv'
                 onChange={this.onChangesnpsFeatureFileName.bind(this)}
-                fileLabel={this.state.snpsFeatureFileName}
+                fileLabel={this.state.SnpsFeatureFileName}
                 importOnSubmit={true}
               />
             </div>
