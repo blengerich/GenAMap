@@ -5,7 +5,7 @@ var watchify = require('watchify')
 
 gulp.task('bundle', function () {
   return browserify('src/index.js')
-    .transform('babelify', {presets: ['es2015', 'react'], 'plugins': ['transform-object-rest-spread']})
+    .transform('babelify', {presets: ['es2015', 'react'], 'plugins': ['transform-object-rest-spread'], 'compact': false})
     .bundle()
     .pipe(source('bundle.js'))
     .pipe(gulp.dest('static/'))
@@ -21,7 +21,7 @@ gulp.task('watch', function () {
   b.on('update', makeBundle)
 
   function makeBundle () {
-    b.transform('babelify', {presets: ['es2015', 'react'], 'plugins': ['transform-object-rest-spread']})
+    b.transform('babelify', {presets: ['es2015', 'react'], 'plugins': ['transform-object-rest-spread'], 'compact': false})
       .bundle()
       .on('error', function (err) {
         console.error(err.message)

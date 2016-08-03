@@ -296,7 +296,7 @@ app.post(config.api.importDataUrl, function (req, res) {
   var projectObj = {}
   var marker = { files: [] }
   var trait = { files: [] }
-  //var snpsFeature = { files: [] }
+  var snpsFeature = { files: [] }
   var fileDataList = {
     marker: {
       name: 'Marker Values'
@@ -309,10 +309,10 @@ app.post(config.api.importDataUrl, function (req, res) {
     },
     traitLabel: {
       name: 'Trait Labels'
-    }/*,
+    },
     snpsFeature: {
       name: 'SNPs Features'
-    }*/
+    }
   }
   const userId = extractUserIdFromHeader(req.headers)
 
@@ -325,18 +325,18 @@ app.post(config.api.importDataUrl, function (req, res) {
       case 'projectName':
         projectObj.name = val
         break
+      case 'species':
+        projectObj.species = val
+        break
       case 'markerName':
         marker.name = val
         break
       case 'traitName':
         trait.name = val
         break
-      case 'species':
-        projectObj.species = val
-        break
-      /*case 'snpsFeature':
+      case 'snpsFeature':
         snpsFeature.name = val
-        break*/
+        break
       default:
         console.log('Unhandled fieldname "' + fieldname + '" of value "' + val + '"')
     }
@@ -356,7 +356,7 @@ app.post(config.api.importDataUrl, function (req, res) {
       else if (fieldname === 'traitFile') data = fileDataList.trait
       else if (fieldname === 'markerLabelFile') data = fileDataList.markerLabel
       else if (fieldname === 'traitLabelFile') data = fileDataList.traitLabel
-      //else if (fieldname === 'snpsFeatureFile') data = fileDataList.snpsFeature
+      else if (fieldname === 'snpsFeatureFile') data = fileDataList.snpsFeature
       else console.log("Unhandled file:", fieldname)
 
       data.filetype = fieldname
@@ -365,7 +365,7 @@ app.post(config.api.importDataUrl, function (req, res) {
   })
 
   busboy.on('finish', function () {
-    app.models.project.findOrCreate(projectObj).exec(function (err, project) {
+    const projectFinish = function (err, project) {
       // if (err) return res.status(500).json({err: err})
       if (err) throw err
       var files = [] // not really used right now
@@ -390,35 +390,34 @@ app.post(config.api.importDataUrl, function (req, res) {
               } else if (file.filetype === 'traitLabelFile') {
                 trait.labelId = file.id
                 trait.files.push(file)
-              } /*else if (file.filetype === 'snpsFeatureFile') {
+              } else if (file.filetype === 'snpsFeatureFile') {
                 snpsFeature.id = file.id
                 snpsFeature.files.push(file)
-              }*/
+              }
               callback()
             })
+          } else {
+            callback()
           }
         }, function (err) {
           if (err) throw err
 
-          return res.json({ project, files, marker, trait/*, snpsFeature*/})
+          return res.json({ project, files, marker, trait, snpsFeature })
         }
       )
+    }
+
+    app.models.project.findOne({ id: projectId }).exec(function (err, project) {
+      if (!project) {
+        app.models.project.findOrCreate(projectObj).exec(projectFinish)
+      } else {
+        projectFinish(err, project)
+      }
     })
   })
 
   req.pipe(busboy)
 })
-
-/*var getAlgorithmType = function (id) {
-  var algorithmTypes = {
-    1: 1,
-    2: 1,
-    3: 1,
-    4: 1,
-    5: 1
-  }
-  return algorithmTypes[id]
-}*/
 
 /**
  * @param {Object} req
@@ -437,6 +436,7 @@ app.post(config.api.importDataUrl, function (req, res) {
  *   modelOptions: {type:1, options: {lambda:0.01, L2_lambda: 0.01}}
  * }
  */
+
 app.post(config.api.runAnalysisUrl, function (req, res) {
   var converter = new Converter({noheader:true});
   // Get marker file
@@ -457,48 +457,67 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           }
           Scheduler.setX(jobId, markerData);
           Scheduler.setY(jobId, traitData);
+          
+          const startJobFinish = function() {
+            const userId = extractUserIdFromHeader(req.headers)
+            const id = guid()
+            const userPath = path.join('./.tmp', userId)
+            const fileName = `${id}.csv`
+            const resultsPath = path.join(userPath, fileName)
+
+            try {
+              var success = Scheduler.startJob(jobId, function (results) {
+                // TODO: streamline this results passing - multiple types of data?
+                results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
+
+                fs.writeFile(resultsPath, results, function(err) {
+                  app.models.file.create({
+                    name: 'Matrix View',
+                    filetype: 'resultFile',
+                    path: resultsPath,
+                    project: req.body.project,
+                    labels: {
+                      marker: req.body.marker.labelId,
+                      trait: req.body.trait.labelId
+                    }
+                  }).exec(function (err, file) {
+                    if (err) throw err
+                  })
+                })
+              })
+            } catch (err) {
+              console.log(err)
+            }
+            return res.json({ status: success, jobId, resultsPath })
+          }
+
           // Add any extra files
-          if (req.body.other_data) {
-            var results = req.body.other_data.filter((value, index) => 
+          if (req.body.other_data.length > 0) {
+            req.body.other_data.map((value, index) =>
               app.models.file.findOne({id: value.id}).exec(function(err, attributeFile) {
                 if (err) console.log('Error getting attribute' + value.name + 'for analysis: ' + err);
                 if (attributeFile) {
                   var attributeConverter = new Converter({noheader: true});
                   attributeConverter.fromFile(attributeFile.path, function(err, attributeData) {
                     if (err) console.log('Error getting extra data for analysis: ', err);
-                    backend.setModelAttributeMatrix(jobId, value.name, attributeData);
+                    try {
+                      Scheduler.setModelAttributeMatrix(jobId, value.name, attributeData);
+                      if (index == req.body.other_data.length -1) {
+                        startJobFinish();
+                      }
+                    } catch (err) {
+                      console.log(err);
+                      return false;
+                    }
                   })
                 }
               })
-            );
+            )
+          } else {
+            startJobFinish();
           }
           /*results.map((value, index) => assert(value));*/
-
-          const userId = extractUserIdFromHeader(req.headers)
-          const id = guid()
-          const userPath = path.join('./.tmp', userId)
-          const fileName = `${id}.csv`
-          const resultsPath = path.join(userPath, fileName)
-
-          var success = Scheduler.startJob(jobId, function (results) {
-            results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
-
-            fs.writeFile(resultsPath, results, function(err) {
-              app.models.file.create({
-                name: 'Matrix View',
-                filetype: 'resultFile',
-                path: resultsPath,
-                project: req.body.project,
-                labels: {
-                  marker: req.body.marker.labelId,
-                  trait: req.body.trait.labelId
-                }
-              }).exec(function (err, file) {
-                if (err) throw err
-              })
-            })
-          })
-          return res.json({ status: success, jobId, resultsPath })
+          
         });
       });
     });
@@ -538,20 +557,18 @@ app.get('/api/algorithms', function (req, res) {
   /*
   model_type = {
     linear_regression: 1,
-    lasso: 2,
-    ada_multi_lasso: 3,
-    gf_lasso: 4,
-    multi_pop_lasso: 5,
-    tree_lasso: 6
+    ada_multi_lasso: 2,
+    gf_lasso: 3,
+    multi_pop_lasso: 4,
+    tree_lasso: 5
   };
   */
   return res.json([
     {name: 'Linear Regression', id: 1}
-    /* {name: "Lasso", id: 2},
-    {name: "Ada Multi Lasso", id: 3},
-    {name: "GF Lasso", id: 4},
-    {name: "Multi Pop Lasso": 5},
-    {name: "Tree Lasso", id: 6} */
+    /*{name: "Ada Multi Lasso", id: 2},
+    {name: "GF Lasso", id: 3},
+    {name: "Multi Pop Lasso": 4},
+    {name: "Tree Lasso", id: 5} */
   ])
 })
 
