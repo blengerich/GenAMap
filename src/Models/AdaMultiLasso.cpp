@@ -231,7 +231,10 @@ void AdaMultiLasso::assertReadyToRun() {
 	if (!((snpsFeatures1.rows() > 0) && (snpsFeatures1.cols() > 0)
 		&& (snpsFeatures2.rows() > 0) && (snpsFeatures2.cols() > 0)
         && (snpsFeatures1.rows() == X.cols()) && (snpsFeatures2.rows() == X.cols()))) {
-		throw runtime_error("SNP Feature matrices not compatible");
+		throw runtime_error("SNP Feature matrices of size (" + to_string(snpsFeatures1.rows()) + 
+            ", " + to_string(snpsFeatures1.cols()) + "), and (" + to_string(snpsFeatures2.rows()) +
+            ", " + to_string(snpsFeatures2.cols()) + ") are not compatible with X of size (" +
+            to_string(X.rows()) + ", " + to_string(X.cols()) + ").");
 	}
 }
 

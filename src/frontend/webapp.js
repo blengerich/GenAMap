@@ -419,17 +419,6 @@ app.post(config.api.importDataUrl, function (req, res) {
   req.pipe(busboy)
 })
 
-/*var getAlgorithmType = function (id) {
-  var algorithmTypes = {
-    1: 1,
-    2: 1,
-    3: 1,
-    4: 1,
-    5: 1
-  }
-  return algorithmTypes[id]
-}*/
-
 /**
  * @param {Object} req
  * @param {Object} [req.body]
@@ -448,6 +437,7 @@ app.post(config.api.importDataUrl, function (req, res) {
  * }
  */
 app.post(config.api.runAnalysisUrl, function (req, res) {
+  console.log(req.body.other_data)
   var converter = new Converter({noheader:true});
   // Get marker file
   app.models.file.findOne({ id: req.body.marker.id }).exec(function (err, markerFile) {

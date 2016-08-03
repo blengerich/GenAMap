@@ -221,15 +221,15 @@ bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) 
 	try {
 		job->algorithm->assertReadyToRun();
 		job->model->assertReadyToRun();
+		job->request.data = job;
+		uv_queue_work(uv_default_loop(), &(job->request), trainAlgorithmThread, completion);
+		usleep(10);	// TODO: fix this rare race condition (stopping job before the worker thread has started is bad) in a better way? [Issue: https://github.com/blengerich/GenAMap_V2/issues/27]
+		return true;
 	} catch (const exception& ex) {
 		//job->exception = current_exception();	// Must save the exception so that it can be passed between threads - but this is running in main thread?
 		rethrow_exception(current_exception());
 		return false;
 	}
-	job->request.data = job;
-	uv_queue_work(uv_default_loop(), &(job->request), trainAlgorithmThread, completion);
-	usleep(10);	// TODO: fix this rare race condition (stopping job before the worker thread has started is bad) in a better way? [Issue: https://github.com/blengerich/GenAMap_V2/issues/27]
-	return true;
 }
 
 
