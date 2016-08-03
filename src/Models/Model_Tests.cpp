@@ -621,7 +621,7 @@ TEST(ADA_MULTI_POP_LASSO, Cost_function){
 
     AdaMultiLasso aml = AdaMultiLasso();
     aml.setXY(X, y);
-    aml.setSnpsFeature(F);
+    aml.setSnpsFeatures(F);
     aml.setLambda1(lambda);
     aml.setLambda2(lambda2);
     aml.initTraining();

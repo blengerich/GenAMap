@@ -24,8 +24,8 @@ class AdaMultiLasso : public Model{
 private:
     double lambda1;
     double lambda2;
-    MatrixXd snpsFeature1;
-    MatrixXd snpsFeature2;
+    MatrixXd snpsFeatures1;
+    MatrixXd snpsFeatures2;
 
     VectorXd w;
     VectorXd v;
@@ -57,12 +57,12 @@ public:
     void setLambda1(double);
     void setLambda2(double);
 
-    void setAttributeMatrix(const string& str, MatrixXd* Z);
-    void setSnpsFeature1(MatrixXd); // TODO: can these be pass by ref? Currently having problems if we pass the same array twice
-    void setSnpsFeature2(MatrixXd);
-    void setSnpsFeature(MatrixXd);
-    MatrixXd getSnpsFeature1();
-    MatrixXd getSnpsFeature2();
+    void setAttributeMatrix(const string&, MatrixXd*);
+    void setSnpsFeatures1(MatrixXd); // TODO: switch to handling scoped pointers
+    void setSnpsFeatures2(MatrixXd);
+    void setSnpsFeatures(MatrixXd);
+    MatrixXd getSnpsFeatures1();
+    MatrixXd getSnpsFeatures2();
     VectorXd getW();
     VectorXd getV();
     void updateW(VectorXd);

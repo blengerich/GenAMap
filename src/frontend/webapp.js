@@ -325,14 +325,14 @@ app.post(config.api.importDataUrl, function (req, res) {
       case 'projectName':
         projectObj.name = val
         break
+      case 'species':
+        projectObj.species = val
+        break
       case 'markerName':
         marker.name = val
         break
       case 'traitName':
         trait.name = val
-        break
-      case 'species':
-        projectObj.species = val
         break
       case 'snpsFeature':
         snpsFeature.name = val
@@ -419,17 +419,6 @@ app.post(config.api.importDataUrl, function (req, res) {
   req.pipe(busboy)
 })
 
-/*var getAlgorithmType = function (id) {
-  var algorithmTypes = {
-    1: 1,
-    2: 1,
-    3: 1,
-    4: 1,
-    5: 1
-  }
-  return algorithmTypes[id]
-}*/
-
 /**
  * @param {Object} req
  * @param {Object} [req.body]
@@ -447,6 +436,7 @@ app.post(config.api.importDataUrl, function (req, res) {
  *   modelOptions: {type:1, options: {lambda:0.01, L2_lambda: 0.01}}
  * }
  */
+
 app.post(config.api.runAnalysisUrl, function (req, res) {
   var converter = new Converter({noheader:true});
   // Get marker file
@@ -467,48 +457,67 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           }
           Scheduler.setX(jobId, markerData);
           Scheduler.setY(jobId, traitData);
+          
+          const startJobFinish = function() {
+            const userId = extractUserIdFromHeader(req.headers)
+            const id = guid()
+            const userPath = path.join('./.tmp', userId)
+            const fileName = `${id}.csv`
+            const resultsPath = path.join(userPath, fileName)
+
+            try {
+              var success = Scheduler.startJob(jobId, function (results) {
+                // TODO: streamline this results passing - multiple types of data?
+                results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
+
+                fs.writeFile(resultsPath, results, function(err) {
+                  app.models.file.create({
+                    name: 'Matrix View',
+                    filetype: 'resultFile',
+                    path: resultsPath,
+                    project: req.body.project,
+                    labels: {
+                      marker: req.body.marker.labelId,
+                      trait: req.body.trait.labelId
+                    }
+                  }).exec(function (err, file) {
+                    if (err) throw err
+                  })
+                })
+              })
+            } catch (err) {
+              console.log(err)
+            }
+            return res.json({ status: success, jobId, resultsPath })
+          }
+
           // Add any extra files
-          if (req.body.other_data) {
-            var results = req.body.other_data.filter((value, index) =>
+          if (req.body.other_data.length > 0) {
+            req.body.other_data.map((value, index) =>
               app.models.file.findOne({id: value.id}).exec(function(err, attributeFile) {
                 if (err) console.log('Error getting attribute' + value.name + 'for analysis: ' + err);
                 if (attributeFile) {
                   var attributeConverter = new Converter({noheader: true});
                   attributeConverter.fromFile(attributeFile.path, function(err, attributeData) {
                     if (err) console.log('Error getting extra data for analysis: ', err);
-                    backend.setModelAttributeMatrix(jobId, value.name, attributeData);
+                    try {
+                      Scheduler.setModelAttributeMatrix(jobId, value.name, attributeData);
+                      if (index == req.body.other_data.length -1) {
+                        startJobFinish();
+                      }
+                    } catch (err) {
+                      console.log(err);
+                      return false;
+                    }
                   })
                 }
               })
-            );
+            )
+          } else {
+            startJobFinish();
           }
           /*results.map((value, index) => assert(value));*/
-
-          const userId = extractUserIdFromHeader(req.headers)
-          const id = guid()
-          const userPath = path.join('./.tmp', userId)
-          const fileName = `${id}.csv`
-          const resultsPath = path.join(userPath, fileName)
-
-          var success = Scheduler.startJob(jobId, function (results) {
-            results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
-
-            fs.writeFile(resultsPath, results, function(err) {
-              app.models.file.create({
-                name: 'Matrix View',
-                filetype: 'resultFile',
-                path: resultsPath,
-                project: req.body.project,
-                labels: {
-                  marker: req.body.marker.labelId,
-                  trait: req.body.trait.labelId
-                }
-              }).exec(function (err, file) {
-                if (err) throw err
-              })
-            })
-          })
-          return res.json({ status: success, jobId, resultsPath })
+          
         });
       });
     });
