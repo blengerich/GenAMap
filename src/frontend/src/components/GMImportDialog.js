@@ -272,7 +272,7 @@ class GMImportDialog extends Component {
                 id='snpsFeatureFile'
                 buttonLabel='SNPs Feature File'
                 accept='.csv'
-                onChange={this.onChangesnpsFeatureFileName.bind(this)}
+                onChange={this.onChangeSnpsFeatureFileName.bind(this)}
                 fileLabel={this.state.SnpsFeatureFileName}
                 importOnSubmit={true}
               />
