@@ -54,19 +54,16 @@ const config = {
   0 : [// Linear Regression 
     1 // Proximal Gradient Descent
   ],
-  1 : [// Lasso // TODO: is lasso abstract? 
+  1 : [ //AdaMultiLasso
     1 // Proximal Gradient Descent
   ],
-  2 : [ //AdaMultiLasso
+  2 : [ // Gflasso
     1 // Proximal Gradient Descent
   ],
-  3 : [ // Gflasso
+  3 : [ // MultiPopLasso
     1 // Proximal Gradient Descent
   ],
-  4 : [ // MultiPopLasso
-    1 // Proximal Gradient Descent
-  ],
-  5 : [// Tree Lasso
+  4 : [// Tree Lasso
     3, // Iterative Update
     1  // Proximal Gradient Descent
   ],
@@ -78,26 +75,21 @@ const config = {
     info: 'info about Linear Regression'
   }, {
     id: 1,
-    name: 'Lasso',
-    image: 'images/proximal_gradient_descent.png',
-    info: 'info about PGD'
-  }, {
-    id: 2,
     name: 'Adaptive Multi-Task Lasso',
     image: 'images/grid_search.png',
     info: 'info about Grid Search'
   }, {
-    id: 3,
+    id: 2,
     name: 'GfLasso',
     image: '',
     info: 'info about IU'
   }, {
-    id: 4,
+    id: 3,
     name: 'Multi-Population Lasso',
     image: '',
     info: 'info about IU'
   }, {
-    id: 5,
+    id: 4,
     name: 'Tree Lasso',
     image: '',
     info: 'info about IU'

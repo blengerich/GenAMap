@@ -3,7 +3,7 @@ var expect = require('chai').expect;
 var backend = require('../../Scheduler/node/build/Release/scheduler.node');
 
 // Model Options
-var model_opts = {'type': '2',	// AdaMultiLasso
+var model_opts = {'type': '1',	// AdaMultiLasso
 			'options': {'lambda': 0.05, 'L2_lambda': 0.01}};
 var bad_model_opts = {'type': 8,
 			'options': {'lambda': 0.05, 'L2_lambda': 0.01}};

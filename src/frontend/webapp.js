@@ -296,7 +296,7 @@ app.post(config.api.importDataUrl, function (req, res) {
   var projectObj = {}
   var marker = { files: [] }
   var trait = { files: [] }
-  //var snpsFeature = { files: [] }
+  var snpsFeature = { files: [] }
   var fileDataList = {
     marker: {
       name: 'Marker Values'
@@ -309,10 +309,10 @@ app.post(config.api.importDataUrl, function (req, res) {
     },
     traitLabel: {
       name: 'Trait Labels'
-    }/*,
+    },
     snpsFeature: {
       name: 'SNPs Features'
-    }*/
+    }
   }
   const userId = extractUserIdFromHeader(req.headers)
 
@@ -334,9 +334,9 @@ app.post(config.api.importDataUrl, function (req, res) {
       case 'species':
         projectObj.species = val
         break
-      /*case 'snpsFeature':
+      case 'snpsFeature':
         snpsFeature.name = val
-        break*/
+        break
       default:
         console.log('Unhandled fieldname "' + fieldname + '" of value "' + val + '"')
     }
@@ -356,7 +356,7 @@ app.post(config.api.importDataUrl, function (req, res) {
       else if (fieldname === 'traitFile') data = fileDataList.trait
       else if (fieldname === 'markerLabelFile') data = fileDataList.markerLabel
       else if (fieldname === 'traitLabelFile') data = fileDataList.traitLabel
-      //else if (fieldname === 'snpsFeatureFile') data = fileDataList.snpsFeature
+      else if (fieldname === 'snpsFeatureFile') data = fileDataList.snpsFeature
       else console.log("Unhandled file:", fieldname)
 
       data.filetype = fieldname
@@ -365,7 +365,7 @@ app.post(config.api.importDataUrl, function (req, res) {
   })
 
   busboy.on('finish', function () {
-    app.models.project.findOrCreate(projectObj).exec(function (err, project) {
+    const projectFinish = function (err, project) {
       // if (err) return res.status(500).json({err: err})
       if (err) throw err
       var files = [] // not really used right now
@@ -390,19 +390,29 @@ app.post(config.api.importDataUrl, function (req, res) {
               } else if (file.filetype === 'traitLabelFile') {
                 trait.labelId = file.id
                 trait.files.push(file)
-              } /*else if (file.filetype === 'snpsFeatureFile') {
+              } else if (file.filetype === 'snpsFeatureFile') {
                 snpsFeature.id = file.id
                 snpsFeature.files.push(file)
-              }*/
+              }
               callback()
             })
+          } else {
+            callback()
           }
         }, function (err) {
           if (err) throw err
 
-          return res.json({ project, files, marker, trait/*, snpsFeature*/})
+          return res.json({ project, files, marker, trait, snpsFeature })
         }
       )
+    }
+
+    app.models.project.findOne({ id: projectId }).exec(function (err, project) {
+      if (!project) {
+        app.models.project.findOrCreate(projectObj).exec(projectFinish)
+      } else {
+        projectFinish(err, project)
+      }
     })
   })
 
@@ -459,7 +469,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           Scheduler.setY(jobId, traitData);
           // Add any extra files
           if (req.body.other_data) {
-            var results = req.body.other_data.filter((value, index) => 
+            var results = req.body.other_data.filter((value, index) =>
               app.models.file.findOne({id: value.id}).exec(function(err, attributeFile) {
                 if (err) console.log('Error getting attribute' + value.name + 'for analysis: ' + err);
                 if (attributeFile) {
@@ -538,20 +548,18 @@ app.get('/api/algorithms', function (req, res) {
   /*
   model_type = {
     linear_regression: 1,
-    lasso: 2,
-    ada_multi_lasso: 3,
-    gf_lasso: 4,
-    multi_pop_lasso: 5,
-    tree_lasso: 6
+    ada_multi_lasso: 2,
+    gf_lasso: 3,
+    multi_pop_lasso: 4,
+    tree_lasso: 5
   };
   */
   return res.json([
     {name: 'Linear Regression', id: 1}
-    /* {name: "Lasso", id: 2},
-    {name: "Ada Multi Lasso", id: 3},
-    {name: "GF Lasso", id: 4},
-    {name: "Multi Pop Lasso": 5},
-    {name: "Tree Lasso", id: 6} */
+    /*{name: "Ada Multi Lasso", id: 2},
+    {name: "GF Lasso", id: 3},
+    {name: "Multi Pop Lasso": 4},
+    {name: "Tree Lasso", id: 5} */
   ])
 })
 
