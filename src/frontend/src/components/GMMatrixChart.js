@@ -282,6 +282,7 @@ var Graph = function(data, markerLabels, traitLabels) {
     svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     var zoomAmount = d3.event.scale;
     var translateAmount = d3.event.translate;
+    console.log("zoom", translateAmount, zoomAmount)
 
     axisOnZoom(translateAmount, zoomAmount);
 
@@ -344,6 +345,7 @@ var Graph = function(data, markerLabels, traitLabels) {
     overlay.attr("transform", "translate(" + translateAmount + ")scale(" + 1/d3.event.scale + ")");
     var matrix = d3.select("#overallMatrix");
     var zoomAmount = d3.event.scale;
+    console.log("minizoomed", translateAmount, zoomAmount)
     var newArray = [-translateAmount[0]*(matrixWidth/overlayMapWidth) * zoomAmount,
                     -translateAmount[1]*(matrixHeight/overlayMapHeight) * zoomAmount];
 
@@ -429,17 +431,14 @@ var Graph = function(data, markerLabels, traitLabels) {
     overlayMapWidth = maxOverlayDimension * (numMarkers/numTraits);
   }
 
-  var overlayCellWidth = 5;
-  var overlayCellHeight = 5;
-
   /* Some minimap code */
-  var svgGraphic = d3.select("#matrixBottomPanel")
-                      .append("svg")
-                        .attr("class", "minimap")
-                        .attr("width", overlayMapWidth)
-                        .attr("height", overlayMapHeight)
+  var minimap = d3.select("#matrixBottomPanel")
+                  .append("svg")
+                  .attr("class", "minimap")
+                  .attr("width", overlayMapWidth)
+                  .attr("height", overlayMapHeight)
 
-  svgGraphic.append("rect")
+  minimap.append("rect")
     .attr("width", overlayMapWidth)
     .attr("height", overlayMapHeight)
     .style("fill", "#5eacdd")
@@ -458,15 +457,15 @@ var Graph = function(data, markerLabels, traitLabels) {
                     .scaleExtent([1, 8])
                     .on("zoom", miniZoomed)
 
-  svgGraphic.append("g")
-            .attr("class", "frame")
-            .call(miniZoom)
-            .append("rect")
-              .attr("id", "map-background")
-              .attr("value", 1)
-              .style("width", overlayWidth)
-              .style("height", overlayHeight)
-              .attr("transform", "translate(" + 0 + "," + 0 + ")")
+  minimap.append("g")
+         .attr("class", "frame")
+         .call(miniZoom)
+         .append("rect")
+            .attr("id", "map-background")
+            .attr("value", 1)
+            .style("width", overlayWidth)
+            .style("height", overlayHeight)
+            .attr("transform", "translate(" + 0 + "," + 0 + ")")
 
   var overlay = d3.select("#map-background");
 }

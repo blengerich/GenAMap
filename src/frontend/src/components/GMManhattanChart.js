@@ -10,6 +10,8 @@ var zoomFunction;
 var mapWidth;
 var mapHeight;
 var miniZoomed;
+var overlayWidth;
+var overlayHeight;
 
 var colorScale;
 var xScale;
@@ -151,10 +153,10 @@ var Graph = function() {
                               .range(["red", "blue"])
         xScale = d3.scale.linear()
                           .domain([0, maxPosition])
-                          .range([0, mapWidth])
+                          .range([cellRadius, mapWidth - cellRadius])
         yScale = d3.scale.linear()
-                          .domain([0, maxPValLog * 1.2])
-                          .range([mapHeight, 0])
+                          .domain([0, maxPValLog * 1.1])
+                          .range([mapHeight - cellRadius, 0])
 
         var cards = svg.selectAll('circle')
                        .data(markerData, function(d) { return d.marker })
@@ -183,6 +185,87 @@ var Graph = function() {
     })
   }
 
+  /*************************
+  **** zoom functions *****
+  *************************/
+
+  axisOnZoom = function(translateAmount, zoomAmount) {
+  }
+
+  zoomFunction = function() {
+    svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+    var zoomAmount = d3.event.scale;
+    var translateAmount = d3.event.translate;
+    console.log("zoom", translateAmount, zoomAmount)
+
+    axisOnZoom(translateAmount, zoomAmount);
+
+    var overlay = d3.select("#map-background");
+
+    // Get new calculations for transform and translate
+    var newZoom = 1/zoomAmount;
+
+    var newArray = [-translateAmount[0]*(overlayMapWidth/mapWidth)*newZoom,
+                    -translateAmount[1]*(overlayHeight/mapHeight)*newZoom]
+
+    if (newArray[0] === 0 && newArray[1] === 0) {
+      var minimap = document.getElementById("map-background");
+      var xforms = minimap.getAttribute("transform");
+      var parts  = /translate\(\s*([^\s,)]+)[ ,]([^\s,)]+)/.exec(xforms);
+      var transformX = parts[1];
+      var transformY = parts[2];
+      newArray[0] = transformX;
+      newArray[1] = transformY;
+    }
+
+    overlay.attr("transform", "translate(" + newArray + ")scale(" + newZoom + ")");
+  }
+
+  function reset() {
+    svg.call(zoom.event);
+    var center0 = [mapWidth/2, mapHeight/2];
+    var center1 = [mapWidth/2, mapHeight/2];
+    zoom.scale(1);
+    zoom.translate([center0[0] - center1[0], center0[1] - center1[1]]);
+    svg.transition().duration(750).call(zoom.event);
+  }
+
+  function clicked() {
+    svg.call(zoom.event);
+    // Record the coordinates (in data space) of the center (in screen space).
+    var center0 = [mapWidth/2, mapHeight/2], translate0 = zoom.translate(), coordinates0 = coordinates(center0);
+    zoom.scale(zoom.scale() * Math.pow(2, +this.getAttribute("data-zoom")));
+
+    // Translate back to the center.
+    var center1 = point(coordinates0);
+    zoom.translate([translate0[0] + center0[0] - center1[0], translate0[1] + center0[1] - center1[1]]);
+
+    svg.transition().duration(750).call(zoom.event);
+  }
+
+  function coordinates(point) {
+    var scale = zoom.scale(), translate = zoom.translate();
+    return [(point[0] - translate[0]) / scale, (point[1] - translate[1]) / scale];
+  }
+
+  function point(coordinates) {
+    var scale = zoom.scale(), translate = zoom.translate();
+    return [coordinates[0] * scale + translate[0], coordinates[1] * scale + translate[1]];
+  }
+
+  miniZoomed = function() {
+    var translateAmount = d3.event.translate;
+    overlay.attr("transform", "translate(" + translateAmount + ")scale(" + 1/d3.event.scale + ")");
+    var matrix = d3.select("#manhattanMap");
+    var zoomAmount = d3.event.scale;
+    var newArray = [-translateAmount[0]*(mapWidth/overlayMapWidth) * zoomAmount,
+                    -translateAmount[1]*(mapHeight/overlayMapHeight) * zoomAmount];
+    console.log("minizoomed", translateAmount, zoomAmount)
+
+    //var newArray = [-translateAmount[0]*(numTraits/15), -translateAmount[1]*(numMarkers/15)];
+    matrix.attr("transform", "translate(" + newArray + ")scale(" + d3.event.scale + ")");
+  }
+
   /****************************
   ***** begin main script *****
   ****************************/
@@ -193,18 +276,30 @@ var Graph = function() {
   const totalWidth =  windowWidth * 0.95;
   const totalHeight = windowHeight * 0.65;
 
-  var cellRadius = 5;
+  var cellRadius = 3;
 
   var leftMargin = 0.1 * windowWidth;
 	var rightMargin = 0.1 * windowWidth;
 
   const axisPadding = 60;
   const margin = { top: 0, right: rightMargin, bottom: 5, left: 5 }
+  const padding = 5
 
   mapWidth = totalWidth - axisPadding - margin.left
   mapHeight = totalHeight - axisPadding - margin.bottom
 
   const baseLabelStyle = { fontSize: 10, maxFontSize: 18, titleSize: 20, innerMargin: 8 };
+
+  var zoom = d3.behavior.zoom()
+              .size([mapWidth, mapHeight])
+              .scaleExtent([1, 8])
+              .on("zoom", zoomFunction)
+
+  d3.selectAll("a[data-zoom]")
+    .on("click", clicked)
+
+  d3.select("#reset")
+    .on("click", reset)
 
   var svg = d3.select("#manhattanChart")
               .append("svg")
@@ -217,11 +312,55 @@ var Graph = function() {
                 .attr("id", "manhattanHolder")
                 .attr("x", axisPadding + margin.left)
                 .attr("y", margin.top)
+                .call(zoom)
                 .append("g")
                   .attr("id", "manhattanMap")
 
   initAxes()
   parseData()
+
+  var maxOverlayDimension = 100
+  var overlayMapWidth, overlayMapHeight
+
+  if (mapWidth > mapHeight) {
+    overlayMapWidth = maxOverlayDimension
+    overlayMapHeight = (mapHeight/mapWidth) * overlayMapWidth
+  } else {
+    overlayMapHeight = maxOverlayDimension
+    overlayMapWidth = (mapWidth/mapHeight) * overlayMapHeight
+  }
+
+  /* Some minimap code */
+  var minimap = d3.select("#manhattanBottomPanel")
+                  .append("svg")
+                  .attr("class", "minimap")
+                  .attr("width", overlayMapWidth)
+                  .attr("height", overlayMapHeight)
+
+  minimap.append("rect")
+         .attr("width", overlayMapWidth)
+         .attr("height", overlayMapHeight)
+         .style("fill", "#5eacdd")
+
+  overlayWidth = overlayMapWidth
+  overlayHeight = overlayMapHeight
+
+  var miniZoom = d3.behavior.zoom()
+                    .size([overlayWidth, overlayHeight])
+                    .scaleExtent([1, 8])
+                    .on("zoom", miniZoomed)
+
+  minimap.append("g")
+         .attr("class", "frame")
+         .call(miniZoom)
+         .append("rect")
+            .attr("id", "map-background")
+            .attr("value", 1)
+            .style("width", overlayWidth)
+            .style("height", overlayHeight)
+            .attr("transform", "translate(" + 0 + "," + 0 + ")")
+
+  var overlay = d3.select("#map-background")
 }
 
 var GMManhattanChart = React.createClass({
