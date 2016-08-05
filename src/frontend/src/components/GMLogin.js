@@ -15,7 +15,7 @@ const styles = {
     marginBottom: '5%'
   },
   background: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
     position: 'absolute',
     width: '100%',
     height: '100%'
@@ -36,31 +36,6 @@ class Login extends Component {
   render () {
     const { errorMessage } = this.props
 
-    const oldView = (
-      <div>
-        <input
-          type={'text'}
-          ref={'username'}
-          className={'form-control'}
-          placeholder={'Username'}
-        />
-        <input
-          type={'password'}
-          ref={'password'}
-          className={'form-control'}
-          placeholder={'Password'}
-        />
-        <button onClick={(event) => this.handleCreateAccountClick(event)}>
-          Create Account
-        </button>
-        <button onClick={(event) => this.handleLoginClick(event)}>
-          Login
-        </button>
-
-        {errorMessage && <p>{errorMessage}</p>}
-      </div>
-    )
-
     return (
       <div style={styles.background}>
         <div style={styles.body}>
@@ -72,23 +47,29 @@ class Login extends Component {
           <p style={{ 'fontSize': '1.8em' }}>Login to GenAMap</p>
           <div>
             <TextField
-              hintText='Username'
+              className={'form-control'}
+              hintText={'Username'}
+              ref={'username'}
             /><br/>
           </div>
           <div>
             <TextField
-              hintText='Password'
-              type='password'
+              className={'form-control'}
+              hintText={'Password'}
+              type={'password'}
+              ref={'password'}
             /><br/>
           </div>
           <div>
             <RaisedButton
-              label='Create Account'
+              label={'Create Account'}
+              onClick={this.handleCreateAccountClick.bind(this)}
               secondary={true}
               style={styles.action}
             />
             <RaisedButton
-              label='Login'
+              label={'Login'}
+              onClick={this.handleLoginClick.bind(this)}
               primary={true}
               styles={styles.action}
             />
@@ -99,15 +80,15 @@ class Login extends Component {
   }
 
   handleLoginClick (event) {
-    const username = this.refs.username
-    const password = this.refs.password
+    const username = this.refs.username.refs.input
+    const password = this.refs.password.refs.input
     const creds = { username: username.value.trim(), password: password.value.trim() }
     this.props.onLoginClick(creds, this.props.location.search)
   }
 
   handleCreateAccountClick (event) {
-    const username = this.refs.username
-    const password = this.refs.password
+    const username = this.refs.username.refs.input
+    const password = this.refs.password.refs.input
     const creds = { username: username.value.trim(), password: password.value.trim() }
     this.props.onCreateAccountClick(creds)
   }
