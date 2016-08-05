@@ -294,10 +294,7 @@ app.post(config.api.importDataUrl, function (req, res) {
   var busboy = new Busboy({ headers: req.headers })
   var projectId // eslint-disable-line no-unused-vars
   var projectObj = {}
-  var marker = { files: [] }
-  var trait = { files: [] }
-  var snpsFeature = { files: [] }
-  var fileDataList = {
+  var dataList = {
     marker: {
       name: 'Marker Values'
     },
@@ -329,13 +326,13 @@ app.post(config.api.importDataUrl, function (req, res) {
         projectObj.species = val
         break
       case 'markerName':
-        marker.name = val
+        dataList.marker.projectItem = dataList.markerLabel.projectItem = val
         break
       case 'traitName':
-        trait.name = val
+        dataList.trait.projectItem = dataList.traitLabel.projectItem = val
         break
       case 'snpsFeature':
-        snpsFeature.name = val
+        dataList.snpsFeature.projectItem = val
         break
       default:
         console.log('Unhandled fieldname "' + fieldname + '" of value "' + val + '"')
@@ -352,11 +349,11 @@ app.post(config.api.importDataUrl, function (req, res) {
       const fstream = fs.createWriteStream(fullPath)
       var data
       file.pipe(fstream);
-      if (fieldname === 'markerFile') data = fileDataList.marker
-      else if (fieldname === 'traitFile') data = fileDataList.trait
-      else if (fieldname === 'markerLabelFile') data = fileDataList.markerLabel
-      else if (fieldname === 'traitLabelFile') data = fileDataList.traitLabel
-      else if (fieldname === 'snpsFeatureFile') data = fileDataList.snpsFeature
+      if (fieldname === 'markerFile') data = dataList.marker
+      else if (fieldname === 'traitFile') data = dataList.trait
+      else if (fieldname === 'markerLabelFile') data = dataList.markerLabel
+      else if (fieldname === 'traitLabelFile') data = dataList.traitLabel
+      else if (fieldname === 'snpsFeatureFile') data = dataList.snpsFeature
       else console.log("Unhandled file:", fieldname)
 
       data.filetype = fieldname
@@ -370,30 +367,14 @@ app.post(config.api.importDataUrl, function (req, res) {
       if (err) throw err
       var files = [] // not really used right now
 
-      async.each(fileDataList,
+      async.each(dataList,
         function (datum, callback) {
           if (!!datum.name && !!datum.filetype && !!datum.path) {
             datum.project = project.id
             app.models.file.create(datum).exec(function (err, file) {
               if (err) throw err
               files.push(file)
-
-              if (file.filetype === 'markerFile') {
-                marker.id = file.id
-                marker.files.push(file)
-              } else if (file.filetype === 'markerLabelFile') {
-                marker.labelId = file.id
-                marker.files.push(file)
-              } else if (file.filetype === 'traitFile') {
-                trait.id = file.id
-                trait.files.push(file)
-              } else if (file.filetype === 'traitLabelFile') {
-                trait.labelId = file.id
-                trait.files.push(file)
-              } else if (file.filetype === 'snpsFeatureFile') {
-                snpsFeature.id = file.id
-                snpsFeature.files.push(file)
-              }
+              
               callback()
             })
           } else {
@@ -402,7 +383,7 @@ app.post(config.api.importDataUrl, function (req, res) {
         }, function (err) {
           if (err) throw err
 
-          return res.json({ project, files, marker, trait, snpsFeature })
+          return res.json({ project, files })
         }
       )
     }
@@ -521,7 +502,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             startJobFinish();
           }
           /*results.map((value, index) => assert(value));*/
-          
+
         });
       });
     });

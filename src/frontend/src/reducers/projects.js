@@ -1,23 +1,20 @@
 import { IMPORT_DATA_RECEIVE, LOAD_INITIAL_PROJECTS, DELETE_FILE, RECEIVE_ANALYSIS_RESULTS } from '../actions'
 
-const addOrReplace = (arr, e, field) => {
-  if (!e || !e.id)
-    return arr
-
-  if (arr.every (p => p[field] !== e[field])) {
-    return [...arr, e]
-  } else {
-    return arr.map(p => {
-      return (p[field] === e[field]) ? e : p
-    })
-  }
+const itemsFromFiles = (files) => {
+  var projectItems = {}
+  files.forEach((file) => {
+    if (!projectItems[file.projectItem]) {
+      projectItems[file.projectItem] = { files: [file] }
+    } else {
+      projectItems[file.projectItem].files.push(file)
+    }
+  })
+  return projectItems
 }
 
 const initialProject = {
   files: [],
-  markers: [],
-  traits: [],
-  snpsFeatures: []
+  items: {}
 }
 
 const project = (state = initialProject, action) => {
@@ -25,9 +22,7 @@ const project = (state = initialProject, action) => {
     case IMPORT_DATA_RECEIVE:
       const project = action.data.project
       project.files = state.files.concat(action.data.files)
-      project.markers = addOrReplace(state.markers, action.data.marker, 'name')
-      project.traits = addOrReplace(state.traits, action.data.trait, 'name')
-      project.snpsFeatures = addOrReplace(state.snpsFeatures, action.data.snpsFeature, 'name')
+      project.items = Object.assign({}, state.items, itemsFromFiles(action.data.files))
       return project
     case DELETE_FILE:
       const updatedFiles = state.files.filter(file => file.id !== action.file)
