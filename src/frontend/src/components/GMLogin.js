@@ -65,6 +65,7 @@ class Login extends Component {
               className={'form-control'}
               hintText={'Username'}
               ref={'username'}
+              onChange={this.onChangeUsername.bind(this)}
             /><br/>
           </div>
           <div>
@@ -73,6 +74,7 @@ class Login extends Component {
               hintText={'Password'}
               type={'password'}
               ref={'password'}
+              onChange={this.onChangePassword.bind(this)}
             /><br/>
           </div>
           <div>
@@ -94,17 +96,25 @@ class Login extends Component {
     )
   }
 
+  onChangeUsername (event) {
+    this.setState({ username: event.target.value })
+  }
+
+  onChangePassword (event) {
+    this.setState({ password: event.target.value })
+  }
+
   handleLoginClick (event) {
-    const username = this.refs.username.refs.input
-    const password = this.refs.password.refs.input
-    const creds = { username: username.value.trim(), password: password.value.trim() }
+    const username = this.state.username
+    const password = this.state.password
+    const creds = { username: username.trim(), password: password.trim() }
     this.props.onLoginClick(creds, this.props.location.search)
   }
 
   handleCreateAccountClick (event) {
-    const username = this.refs.username.refs.input
-    const password = this.refs.password.refs.input
-    const creds = { username: username.value.trim(), password: password.value.trim() }
+    const username = this.state.username
+    const password = this.state.password
+    const creds = { username: username.trim(), password: password.trim() }
     this.props.onCreateAccountClick(creds)
   }
 
