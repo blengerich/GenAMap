@@ -457,7 +457,6 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           }
           Scheduler.setX(jobId, markerData);
           Scheduler.setY(jobId, traitData);
-          
           const startJobFinish = function() {
             const userId = extractUserIdFromHeader(req.headers)
             const id = guid()
@@ -490,10 +489,15 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             }
             return res.json({ status: success, jobId, resultsPath })
           }
-
           // Add any extra files
           if (req.body.other_data.length > 0) {
-            req.body.other_data.map((value, index) =>
+            req.body.other_data.map((value, index) => {
+              if (!value.id || value.id < 0) {
+                if (index == req.body.other_data.length -1) {
+                  startJobFinish();
+                }
+                return false;
+              }
               app.models.file.findOne({id: value.id}).exec(function(err, attributeFile) {
                 if (err) console.log('Error getting attribute' + value.name + 'for analysis: ' + err);
                 if (attributeFile) {
@@ -512,7 +516,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                   })
                 }
               })
-            )
+            })
           } else {
             startJobFinish();
           }
