@@ -1,10 +1,12 @@
 import React, { Component, PropTypes } from 'react'
+import Avatar from 'material-ui/lib/avatar'
 import AppBar from 'material-ui/lib/app-bar'
 import RaisedButton from 'material-ui/lib/raised-button'
 import TextField from 'material-ui/lib/text-field'
-import Dialog from 'material-ui/lib/dialog'
 
 import config from '../../config'
+
+const logos = ['logo-01.png', 'logo-02.png']
 
 const styles = {
   action: {
@@ -29,21 +31,34 @@ const styles = {
     width: '30%',
     height: '50%',
     textAlign: 'center'
+  },
+  header: {
+    margin: '0 0 0 10px',
+    paddingTop: 0,
+    fontFamily: 'Roboto, sans-serif',
+    fontSize: '2.2em',
+    fontWeight: 400,
+    color: '#ffffff',
+    lineHeight: '64px'
   }
 }
 
 class Login extends Component {
   render () {
     const { errorMessage } = this.props
+    const logosrc = 'images/' + logos[0]
 
     return (
       <div style={styles.background}>
         <div style={styles.body}>
           <AppBar
-            title='GenAMap 2.0'
+            title=''
             style={styles.appBar}
             showMenuIconButton={false}
-          />
+          >
+            <Avatar src={logosrc} style={{alignSelf: 'center', border: 'none', order: 0}} />
+            <h1 style={styles.header}>GenAMap 2.0</h1>
+          </AppBar>
           <p style={{ 'fontSize': '1.8em' }}>Login to GenAMap</p>
           <div>
             <TextField
