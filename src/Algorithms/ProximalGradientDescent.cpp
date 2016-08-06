@@ -177,6 +177,7 @@ void ProximalGradientDescent::run(LinearRegression *model) {
         double residue = model->cost();
         VectorXd grad;
         VectorXd in;
+        epoch = 0;
         while (epoch < maxIteration && residue > tolerance && !shouldStop) {
             epoch++;
             progress = float(epoch) / maxIteration;
