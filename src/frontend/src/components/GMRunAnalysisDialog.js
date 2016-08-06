@@ -177,10 +177,10 @@ const GMRunAnalysisDialog = React.createClass({
       traits: traits,
       traitValue: traits.length > 0 ? traits[0] : '',
       snpsFeatures: snpsFeatures ? snpsFeatures : [],
-      snpsFeature1Value: snpsFeatures.length > 0 ? snpsFeatures[0] : '',
-      snpsFeature2Value: snpsFeatures.length > 0 ? snpsFeatures[0] : '',
+      snpsFeature1Value: (snpsFeatures && snpsFeatures.length > 0) ? snpsFeatures[0] : '',
+      snpsFeature2Value: (snpsFeatures && snpsFeatures.length > 0) ? snpsFeatures[0] : '',
       populations: populations ? populations : [],
-      populationValue: populations.length > 0 ? populations[0] : ''
+      populationValue: (populations && populations.length > 0) ? populations[0] : ''
     })
 
   },
@@ -202,7 +202,7 @@ const GMRunAnalysisDialog = React.createClass({
   },
   onChangePopulation: function(event, index, value) {
     this.setState({populationValue: value})
-  } 
+  },
   /*onChangesnpsFeature1Name (event) {
     this.setState({snpsFeature1Name: event.target.value})
   },
@@ -474,11 +474,9 @@ const GMRunAnalysisDialog = React.createClass({
                         errorText={!this.state.populationValue && errorText}
                         onChange={this.onChangePopulation}
                       >
-                        <!--<MenuItem value={'new'} primaryText='New Population File' />-->
                         {populationList}
                       </SelectField>
                       <select id='population' className='hidden' value={this.state.populationValue} readOnly>
-                        <!--<option value='new'>New SNP Feature File</option>-->
                         {populationListReact}
                       </select>
                     </div>  :

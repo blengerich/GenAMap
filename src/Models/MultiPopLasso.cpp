@@ -57,11 +57,14 @@ void MultiPopLasso::assertReadyToRun() {
         throw runtime_error("Population labels of length " + to_string(population.rows()) + 
             " are the wrong size for X with " + to_string(X.rows()) + " samples.");
     }
+    cerr << "assertReadyToRun passed" << endl;
 }
 
 void MultiPopLasso::setAttributeMatrix(const string& str, MatrixXd* Z) {
     if (str == "population") {
-        setPopulation(*Z);  // TODO: can we automatically cast form MatrixXd to VectorXd?
+        cerr << "setting population" << endl;
+        // todo: stop copying data
+        setPopulation(VectorXd(Map<VectorXd>(Z->data(), Z->rows())));
     } else if (str == "X") {
         setX(*Z);
     } else if (str == "Y") {

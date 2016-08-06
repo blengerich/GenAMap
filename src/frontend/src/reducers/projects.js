@@ -17,7 +17,8 @@ const initialProject = {
   files: [],
   markers: [],
   traits: [],
-  snpsFeatures: []
+  snpsFeatures: [],
+  populations: []
 }
 
 const project = (state = initialProject, action) => {
@@ -28,6 +29,7 @@ const project = (state = initialProject, action) => {
       project.markers = addOrReplace(state.markers, action.data.marker, 'name')
       project.traits = addOrReplace(state.traits, action.data.trait, 'name')
       project.snpsFeatures = addOrReplace(state.snpsFeatures, action.data.snpsFeature, 'name')
+      project.populations = addOrReplace(state.populations, action.data.population, 'name')
       return project
     case DELETE_FILE:
       const updatedFiles = state.files.filter(file => file.id !== action.file)

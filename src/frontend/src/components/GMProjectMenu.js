@@ -141,6 +141,7 @@ const GMProject = React.createClass({
     const folderList = [...project.markers,
                         ...project.traits,
                         ...project.snpsFeatures,
+                        ...project.populations,
                         results].map(this.createFolderView)
 
     return (

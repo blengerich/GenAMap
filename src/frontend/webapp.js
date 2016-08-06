@@ -297,6 +297,7 @@ app.post(config.api.importDataUrl, function (req, res) {
   var marker = { files: [] }
   var trait = { files: [] }
   var snpsFeature = { files: [] }
+  var population = { files: [] }
   var fileDataList = {
     marker: {
       name: 'Marker Values'
@@ -312,6 +313,9 @@ app.post(config.api.importDataUrl, function (req, res) {
     },
     snpsFeature: {
       name: 'SNPs Features'
+    },
+    population: {
+      name: 'Populations'
     }
   }
   const userId = extractUserIdFromHeader(req.headers)
@@ -337,6 +341,9 @@ app.post(config.api.importDataUrl, function (req, res) {
       case 'snpsFeature':
         snpsFeature.name = val
         break
+      case 'population':
+        population.name = val
+        break
       default:
         console.log('Unhandled fieldname "' + fieldname + '" of value "' + val + '"')
     }
@@ -357,6 +364,7 @@ app.post(config.api.importDataUrl, function (req, res) {
       else if (fieldname === 'markerLabelFile') data = fileDataList.markerLabel
       else if (fieldname === 'traitLabelFile') data = fileDataList.traitLabel
       else if (fieldname === 'snpsFeatureFile') data = fileDataList.snpsFeature
+      else if (fieldname === 'populationFile') data = fileDataList.population
       else console.log("Unhandled file:", fieldname)
 
       data.filetype = fieldname
@@ -393,6 +401,9 @@ app.post(config.api.importDataUrl, function (req, res) {
               } else if (file.filetype === 'snpsFeatureFile') {
                 snpsFeature.id = file.id
                 snpsFeature.files.push(file)
+              } else if (file.filetype === 'populationFile') {
+                population.id = file.id
+                population.files.push(file)
               }
               callback()
             })
@@ -402,7 +413,7 @@ app.post(config.api.importDataUrl, function (req, res) {
         }, function (err) {
           if (err) throw err
 
-          return res.json({ project, files, marker, trait, snpsFeature })
+          return res.json({ project, files, marker, trait, snpsFeature, population })
         }
       )
     }
