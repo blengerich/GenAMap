@@ -46,7 +46,29 @@ double MultiPopLasso::groupPenalization() {
 }
 
 void MultiPopLasso::assertReadyToRun() {
-    throw runtime_error("MultiPopLasso not implemented");
+    // X and Y must be compatible
+    if (!((X.rows() > 0) && (X.rows() == y.rows())
+        && (X.cols() > 0) && (y.cols() > 0))) {
+        throw runtime_error("X and Y matrices of size (" + to_string(X.rows()) + "," + to_string(X.cols()) + "), and (" +
+            to_string(y.rows()) + "," + to_string(y.cols()) + ") are not compatible.");
+    }
+    // Population Labels must have n rows (one for each sample)
+    if (population.rows() != X.rows()) {
+        throw runtime_error("Population labels of length " + to_string(population.rows()) + 
+            " are the wrong size for X with " + to_string(X.rows()) + " samples.");
+    }
+}
+
+void MultiPopLasso::setAttributeMatrix(const string& str, MatrixXd* Z) {
+    if (str == "population") {
+        setPopulation(*Z);  // TODO: can we automatically cast form MatrixXd to VectorXd?
+    } else if (str == "X") {
+        setX(*Z);
+    } else if (str == "Y") {
+        setY(*Z);
+    } else {
+        throw runtime_error("MultiPopLasso models have no attribute with name" + str);
+    }
 }
 
 void MultiPopLasso::initTraining() {

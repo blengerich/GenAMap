@@ -42,6 +42,7 @@ const GMRunAnalysisDialog = React.createClass({
       markers: [],
       traits: [],
       snpsFeatures: [], // features 1 and 2 have the same possibilities
+      populations: [],
       markerLabels: [],
       traitLabels: [],
       jobName: '',
@@ -55,6 +56,7 @@ const GMRunAnalysisDialog = React.createClass({
       /*snpsFeature1Name: '',
       snpsFeature1FileName: '',*/
       snpsFeature2Value: '',
+      populationValue: '',
       /*snpsFeature2Name: '',
       snpsFeature2FileName: '',*/
       // Model parameters
@@ -146,7 +148,8 @@ const GMRunAnalysisDialog = React.createClass({
       },
       other_data: [
         {name: 'snpsFeature1', id:this.state.snpsFeature1Value.id},
-        {name: 'snpsFeature2', id:this.state.snpsFeature2Value ? this.state.snpsFeature2Value.id : this.state.snpsFeature1Value.id}
+        {name: 'snpsFeature2', id:this.state.snpsFeature2Value ? this.state.snpsFeature2Value.id : this.state.snpsFeature1Value.id},
+        {name: 'population', id:this.state.populationValue.id}
       ],
       resultsPath: this.state.resultsPath
     })
@@ -165,7 +168,7 @@ const GMRunAnalysisDialog = React.createClass({
     const markers = project.markers
     const traits = project.traits
     const snpsFeatures = project.snpsFeatures
-
+    const populations = project.populations
 
     this.setState({
       projectValue: value,
@@ -175,7 +178,9 @@ const GMRunAnalysisDialog = React.createClass({
       traitValue: traits.length > 0 ? traits[0] : '',
       snpsFeatures: snpsFeatures ? snpsFeatures : [],
       snpsFeature1Value: snpsFeatures.length > 0 ? snpsFeatures[0] : '',
-      snpsFeature2Value: snpsFeatures.length > 0 ? snpsFeatures[0] : ''
+      snpsFeature2Value: snpsFeatures.length > 0 ? snpsFeatures[0] : '',
+      populations: populations ? populations : [],
+      populationValue: populations.length > 0 ? populations[0] : ''
     })
 
   },
@@ -195,6 +200,9 @@ const GMRunAnalysisDialog = React.createClass({
   onChangeSnpsFeature2: function(event, index, value) {
     this.setState({snpsFeature2Value: value})
   },
+  onChangePopulation: function(event, index, value) {
+    this.setState({populationValue: value})
+  } 
   /*onChangesnpsFeature1Name (event) {
     this.setState({snpsFeature1Name: event.target.value})
   },
@@ -319,6 +327,12 @@ const GMRunAnalysisDialog = React.createClass({
       <MenuItem key={index} value={f} primaryText={f.name} />
     )
     const snpsFeatureListReact = this.state.snpsFeatures.map((f, index) =>
+      <option key={index} value={f}>{f.name}</option>
+    )
+    const populationList = this.state.populations.map((f, index) =>
+      <MenuItem key={index} value={f} primaryText={f.name} />
+    )
+    const populationListReact = this.state.populations.map((f, index) =>
       <option key={index} value={f}>{f.name}</option>
     )
     const clusteringMethodList = this.state.clusteringMethods.map((method, index) =>
@@ -453,7 +467,21 @@ const GMRunAnalysisDialog = React.createClass({
                 (this.state.modelValue == 2) ? // Gflasso
                   <div>Gflasso has not been implemented yet</div>  :
                 (this.state.modelValue == 3) ? // Multi-Population Lasso
-                  <div>Multi-Population Lasso has not been implemented yet</div>  :
+                  <div id='populationDiv'>
+                      <SelectField
+                        value={this.state.populationValue}
+                        hintText='Choose Population Identifiers'
+                        errorText={!this.state.populationValue && errorText}
+                        onChange={this.onChangePopulation}
+                      >
+                        <!--<MenuItem value={'new'} primaryText='New Population File' />-->
+                        {populationList}
+                      </SelectField>
+                      <select id='population' className='hidden' value={this.state.populationValue} readOnly>
+                        <!--<option value='new'>New SNP Feature File</option>-->
+                        {populationListReact}
+                      </select>
+                    </div>  :
                 (this.state.modelValue == 4) ? // Tree Lasso
                   <div>TreeLasso has not been implemented yet</div>  :
                 null}

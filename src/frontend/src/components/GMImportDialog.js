@@ -27,6 +27,8 @@ class GMImportDialog extends Component {
       traitFileName: '',
       snpsFeatureFileName: '',
       snpsFeatureName: '',
+      populationFileName: '',
+      populationName: '',
       optionDisabled: true,
       species: config.species
     }
@@ -111,12 +113,19 @@ class GMImportDialog extends Component {
   }
 
   onChangeSnpsFeatureName (event) {
-    console.log(event)
     this.setState({snpsFeatureName: event.target.value})
   }
 
   onChangeSnpsFeatureFileName (event) {
     this.setState({snpsFeatureFileName: event.target.value.substr(12)})
+  }
+
+  onChangePopulationName(event) {
+    this.setState({populationName: event.target.value})
+  }
+
+  onChangePopulationFileName (event) {
+    this.setState({populationFileName: event.target.value.substr(12)})
   }
 
   render () {
@@ -257,6 +266,24 @@ class GMImportDialog extends Component {
                 accept='.csv'
                 onChange={this.onChangeTraitLabelFileName.bind(this)}
                 fileLabel={this.state.traitLabelFileName}
+              />
+            </div>
+            <div id="populationDiv">
+              <TextField
+                id='population'
+                value={this.state.populationName}
+                hintText='Population File Name'
+                errorText={this.state.populationFileName && !this.state.populationName && errorText}
+                onChange={this.onChangePopulationName.bind(this)}
+                importOnSubmit={true}
+              />
+              <GMFileInput
+                id='populationFile'
+                buttonLabel='Population File'
+                accept='.csv'
+                onChange={this.onChangePopulationFileName.bind(this)}
+                fileLabel={this.state.populationFileName}
+                importOnSubmit={true}
               />
             </div>
             <div id="snpFeaturesDiv">
