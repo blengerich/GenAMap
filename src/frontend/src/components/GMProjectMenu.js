@@ -47,6 +47,11 @@ const GMProjectContent = React.createClass({
     return (
       <IconMenu iconButtonElement={this.iconButtonElement()}>
         <MenuItem
+          primaryText={'Download ' + this.props.data.name}
+          onTouchTap={this.handleDownloadFile}
+          leftIcon={<FontIcon className='material-icons'>file_download</FontIcon>}
+        />
+        <MenuItem
           primaryText={'Delete ' + this.props.data.name}
           onTouchTap={this.handleDeleteFile}
           leftIcon={<FontIcon className='material-icons'>delete</FontIcon>}
@@ -64,6 +69,10 @@ const GMProjectContent = React.createClass({
   },
   handleDeleteFile: function () {
     return this.props.actions.deleteFile(this.props.data.id)
+  },
+  handleDownloadFile: function() {
+    this.props.actions.downloadFile(this.props.data.id)
+    return
   },
   handleRenameFile: function () {
     return this.props.actions.renameFile(this.props.data.id)
