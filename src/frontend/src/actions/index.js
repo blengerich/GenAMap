@@ -307,8 +307,7 @@ function requestAnalysisResults(activity) {
 function receiveAnalysisResults(data) {
   return {
     type: RECEIVE_ANALYSIS_RESULTS,
-    file: data.file,
-    project: data.project
+    data
   }
 }
 

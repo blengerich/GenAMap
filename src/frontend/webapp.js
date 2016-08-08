@@ -256,7 +256,7 @@ app.post(`${config.api.getAnalysisResultsUrl}`, function(req, res) {
           if (!file) {
             setTimeout(checkFileExists, 500, reqPath)
           } else {
-            return res.json({ project: projectId, file })
+            return res.json({ project: projectId, files: [file] })
           }
         })
       } else if (err.code === 'ENOENT') {
@@ -374,7 +374,6 @@ app.post(config.api.importDataUrl, function (req, res) {
             app.models.file.create(datum).exec(function (err, file) {
               if (err) throw err
               files.push(file)
-              
               callback()
             })
           } else {
@@ -421,12 +420,12 @@ app.post(config.api.importDataUrl, function (req, res) {
 app.post(config.api.runAnalysisUrl, function (req, res) {
   var converter = new Converter({noheader:true});
   // Get marker file
-  app.models.file.findOne({ id: req.body.marker.id }).exec(function (err, markerFile) {
+  app.models.file.findOne({ id: req.body.marker.data.id }).exec(function (err, markerFile) {
     if (err) console.log('Error getting marker for analysis: ', err);
     converter.fromFile(markerFile.path, function(err, markerData) {
       if (err) console.log('Error getting marker for analysis: ', err);
       // Get trait file
-      app.models.file.findOne({ id: req.body.trait.id }).exec(function (err, traitFile) {
+      app.models.file.findOne({ id: req.body.trait.data.id }).exec(function (err, traitFile) {
         if (err) console.log('Error getting trait for analysis: ', err)
         var traitConverter = new Converter({noheader:true});
         traitConverter.fromFile(traitFile.path, function(err, traitData) {
@@ -456,10 +455,14 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                     filetype: 'resultFile',
                     path: resultsPath,
                     project: req.body.project,
-                    labels: {
-                      marker: req.body.marker.labelId,
-                      trait: req.body.trait.labelId
-                    }
+                    info: {
+                      resultType: 'matrix',
+                      labels: {
+                        marker: req.body.marker.data.labelId,
+                        trait: req.body.trait.data.labelId
+                      }
+                    },
+                    projectItem: 'Results'
                   }).exec(function (err, file) {
                     if (err) throw err
                   })

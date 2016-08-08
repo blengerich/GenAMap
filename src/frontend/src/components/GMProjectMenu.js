@@ -12,6 +12,16 @@ import AutoComplete from 'material-ui/lib/auto-complete'
 import GMImportDialog from './GMImportDialog'
 
 const GMProjectContent = React.createClass({
+  getDataUrl: function() {
+    const file = this.props.data
+    if (file.filetype === 'resultFile' && file.info.resultType === 'matrix') {
+      const markerLabelId = file.info.labels.marker
+      const traitLabelId = file.info.labels.trait
+      return '/visualization/matrix/' + markerLabelId + '/' + traitLabelId + '/' + file.id
+    } else {
+      return '/data/' + file.id
+    }
+  },
   iconButtonElement: function () {
     return (
       <IconButton touch={true}>
@@ -68,7 +78,7 @@ const GMProjectContent = React.createClass({
         leftIcon={<FontIcon className='material-icons'>assessment</FontIcon>}
         rightIconButton={this.rightIconMenu()}
         nestedLevel={3}>
-        <Link to={'/data/' + this.props.data.id}>{this.props.data.name}</Link>
+        <Link to={this.getDataUrl()}>{this.props.data.name}</Link>
       </ListItem>
     )
   }
@@ -109,6 +119,7 @@ const GMProject = React.createClass({
         actions={this.props.actions}
       />
     )
+
     return (
       <ListItem
         className='gm-project__container'
@@ -171,6 +182,7 @@ var GMProjectSearch = React.createClass({
 
 class GMProjectMenu extends Component {
   render () {
+    console.log(this.props.projects)
     return (
       <List>
         <GMProjectList projects={this.props.projects} actions={this.props.projectActions} />

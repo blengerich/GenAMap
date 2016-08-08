@@ -3,11 +3,40 @@ import { IMPORT_DATA_RECEIVE, LOAD_INITIAL_PROJECTS, DELETE_FILE, RECEIVE_ANALYS
 const itemsFromFiles = (files) => {
   var projectItems = {}
   files.forEach((file) => {
-    if (!projectItems[file.projectItem]) {
-      projectItems[file.projectItem] = { files: [file] }
-    } else {
-      projectItems[file.projectItem].files.push(file)
+    // update project item files
+    var newItem = projectItems[file.projectItem]
+    if (!newItem)
+      newItem = { files: [file], data: {}, name: file.projectItem }
+    else
+      newItem.files.push(file)
+
+    // set project item type
+    switch (file.filetype) {
+      case 'markerFile':
+        newItem.type = 'marker'
+        newItem.data.id = file.id
+        break
+      case 'markerLabelFile':
+        newItem.data.labelId = file.id
+        break
+      case 'traitFile':
+        newItem.type = 'trait'
+        newItem.data.id = file.id
+        break
+      case 'traitLabelFile':
+        newItem.data.labelId = file.id
+        break
+      case 'snpsFeatureFile':
+        newItem.type = 'snpsFeature'
+        break
+      case 'resultFile':
+        newItem.type = 'result'
+        break
+      default:
+        break
     }
+
+    projectItems[file.projectItem] = newItem
   })
   return projectItems
 }
@@ -28,8 +57,9 @@ const project = (state = initialProject, action) => {
       const updatedFiles = state.files.filter(file => file.id !== action.file)
       return Object.assign({}, state, { files: updatedFiles })
     case RECEIVE_ANALYSIS_RESULTS:
-      const withResultFile = [...state.files, action.file]
-      return Object.assign({}, state, { files: withResultFile })
+      const withResults = state.files.concat(action.data.files)
+      const newItems = Object.assign({}, state.items, itemsFromFiles(action.data.files))
+      return Object.assign({}, state, { files: withResults, items: newItems })
     default:
       return state
   }
@@ -60,7 +90,7 @@ const projects = (state = [], action) => {
       })
     case RECEIVE_ANALYSIS_RESULTS:
       return state.map(p => {
-        return (p.id === action.project)
+        return (p.id === action.data.project)
           ? project(p, action)
           : p
       })
