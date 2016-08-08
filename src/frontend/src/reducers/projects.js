@@ -57,7 +57,11 @@ const project = (state = initialProject, action) => {
       const updatedFiles = state.files.filter(file => file.id !== action.data.file)
       const itemWithoutFile = state.items[action.data.projectItem]
       itemWithoutFile.files = itemWithoutFile.files.filter(file => file.id !== action.data.file)
-      state.items[action.data.projectItem] = itemWithoutFile
+
+      itemWithoutFile.files.length ?
+        (state.items[action.data.projectItem] = itemWithoutFile)
+      : (delete state.items[action.data.projectItem])
+      
       return Object.assign({}, state, { files: updatedFiles })
     case RECEIVE_ANALYSIS_RESULTS:
       const filesWithResults = state.files.concat(action.data.files)
