@@ -285,7 +285,7 @@ app.delete(`${config.api.dataUrl}/:id`, function (req, res) {
     if (err) return res.status(500).json({err: err})
     app.models.file.destroy({id: req.params.id}).exec(function (err) {
       if (err) return res.status(500).json({err: err})
-      return res.json({file: file.id, project: file.project})
+      return res.json({file: file.id, project: file.project, projectItem: file.projectItem })
     })
   })
 })

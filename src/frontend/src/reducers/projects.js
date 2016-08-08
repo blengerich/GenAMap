@@ -1,6 +1,6 @@
 import { IMPORT_DATA_RECEIVE, LOAD_INITIAL_PROJECTS, DELETE_FILE, RECEIVE_ANALYSIS_RESULTS } from '../actions'
 
-const addItemsFromFiles = (initialItems, files) => {
+const addFilesToItems = (initialItems, files) => {
   var projectItems = initialItems
   files.forEach((file) => {
     // update project item files
@@ -51,15 +51,18 @@ const project = (state = initialProject, action) => {
     case IMPORT_DATA_RECEIVE:
       const project = action.data.project
       project.files = state.files.concat(action.data.files)
-      project.items = Object.assign({}, state.items, addItemsFromFiles({}, action.data.files))
+      project.items = Object.assign({}, state.items, addFilesToItems({}, action.data.files))
       return project
     case DELETE_FILE:
-      const updatedFiles = state.files.filter(file => file.id !== action.file)
+      const updatedFiles = state.files.filter(file => file.id !== action.data.file)
+      const itemWithoutFile = state.items[action.data.projectItem]
+      itemWithoutFile.files = itemWithoutFile.files.filter(file => file.id !== action.data.file)
+      state.items[action.data.projectItem] = itemWithoutFile
       return Object.assign({}, state, { files: updatedFiles })
     case RECEIVE_ANALYSIS_RESULTS:
-      const withResults = state.files.concat(action.data.files)
-      const newItems = addItemsFromFiles(state.items, action.data.files)
-      return Object.assign({}, state, { files: withResults, items: newItems })
+      const filesWithResults = state.files.concat(action.data.files)
+      const itemsWithResults = addFilesToItems(state.items, action.data.files)
+      return Object.assign({}, state, { files: filesWithResults, items: itemsWithResults })
     default:
       return state
   }
@@ -84,7 +87,7 @@ const projects = (state = [], action) => {
       return action.data
     case DELETE_FILE:
       return state.map(p => {
-        return (p.id === action.project)
+        return (p.id === action.data.project)
           ? project(p, action)
           : p
       })

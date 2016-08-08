@@ -136,11 +136,10 @@ export function toggleRightNav () {
   }
 }
 
-function receiveDeleteFile (file, project) {
+function receiveDeleteFile (data) {
   return {
     type: DELETE_FILE,
-    file,
-    project
+    data
   }
 }
 
@@ -185,8 +184,8 @@ export function deleteFile (file) {
       } else {
         return response.json()
       }
-    }).then(response => {
-      dispatch(receiveDeleteFile(response.file, response.project))
+    }).then(json => {
+      dispatch(receiveDeleteFile(json))
     })
   }
 }
