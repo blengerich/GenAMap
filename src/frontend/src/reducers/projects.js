@@ -1,7 +1,7 @@
 import { IMPORT_DATA_RECEIVE, LOAD_INITIAL_PROJECTS, DELETE_FILE, RECEIVE_ANALYSIS_RESULTS } from '../actions'
 
-const itemsFromFiles = (files) => {
-  var projectItems = {}
+const addItemsFromFiles = (initialItems, files) => {
+  var projectItems = initialItems
   files.forEach((file) => {
     // update project item files
     var newItem = projectItems[file.projectItem]
@@ -51,14 +51,14 @@ const project = (state = initialProject, action) => {
     case IMPORT_DATA_RECEIVE:
       const project = action.data.project
       project.files = state.files.concat(action.data.files)
-      project.items = Object.assign({}, state.items, itemsFromFiles(action.data.files))
+      project.items = Object.assign({}, state.items, addItemsFromFiles({}, action.data.files))
       return project
     case DELETE_FILE:
       const updatedFiles = state.files.filter(file => file.id !== action.file)
       return Object.assign({}, state, { files: updatedFiles })
     case RECEIVE_ANALYSIS_RESULTS:
       const withResults = state.files.concat(action.data.files)
-      const newItems = Object.assign({}, state.items, itemsFromFiles(action.data.files))
+      const newItems = addItemsFromFiles(state.items, action.data.files)
       return Object.assign({}, state, { files: withResults, items: newItems })
     default:
       return state

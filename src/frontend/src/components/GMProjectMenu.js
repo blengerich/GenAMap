@@ -182,7 +182,6 @@ var GMProjectSearch = React.createClass({
 
 class GMProjectMenu extends Component {
   render () {
-    console.log(this.props.projects)
     return (
       <List>
         <GMProjectList projects={this.props.projects} actions={this.props.projectActions} />
