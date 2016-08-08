@@ -22,6 +22,18 @@ const GMProjectContent = React.createClass({
       return '/data/' + file.id
     }
   },
+  getLeftIcon: function() {
+    const filetype = this.props.data.filetype
+    if (filetype === 'markerFile' || filetype === 'traitFile') {
+      return <FontIcon className='material-icons'>assessment</FontIcon>
+    } else if (filetype === 'resultFile') {
+      return <FontIcon className='material-icons'>view_module</FontIcon>
+    } else if (filetype === 'markerLabelFile' || filetype === 'traitLabelFile') {
+      return <FontIcon className='material-icons'>label</FontIcon>
+    } else {
+      return <FontIcon className='material-icons'>assessment</FontIcon>
+    }
+  },
   iconButtonElement: function () {
     return (
       <IconButton touch={true}>
@@ -84,7 +96,7 @@ const GMProjectContent = React.createClass({
     return (
       <ListItem
         className='gm-project__file'
-        leftIcon={<FontIcon className='material-icons'>assessment</FontIcon>}
+        leftIcon={this.getLeftIcon()}
         rightIconButton={this.rightIconMenu()}
         nestedLevel={3}>
         <Link to={this.getDataUrl()}>{this.props.data.name}</Link>
