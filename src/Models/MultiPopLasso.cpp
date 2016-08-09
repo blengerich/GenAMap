@@ -255,7 +255,7 @@ MatrixXd MultiPopLasso::getBeta() {
             r(i, j) = beta(j*popNum+i,0);
         }
     }
-    return r;
+    return r.transpose()*100;
 }
 
 void MultiPopLasso::setMu(double m) {
