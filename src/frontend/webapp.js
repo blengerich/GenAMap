@@ -508,10 +508,16 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             return res.json({ status: success, jobId, resultsPath })
           }
           // Add any extra files
+          const testAll = function(elem, index, array) {
+            return elem;
+          }
+          var ready = req.body.other_data.map((value, index) => { false });
           if (req.body.other_data.length > 0) {
             req.body.other_data.map((value, index) => {
+              console.log(value);
               if (!value.val || !value.val.data || !value.val.data.id || value.val.data.id < 0) {
-                if (index == req.body.other_data.length -1) {
+                ready[index] = true;
+                if (ready.every(testAll)) {
                   startJobFinish();
                 }
                 return false;
@@ -524,7 +530,8 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                     if (err) console.log('Error getting extra data for analysis: ', err);
                     try {
                       Scheduler.setModelAttributeMatrix(jobId, value.name, attributeData);
-                      if (index == req.body.other_data.length -1) {
+                      ready[index] = true;
+                      if (ready.every(testAll)) {
                         startJobFinish();
                       }
                     } catch (err) {
