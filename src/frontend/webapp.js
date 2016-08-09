@@ -294,6 +294,11 @@ app.post(config.api.importDataUrl, function (req, res) {
   var busboy = new Busboy({ headers: req.headers })
   var projectId // eslint-disable-line no-unused-vars
   var projectObj = {}
+  /*var marker = { files: [] }
+  var trait = { files: [] }
+  var snpsFeature = { files: [] }
+  var population = { files: [] }
+  var fileDataList = {*/
   var dataList = {
     marker: {
       name: 'Marker Values'
@@ -309,6 +314,9 @@ app.post(config.api.importDataUrl, function (req, res) {
     },
     snpsFeature: {
       name: 'SNPs Features'
+    },
+    population: {
+      name: 'Populations'
     }
   }
   const userId = extractUserIdFromHeader(req.headers)
@@ -334,6 +342,9 @@ app.post(config.api.importDataUrl, function (req, res) {
       case 'snpsFeature':
         dataList.snpsFeature.projectItem = val
         break
+      case 'population':
+        dataList.population.projectItem = val
+        break
       default:
         console.log('Unhandled fieldname "' + fieldname + '" of value "' + val + '"')
     }
@@ -349,11 +360,13 @@ app.post(config.api.importDataUrl, function (req, res) {
       const fstream = fs.createWriteStream(fullPath)
       var data
       file.pipe(fstream);
+
       if (fieldname === 'markerFile') data = dataList.marker
       else if (fieldname === 'traitFile') data = dataList.trait
       else if (fieldname === 'markerLabelFile') data = dataList.markerLabel
       else if (fieldname === 'traitLabelFile') data = dataList.traitLabel
       else if (fieldname === 'snpsFeatureFile') data = dataList.snpsFeature
+      else if (fieldname === 'populationFile') data = dataList.population
       else console.log("Unhandled file:", fieldname)
 
       data.filetype = fieldname
@@ -374,6 +387,26 @@ app.post(config.api.importDataUrl, function (req, res) {
             app.models.file.create(datum).exec(function (err, file) {
               if (err) throw err
               files.push(file)
+              /*
+              if (file.filetype === 'markerFile') {
+                marker.id = file.id
+                marker.files.push(file)
+              } else if (file.filetype === 'markerLabelFile') {
+                marker.labelId = file.id
+                marker.files.push(file)
+              } else if (file.filetype === 'traitFile') {
+                trait.id = file.id
+                trait.files.push(file)
+              } else if (file.filetype === 'traitLabelFile') {
+                trait.labelId = file.id
+                trait.files.push(file)
+              } else if (file.filetype === 'snpsFeatureFile') {
+                snpsFeature.id = file.id
+                snpsFeature.files.push(file)
+              } else if (file.filetype === 'populationFile') {
+                population.id = file.id
+                population.files.push(file)
+              }*/
               callback()
             })
           } else {
@@ -381,7 +414,7 @@ app.post(config.api.importDataUrl, function (req, res) {
           }
         }, function (err) {
           if (err) throw err
-
+          //return res.json({ project, files, marker, trait, snpsFeature, population })
           return res.json({ project, files })
         }
       )
@@ -438,6 +471,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           Scheduler.setX(jobId, markerData);
           Scheduler.setY(jobId, traitData);
           const startJobFinish = function() {
+            console.log("starting job");
             const userId = extractUserIdFromHeader(req.headers)
             const id = guid()
             const userPath = path.join('./.tmp', userId)
@@ -451,7 +485,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
 
                 fs.writeFile(resultsPath, results, function(err) {
                   app.models.file.create({
-                    name: 'Matrix View',
+                    name: req.body.jobName + " Matrix View",
                     filetype: 'resultFile',
                     path: resultsPath,
                     project: req.body.project,
@@ -474,23 +508,30 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             return res.json({ status: success, jobId, resultsPath })
           }
           // Add any extra files
+          const testAll = function(elem, index, array) {
+            return elem;
+          }
+          var ready = req.body.other_data.map((value, index) => { false });
           if (req.body.other_data.length > 0) {
             req.body.other_data.map((value, index) => {
-              if (!value.id || value.id < 0) {
-                if (index == req.body.other_data.length -1) {
+              console.log(value);
+              if (!value.val || !value.val.data || !value.val.data.id || value.val.data.id < 0) {
+                ready[index] = true;
+                if (ready.every(testAll)) {
                   startJobFinish();
                 }
                 return false;
               }
-              app.models.file.findOne({id: value.id}).exec(function(err, attributeFile) {
-                if (err) console.log('Error getting attribute' + value.name + 'for analysis: ' + err);
+              app.models.file.findOne({id: value.val.data.id}).exec(function(err, attributeFile) {
+                if (err) console.log('Error getting attribute' + value.val.name + 'for analysis: ' + err);
                 if (attributeFile) {
                   var attributeConverter = new Converter({noheader: true});
                   attributeConverter.fromFile(attributeFile.path, function(err, attributeData) {
                     if (err) console.log('Error getting extra data for analysis: ', err);
                     try {
                       Scheduler.setModelAttributeMatrix(jobId, value.name, attributeData);
-                      if (index == req.body.other_data.length -1) {
+                      ready[index] = true;
+                      if (ready.every(testAll)) {
                         startJobFinish();
                       }
                     } catch (err) {

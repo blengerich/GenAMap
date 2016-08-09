@@ -131,7 +131,11 @@ const GMProjectItem = React.createClass({
 const GMProject = React.createClass({
   render: function () {
     const items = this.props.project.items
-
+    /*const folderList = [...project.markers,
+                        ...project.traits,
+                        ...project.snpsFeatures,
+                        ...project.populations,
+                        results].map(this.createFolderView)*/
     const dataList = Object.keys(items).map((itemName, i) =>
       <GMProjectItem
         key={i}

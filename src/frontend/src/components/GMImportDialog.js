@@ -27,6 +27,8 @@ class GMImportDialog extends Component {
       traitFileName: '',
       snpsFeatureFileName: '',
       snpsFeatureName: '',
+      populationFileName: '',
+      populationName: '',
       optionDisabled: true,
       species: config.species
     }
@@ -42,7 +44,9 @@ class GMImportDialog extends Component {
       (!!this.state.projectName && !!this.state.speciesValue) : // New projects only require a name and a species
       (!!this.state.projectValue && // If we are using an existing project, we can add markers and/or traits
         (!!this.state.markerName && !!this.state.markerFileName && !!this.state.markerLabelFileName) ||
-        (!!this.state.traitName && !!this.state.traitFileName && !!this.state.traitLabelFileName))
+        (!!this.state.traitName && !!this.state.traitFileName && !!this.state.traitLabelFileName) ||
+        (!!this.state.snpsFeatureName && !!this.state.snpsFeatureFileName) ||
+        (!!this.state.populationName && !!this.state.populationFileName))
   }
 
   handleSubmit () {
@@ -116,6 +120,14 @@ class GMImportDialog extends Component {
 
   onChangeSnpsFeatureFileName (event) {
     this.setState({snpsFeatureFileName: event.target.value.substr(12)})
+  }
+
+  onChangePopulationName(event) {
+    this.setState({populationName: event.target.value})
+  }
+
+  onChangePopulationFileName (event) {
+    this.setState({populationFileName: event.target.value.substr(12)})
   }
 
   render () {
@@ -256,6 +268,24 @@ class GMImportDialog extends Component {
                 accept='.csv'
                 onChange={this.onChangeTraitLabelFileName.bind(this)}
                 fileLabel={this.state.traitLabelFileName}
+              />
+            </div>
+            <div id="populationDiv">
+              <TextField
+                id='population'
+                value={this.state.populationName}
+                hintText='Population File Name'
+                errorText={this.state.populationFileName && !this.state.populationName && errorText}
+                onChange={this.onChangePopulationName.bind(this)}
+                importOnSubmit={true}
+              />
+              <GMFileInput
+                id='populationFile'
+                buttonLabel='Population File'
+                accept='.csv'
+                onChange={this.onChangePopulationFileName.bind(this)}
+                fileLabel={this.state.populationFileName}
+                importOnSubmit={true}
               />
             </div>
             <div id="snpFeaturesDiv">
