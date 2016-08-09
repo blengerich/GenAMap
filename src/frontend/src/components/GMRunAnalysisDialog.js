@@ -105,11 +105,11 @@ const GMRunAnalysisDialog = React.createClass({
             this.state.modelValue !== '')
   },
   handleSubmit: function () {
-    /*if ((!!this.state.snpsFeature1FileName && !!this.state.snpsFeature1Name) || 
+    /*if ((!!this.state.snpsFeature1FileName && !!this.state.snpsFeature1Name) ||
       (!!this.state.snpsFeature2FileName && !!this.state.snpsFeature2Name)) {
       // TODO: try to submit only part of form
       this.props.importData(document.forms.runAnalysis)
-      
+
     }*/
     // Need to set this.state.snpsFeature1Value to the newly created ID
     this.props.submit({
@@ -165,10 +165,15 @@ const GMRunAnalysisDialog = React.createClass({
   },
   onChangeProject: function (event, index, value) {
     const project = this.props.projects[index]
-    const markers = project.markers
+    /*const markers = project.markers
     const traits = project.traits
     const snpsFeatures = project.snpsFeatures
-    const populations = project.populations
+    const populations = project.populations*/
+    const items = Object.keys(project.items).map(name => project.items[name])
+    const markers = items.filter(item => item.type === 'marker')
+    const traits = items.filter(item => item.type === 'trait')
+    const snpsFeatures = items.filter(item => item.type === 'snpsFeature')
+    const populations = items.filter(item => item.type ==='population')
 
     this.setState({
       projectValue: value,
