@@ -103,3 +103,11 @@ void LinearRegression::updateBetaAll(MatrixXd b) {
 MatrixXd LinearRegression::getBetaAll() {
     return betaAll;
 }
+
+float LinearRegression::getL1_reg() {
+    return L1_reg;
+}
+
+float LinearRegression::getL2_reg() {
+    return L2_reg;
+}
