@@ -482,7 +482,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
 
                 fs.writeFile(resultsPath, results, function(err) {
                   app.models.file.create({
-                    name: 'Matrix View',
+                    name: req.body.jobName + " Matrix View",
                     filetype: 'resultFile',
                     path: resultsPath,
                     project: req.body.project,

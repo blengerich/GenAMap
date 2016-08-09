@@ -181,7 +181,7 @@ var Graph = function(data, markerLabels, traitLabels) {
 
   function hoverOnCell(d, trait, marker, correlation, mousePos) {
     var labelText = "<h2>Trait: " + traitLabels[trait] + "</h2> <h2>Marker: " +
-                    markerLabels[marker] + "</h2> <p> Correlation: " + correlation + "</p>";
+                    markerLabels[marker] + "</h2> <p> Weight: " + correlation + "</p>";
     var tooltip = d3.select("#chart")
                     .append("div")
                     .attr("class", "tooltip")

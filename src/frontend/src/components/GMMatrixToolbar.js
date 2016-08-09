@@ -54,9 +54,10 @@ const GMSliderName = React.createClass({
   render: function() {
     var labelStyle = {
       position: 'absolute',
-      fontSize: '13px',
+      fontSize: '15px',
       fontFamily: 'Roboto, sans-serif',
       fontWeight: 'bold',
+      textAlign: 'center'
     };
 
     var slider = document.getElementById('slider');
@@ -65,13 +66,14 @@ const GMSliderName = React.createClass({
       var left = slider.offsetLeft;
       labelStyle.left = left + 'px';
       labelStyle.bottom = '15px';
+      labelStyle.width = sliderBounds.width;
       labelStyle.visibility = 'visible';
     } else {
       labelStyle.visibility = 'hidden';
     }
 
     return (
-      <span style={labelStyle}>CORRELATION THRESHOLD</span>
+      <span style={labelStyle}>Effect Size Threshold</span>
     )
   }
 })
