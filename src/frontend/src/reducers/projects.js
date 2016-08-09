@@ -28,6 +28,19 @@ const addFilesToItems = (initialItems, files) => {
         break
       case 'snpsFeatureFile':
         newItem.type = 'snpsFeature'
+        newItem.data.id = file.id
+        break
+      case 'populationFile':
+        newItem.type = 'population'
+        newItem.data.id = file.id
+        break
+      case 'graphFile':
+        newItem.type = 'graph'
+        newItem.data.id = file.id
+        break
+      case 'treeFile':
+        newItem.type = 'tree'
+        newItem.data.id = file.id
         break
       case 'resultFile':
         newItem.type = 'result'

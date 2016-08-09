@@ -147,9 +147,9 @@ const GMRunAnalysisDialog = React.createClass({
         }
       },
       other_data: [
-        {name: 'snpsFeature1', id:this.state.snpsFeature1Value.id},
-        {name: 'snpsFeature2', id:this.state.snpsFeature2Value ? this.state.snpsFeature2Value.id : this.state.snpsFeature1Value.id},
-        {name: 'population', id:this.state.populationValue.id}
+        {name: 'snpsFeature1', val: this.state.snpsFeature1Value},
+        {name: 'snpsFeature2', val: this.state.snpsFeature2Value ? this.state.snpsFeature2Value : this.state.snpsFeature1Value},
+        {name: 'population', val: this.state.populationValue}
       ],
       resultsPath: this.state.resultsPath
     })
@@ -173,7 +173,7 @@ const GMRunAnalysisDialog = React.createClass({
     const markers = items.filter(item => item.type === 'marker')
     const traits = items.filter(item => item.type === 'trait')
     const snpsFeatures = items.filter(item => item.type === 'snpsFeature')
-    const populations = items.filter(item => item.type ==='population')
+    const populations = items.filter(item => item.type === 'population')
 
     this.setState({
       projectValue: value,

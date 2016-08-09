@@ -343,7 +343,7 @@ app.post(config.api.importDataUrl, function (req, res) {
         dataList.snpsFeature.projectItem = val
         break
       case 'population':
-        population.name = val
+        dataList.population.projectItem = val
         break
       default:
         console.log('Unhandled fieldname "' + fieldname + '" of value "' + val + '"')
@@ -471,6 +471,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           Scheduler.setX(jobId, markerData);
           Scheduler.setY(jobId, traitData);
           const startJobFinish = function() {
+            console.log("starting job");
             const userId = extractUserIdFromHeader(req.headers)
             const id = guid()
             const userPath = path.join('./.tmp', userId)
@@ -509,14 +510,14 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           // Add any extra files
           if (req.body.other_data.length > 0) {
             req.body.other_data.map((value, index) => {
-              if (!value.id || value.id < 0) {
+              if (!value.val || !value.val.data || !value.val.data.id || value.val.data.id < 0) {
                 if (index == req.body.other_data.length -1) {
                   startJobFinish();
                 }
                 return false;
               }
-              app.models.file.findOne({id: value.id}).exec(function(err, attributeFile) {
-                if (err) console.log('Error getting attribute' + value.name + 'for analysis: ' + err);
+              app.models.file.findOne({id: value.val.data.id}).exec(function(err, attributeFile) {
+                if (err) console.log('Error getting attribute' + value.val.name + 'for analysis: ' + err);
                 if (attributeFile) {
                   var attributeConverter = new Converter({noheader: true});
                   attributeConverter.fromFile(attributeFile.path, function(err, attributeData) {
