@@ -13,26 +13,25 @@ import GMImportDialog from './GMImportDialog'
 
 const GMProjectContent = React.createClass({
   getDataUrl: function() {
-    switch (this.props.data.filetype) {
-      case 'resultFile':
-        const markerLabelFileId = this.props.data.labels.marker
-        const traitLabelFileId = this.props.data.labels.trait
-
-        return '/visualization/matrix/' + markerLabelFileId + '/' + traitLabelFileId + '/' + this.props.data.id
-      default:
-        return '/data/' + this.props.data.id
+    const file = this.props.data
+    if (file.filetype === 'resultFile' && file.info.resultType === 'matrix') {
+      const markerLabelId = file.info.labels.marker
+      const traitLabelId = file.info.labels.trait
+      return '/visualization/matrix/' + markerLabelId + '/' + traitLabelId + '/' + file.id
+    } else {
+      return '/data/' + file.id
     }
   },
-  getLeftIconName: function() {
+  getLeftIcon: function() {
     const filetype = this.props.data.filetype
     if (filetype === 'markerFile' || filetype === 'traitFile') {
-      return 'assessment'
+      return <FontIcon className='material-icons'>assessment</FontIcon>
     } else if (filetype === 'resultFile') {
-      return 'view_module'
+      return <FontIcon className='material-icons'>view_module</FontIcon>
     } else if (filetype === 'markerLabelFile' || filetype === 'traitLabelFile') {
-      return 'label'
+      return <FontIcon className='material-icons'>label</FontIcon>
     } else {
-      return ''
+      return <FontIcon className='material-icons'>assessment</FontIcon>
     }
   },
   iconButtonElement: function () {
@@ -94,24 +93,21 @@ const GMProjectContent = React.createClass({
     return
   },
   render: function () {
-    const dataUrl = this.getDataUrl()
-    const leftIconName = this.getLeftIconName()
     return (
       <ListItem
         className='gm-project__file'
-        leftIcon={<FontIcon className='material-icons'>{leftIconName}</FontIcon>}
+        leftIcon={this.getLeftIcon()}
         rightIconButton={this.rightIconMenu()}
-        nestedLevel={3}
-      >
-        <Link to={dataUrl}>{this.props.data.name}</Link>
+        nestedLevel={3}>
+        <Link to={this.getDataUrl()}>{this.props.data.name}</Link>
       </ListItem>
     )
   }
 })
 
-const GMProject = React.createClass({
-  createFolderView: function(collection, index) {
-    const items = collection.files.map((file, i) =>
+const GMProjectItem = React.createClass({
+  render: function() {
+    const fileList = this.props.files.map((file, i) =>
       <GMProjectContent
         key={i}
         data={file}
@@ -121,27 +117,29 @@ const GMProject = React.createClass({
 
     return (
       <ListItem
-        primaryText={collection.name}
+        primaryText={this.props.name}
         leftIcon={<FontIcon className='material-icons'>folder</FontIcon>}
         initiallyOpen={false}
         primaryTogglesNestedList={true}
-        nestedItems={items}
+        nestedItems={fileList}
         nestedLevel={1}
-        key={index}
       />
     )
-  },
-  render: function () {
-    const project = this.props.project
-    const results = {
-      name: 'Results',
-      files: project.files.filter(file => file.filetype === 'resultFile')
-    }
+  }
+})
 
-    const folderList = [...project.markers,
-                        ...project.traits,
-                        ...project.snpsFeatures,
-                        results].map(this.createFolderView)
+const GMProject = React.createClass({
+  render: function () {
+    const items = this.props.project.items
+
+    const dataList = Object.keys(items).map((itemName, i) =>
+      <GMProjectItem
+        key={i}
+        name={itemName}
+        files={items[itemName].files}
+        actions={this.props.actions}
+      />
+    )
 
     return (
       <ListItem
@@ -150,7 +148,7 @@ const GMProject = React.createClass({
         leftIcon={<FontIcon className='material-icons'>folder</FontIcon>}
         initiallyOpen={true}
         primaryTogglesNestedList={true}
-        nestedItems={folderList}
+        nestedItems={dataList}
       />
     )
   }

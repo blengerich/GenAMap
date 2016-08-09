@@ -47,7 +47,7 @@ var Graph = function(data, markerLabels, traitLabels) {
                           .attr("id", "legendBody")
 
     legendBody.append("text")
-              .text("Correlation")
+              .text("Effect Size")
               .attr("x", legendWidth/2)
               .attr("dy", "1em")
               .style("text-anchor", "middle")
@@ -181,7 +181,7 @@ var Graph = function(data, markerLabels, traitLabels) {
 
   function hoverOnCell(d, trait, marker, correlation, mousePos) {
     var labelText = "<h2>Trait: " + traitLabels[trait] + "</h2> <h2>Marker: " +
-                    markerLabels[marker] + "</h2> <p> Correlation: " + correlation + "</p>";
+                    markerLabels[marker] + "</h2> <p> Effect Size: " + correlation + "</p>";
     var tooltip = d3.select("#chart")
                     .append("div")
                     .attr("class", "tooltip")
