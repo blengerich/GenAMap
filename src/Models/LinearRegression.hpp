@@ -32,7 +32,9 @@ public:
     LinearRegression(const unordered_map<string, string>& options);
 
     void setL1_reg(float);
+    float getL1_reg();
     void setL2_reg(float);
+    float getL2_reg();
 
     // general use methods
     MatrixXd derivative();

@@ -126,6 +126,7 @@ void ProximalGradientDescent::run(Model *model) {
 }
 
 void ProximalGradientDescent::run(Gflasso * model) {
+    learningRate = learningRate*2e6;
     int epoch = 0;
     double residue = model->cost();
     double theta = 1;
@@ -168,6 +169,8 @@ void ProximalGradientDescent::run(Gflasso * model) {
 void ProximalGradientDescent::run(LinearRegression *model) {
     int epoch = 0;
     MatrixXd y = model->getY();
+    model->setL1_reg(model->getL1_reg()*10);
+    model->setL2_reg(0);   // TODO: remove this line after demo on Tuesday.
     for (long i=0; i<y.cols(); i++){
         model->setY(y.col(i));
         model->initBeta();
@@ -195,6 +198,7 @@ void ProximalGradientDescent::setLearningRate(float lr) {
 
 void ProximalGradientDescent::run(TreeLasso * model) {
     model->hierarchicalClustering();
+    learningRate = learningRate*1e5;
     int epoch = 0;
     double residue = model->cost();
     double theta = 1;
