@@ -102,8 +102,11 @@ var Graph = function() {
 
   // parse marker data
   function parseData() {
-    // TODO: connect to runAnalysis
-    const dataPath = 'tempData'
+    /*
+     * TODO: connect to runAnalysis
+     * temp data is not tracked
+     */
+    const dataPath = 'tempManhattanData'
     const markerLabelFile = 'markerLabelsReal.txt'
     const pValsFile = 'pvals.txt'
 

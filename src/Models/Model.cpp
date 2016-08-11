@@ -15,7 +15,7 @@ void Model::setX(const MatrixXd& m) { X = m; }
 void Model::setY(const MatrixXd& n) { y = n; };
 
 void Model::setAttributeMatrix(const string& str, MatrixXd* Z) {
-    throw runtime_error("This type of model has no attribute matrix with name " + str);
+    //throw runtime_error("This type of model has no attribute matrix with name " + str);
 }
 
 void Model::initBeta(void) {

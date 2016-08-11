@@ -57,7 +57,8 @@ public:
     void setPopulation(VectorXd);
     void setMu(double);
     void setGamma(double);
-
+    void setAttributeMatrix(const string&, MatrixXd*);
+    
     void initBeta();
     double cost();
     MatrixXd predict();

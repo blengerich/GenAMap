@@ -126,6 +126,7 @@ void ProximalGradientDescent::run(Model *model) {
 }
 
 void ProximalGradientDescent::run(Gflasso * model) {
+    learningRate = learningRate*2e6;
     int epoch = 0;
     double residue = model->cost();
     double theta = 1;
@@ -139,8 +140,6 @@ void ProximalGradientDescent::run(Gflasso * model) {
     double diff = tolerance*2;
     prev_residue= 9999999;
     
-    cout << "PGD maxIter = " << maxIteration << "  tolerance = " << tolerance << endl;
-    
     while (epoch < maxIteration && diff > tolerance) {
         epoch++;
         progress = float(epoch) / maxIteration;
@@ -148,7 +147,7 @@ void ProximalGradientDescent::run(Gflasso * model) {
         grad = model->gradient();
         
         in = beta - 1/model->getL() * grad;
-        beta_curr = in;
+        beta_curr = model->proximal_operator(in, learningRate);;
         beta = beta_curr + (1-theta)/theta * theta_new * (beta_curr-beta_prev);
         
         beta_prev = beta_curr;
@@ -162,7 +161,6 @@ void ProximalGradientDescent::run(Gflasso * model) {
             prev_residue = residue;
         }
         
-        cout << " Iter = " << epoch  << " cost " << residue << " diff = " << diff << endl;
     }
     cout<<endl;
     model->updateBeta(best_beta);
@@ -171,12 +169,15 @@ void ProximalGradientDescent::run(Gflasso * model) {
 void ProximalGradientDescent::run(LinearRegression *model) {
     int epoch = 0;
     MatrixXd y = model->getY();
+    model->setL1_reg(model->getL1_reg()*10);
+    model->setL2_reg(0);   // TODO: remove this line after demo on Tuesday.
     for (long i=0; i<y.cols(); i++){
         model->setY(y.col(i));
         model->initBeta();
         double residue = model->cost();
         VectorXd grad;
         VectorXd in;
+        epoch = 0; 
         while (epoch < maxIteration && residue > tolerance && !shouldStop) {
             epoch++;
             progress = float(epoch) / maxIteration;
@@ -196,6 +197,8 @@ void ProximalGradientDescent::setLearningRate(float lr) {
 
 
 void ProximalGradientDescent::run(TreeLasso * model) {
+    model->hierarchicalClustering();
+    learningRate = learningRate*1e5;
     int epoch = 0;
     double residue = model->cost();
     double theta = 1;

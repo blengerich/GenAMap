@@ -103,6 +103,8 @@ public :
     // along with other input parameters i.e. X, Y and Beta.
     MatrixXd gradient();
 
+    MatrixXd proximal_operator(MatrixXd, float);
+
     // Lipschitz Constant
     float getL();
 };
