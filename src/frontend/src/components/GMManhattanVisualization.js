@@ -1,8 +1,6 @@
 import React from 'react'
 import GMManhattanChart from './GMManhattanChart'
-
-import fetch from './fetch'
-import config from '../../config'
+import GMManhattanToolbar from './GMManhattanToolbar'
 
 const GMManhattanVisualization = React.createClass({
   getInitialState() {
@@ -21,6 +19,10 @@ const GMManhattanVisualization = React.createClass({
             pageParams={this.state.pageParams}
           />
         </div>
+        <GMManhattanToolbar
+          left={this.props.minPad}
+          right={this.props.minPad}
+        />
       </div>
     )
   }
