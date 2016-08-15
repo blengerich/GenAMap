@@ -1,5 +1,4 @@
 import React, { Component, PropTypes } from 'react'
-import { Link } from 'react-router'
 import Avatar from 'material-ui/lib/avatar'
 import AppBar from 'material-ui/lib/app-bar'
 import RaisedButton from 'material-ui/lib/raised-button'
@@ -44,7 +43,7 @@ const styles = {
   }
 }
 
-class Login extends Component {
+class CreateAccount extends Component {
   render () {
     const { errorMessage } = this.props
     const logosrc = 'images/' + logos[0]
@@ -60,7 +59,7 @@ class Login extends Component {
             <Avatar src={logosrc} style={{alignSelf: 'center', border: 'none', order: 0}} />
             <h1 style={styles.header}>GenAMap 2.0</h1>
           </AppBar>
-          <p style={{ 'fontSize': '1.8em' }}>Login to GenAMap</p>
+          <p style={{ 'fontSize': '1.8em' }}>Sign Up for GenAMap</p>
           <div>
             <TextField
               className={'form-control'}
@@ -79,15 +78,9 @@ class Login extends Component {
           <div>
             <RaisedButton
               label={'Create Account'}
-              onClick={this.linkToSignup.bind(this)}
-              secondary={true}
-              style={styles.action}
-            />
-            <RaisedButton
-              label={'Login'}
-              onClick={this.handleLoginClick.bind(this)}
+              onClick={this.handleCreateAccountClick.bind(this)}
               primary={true}
-              styles={styles.action}
+              style={styles.action}
             />
           </div>
         </div>
@@ -103,29 +96,17 @@ class Login extends Component {
     this.setState({ password: event.target.value })
   }
 
-  handleLoginClick (event) {
-    const username = this.state.username
-    const password = this.state.password
-    const creds = { username: username.trim(), password: password.trim() }
-    this.props.onLoginClick(creds, this.props.location.search)
-  }
-
   handleCreateAccountClick (event) {
     const username = this.state.username
     const password = this.state.password
     const creds = { username: username.trim(), password: password.trim() }
     this.props.onCreateAccountClick(creds)
   }
-
-  linkToSignup (event) {
-    this.props.linkToSignup()
-  }
 }
 
-Login.propTypes = {
-  onLoginClick: PropTypes.func.isRequired,
+CreateAccount.propTypes = {
   onCreateAccountClick: PropTypes.func.isRequired,
   errorMessage: PropTypes.string
 }
 
-export default Login
+export default CreateAccount

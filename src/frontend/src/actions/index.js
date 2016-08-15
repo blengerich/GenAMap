@@ -342,6 +342,7 @@ function receiveLogin (user) {
 }
 
 function loginError (message) {
+  console.log("Msg", message)
   return {
     type: LOGIN_FAILURE,
     isFetching: false,
@@ -386,20 +387,21 @@ export function loginUser (creds) {
 
   return dispatch => {
     dispatch(requestLogin(creds))
+
     return fetch(config.api.createSessionUrl, loginRequest)
-    .then(response => {
-      if (!response.ok) {
-        dispatch(loginError(response.json().message))
-        Promise.reject('Could not login user')
-      }
-      return response.json()
-    }).then(user => {
-      setToken(user.id_token)
-      dispatch(receiveLogin(user))
-      dispatch(getUserState(user.id_token))
-      return user
-    }).catch(err => console.log('Error: ', err))
-  }
+    .then(response => response.json().then(user => ({ user, response })))
+    .then(({ user, response }) =>  {
+        if (!response.ok) {
+          dispatch(loginError(user.message))
+          return Promise.reject('Could not login user')
+        } else {
+          setToken(user.id_token)
+          dispatch(receiveLogin(user))
+          dispatch(getUserState(user.id_token))
+          return user
+        }
+      }).catch(err => console.log("Error: ", err))
+    }
 }
 
 export function setInitialUserState (token) {
@@ -474,6 +476,8 @@ export function createAccount (creds) {
     }).then(account => {
       dispatch(receiveCreateAccount(account))
       Promise.resolve(account)
+    }).then(() => {
+      dispatch(redirectTo ('/'))
     }).catch(err => console.log('Error: ', err))
   }
 }

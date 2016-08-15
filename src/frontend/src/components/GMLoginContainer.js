@@ -23,6 +23,9 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
+  linkToSignup: () => {
+    dispatch(redirectTo('/signup'))
+  },
   onLoginClick: (creds, query) => {
     const loginPromise = dispatch(loginUser(creds))
     loginPromise.then(login => {
@@ -49,4 +52,3 @@ const GMLoginContainer = connect(
 )(GMLogin)
 
 export default GMLoginContainer
-

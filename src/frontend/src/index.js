@@ -14,6 +14,7 @@ import GMAppContainer from './components/GMAppContainer'
 import GMDataList from './components/GMDataList'
 import GMMatrixVisualization from './components/GMMatrixVisualization'
 import GMLoginContainer from './components/GMLoginContainer'
+import GMCreateAccountContainer from './components/GMCreateAccountContainer'
 import { setInitialUserState } from './actions'
 import { getToken, verifyToken, removeToken } from './middleware/token'
 
@@ -26,6 +27,7 @@ render(
   <Provider store={store}>
     <Router history={hashHistory}>
       <Route path='/login' component={addDevTools(GMLoginContainer)} />
+      <Route path='/signup' component={addDevTools(GMCreateAccountContainer)} />
       <Route path='/' component={addDevTools(requireAuthentication(GMAppContainer))}>
         <Route path='data/:id' component={GMDataList} />
         <Route
