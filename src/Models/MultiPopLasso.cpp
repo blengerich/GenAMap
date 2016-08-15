@@ -38,7 +38,7 @@ double MultiPopLasso::cost() {
 
 double MultiPopLasso::groupPenalization() {
     double r = 0;
-    MatrixXd tmp = getBeta();
+    MatrixXd tmp = getBetaInside();
     for (long i = 0; i < tmp.rows(); i++) {
         r += tmp.row(i).squaredNorm();
     }
@@ -247,12 +247,26 @@ vector<long> MultiPopLasso::getPopulationIndex(long pi) {
     return idx;
 }
 
-MatrixXd MultiPopLasso::getBeta() {
+MatrixXd MultiPopLasso::getBetaInside() {
     long c = X.cols()/popNum;
     MatrixXd r = MatrixXd::Zero(popNum, c);
     for (long i=0;i<popNum;i++){
         for (long j=0;j<c;j++){
-            r(i, j) = beta(j*popNum+i,0);
+            r(i, j) = beta(j*popNum+i,i/popNum);
+        }
+    }
+    return r;
+}
+
+
+MatrixXd MultiPopLasso::getBeta() {
+    long c = X.cols()/popNum;
+    MatrixXd r = MatrixXd::Zero(popNum*betaAll.cols(), c);
+    for (long k=0;k<betaAll.cols();k++){
+        for (long i=0;i<popNum;i++){
+            for (long j=0;j<c;j++){
+                r(i+k*popNum, j) = betaAll(j*popNum+i,k);
+            }
         }
     }
     return r.transpose()*100;
@@ -283,7 +297,7 @@ MatrixXd MultiPopLasso::predict(MatrixXd x) {
 MatrixXd MultiPopLasso::predict(MatrixXd x, VectorXd pop){
     long r= x.rows();
     MatrixXd y(r, 1);
-    MatrixXd b = getBeta();
+    MatrixXd b = getBetaInside();
     for (long i=0;i<r;i++){
         y.row(i) = x.row(i)*(b.row(long(pop(i))).transpose());
     }
@@ -295,6 +309,7 @@ MultiPopLasso::MultiPopLasso() {
     lambda = default_lambda;
     mu = default_mu;
     gamma = default_gamma;
+    betaAll = MatrixXd::Ones(1,1);
 }
 
 MultiPopLasso::MultiPopLasso(const unordered_map<string, string> &options) {
@@ -314,4 +329,23 @@ MultiPopLasso::MultiPopLasso(const unordered_map<string, string> &options) {
     } catch (std::out_of_range& oor) {
         gamma = default_gamma;
     }
+    betaAll = MatrixXd::Ones(1,1);
+}
+
+void MultiPopLasso::updateBetaAll() {
+    if (betaAll.rows() == 1){
+        betaAll = beta;
+    }
+    else{
+        betaAll.conservativeResize(betaAll.rows(),betaAll.cols()+1);
+        betaAll.col(betaAll.cols()-1) = beta;
+    }
+}
+
+MatrixXd MultiPopLasso::getBetaAll() {
+    return betaAll;
+}
+
+void MultiPopLasso::reSetFlag() {
+    initTrainingFlag = false;
 }
