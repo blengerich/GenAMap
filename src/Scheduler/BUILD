@@ -14,15 +14,19 @@ cc_library(
                 "-lz",
                 "-lm"],
     deps = ["@gtest//:main",
-		"//algorithm:Algorithm",
-        "//algorithm:AlgorithmOptions",
-        #"//algorithm:BrentSearch",
-        #"//algorithm:GridSearch",
-        "//algorithm:IterativeUpdate",
-        "//algorithm:ProximalGradientDescent",
-        "//model:lasso",
-        "//model:Model",
-        "//model:ModelOptions",
+		"//Algorithms:Algorithm",
+        "//Algorithms:AlgorithmOptions",
+        "//Algorithms:BrentSearch",
+        "//Algorithms:GridSearch",
+        "//Algorithms:IterativeUpdate",
+        "//Algorithms:ProximalGradientDescent",
+        "//Models:AdaMultiLasso",
+        "//Models:GFlasso",
+        "//Models:lasso",
+        "//Models:LinearRegression",
+        "//Models:Model",
+        "//Models:ModelOptions",
+        "//Models:TreeLasso",
         "//Scheduler:Job"]
 )
 
@@ -32,8 +36,8 @@ cc_library(
     hdrs = ["Job.hpp"],
     copts = ["-DBAZEL"],
     linkopts = ["-lv8"],
-    deps = ["//algorithm:Algorithm",
-            "//model:Model"]
+    deps = ["//Algorithms:Algorithm",
+            "//Models:Model"]
 )
 
 

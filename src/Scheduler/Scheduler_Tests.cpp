@@ -14,11 +14,11 @@
 
 #include "Scheduler/Scheduler.hpp"
 #include "Scheduler/Job.hpp"
-#include "algorithm/AlgorithmOptions.hpp"
-#include "model/ModelOptions.hpp"
+#include "Algorithms/AlgorithmOptions.hpp"
+#include "Models/ModelOptions.hpp"
 
 using namespace std;
-
+using namespace Eigen;
 
 class SchedulerTest : public testing::Test {
 protected:
@@ -202,7 +202,11 @@ void NullFunc(uv_work_t* req, int status) {};
 
 
 TEST_F(SchedulerTest, Train_Not_Found) {
-	ASSERT_FALSE(my_scheduler->startJob(-1, NullFunc));
+    try {
+	   my_scheduler->startJob(-1, NullFunc);
+    } catch (const exception& e) {
+        EXPECT_STREQ("Job id must correspond to a job that has been created.", e.what());
+    }
 }
 
 

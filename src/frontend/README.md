@@ -18,10 +18,10 @@ In **Terminal**:
 - [x] Make import dialog a child of <body></body>
 - [x] Add run analysis dialog
 - [ ] [Pre-render D3 chart on server](http://mango-is.com/blog/engineering/pre-render-d3-js-charts-at-server-side.html)
-- [ ] Communicate with Scheduler
+- [x] Communicate with Scheduler
 - [x] Add project for each data import
 - [x] Expand import dialog
-- [ ] Progress bar for uploading/analyzing data
+- [x] Progress bar for uploading/analyzing data
 - [ ] Fix UI bugs (@Julia)
 - [ ] Change routing to [browserHistory](https://github.com/reactjs/react-router/blob/b60d6c0351ff91cf04bccdac8c4b6e976aec94ec/docs/guides/Histories.md)
 - [ ] Add [security measures](http://expressjs.com/en/advanced/best-practice-security.html)
