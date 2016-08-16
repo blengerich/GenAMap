@@ -71,6 +71,7 @@ class Login extends Component {
           <div>
             <TextField
               className={'form-control'}
+              errorText={errorMessage}
               hintText={'Password'}
               type={'password'}
               onChange={this.onChangePassword.bind(this)}
@@ -104,17 +105,10 @@ class Login extends Component {
   }
 
   handleLoginClick (event) {
-    const username = this.state.username
-    const password = this.state.password
-    const creds = { username: username.trim(), password: password.trim() }
+    const username = this.state ? this.state.username : ''
+    const password = this.state ? this.state.password : ''
+    const creds = { username: username, password: password }
     this.props.onLoginClick(creds, this.props.location.search)
-  }
-
-  handleCreateAccountClick (event) {
-    const username = this.state.username
-    const password = this.state.password
-    const creds = { username: username.trim(), password: password.trim() }
-    this.props.onCreateAccountClick(creds)
   }
 
   linkToSignup (event) {

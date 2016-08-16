@@ -1,4 +1,4 @@
-import { LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_SUCCESS } from '../actions'
+import { LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_SUCCESS, ERROR_CREATE_ACCOUNT } from '../actions'
 import { getAndVerifyToken } from '../middleware/token'
 
 // The auth reducer. The starting state sets authentication
@@ -39,6 +39,11 @@ const auth = (state = initialState, action) => {
         isFetching: false,
         isAuthenticated: false,
         isUpdated: false
+      }
+    case ERROR_CREATE_ACCOUNT:
+      return {
+        isAuthenticated: false,
+        errorMessage: action.message
       }
     default:
       return state

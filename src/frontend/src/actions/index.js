@@ -30,6 +30,7 @@ export const LOGIN_FAILURE = 'LOGIN_FAILURE'
 export const LOGOUT_REQUEST = 'LOGOUT_REQUEST'
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS'
 export const LOGOUT_FAILURE = 'LOGOUT_FAILURE'
+export const ERROR_CREATE_ACCOUNT = 'ERROR_CREATE_ACCOUNT'
 export const SHOW_LOCK = 'SHOW_LOCK'
 export const LOCK_SUCCESS = 'LOCK_SUCCESS'
 export const LOCK_FAILURE = 'LOCK_FAILURE'
@@ -342,7 +343,6 @@ function receiveLogin (user) {
 }
 
 function loginError (message) {
-  console.log("Msg", message)
   return {
     type: LOGIN_FAILURE,
     isFetching: false,
@@ -391,17 +391,17 @@ export function loginUser (creds) {
     return fetch(config.api.createSessionUrl, loginRequest)
     .then(response => response.json().then(user => ({ user, response })))
     .then(({ user, response }) =>  {
-        if (!response.ok) {
-          dispatch(loginError(user.message))
-          return Promise.reject('Could not login user')
-        } else {
-          setToken(user.id_token)
-          dispatch(receiveLogin(user))
-          dispatch(getUserState(user.id_token))
-          return user
-        }
-      }).catch(err => console.log("Error: ", err))
-    }
+      if (!response.ok) {
+        dispatch(loginError(user.message))
+        return Promise.reject('Could not login user')
+      } else {
+        setToken(user.id_token)
+        dispatch(receiveLogin(user))
+        dispatch(getUserState(user.id_token))
+        return user
+      }
+    }).catch(err => console.log("Error: ", err))
+  }
 }
 
 export function setInitialUserState (token) {
@@ -452,7 +452,8 @@ function receiveCreateAccount (account) {
 
 function createAccountError (message) {
   return {
-    type: 'ERROR_CREATE_ACCOUNT'
+    type: 'ERROR_CREATE_ACCOUNT',
+    message
   }
 }
 
@@ -462,23 +463,20 @@ export function createAccount (creds) {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: `username=${creds.username}&password=${creds.password}`
   }
-
   return dispatch => {
-    dispatch(requestCreateAccount(creds))
     return fetch(config.api.createAccountUrl, createAccountRequest)
-    .then(response => {
-      if (response.ok) {
-        return response.json()
+    .then(response => response.json().then(account => ({ account, response })))
+    .then(({ account, response }) =>  {
+      if (!response.ok) {
+        dispatch(createAccountError(account.message))
+        return Promise.reject(account.message)
       } else {
-        dispatch(createAccountError(response.json().message))
-        Promise.reject(response.json().message)
+        dispatch(receiveCreateAccount(account))
+        Promise.resolve(account)
+        return dispatch(loginUser(creds))
+        .then(() => dispatch(redirectTo('/')))
       }
-    }).then(account => {
-      dispatch(receiveCreateAccount(account))
-      Promise.resolve(account)
-    }).then(() => {
-      dispatch(redirectTo ('/'))
-    }).catch(err => console.log('Error: ', err))
+    }).catch(err => console.log("Error: ", err))
   }
 }
 

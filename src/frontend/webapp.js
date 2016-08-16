@@ -193,7 +193,7 @@ app.post(config.api.createAccountUrl, function (req, res) {
   const initialState = {}
 
   if (!username || !password) {
-    return res.status(400).send({message: 'You must send the username and password'})
+    return res.status(400).send({message: 'Missing username or password'})
   }
 
   app.models.user.findOne({ username }).exec(function (err, foundUser) {
@@ -216,17 +216,17 @@ app.post(config.api.createSessionUrl, function (req, res) {
   const password = req.body.password
 
   if (!username || !password) {
-    return res.status(400).send({message: 'You must send the username and the password'})
+    return res.status(400).send({message: 'Missing username or password'})
   }
 
   app.models.user.findOne({ username }).exec(function (err, user) {
     if (err) console.log(err)
     if (!user) {
-      return res.status(401).send({message: 'The username or password don\'t match', user: user})
+      return res.status(401).send({message: 'Incorrect username or password', user: user})
     }
 
     if (user.password !== req.body.password) {
-      return res.status(401).send({message: 'The username or password don\'t match'})
+      return res.status(401).send({message: 'Incorrect username or password'})
     }
 
     return res.status(201).send({

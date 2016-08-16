@@ -70,6 +70,7 @@ class CreateAccount extends Component {
           <div>
             <TextField
               className={'form-control'}
+              errorText={errorMessage}
               hintText={'Password'}
               type={'password'}
               onChange={this.onChangePassword.bind(this)}
@@ -97,9 +98,9 @@ class CreateAccount extends Component {
   }
 
   handleCreateAccountClick (event) {
-    const username = this.state.username
-    const password = this.state.password
-    const creds = { username: username.trim(), password: password.trim() }
+    const username = (this.state && this.state.username) ? this.state.username : ''
+    const password = (this.state && this.state.password) ? this.state.password : ''
+    const creds = { username: username, password: password }
     this.props.onCreateAccountClick(creds)
   }
 }
