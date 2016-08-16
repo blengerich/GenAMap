@@ -3,7 +3,7 @@ import { loginUser, redirectTo, createAccount } from '../actions'
 import GMCreateAccount from './GMCreateAccount'
 
 const mapStateToProps = (state) => ({
-  errorMessage: state.userData.auth.errorMessage,
+  errorMessage: state.userData.auth.createErrorMessage,
   isAuthenticated: state.userData.auth.isAuthenticated
 })
 

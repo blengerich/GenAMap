@@ -23,7 +23,7 @@ const auth = (state = initialState, action) => {
       return {
         isFetching: false,
         isAuthenticated: true,
-        errorMessage: '',
+        loginErrorMessage: '',
         username: action.username,
         isUpdated: true
       }
@@ -31,7 +31,7 @@ const auth = (state = initialState, action) => {
       return {
         isFetching: false,
         isAuthenticated: false,
-        errorMessage: action.message,
+        loginErrorMessage: action.message,
         isUpdated: false
       }
     case LOGOUT_SUCCESS:
@@ -43,7 +43,7 @@ const auth = (state = initialState, action) => {
     case ERROR_CREATE_ACCOUNT:
       return {
         isAuthenticated: false,
-        errorMessage: action.message
+        createErrorMessage: action.message
       }
     default:
       return state
