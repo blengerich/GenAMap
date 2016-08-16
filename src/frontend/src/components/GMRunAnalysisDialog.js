@@ -42,6 +42,7 @@ const GMRunAnalysisDialog = React.createClass({
       markers: [],
       traits: [],
       snpsFeatures: [], // features 1 and 2 have the same possibilities
+      populations: [],
       markerLabels: [],
       traitLabels: [],
       jobName: '',
@@ -55,16 +56,17 @@ const GMRunAnalysisDialog = React.createClass({
       /*snpsFeature1Name: '',
       snpsFeature1FileName: '',*/
       snpsFeature2Value: '',
+      populationValue: '',
       /*snpsFeature2Name: '',
       snpsFeature2FileName: '',*/
       // Model parameters
       models: config.models,
       modelValue: '',
-      lambda: 0.0,
-      lambdal2: 0.0,
-      mu: 0.0,
-      gamma: 0.0,
-      threshold: 0.0,
+      lambda: 5,
+      lambdal2: 0.1,
+      mu: 0.1,
+      gamma: 0.1,
+      threshold: 1,
       clusteringMethods: ['average', 'single', 'complete'],
       clusteringMethod: 'single',
       showAdvancedOptionsButton: false,
@@ -76,7 +78,7 @@ const GMRunAnalysisDialog = React.createClass({
           <MenuItem key={index} value={config.algorithms[algorithm_index].id} primaryText={config.algorithms[algorithm_index].name} />)),
       availableAlgorithmList: [],
       algorithmValue: '',
-      learning_rate: 0.001,
+      learning_rate: 1e-5,
       learning_rate2: 0.001,
       tolerance: 0.000001,
       lambda_start_point: 0.0,  // TODO: how to set good defaults for these?
@@ -103,11 +105,11 @@ const GMRunAnalysisDialog = React.createClass({
             this.state.modelValue !== '')
   },
   handleSubmit: function () {
-    /*if ((!!this.state.snpsFeature1FileName && !!this.state.snpsFeature1Name) || 
+    /*if ((!!this.state.snpsFeature1FileName && !!this.state.snpsFeature1Name) ||
       (!!this.state.snpsFeature2FileName && !!this.state.snpsFeature2Name)) {
       // TODO: try to submit only part of form
       this.props.importData(document.forms.runAnalysis)
-      
+
     }*/
     // Need to set this.state.snpsFeature1Value to the newly created ID
     this.props.submit({
@@ -145,8 +147,9 @@ const GMRunAnalysisDialog = React.createClass({
         }
       },
       other_data: [
-        {name: 'snpsFeature1', id:this.state.snpsFeature1Value.id},
-        {name: 'snpsFeature2', id:this.state.snpsFeature2Value ? this.state.snpsFeature2Value.id : this.state.snpsFeature1Value.id}
+        {name: 'snpsFeature1', val: this.state.snpsFeature1Value},
+        {name: 'snpsFeature2', val: this.state.snpsFeature2Value ? this.state.snpsFeature2Value : this.state.snpsFeature1Value},
+        {name: 'population', val: this.state.populationValue}
       ],
       resultsPath: this.state.resultsPath
     })
@@ -162,10 +165,15 @@ const GMRunAnalysisDialog = React.createClass({
   },
   onChangeProject: function (event, index, value) {
     const project = this.props.projects[index]
-    const markers = project.markers
+    /*const markers = project.markers
     const traits = project.traits
     const snpsFeatures = project.snpsFeatures
-
+    const populations = project.populations*/
+    const items = Object.keys(project.items).map(name => project.items[name])
+    const markers = items.filter(item => item.type === 'marker')
+    const traits = items.filter(item => item.type === 'trait')
+    const snpsFeatures = items.filter(item => item.type === 'snpsFeature')
+    const populations = items.filter(item => item.type === 'population')
 
     this.setState({
       projectValue: value,
@@ -174,8 +182,10 @@ const GMRunAnalysisDialog = React.createClass({
       traits: traits,
       traitValue: traits.length > 0 ? traits[0] : '',
       snpsFeatures: snpsFeatures ? snpsFeatures : [],
-      snpsFeature1Value: snpsFeatures.length > 0 ? snpsFeatures[0] : '',
-      snpsFeature2Value: snpsFeatures.length > 0 ? snpsFeatures[0] : ''
+      snpsFeature1Value: (snpsFeatures && snpsFeatures.length > 0) ? snpsFeatures[0] : '',
+      snpsFeature2Value: (snpsFeatures && snpsFeatures.length > 0) ? snpsFeatures[0] : '',
+      populations: populations ? populations : [],
+      populationValue: (populations && populations.length > 0) ? populations[0] : ''
     })
 
   },
@@ -194,6 +204,9 @@ const GMRunAnalysisDialog = React.createClass({
   },
   onChangeSnpsFeature2: function(event, index, value) {
     this.setState({snpsFeature2Value: value})
+  },
+  onChangePopulation: function(event, index, value) {
+    this.setState({populationValue: value})
   },
   /*onChangesnpsFeature1Name (event) {
     this.setState({snpsFeature1Name: event.target.value})
@@ -319,6 +332,12 @@ const GMRunAnalysisDialog = React.createClass({
       <MenuItem key={index} value={f} primaryText={f.name} />
     )
     const snpsFeatureListReact = this.state.snpsFeatures.map((f, index) =>
+      <option key={index} value={f}>{f.name}</option>
+    )
+    const populationList = this.state.populations.map((f, index) =>
+      <MenuItem key={index} value={f} primaryText={f.name} />
+    )
+    const populationListReact = this.state.populations.map((f, index) =>
       <option key={index} value={f}>{f.name}</option>
     )
     const clusteringMethodList = this.state.clusteringMethods.map((method, index) =>
@@ -453,7 +472,19 @@ const GMRunAnalysisDialog = React.createClass({
                 (this.state.modelValue == 2) ? // Gflasso
                   <div>Gflasso has not been implemented yet</div>  :
                 (this.state.modelValue == 3) ? // Multi-Population Lasso
-                  <div>Multi-Population Lasso has not been implemented yet</div>  :
+                  <div id='populationDiv'>
+                      <SelectField
+                        value={this.state.populationValue}
+                        hintText='Choose Population Identifiers'
+                        errorText={!this.state.populationValue && errorText}
+                        onChange={this.onChangePopulation}
+                      >
+                        {populationList}
+                      </SelectField>
+                      <select id='population' className='hidden' value={this.state.populationValue} readOnly>
+                        {populationListReact}
+                      </select>
+                    </div>  :
                 (this.state.modelValue == 4) ? // Tree Lasso
                   <div>TreeLasso has not been implemented yet</div>  :
                 null}

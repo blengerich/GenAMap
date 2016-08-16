@@ -170,7 +170,6 @@ double Gflasso::gflasso_fusion_penalty(){
 
             //  Beta is N*J matrix, where N are the number of input sample and J aer the no. of features in Y.
             total_sum += mul_factor*abs(beta.col(start_node).sum() - sign * beta.col(end_node).sum());
-            std::cout << " mul fac " << mul_factor << " tot sum = " << total_sum << std::endl;
         }
     }
 
@@ -179,10 +178,6 @@ double Gflasso::gflasso_fusion_penalty(){
 
 // Cost function of GFlasso
 double Gflasso::cost(){
-
-    std::cout << "GFlasso cost : Y-X*beta = " <<  (Y - X * beta).squaredNorm() << std::endl;
-    std::cout << "GFlasso cost : beta.cwiseAbs().sum() = "  << beta.cwiseAbs().sum() << std::endl;
-    std::cout << "GFlasso cost : fusion penalty = " << gflasso_fusion_penalty() << std::endl;
 
     return (
             (Y - X * beta).squaredNorm() +
@@ -204,9 +199,6 @@ int Gflasso::get_num_edges(){
 
     int row=corr_coff.rows(), col = corr_coff.cols(),row_idx=0,col_idx=0,num_edges=0;
 
-
-    std::cout << " Get num edges " ;
-
     for(row_idx=0;row_idx<row;row_idx++) {
         for(col_idx=0;col_idx<col;col_idx++) {
 
@@ -217,7 +209,6 @@ int Gflasso::get_num_edges(){
         }
     }
 
-    //std::cout << "Num of edges in the correlation matrix = " << num_edges << std::endl;
     return num_edges;
 }
 
@@ -313,4 +304,11 @@ float Gflasso::getL() {
     MatrixXd X = this->get_X();
     return ((X.transpose()*X).eigenvalues()).real().maxCoeff() + edge_vertex_matrix.squaredNorm()/mau;
 
+}
+
+MatrixXd Gflasso::proximal_operator(MatrixXd in, float l) {  // todo this needs some extra attention later.
+    MatrixXd sign = ((in.array()>0).matrix()).cast<double>();//sign
+    sign += -1.0*((in.array()<0).matrix()).cast<double>();
+    in = ((in.array().abs()-l*lambda_flasso/this->getL()).max(0)).matrix();//proximal
+    return (in.array()*sign.array()).matrix();//proximal multipled back with sign
 }

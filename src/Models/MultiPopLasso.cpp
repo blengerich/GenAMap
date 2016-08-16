@@ -38,7 +38,7 @@ double MultiPopLasso::cost() {
 
 double MultiPopLasso::groupPenalization() {
     double r = 0;
-    MatrixXd tmp = getBeta();
+    MatrixXd tmp = getBetaInside();
     for (long i = 0; i < tmp.rows(); i++) {
         r += tmp.row(i).squaredNorm();
     }
@@ -46,7 +46,32 @@ double MultiPopLasso::groupPenalization() {
 }
 
 void MultiPopLasso::assertReadyToRun() {
-    throw runtime_error("MultiPopLasso not implemented");
+    // X and Y must be compatible
+    if (!((X.rows() > 0) && (X.rows() == y.rows())
+        && (X.cols() > 0) && (y.cols() > 0))) {
+        throw runtime_error("X and Y matrices of size (" + to_string(X.rows()) + "," + to_string(X.cols()) + "), and (" +
+            to_string(y.rows()) + "," + to_string(y.cols()) + ") are not compatible.");
+    }
+    // Population Labels must have n rows (one for each sample)
+    if (population.rows() != X.rows()) {
+        throw runtime_error("Population labels of length " + to_string(population.rows()) + 
+            " are the wrong size for X with " + to_string(X.rows()) + " samples.");
+    }
+    cerr << "assertReadyToRun passed" << endl;
+}
+
+void MultiPopLasso::setAttributeMatrix(const string& str, MatrixXd* Z) {
+    if (str == "population") {
+        cerr << "setting population" << endl;
+        // todo: stop copying data
+        setPopulation(VectorXd(Map<VectorXd>(Z->data(), Z->rows())));
+    } else if (str == "X") {
+        setX(*Z);
+    } else if (str == "Y") {
+        setY(*Z);
+    } else {
+        throw runtime_error("MultiPopLasso models have no attribute with name" + str);
+    }
 }
 
 void MultiPopLasso::initTraining() {
@@ -222,15 +247,29 @@ vector<long> MultiPopLasso::getPopulationIndex(long pi) {
     return idx;
 }
 
-MatrixXd MultiPopLasso::getBeta() {
+MatrixXd MultiPopLasso::getBetaInside() {
     long c = X.cols()/popNum;
     MatrixXd r = MatrixXd::Zero(popNum, c);
     for (long i=0;i<popNum;i++){
         for (long j=0;j<c;j++){
-            r(i, j) = beta(j*popNum+i,0);
+            r(i, j) = beta(j*popNum+i,i/popNum);
         }
     }
     return r;
+}
+
+
+MatrixXd MultiPopLasso::getBeta() {
+    long c = X.cols()/popNum;
+    MatrixXd r = MatrixXd::Zero(popNum*betaAll.cols(), c);
+    for (long k=0;k<betaAll.cols();k++){
+        for (long i=0;i<popNum;i++){
+            for (long j=0;j<c;j++){
+                r(i+k*popNum, j) = betaAll(j*popNum+i,k);
+            }
+        }
+    }
+    return r.transpose()*100;
 }
 
 void MultiPopLasso::setMu(double m) {
@@ -258,7 +297,7 @@ MatrixXd MultiPopLasso::predict(MatrixXd x) {
 MatrixXd MultiPopLasso::predict(MatrixXd x, VectorXd pop){
     long r= x.rows();
     MatrixXd y(r, 1);
-    MatrixXd b = getBeta();
+    MatrixXd b = getBetaInside();
     for (long i=0;i<r;i++){
         y.row(i) = x.row(i)*(b.row(long(pop(i))).transpose());
     }
@@ -270,6 +309,7 @@ MultiPopLasso::MultiPopLasso() {
     lambda = default_lambda;
     mu = default_mu;
     gamma = default_gamma;
+    betaAll = MatrixXd::Ones(1,1);
 }
 
 MultiPopLasso::MultiPopLasso(const unordered_map<string, string> &options) {
@@ -289,4 +329,23 @@ MultiPopLasso::MultiPopLasso(const unordered_map<string, string> &options) {
     } catch (std::out_of_range& oor) {
         gamma = default_gamma;
     }
+    betaAll = MatrixXd::Ones(1,1);
+}
+
+void MultiPopLasso::updateBetaAll() {
+    if (betaAll.rows() == 1){
+        betaAll = beta;
+    }
+    else{
+        betaAll.conservativeResize(betaAll.rows(),betaAll.cols()+1);
+        betaAll.col(betaAll.cols()-1) = beta;
+    }
+}
+
+MatrixXd MultiPopLasso::getBetaAll() {
+    return betaAll;
+}
+
+void MultiPopLasso::reSetFlag() {
+    initTrainingFlag = false;
 }

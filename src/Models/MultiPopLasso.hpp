@@ -22,6 +22,7 @@ using namespace Eigen;
 
 class MultiPopLasso : public Model {
 private:
+    MatrixXd betaAll;
     double lambda;
     double mu;
     double gamma;
@@ -33,6 +34,8 @@ private:
 
     VectorXi removeCols;
     MatrixXd C;
+
+    MatrixXd getBetaInside();
 
     double groupPenalization();
     void reArrangeData();
@@ -52,11 +55,13 @@ private:
     static constexpr double default_gamma = 0;
 
 public:
+    void reSetFlag();
     void setXY(MatrixXd, MatrixXd);
     void setLambda(double);
     void setPopulation(VectorXd);
     void setMu(double);
     void setGamma(double);
+    void setAttributeMatrix(const string&, MatrixXd*);
 
     void initBeta();
     double cost();
@@ -72,6 +77,9 @@ public:
     double getL();
     MatrixXd getBeta();
     MatrixXd getFormattedBeta();
+
+    void updateBetaAll();
+    MatrixXd getBetaAll();
 
     MultiPopLasso();
     MultiPopLasso(const unordered_map<string, string>& options);
