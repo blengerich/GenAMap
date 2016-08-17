@@ -272,7 +272,10 @@ app.post(`${config.api.getAnalysisResultsUrl}`, function(req, res) {
 
 app.get(`${config.api.dataUrl}/:id`, function (req, res) {
   app.models.file.findOne({id: req.params.id}, function (err, model) {
-    if (err) return res.status(500).json({err: err})
+    if (err) return res.status(500).json({ err: err })
+
+    if (!model) return res.status(404).json({ message: 'File not found' })
+
     fs.readFile(model.path, 'utf8', function (error, data) {
       if (error) throw error
       return res.json({file: model, data: data})
