@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react'
+import { Link } from 'react-router'
 import Avatar from 'material-ui/lib/avatar'
 import AppBar from 'material-ui/lib/app-bar'
 import RaisedButton from 'material-ui/lib/raised-button'
@@ -10,7 +11,8 @@ const logos = ['logo-01.png', 'logo-02.png']
 
 const styles = {
   action: {
-    margin: '5% 5% 5% 0'
+    margin: '10px 0',
+    width: '70%'
   },
   appBar: {
     backgroundColor: config.ui.baseColor,
@@ -29,8 +31,11 @@ const styles = {
     left: '35%',
     top: '20%',
     width: '30%',
-    height: '50%',
+    height: '55%',
     textAlign: 'center'
+  },
+  form: {
+    width: '70%'
   },
   header: {
     margin: '0 0 0 10px',
@@ -59,12 +64,14 @@ class CreateAccount extends Component {
             <Avatar src={logosrc} style={{alignSelf: 'center', border: 'none', order: 0}} />
             <h1 style={styles.header}>GenAMap 2.0</h1>
           </AppBar>
-          <p style={{ 'fontSize': '1.8em' }}>Sign Up for GenAMap</p>
+          <p style={{ 'fontSize': '1.8em' }}>Register for GenAMap</p>
           <div>
             <TextField
               className={'form-control'}
-              hintText={'Username'}
+              hintText={'Email Address'}
+              type={'email'}
               onChange={this.onChangeUsername.bind(this)}
+              style={styles.form}
             /><br/>
           </div>
           <div>
@@ -74,6 +81,7 @@ class CreateAccount extends Component {
               hintText={'Password'}
               type={'password'}
               onChange={this.onChangePassword.bind(this)}
+              style={styles.form}
             /><br/>
           </div>
           <div>
@@ -84,13 +92,21 @@ class CreateAccount extends Component {
               style={styles.action}
             />
           </div>
+          <div style={{ margin: '10px 0' }}>
+            {"Already have an account? "}
+            <Link to='/login' onClick={this.clearErrors.bind(this)}>{'Sign in'}</Link>
+          </div>
         </div>
       </div>
     )
   }
 
+  clearErrors (event) {
+    this.props.clearAuthErrors()
+  }
+
   onChangeUsername (event) {
-    this.setState({ username: event.target.value })
+    this.setState({ email: event.target.value })
   }
 
   onChangePassword (event) {
@@ -98,9 +114,9 @@ class CreateAccount extends Component {
   }
 
   handleCreateAccountClick (event) {
-    const username = (this.state && this.state.username) ? this.state.username : ''
+    const email = (this.state && this.state.email) ? this.state.email : ''
     const password = (this.state && this.state.password) ? this.state.password : ''
-    const creds = { username: username, password: password }
+    const creds = { username: email, password: password }
     this.props.onCreateAccountClick(creds)
   }
 }

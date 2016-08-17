@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { loginUser, redirectTo, createAccount } from '../actions'
+import { loginUser, redirectTo, createAccount, clearAuthErrors } from '../actions'
 import GMCreateAccount from './GMCreateAccount'
 
 const mapStateToProps = (state) => ({
@@ -8,6 +8,9 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
+  clearAuthErrors: () => {
+    dispatch(clearAuthErrors())
+  },
   onCreateAccountClick: (creds) => {
     const createAccountPromise = dispatch(createAccount(creds))
     createAccountPromise.then(account => {

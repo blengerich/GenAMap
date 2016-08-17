@@ -1,4 +1,4 @@
-import { LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_SUCCESS, ERROR_CREATE_ACCOUNT } from '../actions'
+import { CLEAR_AUTH_ERRORS, LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_SUCCESS, ERROR_CREATE_ACCOUNT } from '../actions'
 import { getAndVerifyToken } from '../middleware/token'
 
 // The auth reducer. The starting state sets authentication
@@ -13,6 +13,11 @@ const initialState = {
 
 const auth = (state = initialState, action) => {
   switch (action.type) {
+    case CLEAR_AUTH_ERRORS:
+      return {
+        loginErrorMessage: '',
+        createErrorMessage: ''
+      }
     case LOGIN_REQUEST:
       return {
         isFetching: true,

@@ -11,7 +11,8 @@ const logos = ['logo-01.png', 'logo-02.png']
 
 const styles = {
   action: {
-    margin: '5% 5% 5% 0'
+    margin: '10px 0',
+    width: '70%'
   },
   appBar: {
     backgroundColor: config.ui.baseColor,
@@ -30,8 +31,11 @@ const styles = {
     left: '35%',
     top: '20%',
     width: '30%',
-    height: '50%',
+    height: '55%',
     textAlign: 'center'
+  },
+  form: {
+    width: '70%'
   },
   header: {
     margin: '0 0 0 10px',
@@ -60,44 +64,51 @@ class Login extends Component {
             <Avatar src={logosrc} style={{alignSelf: 'center', border: 'none', order: 0}} />
             <h1 style={styles.header}>GenAMap 2.0</h1>
           </AppBar>
-          <p style={{ 'fontSize': '1.8em' }}>Login to GenAMap</p>
+          <p style={{ 'fontSize': '1.8em' }}>Sign In to GenAMap</p>
           <div>
             <TextField
-              className={'form-control'}
-              hintText={'Username'}
+              hintText={'Email Address'}
+              type={'email'}
               onChange={this.onChangeUsername.bind(this)}
+              style={styles.form}
             /><br/>
           </div>
           <div>
             <TextField
-              className={'form-control'}
               errorText={errorMessage}
               hintText={'Password'}
               type={'password'}
               onChange={this.onChangePassword.bind(this)}
+              style={styles.form}
             /><br/>
           </div>
           <div>
             <RaisedButton
-              label={'Create Account'}
-              onClick={this.linkToSignup.bind(this)}
-              secondary={true}
-              style={styles.action}
-            />
-            <RaisedButton
+              className={'form-control'}
               label={'Login'}
               onClick={this.handleLoginClick.bind(this)}
               primary={true}
-              styles={styles.action}
+              style={styles.action}
             />
+          </div>
+          <div style={{ margin: '10px 0' }}>
+            <Link to='/forgot-password'>{'Forgot password?'}</Link>
+          </div>
+          <div style={{ margin: '10px 0' }}>
+            {"Don't have an account? "}
+            <Link to='/register' onClick={this.clearErrors.bind(this)}>{'Sign up'}</Link>
           </div>
         </div>
       </div>
     )
   }
 
+  clearErrors (event) {
+    this.props.clearAuthErrors()
+  }
+
   onChangeUsername (event) {
-    this.setState({ username: event.target.value })
+    this.setState({ email: event.target.value })
   }
 
   onChangePassword (event) {
@@ -105,9 +116,9 @@ class Login extends Component {
   }
 
   handleLoginClick (event) {
-    const username = this.state ? this.state.username : ''
-    const password = this.state ? this.state.password : ''
-    const creds = { username: username, password: password }
+    const email = (this.state && this.state.email) ? this.state.email : ''
+    const password = (this.state && this.state.password) ? this.state.password : ''
+    const creds = { username: email, password: password }
     this.props.onLoginClick(creds, this.props.location.search)
   }
 

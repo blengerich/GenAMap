@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { loginUser, redirectTo, createAccount } from '../actions'
+import { loginUser, redirectTo, createAccount, clearAuthErrors } from '../actions'
 import GMLogin from './GMLogin'
 
 const parseQuery = (query) => {
@@ -23,6 +23,9 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
+  clearAuthErrors: () => {
+    dispatch(clearAuthErrors())
+  },
   linkToSignup: () => {
     dispatch(redirectTo('/signup'))
   },

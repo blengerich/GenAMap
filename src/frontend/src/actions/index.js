@@ -24,6 +24,7 @@ export const RESTART_ACTIVITY = 'RESTART_ACTIVITY'
 export const REQUEST_UPDATE_ACTIVITY = 'REQUEST_UPDATE_ACTIVITY'
 export const RECEIVE_UPDATE_ACTIVITY = 'RECEIVE_UPDATE_ACTIVITY'
 export const RECEIVE_ANALYSIS_RESULTS = 'RECEIVE_ANALYSIS_RESULTS'
+export const CLEAR_AUTH_ERRORS = 'CLEAR_AUTH_ERRORS'
 export const LOGIN_REQUEST = 'LOGIN_REQUEST'
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
 export const LOGIN_FAILURE = 'LOGIN_FAILURE'
@@ -323,6 +324,12 @@ export function fetchUpdateActivityIfNeeded (activity) {
     } else {
       Promise.resolve()
     }
+  }
+}
+
+export function clearAuthErrors () {
+  return {
+    type: CLEAR_AUTH_ERRORS
   }
 }
 

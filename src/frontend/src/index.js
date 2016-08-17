@@ -27,7 +27,7 @@ render(
   <Provider store={store}>
     <Router history={hashHistory}>
       <Route path='/login' component={addDevTools(GMLoginContainer)} />
-      <Route path='/signup' component={addDevTools(GMCreateAccountContainer)} />
+      <Route path='/register' component={addDevTools(GMCreateAccountContainer)} />
       <Route path='/' component={addDevTools(requireAuthentication(GMAppContainer))}>
         <Route path='data/:id' component={GMDataList} />
         <Route
