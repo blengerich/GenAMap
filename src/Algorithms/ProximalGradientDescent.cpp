@@ -170,7 +170,6 @@ void ProximalGradientDescent::run(LinearRegression *model) {
     int epoch = 0;
     MatrixXd y = model->getY();
     model->setL1_reg(model->getL1_reg()*10);
-    model->setL2_reg(0);   // TODO: remove this line after demo on Tuesday.
     for (long i=0; i<y.cols(); i++){
         model->setY(y.col(i));
         model->initBeta();
@@ -237,37 +236,46 @@ void ProximalGradientDescent::run(TreeLasso * model) {
 
 
 void ProximalGradientDescent::run(MultiPopLasso * model) {
-    model->initTraining();
+    MatrixXd X = model->getX();
+    MatrixXd y = model->getY();
     int epoch = 0;
-    double residue = model->cost();
-    double theta = 1;
-    double theta_new = 0;
-    MatrixXd beta_prev = model->getFormattedBeta(); //bx
-    MatrixXd beta_curr = model->getFormattedBeta(); //bx_new
-    MatrixXd beta = model->getFormattedBeta();  //bw
-    MatrixXd best_beta = model->getFormattedBeta();
-    MatrixXd in;
-    MatrixXd grad;
-    double diff = tolerance*2;
-    while (epoch < maxIteration && diff > tolerance && !shouldStop) {
-        epoch++;
-        progress = float(epoch) / maxIteration;
-        theta_new = 2.0/(epoch+2);
-        grad = model->proximal_derivative();
-        in = beta - 1/model->getL() * grad;
-        beta_curr = model->proximal_operator(in, learningRate);
-        beta = beta_curr + (1-theta)/theta * theta_new * (beta_curr-beta_prev);
+    for (long i=0; i<y.cols(); i++) {
+        model->reSetFlag();
+        model->setXY(X, y.col(i));
+        model->initTraining();
+        epoch = 0;
+        double residue = model->cost();
+        double theta = 1;
+        double theta_new = 0;
+        MatrixXd beta_prev = model->getFormattedBeta(); //bx
+        MatrixXd beta_curr = model->getFormattedBeta(); //bx_new
+        MatrixXd beta = model->getFormattedBeta();  //bw
+        MatrixXd best_beta = model->getFormattedBeta();
+        MatrixXd in;
+        MatrixXd grad;
+        double diff = tolerance * 2;
+        while (epoch < maxIteration && diff > tolerance && !shouldStop) {
+            epoch++;
+            progress = float(epoch) / maxIteration;
+            theta_new = 2.0 / (epoch + 2);
+            grad = model->proximal_derivative();
+            in = beta - 1 / model->getL() * grad;
+            beta_curr = model->proximal_operator(in, learningRate);
+            beta = beta_curr + (1 - theta) / theta * theta_new * (beta_curr - beta_prev);
 
-        beta_prev = beta_curr;
-        theta = theta_new;
-        model->updateBeta(beta);
-        residue = model->cost();
-        if (residue < prev_residue){
-            best_beta = beta;
+            beta_prev = beta_curr;
+            theta = theta_new;
+            model->updateBeta(beta);
+            residue = model->cost();
+            if (residue < prev_residue) {
+                best_beta = beta;
+            }
+            diff = abs(prev_residue - residue);
         }
-        diff = abs(prev_residue - residue);
+        model->updateBeta(best_beta);
+        model->updateBetaAll();
     }
-    model->updateBeta(best_beta);
+//    model->updateBeta(model->getBetaAll());
 }
 
 void ProximalGradientDescent::run(AdaMultiLasso *model) {
