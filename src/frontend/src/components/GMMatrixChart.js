@@ -10,6 +10,7 @@ const colorScale = d3.scale.linear()
                       .domain([-1, 0, 1])
                       .range(["#990000", "#EEEEEE", "#000099"]);
 
+// TODO: add map rows/cols, account for in initAxes and parseData
 var axisOnZoom;
 var zoomFunction;
 var mapWidth;
@@ -17,6 +18,7 @@ var mapHeight;
 var miniZoomed;
 var overlayWidth;
 var overlayHeight;
+var populationFactor;
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
@@ -96,7 +98,7 @@ var Graph = function(data, markerLabels, traitLabels) {
         .attr("y2", mapHeight + margin.bottom);
 
     // horizontal labels
-    for (var i = 0; i < numTraits; i++) {
+    for (var i = 0; i < mapRows; i++) {
       var row = axes.append("g")
                     .attr("class", "row")
                     .attr("transform", "translate(0," + (cellHeight * i) + ")");
@@ -105,7 +107,7 @@ var Graph = function(data, markerLabels, traitLabels) {
          .attr("text-anchor", "end")
          .attr("x", -5)
          .attr("y", 8)
-         .text(trimmedLabel(traitLabels[i], 5));
+         .text(trimmedLabel(traitLabels[i/populationFactor], 5));
     }
 
     axes.append("text")
@@ -117,7 +119,7 @@ var Graph = function(data, markerLabels, traitLabels) {
         .text("Traits");
 
     // vertical labels
-    for (var i = 0; i < numMarkers; i++) {
+    for (var i = 0; i < mapCols; i++) {
       var col = d3.select(".axes")
                   .append("g")
                   .attr("class", "col")
@@ -195,16 +197,25 @@ var Graph = function(data, markerLabels, traitLabels) {
   }
 
   /* parse correlation data into visualization */
+  function getPopulationFactor() {
+    var rows = data.v.split(";")
+    return rows[0].split(",").length/numTraits
+  }
+
   function parseData() {
     var parsedData = []
+
     data.v.split(";").forEach(function(row, rowIndex) {
-      row.split(",").forEach(function(d, colIndex) {
-        parsedData.push({
-          value: +d,
-          Marker: rowIndex,
-          Trait: colIndex
+      if (row.length > 0) {
+        var pts = row.split(",")
+        pts.forEach(function(d, colIndex) {
+          parsedData.push({
+            value: +d,
+            Marker: rowIndex,
+            Trait: colIndex/populationFactor
+          })
         })
-      })
+      }
     })
 
     var cards = svg.selectAll(".dots")
@@ -369,11 +380,15 @@ var Graph = function(data, markerLabels, traitLabels) {
 	var cellWidth = 10;
 	var cellHeight = 10;
 
+  var populationFactor = getPopulationFactor(); // may be directly read in future
+  var mapRows = numTraits * populationFactor;
+  var mapCols = numMarkers;
+
   // Need to change percentages again to take into account sidebar
   var maxTotalWidth =  windowWidth * 0.95;
   var maxTotalHeight = windowHeight * 0.65;
-  var matrixHeight = cellHeight * numTraits;
-  var matrixWidth = cellWidth * numMarkers;
+  var matrixHeight = cellHeight * mapRows;
+  var matrixWidth = cellWidth * mapCols;
 
   var axisPadding = 80;
   var margin = { top: 0, right: rightMargin, bottom: 5, left: 5 };
@@ -418,8 +433,8 @@ var Graph = function(data, markerLabels, traitLabels) {
                   .attr("id", "overallMatrix");
 
   legend();
-  initAxes();
   parseData();
+  initAxes();
 
   var maxOverlayDimension = 100;
   var overlayMapWidth, overlayMapHeight;
