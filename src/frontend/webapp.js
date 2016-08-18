@@ -80,11 +80,11 @@ const User = Waterline.Collection.extend({
     },
     username: {
       type: 'string',
-      required: true
+      required: false
     },
     email: {
       type: 'email',
-      required: false
+      required: true
     },
     password: {
       type: 'string',
@@ -188,21 +188,31 @@ var s4 = function () {
 }
 
 app.post(config.api.createAccountUrl, function (req, res) {
-  const username = req.body.username
+  const email = req.body.email
   const password = req.body.password
+  const password2 = req.body.password2
   const initialState = {}
 
-  if (!username || !password) {
-    return res.status(400).send({message: 'Missing username or password'})
+  if (!email || !password) {
+    return res.status(400).send({message: 'Missing email or password'})
   }
 
-  app.models.user.findOne({ username }).exec(function (err, foundUser) {
+  if (password !== password2) {
+    return res.status(400).send({message: "Passwords don't match"})
+  }
+
+  app.models.user.findOne({ email }).exec(function (err, foundUser) {
     if (err) console.log(err)
     if (foundUser) {
-      return res.status(400).send({message: 'Please choose another username'})
+      return res.status(400).send({message: 'Email already in use'})
     }
-    app.models.user.create({ username, password }).exec(function (err, createdUser) {
-      if (err) return res.status(500).json({ err, from: 'createdUser' })
+
+    app.models.user.create({ email, password }).exec(function (err, createdUser) {
+      if (err) {
+        if (err.code === 'E_VALIDATION')
+          return res.status(400).json({message: 'Invalid email address'})
+        return res.status(500).json({ err, from: 'createdUser' })
+      }
       app.models.state.create({ state: JSON.stringify(initialState), user: createdUser.id }).exec(function (err, createdState) {
         if (err) return res.status(500).json({ err, from: 'createdState' })
         return res.json(createdUser)
@@ -212,14 +222,14 @@ app.post(config.api.createAccountUrl, function (req, res) {
 })
 
 app.post(config.api.createSessionUrl, function (req, res) {
-  const username = req.body.username
+  const email = req.body.email
   const password = req.body.password
 
-  if (!username || !password) {
-    return res.status(400).send({message: 'Missing username or password'})
+  if (!email || !password) {
+    return res.status(400).send({message: 'Missing email or password'})
   }
 
-  app.models.user.findOne({ username }).exec(function (err, user) {
+  app.models.user.findOne({ email }).exec(function (err, user) {
     if (err) console.log(err)
     if (!user) {
       return res.status(401).send({message: 'Incorrect username or password', user: user})

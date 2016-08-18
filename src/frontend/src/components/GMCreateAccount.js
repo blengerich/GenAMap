@@ -31,7 +31,7 @@ const styles = {
     left: '35%',
     top: '20%',
     width: '30%',
-    height: '55%',
+    height: '60%',
     textAlign: 'center'
   },
   form: {
@@ -77,10 +77,19 @@ class CreateAccount extends Component {
           <div>
             <TextField
               className={'form-control'}
-              errorText={errorMessage}
               hintText={'Password'}
               type={'password'}
               onChange={this.onChangePassword.bind(this)}
+              style={styles.form}
+            /><br/>
+          </div>
+          <div>
+            <TextField
+              className={'form-control'}
+              errorText={errorMessage}
+              hintText={'Confirm Password'}
+              type={'password'}
+              onChange={this.onChangeConfirmPassword.bind(this)}
               style={styles.form}
             /><br/>
           </div>
@@ -113,10 +122,15 @@ class CreateAccount extends Component {
     this.setState({ password: event.target.value })
   }
 
+  onChangeConfirmPassword (event) {
+    this.setState({ password2: event.target.value })
+  }
+
   handleCreateAccountClick (event) {
     const email = (this.state && this.state.email) ? this.state.email : ''
     const password = (this.state && this.state.password) ? this.state.password : ''
-    const creds = { username: email, password: password }
+    const password2 = (this.state && this.state.password2) ? this.state.password2 : ''
+    const creds = { email, password, password2 }
     this.props.onCreateAccountClick(creds)
   }
 }

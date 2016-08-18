@@ -118,7 +118,7 @@ class Login extends Component {
   handleLoginClick (event) {
     const email = (this.state && this.state.email) ? this.state.email : ''
     const password = (this.state && this.state.password) ? this.state.password : ''
-    const creds = { username: email, password: password }
+    const creds = { email, password }
     this.props.onLoginClick(creds, this.props.location.search)
   }
 

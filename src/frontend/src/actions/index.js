@@ -389,7 +389,7 @@ export function loginUser (creds) {
   let loginRequest = {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `username=${creds.username}&password=${creds.password}`
+    body: `email=${creds.email}&password=${creds.password}`
   }
 
   return dispatch => {
@@ -468,7 +468,7 @@ export function createAccount (creds) {
   let createAccountRequest = {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `username=${creds.username}&password=${creds.password}`
+    body: `email=${creds.email}&password=${creds.password}&password2=${creds.password2}`
   }
   return dispatch => {
     return fetch(config.api.createAccountUrl, createAccountRequest)
