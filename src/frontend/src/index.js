@@ -13,6 +13,7 @@ import { addDevTools } from './components/WithDevTools'
 import GMAppContainer from './components/GMAppContainer'
 import GMDataList from './components/GMDataList'
 import GMMatrixVisualization from './components/GMMatrixVisualization'
+import GMManhattanVisualization from './components/GMManhattanVisualization'
 import GMLoginContainer from './components/GMLoginContainer'
 import GMCreateAccountContainer from './components/GMCreateAccountContainer'
 import { setInitialUserState } from './actions'
@@ -30,10 +31,8 @@ render(
       <Route path='/register' component={addDevTools(GMCreateAccountContainer)} />
       <Route path='/' component={addDevTools(requireAuthentication(GMAppContainer))}>
         <Route path='data/:id' component={GMDataList} />
-        <Route
-          path='visualization/matrix/:markerLabelId/:traitLabelId/:resultId'
-          component={GMMatrixVisualization}
-        />
+        <Route path='visualization/matrix/:marker/:trait/:result' component={GMMatrixVisualization} />
+        <Route path='visualization/manhattan' component={GMManhattanVisualization} />
       </Route>
     </Router>
   </Provider>,

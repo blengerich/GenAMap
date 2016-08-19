@@ -8,11 +8,12 @@ import MenuItem from 'material-ui/lib/menus/menu-item'
 import Popover from 'material-ui/lib/popover/popover'
 import Menu from 'material-ui/lib/menus/menu'
 
+import GMProjectSearch from './GMProjectSearch'
 import GMToolbar from './GMToolbar'
 
 const styles = {
   slider: {
-    flex: '5 1 auto'
+    flex: '2 1 auto'
   },
   sliderValue: {
     position: 'relative',
@@ -28,27 +29,6 @@ const styles = {
     flex: '2 1 auto'
   }
 }
-
-const GMProjectSearch = React.createClass({
-  getInitialState: function () {
-    return {dataSource: ['a']}
-  },
-  componentWillReceiveProps: function (nextProps) {
-    var newState = {}
-    if (nextProps.data !== null) newState.data = nextProps.data
-    this.setState(newState)
-  },
-  render: function () {
-    return (
-      <AutoComplete
-        hintText='Search for files'
-        dataSource={this.state.dataSource}
-        filter={AutoComplete.caseInsensitiveFilter}
-        style={{width: 'inherit'}}
-      />
-    )
-  }
-})
 
 const GMSliderName = React.createClass({
   render: function() {
@@ -82,9 +62,6 @@ const GMMatrixToolbar = React.createClass({
   getInitialState: function () {
     return {
         open: true,
-        vizSelect: {
-          open: false
-        },
         slider: {
           threshold: 0.0
         }
@@ -92,22 +69,6 @@ const GMMatrixToolbar = React.createClass({
   },
   handleToggle: function () {
     this.setState({open: !this.state.open});
-  },
-  openVizMenu: function(e) {
-    e.preventDefault();
-    this.setState({
-      vizSelect: {
-        open: true,
-        anchor: e.currentTarget
-      }
-    });
-  },
-  closeVizMenu: function() {
-    this.setState({
-      vizSelect: {
-        open: false
-      }
-    });
   },
   onThresholdChange: function(event, value) {
     this.props.slider.onThresholdChange(event, value);
@@ -136,24 +97,6 @@ const GMMatrixToolbar = React.createClass({
           />
           <span style={styles.sliderValue}>{this.state.slider.threshold.toFixed(2)}</span>
           <GMSliderName />
-          <FlatButton
-            label="Switch visualization"
-            icon={<FontIcon className="material-icons">show_chart</FontIcon>}
-            onTouchTap={this.openVizMenu}
-            style={styles.action}
-          />
-          <Popover
-            open={this.state.vizSelect.open}
-            anchorEl={this.state.vizSelect.anchor}
-            onRequestClose={this.closeVizMenu}
-          >
-            <Menu>
-                <MenuItem primaryText="Matrix View" />
-                <MenuItem primaryText="Dendrogram" />
-                <MenuItem primaryText="Manhattan Plot" />
-                <MenuItem primaryText="Population Analysis" />
-            </Menu>
-          </Popover>
           <FlatButton
             label='Create a subset'
             icon={<FontIcon className='material-icons'>add</FontIcon>}

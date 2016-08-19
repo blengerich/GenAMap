@@ -570,7 +570,6 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           Scheduler.setX(jobId, markerData);
           Scheduler.setY(jobId, traitData);
           const startJobFinish = function() {
-            console.log("starting job");
             const userId = extractUserIdFromHeader(req.headers)
             const id = guid()
             const userPath = path.join('./.tmp', userId)
