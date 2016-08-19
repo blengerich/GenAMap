@@ -1,5 +1,6 @@
 import { CLEAR_AUTH_ERRORS, LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_SUCCESS, ERROR_CREATE_ACCOUNT,
-          RECEIVE_CREATE_ACCOUNT, ERROR_CONFIRM_ACCOUNT } from '../actions'
+          RECEIVE_CREATE_ACCOUNT, ERROR_CONFIRM_ACCOUNT, ERROR_CONFIRM_ACCOUNT_LINK,
+          RECEIVE_CONFIRM_ACCOUNT_LINK } from '../actions'
 import { getAndVerifyToken } from '../middleware/token'
 
 // The auth reducer. The starting state sets authentication
@@ -61,6 +62,16 @@ const auth = (state = initialState, action) => {
       return {
         isAuthenticated: false,
         confirmErrorMessage: action.message
+      }
+    case ERROR_CONFIRM_ACCOUNT_LINK:
+      return {
+        isAuthenticated: false,
+        loginErrorMessage: action.message
+      }
+    case RECEIVE_CONFIRM_ACCOUNT_LINK:
+      return {
+        isAuthenticated: false,
+        emailVerified: action.email
       }
     default:
       return state

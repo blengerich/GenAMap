@@ -272,7 +272,7 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
       to: req.body.email,
       subject: 'GenAMap Sign-up Comfiration', // Subject line
       text: 'Registration Comfiration',
-      html: 'Verification code: ' + req.body.code
+      html: 'Verification code: ' + req.body.code + '<br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code
   };
 
   // send mail with defined transport object
@@ -289,7 +289,7 @@ app.get(`${config.api.confirmAccountUrl}/:code`, function (req, res) {
   app.models.tempuser.findOne({ id: req.params.code }).exec(function (err, foundTempUser) {
     if (err) console.log(err)
     if (!foundTempUser) {
-      return res.status(400).send({message: 'Invalid verification code'})
+      return res.status(400).send({message: 'Could not verify user: incorrect code'})
     }
 
     var email = foundTempUser.email

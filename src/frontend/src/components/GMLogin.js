@@ -50,8 +50,14 @@ const styles = {
 
 class Login extends Component {
   render () {
-    const { errorMessage } = this.props
+    const { errorMessage, emailVerified } = this.props
     const logosrc = 'images/' + logos[0]
+
+    const emailSuccessHeader = emailVerified ? (
+      <p style={{ 'color': 'green', 'fontSize': '0.8em' }}>
+        {emailVerified} successfully verified.
+      </p>
+    ) : undefined
 
     return (
       <div style={styles.background}>
@@ -65,6 +71,7 @@ class Login extends Component {
             <h1 style={styles.header}>GenAMap 2.0</h1>
           </AppBar>
           <p style={{ 'fontSize': '1.8em' }}>Sign In to GenAMap</p>
+          {emailSuccessHeader}
           <div>
             <TextField
               hintText={'Email Address'}

@@ -27,6 +27,7 @@ export const RECEIVE_ANALYSIS_RESULTS = 'RECEIVE_ANALYSIS_RESULTS'
 export const REQUEST_CREATE_ACCOUNT = 'REQUEST_CREATE_ACCOUNT'
 export const RECEIVE_CREATE_ACCOUNT = 'RECEIVE_CREATE_ACCOUNT'
 export const RECEIVE_CONFIRM_ACCOUNT = 'RECEIVE_CONFIRM_ACCOUNT'
+export const RECEIVE_CONFIRM_ACCOUNT_LINK = 'RECEIVE_CONFIRM_ACCOUNT_LINK'
 export const CLEAR_AUTH_ERRORS = 'CLEAR_AUTH_ERRORS'
 export const LOGIN_REQUEST = 'LOGIN_REQUEST'
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
@@ -36,6 +37,7 @@ export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS'
 export const LOGOUT_FAILURE = 'LOGOUT_FAILURE'
 export const ERROR_CREATE_ACCOUNT = 'ERROR_CREATE_ACCOUNT'
 export const ERROR_CONFIRM_ACCOUNT = 'ERROR_CONFIRM_ACCOUNT'
+export const ERROR_CONFIRM_ACCOUNT_LINK = 'ERROR_CONFIRM_ACCOUNT_LINK'
 export const SHOW_LOCK = 'SHOW_LOCK'
 export const LOCK_SUCCESS = 'LOCK_SUCCESS'
 export const LOCK_FAILURE = 'LOCK_FAILURE'
@@ -550,6 +552,43 @@ export function confirmAccount (creds) {
         Promise.resolve(account)
         return dispatch(redirectTo('/login'))
       }
+    }).catch(err => console.log("Error: ", err))
+  }
+}
+
+function receiveConfirmAccountFromLink (account) {
+  return {
+    type: 'RECEIVE_CONFIRM_ACCOUNT_LINK',
+    email: account.email
+  }
+}
+
+function confirmAccountFromLinkError (message) {
+  return {
+    type: 'ERROR_CONFIRM_ACCOUNT_LINK',
+    message
+  }
+}
+
+export function confirmAccountFromLink (creds) {
+  let confirmAccountRequest = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+
+  return dispatch => {
+    return fetch(`${config.api.confirmAccountUrl}/${creds.code}`, confirmAccountRequest)
+    .then(response => response.json().then(account => ({ account, response })))
+    .then(({ account, response }) =>  {
+      if (!response.ok) {
+        return dispatch(confirmAccountFromLinkError(account.message))
+      } else {
+        return dispatch(receiveConfirmAccountFromLink(account))
+      }
+    }).then(() => {
+      return dispatch(redirectTo('/login'))
     }).catch(err => console.log("Error: ", err))
   }
 }

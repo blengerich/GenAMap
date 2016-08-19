@@ -19,7 +19,8 @@ const getParam = (queryObject, name) => {
 
 const mapStateToProps = (state) => ({
   errorMessage: state.userData.auth.loginErrorMessage,
-  isAuthenticated: state.userData.auth.isAuthenticated
+  isAuthenticated: state.userData.auth.isAuthenticated,
+  emailVerified: state.userData.auth.emailVerified
 })
 
 const mapDispatchToProps = (dispatch) => ({
