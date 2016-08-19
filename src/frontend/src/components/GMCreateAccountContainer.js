@@ -1,10 +1,12 @@
 import { connect } from 'react-redux'
-import { loginUser, redirectTo, createAccount, clearAuthErrors } from '../actions'
+import { loginUser, redirectTo, createAccount, clearAuthErrors, confirmAccount } from '../actions'
 import GMCreateAccount from './GMCreateAccount'
 
 const mapStateToProps = (state) => ({
   errorMessage: state.userData.auth.createErrorMessage,
-  isAuthenticated: state.userData.auth.isAuthenticated
+  isAuthenticated: state.userData.auth.isAuthenticated,
+  verifyDialogOpen: state.userData.auth.verifyDialogOpen,
+  emailToVerify: state.userData.auth.emailToVerify
 })
 
 const mapDispatchToProps = (dispatch) => ({
@@ -16,6 +18,10 @@ const mapDispatchToProps = (dispatch) => ({
     createAccountPromise.then(account => {
       console.log("ACCOUNT", account)
     })
+  },
+  submitConfirm: (creds) => {
+    console.log(creds)
+    dispatch(confirmAccount(creds))
   }
 })
 

@@ -24,6 +24,8 @@ export const RESTART_ACTIVITY = 'RESTART_ACTIVITY'
 export const REQUEST_UPDATE_ACTIVITY = 'REQUEST_UPDATE_ACTIVITY'
 export const RECEIVE_UPDATE_ACTIVITY = 'RECEIVE_UPDATE_ACTIVITY'
 export const RECEIVE_ANALYSIS_RESULTS = 'RECEIVE_ANALYSIS_RESULTS'
+export const RECEIVE_CREATE_ACCOUNT = 'RECEIVE_CREATE_ACCOUNT'
+export const RECEIVE_CONFIRM_ACCOUNT = 'RECEIVE_CONFIRM_ACCOUNT'
 export const CLEAR_AUTH_ERRORS = 'CLEAR_AUTH_ERRORS'
 export const LOGIN_REQUEST = 'LOGIN_REQUEST'
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
@@ -32,6 +34,7 @@ export const LOGOUT_REQUEST = 'LOGOUT_REQUEST'
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS'
 export const LOGOUT_FAILURE = 'LOGOUT_FAILURE'
 export const ERROR_CREATE_ACCOUNT = 'ERROR_CREATE_ACCOUNT'
+export const ERROR_CONFIRM_ACCOUNT = 'ERROR_CONFIRM_ACCOUNT'
 export const SHOW_LOCK = 'SHOW_LOCK'
 export const LOCK_SUCCESS = 'LOCK_SUCCESS'
 export const LOCK_FAILURE = 'LOCK_FAILURE'
@@ -453,7 +456,8 @@ function requestCreateAccount (creds) {
 
 function receiveCreateAccount (account) {
   return {
-    type: 'RECEIVE_CREATE_ACCOUNT'
+    type: 'RECEIVE_CREATE_ACCOUNT',
+    email: account.email
   }
 }
 
@@ -472,16 +476,52 @@ export function createAccount (creds) {
   }
   return dispatch => {
     return fetch(config.api.createAccountUrl, createAccountRequest)
+    .then(response => response.json().then(json => ({ json, response })))
+    .then(({ json, response }) =>  {
+      if (!response.ok) {
+        dispatch(createAccountError(json.message))
+        return Promise.reject(json.message)
+      } else {
+        dispatch(receiveCreateAccount(json))
+        Promise.resolve(json)
+      }
+    }).catch(err => console.log("Error: ", err))
+  }
+}
+
+function receiveConfirmAccount (account) {
+  return {
+    type: 'RECEIVE_CONFIRM_ACCOUNT',
+    email: account.email
+  }
+}
+
+function confirmAccountError (message) {
+  return {
+    type: 'ERROR_CONFIRM_ACCOUNT',
+    message
+  }
+}
+
+export function confirmAccount (creds) {
+  let confirmAccountRequest = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+
+  return dispatch => {
+    return fetch(`${config.api.confirmAccountUrl}/${creds.code}`, confirmAccountRequest)
     .then(response => response.json().then(account => ({ account, response })))
     .then(({ account, response }) =>  {
       if (!response.ok) {
-        dispatch(createAccountError(account.message))
+        dispatch(confirmAccountError(account.message))
         return Promise.reject(account.message)
       } else {
-        dispatch(receiveCreateAccount(account))
+        dispatch(receiveConfirmAccount(account))
         Promise.resolve(account)
-        return dispatch(loginUser(creds))
-        .then(() => dispatch(redirectTo('/')))
+        return dispatch(redirectTo('/login'))
       }
     }).catch(err => console.log("Error: ", err))
   }

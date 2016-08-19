@@ -171,10 +171,48 @@ const State = Waterline.Collection.extend({
   }
 })
 
+const TempUser = Waterline.Collection.extend({
+  tableName: 'tempUser',
+  connection: 'myLocalDisk',
+
+  attributes: {
+    id: {
+      type: 'text',
+      primaryKey: true,
+      unique: true,
+      defaultsTo: function () {
+        return guid()
+      }
+    },
+    username: {
+      type: 'string',
+      required: false
+    },
+    email: {
+      type: 'email',
+      required: true
+    },
+    password: {
+      type: 'string',
+      required: false
+    },
+    organization: {
+      type: 'int',
+      required: false
+    },
+    toJSON: function () {
+      var obj = this.toObject()
+      delete obj.password
+      return obj
+    }
+  }
+})
+
 orm.loadCollection(User)
 orm.loadCollection(Project)
 orm.loadCollection(File)
 orm.loadCollection(State)
+orm.loadCollection(TempUser)
 
 var guid = function () {
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
@@ -207,6 +245,17 @@ app.post(config.api.createAccountUrl, function (req, res) {
       return res.status(400).send({message: 'Email already in use'})
     }
 
+    app.models.tempuser.create({ email, password }).exec(function (err, createdTempUser) {
+      if (err) {
+        if (err.code === 'E_VALIDATION')
+          return res.status(400).json({message: 'Invalid email address'})
+        return res.status(500).json({ err, from: 'createdUser' })
+      }
+
+      console.log("Temporary user created with id " + createdTempUser.id)
+      return res.json(createdTempUser)
+    })
+    /*
     app.models.user.create({ email, password }).exec(function (err, createdUser) {
       if (err) {
         if (err.code === 'E_VALIDATION')
@@ -216,6 +265,31 @@ app.post(config.api.createAccountUrl, function (req, res) {
       app.models.state.create({ state: JSON.stringify(initialState), user: createdUser.id }).exec(function (err, createdState) {
         if (err) return res.status(500).json({ err, from: 'createdState' })
         return res.json(createdUser)
+      })
+    })*/
+  })
+})
+
+app.get(`${config.api.confirmAccountUrl}/:code`, function (req, res) {
+  const initialState = {}
+  console.log('Code', req.params.code)
+
+  app.models.tempuser.findOne({ id: req.params.code }).exec(function (err, foundTempUser) {
+    if (err) console.log(err)
+    if (!foundTempUser) {
+      return res.status(400).send({message: 'Invalid verification code'})
+    }
+
+    var email = foundTempUser.email
+    var password = foundTempUser.password
+
+    app.models.user.create({ email, password }).exec(function (err, createdUser) {
+      if (err) {
+        return res.status(500).json({ err, from: 'createdUser' })
+      }
+      app.models.state.create({ state: JSON.stringify(initialState), user: createdUser.id }).exec(function (err, createdState) {
+        if (err) return res.status(500).json({ err, from: 'createdState' })
+        return res.json({ email, password })
       })
     })
   })

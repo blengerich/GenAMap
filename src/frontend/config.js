@@ -12,6 +12,7 @@ const config = {
     saveUrl: '/api/save',
     createSessionUrl: '/sessions/create',
     createAccountUrl: '/user/create',
+    confirmAccountUrl: '/user/verify',
     getActivityUrl: '/activity',
     cancelJobUrl: '/api/cancelJob',
     getAnalysisResultsUrl: '/analysis-results'
@@ -29,7 +30,7 @@ const config = {
   }, {
     name: 'Fly'
   }],
-  algorithms: [{ 
+  algorithms: [{
     id: 0,
     name: 'Brent Search',
     image: '',
@@ -51,7 +52,7 @@ const config = {
     info: 'info about IU'
   }],
   algorithmsByModel: {
-  0 : [// Linear Regression 
+  0 : [// Linear Regression
     1 // Proximal Gradient Descent
   ],
   1 : [ //AdaMultiLasso
