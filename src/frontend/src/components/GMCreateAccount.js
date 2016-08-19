@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react'
 import { Link } from 'react-router'
 import Avatar from 'material-ui/lib/avatar'
 import AppBar from 'material-ui/lib/app-bar'
+import Dialog from 'material-ui/lib/dialog'
 import RaisedButton from 'material-ui/lib/raised-button'
 import TextField from 'material-ui/lib/text-field'
 
@@ -47,6 +48,67 @@ const styles = {
     lineHeight: '64px'
   }
 }
+
+var GMConfirmAccount = React.createClass({
+  componentWillReceiveProps (nextProps) {
+    this.setState({
+      email: nextProps.email || false,
+      open: nextProps.open || false
+    })
+  },
+  getInitialState () {
+    return {
+      email: '',
+      open: false
+    }
+  },
+  render () {
+    console.log(this.state)
+    var actions = [
+      <RaisedButton
+        label='Confirm Email'
+        primary={true}
+        onClick={this.verifyEmail}
+      />
+    ]
+
+    return (
+      <Dialog
+        autoScrollBodyContent={true}
+        title='Verify Account'
+        modal={true}
+        open={this.state.open}
+      >
+        <div>
+          <p>An email has not been sent to {this.state.email}</p>
+        </div>
+        <div>
+          <TextField
+            hintText={'Enter code here'}
+            style={styles.form}
+            onChange={this.onChangeCode}
+          /><br/>
+        </div>
+        <div>
+          <RaisedButton
+            label='Confirm Email'
+            primary={true}
+            onClick={this.submitConfirm}
+          />
+        </div>
+      </Dialog>
+    )
+  },
+  onChangeCode (event) {
+    this.setState({ code: event.target.value })
+  },
+  submitConfirm () {
+    const code = this.state.code || ''
+    this.props.submitConfirm({
+      code: code.trim()
+    })
+  }
+})
 
 class CreateAccount extends Component {
   render () {
@@ -106,6 +168,12 @@ class CreateAccount extends Component {
             <Link to='/login' onClick={this.clearErrors.bind(this)}>{'Sign in'}</Link>
           </div>
         </div>
+
+        <GMConfirmAccount
+          open={this.props.verifyDialogOpen}
+          email={this.props.emailToVerify}
+          submitConfirm={this.props.submitConfirm}
+        />
       </div>
     )
   }
