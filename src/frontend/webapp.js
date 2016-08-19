@@ -10,7 +10,7 @@ var diskAdapter = require('sails-disk')
 var omit = require('lodash.omit')
 var mkdirp = require('mkdirp')
 var Converter = require('csvtojson').Converter;
-
+var nodemailer = require('nodemailer')
 require('es6-promise').polyfill()
 require('isomorphic-fetch')
 
@@ -252,21 +252,28 @@ app.post(config.api.createAccountUrl, function (req, res) {
         return res.status(500).json({ err, from: 'createdUser' })
       }
 
-      console.log("Temporary user created with id " + createdTempUser.id)
-      return res.json(createdTempUser)
+      var transporter = nodemailer.createTransport('smtps://genamap@163.com:genamap2016@smtp.163.com');
+      // var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
+
+      // setup e-mail data with unicode symbols
+      var mailOptions = {
+          from: '"GenAMap" <genamap@163.com>', // sender address
+          to: email,
+          subject: 'GenAMap Sign-up Comfiration', // Subject line
+          text: 'Registration Comfiration', // plaintext body
+          // html: 'Thank you very much for registeration.<br/>Remember that GenAMap is the greatest software in the world.<br/>Here is your Validation code:' + createdTempUser.id // html body
+          html: 'Verification code: ' + createdTempUser.id
+      };
+
+      // send mail with defined transport object
+      transporter.sendMail(mailOptions, function(error, info){
+          if(error){
+              return console.log(error);
+          }
+          console.log('Message sent: ' + info.response);
+          return res.json(createdTempUser)
+      });
     })
-    /*
-    app.models.user.create({ email, password }).exec(function (err, createdUser) {
-      if (err) {
-        if (err.code === 'E_VALIDATION')
-          return res.status(400).json({message: 'Invalid email address'})
-        return res.status(500).json({ err, from: 'createdUser' })
-      }
-      app.models.state.create({ state: JSON.stringify(initialState), user: createdUser.id }).exec(function (err, createdState) {
-        if (err) return res.status(500).json({ err, from: 'createdState' })
-        return res.json(createdUser)
-      })
-    })*/
   })
 })
 
