@@ -245,41 +245,46 @@ app.post(config.api.createAccountUrl, function (req, res) {
       return res.status(400).send({message: 'Email already in use'})
     }
 
-    app.models.tempuser.create({ email, password }).exec(function (err, createdTempUser) {
-      if (err) {
-        if (err.code === 'E_VALIDATION')
-          return res.status(400).json({message: 'Invalid email address'})
-        return res.status(500).json({ err, from: 'createdUser' })
+    app.models.tempuser.findOne({ email }).exec(function (err, foundTempUser) {
+      if (err) console.log(err)
+      if (foundTempUser) {
+        return res.status(400).send({message: 'Email already in use'})
       }
 
-      var transporter = nodemailer.createTransport('smtps://genamap@163.com:genamap2016@smtp.163.com');
-      // var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
+      app.models.tempuser.create({ email, password }).exec(function (err, createdTempUser) {
+        if (err) {
+          if (err.code === 'E_VALIDATION')
+            return res.status(400).json({message: 'Invalid email address'})
+          return res.status(500).json({ err, from: 'createdUser' })
+        }
 
-      // setup e-mail data with unicode symbols
-      var mailOptions = {
-          from: '"GenAMap" <genamap@163.com>', // sender address
-          to: email,
-          subject: 'GenAMap Sign-up Comfiration', // Subject line
-          text: 'Registration Comfiration', // plaintext body
-          // html: 'Thank you very much for registeration.<br/>Remember that GenAMap is the greatest software in the world.<br/>Here is your Validation code:' + createdTempUser.id // html body
-          html: 'Verification code: ' + createdTempUser.id
-      };
-
-      // send mail with defined transport object
-      transporter.sendMail(mailOptions, function(error, info){
-          if(error){
-              return console.log(error);
-          }
-          console.log('Message sent: ' + info.response);
-          return res.json(createdTempUser)
-      });
+        return res.json(createdTempUser)
+      })
     })
   })
 })
 
+app.post(config.api.requestUserConfirmUrl, function (req, res) {
+  var transporter = nodemailer.createTransport('smtps://genamap@163.com:genamap2016@smtp.163.com');
+
+  var mailOptions = {
+      from: '"GenAMap" <genamap@163.com>', // sender address
+      to: req.body.email,
+      subject: 'GenAMap Sign-up Comfiration', // Subject line
+      text: 'Registration Comfiration',
+      html: 'Verification code: ' + req.body.code
+  };
+
+  // send mail with defined transport object
+  transporter.sendMail(mailOptions, function(error, info){
+      if (error) return res.status(500).send({message: 'Error sending confirmation email to user'})
+      console.log('Message sent: ' + info.response);
+      return res.json(info.response)
+  });
+})
+
 app.get(`${config.api.confirmAccountUrl}/:code`, function (req, res) {
   const initialState = {}
-  console.log('Code', req.params.code)
 
   app.models.tempuser.findOne({ id: req.params.code }).exec(function (err, foundTempUser) {
     if (err) console.log(err)

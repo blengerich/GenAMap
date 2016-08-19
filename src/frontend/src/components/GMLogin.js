@@ -31,7 +31,7 @@ const styles = {
     left: '35%',
     top: '20%',
     width: '30%',
-    height: '55%',
+    height: '60%',
     textAlign: 'center'
   },
   form: {

@@ -63,7 +63,6 @@ var GMConfirmAccount = React.createClass({
     }
   },
   render () {
-    console.log(this.state)
     var actions = [
       <RaisedButton
         label='Confirm Email'
@@ -80,7 +79,7 @@ var GMConfirmAccount = React.createClass({
         open={this.state.open}
       >
         <div>
-          <p>An email has not been sent to {this.state.email}</p>
+          <p>A verification code has been sent to {this.state.email}.</p>
         </div>
         <div>
           <TextField
@@ -91,7 +90,7 @@ var GMConfirmAccount = React.createClass({
         </div>
         <div>
           <RaisedButton
-            label='Confirm Email'
+            label='Confirm Account'
             primary={true}
             onClick={this.submitConfirm}
           />

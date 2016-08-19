@@ -24,6 +24,7 @@ export const RESTART_ACTIVITY = 'RESTART_ACTIVITY'
 export const REQUEST_UPDATE_ACTIVITY = 'REQUEST_UPDATE_ACTIVITY'
 export const RECEIVE_UPDATE_ACTIVITY = 'RECEIVE_UPDATE_ACTIVITY'
 export const RECEIVE_ANALYSIS_RESULTS = 'RECEIVE_ANALYSIS_RESULTS'
+export const REQUEST_CREATE_ACCOUNT = 'REQUEST_CREATE_ACCOUNT'
 export const RECEIVE_CREATE_ACCOUNT = 'RECEIVE_CREATE_ACCOUNT'
 export const RECEIVE_CONFIRM_ACCOUNT = 'RECEIVE_CONFIRM_ACCOUNT'
 export const CLEAR_AUTH_ERRORS = 'CLEAR_AUTH_ERRORS'
@@ -448,9 +449,10 @@ export function getUserState (token) {
   }
 }
 
-function requestCreateAccount (creds) {
+function requestCreateAccount (email) {
   return {
-    type: 'REQUEST_CREATE_ACCOUNT'
+    type: 'REQUEST_CREATE_ACCOUNT',
+    email
   }
 }
 
@@ -476,16 +478,41 @@ export function createAccount (creds) {
   }
   return dispatch => {
     return fetch(config.api.createAccountUrl, createAccountRequest)
-    .then(response => response.json().then(json => ({ json, response })))
-    .then(({ json, response }) =>  {
+    .then(response => response.json().then(account => ({ account, response })))
+    .then(({ account, response }) =>  {
       if (!response.ok) {
-        dispatch(createAccountError(json.message))
-        return Promise.reject(json.message)
+        dispatch(createAccountError(account.message))
+        return Promise.reject(account.message)
       } else {
-        dispatch(receiveCreateAccount(json))
-        Promise.resolve(json)
+        dispatch(receiveCreateAccount(account))
+        dispatch(requestUserConfirm(account))
+        Promise.resolve(account)
       }
     }).catch(err => console.log("Error: ", err))
+  }
+}
+
+function requestUserConfirm (account) {
+  let sendUserConfirmRequest = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `email=${account.email}&code=${account.id}`
+  }
+  return dispatch => {
+    return fetch(config.api.requestUserConfirmUrl, sendUserConfirmRequest)
+    .then(response => {
+      if (!response.ok) {
+        dispatch(requestUserConfirmError(response.json().message))
+        return Promise.reject('Error sending confirmation email to user')
+      }
+    }).catch(err => console.log("Error: ", err))
+  }
+}
+
+function requestUserConfirmError (message) {
+  return {
+    type: 'REQUEST_USER_CONFIRM_ERROR',
+    message
   }
 }
 

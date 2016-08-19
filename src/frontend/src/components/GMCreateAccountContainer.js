@@ -4,6 +4,7 @@ import GMCreateAccount from './GMCreateAccount'
 
 const mapStateToProps = (state) => ({
   errorMessage: state.userData.auth.createErrorMessage,
+  confirmErrorMessage: state.userData.auth.confirmErrorMessage,
   isAuthenticated: state.userData.auth.isAuthenticated,
   verifyDialogOpen: state.userData.auth.verifyDialogOpen,
   emailToVerify: state.userData.auth.emailToVerify
@@ -20,7 +21,6 @@ const mapDispatchToProps = (dispatch) => ({
     })
   },
   submitConfirm: (creds) => {
-    console.log(creds)
     dispatch(confirmAccount(creds))
   }
 })

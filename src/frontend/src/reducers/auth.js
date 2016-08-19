@@ -59,7 +59,8 @@ const auth = (state = initialState, action) => {
       }
     case ERROR_CONFIRM_ACCOUNT:
       return {
-        isAuthenticated: false
+        isAuthenticated: false,
+        confirmErrorMessage: action.message
       }
     default:
       return state

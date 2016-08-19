@@ -13,6 +13,7 @@ const config = {
     createSessionUrl: '/sessions/create',
     createAccountUrl: '/user/create',
     confirmAccountUrl: '/user/verify',
+    requestUserConfirmUrl: '/user/request-confirm',
     getActivityUrl: '/activity',
     cancelJobUrl: '/api/cancelJob',
     getAnalysisResultsUrl: '/analysis-results'
