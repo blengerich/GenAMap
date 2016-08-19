@@ -24,9 +24,14 @@ main {
 
 /* Change color of cell on hover */
 
-.highlight:hover {
+.matrixHighlight:hover {
 	fill: #00FF00 !important;
 	opacity: 0.8 !important;
+}
+
+.manhattanHighlight:hover {
+  fill: #00FF00 !important;
+  opacity: 0.8 !important;
 }
 
 /* Make pointer a hand on matrix pan */
@@ -90,7 +95,13 @@ svg:active{
   padding-left: 20px;
 }
 
-#bottomPanel {
+#matrixBottomPanel {
+  position: relative;
+  border-top: 1px solid gray;
+  margin-top: 10px;
+}
+
+#manhattanBottomPanel {
   position: relative;
   border-top: 1px solid gray;
   margin-top: 10px;
@@ -106,13 +117,13 @@ svg:active{
   float: left;
 }
 
-.legend {
+#matrixBottomPanel .legend {
   position: absolute;
   top: 10px;
   left: 5%;
 }
 
-.legend text {
+#matrixBottomPanel .legend text {
   font: 10px sans-serif;
 }
 

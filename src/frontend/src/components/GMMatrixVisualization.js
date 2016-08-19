@@ -1,5 +1,5 @@
 import React from 'react'
-import D3Chart from './D3Chart'
+import GMMatrixChart from './GMMatrixChart'
 import GMMatrixToolbar from './GMMatrixToolbar'
 
 import fetch from './fetch'
@@ -27,20 +27,20 @@ const GMMatrixVisualization = React.createClass({
     }
 
     const vizData = { }
-    return fetch(`${config.api.dataUrl}/${params.resultId}`, dataRequest)
+    return fetch(`${config.api.dataUrl}/${params.result}`, dataRequest)
     .then(response => {
       if (!response.ok) Promise.reject(response.json())
       return response.json()
     }).then(json => {
       vizData.data = JSON.parse(json.data)
       this.setState({ data: JSON.parse(json.data) })
-      return fetch(`${config.api.dataUrl}/${params.markerLabelId}`, dataRequest)
+      return fetch(`${config.api.dataUrl}/${params.marker}`, dataRequest)
     }).then(response => {
       if (!response.ok) Promise.reject(response.json())
       return response.json()
     }).then(json => {
       vizData.markerLabels = json.data.split('\n').filter(line => line.length > 0)
-      return fetch(`${config.api.dataUrl}/${params.traitLabelId}`, dataRequest)
+      return fetch(`${config.api.dataUrl}/${params.trait}`, dataRequest)
     }).then(response => {
       if (!response.ok) Promise.reject(response.json())
       return response.json()
@@ -87,7 +87,7 @@ const GMMatrixVisualization = React.createClass({
     return (
       <div>
         <div className="Matrix">
-          <D3Chart
+          <GMMatrixChart
             data={this.state.data}
             markerLabels={this.state.markerLabels}
             traitLabels={this.state.traitLabels}
