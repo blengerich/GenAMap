@@ -276,8 +276,11 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
   };
 
   // send mail with defined transport object
-  transporter.sendMail(mailOptions, function(error, info){
-      if (error) return res.status(500).send({message: 'Error sending confirmation email to user'})
+  transporter.sendMail(mailOptions, function(error, info) {
+      if (error) {
+        console.log(error)
+        return res.status(500).send({message: 'Error sending confirmation email to user'})
+      }
       console.log('Message sent: ' + info.response);
       return res.json(info.response)
   });
@@ -295,13 +298,17 @@ app.get(`${config.api.confirmAccountUrl}/:code`, function (req, res) {
     var email = foundTempUser.email
     var password = foundTempUser.password
 
-    app.models.user.create({ email, password }).exec(function (err, createdUser) {
-      if (err) {
-        return res.status(500).json({ err, from: 'createdUser' })
-      }
-      app.models.state.create({ state: JSON.stringify(initialState), user: createdUser.id }).exec(function (err, createdState) {
-        if (err) return res.status(500).json({ err, from: 'createdState' })
-        return res.json({ email, password })
+    app.models.tempuser.destroy({ id: req.params.code }).exec(function (err) {
+      if (err) console.log(err)
+
+      app.models.user.create({ email, password }).exec(function (err, createdUser) {
+        if (err) {
+          return res.status(500).json({ err, from: 'createdUser' })
+        }
+        app.models.state.create({ state: JSON.stringify(initialState), user: createdUser.id }).exec(function (err, createdState) {
+          if (err) return res.status(500).json({ err, from: 'createdState' })
+          return res.json({ email, password })
+        })
       })
     })
   })
