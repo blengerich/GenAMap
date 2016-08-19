@@ -107,7 +107,7 @@ var Graph = function(data, markerLabels, traitLabels) {
          .attr("text-anchor", "end")
          .attr("x", -5)
          .attr("y", 8)
-         .text(trimmedLabel(traitLabels[i/populationFactor], 5));
+         .text(trimmedLabel(traitLabels[Math.floor(i/populationFactor)], 5));
     }
 
     axes.append("text")
@@ -161,21 +161,21 @@ var Graph = function(data, markerLabels, traitLabels) {
   function initGridLines() {
     var matrix = d3.select("#overallMatrix");
 
-    for (var i = 0; i < numTraits; i++) {
+    for (var i = 0; i < mapRows; i++) {
       matrix.append("line")
             .attr("x1", 0)
             .attr("y1", cellHeight * i)
-            .attr("x2", cellWidth * numMarkers)
+            .attr("x2", cellWidth * mapCols)
             .attr("y2", cellHeight * i)
             .attr("stroke", "#fff");
     }
 
-    for (var i = 0; i < numMarkers; i++) {
+    for (var i = 0; i < mapCols; i++) {
       matrix.append("line")
             .attr("x1", cellWidth * i)
             .attr("y1", 0)
             .attr("x2", cellWidth * i)
-            .attr("y2", cellHeight * numTraits)
+            .attr("y2", cellHeight * mapRows)
             .attr("stroke", "#fff");
     }
   }
@@ -212,21 +212,23 @@ var Graph = function(data, markerLabels, traitLabels) {
           parsedData.push({
             value: +d,
             Marker: rowIndex,
-            Trait: colIndex/populationFactor
+            Trait: Math.floor(colIndex/populationFactor),
+            x: rowIndex,
+            y: colIndex
           })
         })
       }
     })
 
     var cards = svg.selectAll(".dots")
-                  .data(parsedData, function(d) { return d.Marker+':'+d.Trait;});
+                  .data(parsedData, function(d) { return d.x+':'+d.y;});
 
     cards.append("title");
 
     // append cells
     cards.enter().append("rect")
-                    .attr("x", function(d) { return d.Marker * cellHeight; })
-                    .attr("y", function(d) { return d.Trait * cellWidth; })
+                    .attr("x", function(d) { return d.x * cellHeight; })
+                    .attr("y", function(d) { return d.y * cellWidth; })
                     .attr("class", "cell")
                     .attr("width", cellWidth)
                     .attr("height", cellHeight)
