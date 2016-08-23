@@ -3,7 +3,6 @@
 //
 
 #include "Chi2Test.h"
-#include <iostream>
 
 void Chi2Test::run() {
     long c = X.cols();
@@ -68,9 +67,6 @@ void Chi2Test::run() {
             e(1) = (o(1) + o(3))*pa;
             e(2) = (o(0) + o(2))*(1-pa);
             e(3) = (o(1) + o(3))*(1-pa);
-//            cout << pa<<endl;
-//            cout << o.transpose() << endl;
-//            cout << e.transpose() << endl;
             chi = Stats::ChiSquaredTest(o, e);
             beta(j, k) = Stats::ChiToPValue(chi, 1);
         }
