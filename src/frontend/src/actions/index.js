@@ -24,12 +24,20 @@ export const RESTART_ACTIVITY = 'RESTART_ACTIVITY'
 export const REQUEST_UPDATE_ACTIVITY = 'REQUEST_UPDATE_ACTIVITY'
 export const RECEIVE_UPDATE_ACTIVITY = 'RECEIVE_UPDATE_ACTIVITY'
 export const RECEIVE_ANALYSIS_RESULTS = 'RECEIVE_ANALYSIS_RESULTS'
+export const REQUEST_CREATE_ACCOUNT = 'REQUEST_CREATE_ACCOUNT'
+export const RECEIVE_CREATE_ACCOUNT = 'RECEIVE_CREATE_ACCOUNT'
+export const RECEIVE_CONFIRM_ACCOUNT = 'RECEIVE_CONFIRM_ACCOUNT'
+export const RECEIVE_CONFIRM_ACCOUNT_LINK = 'RECEIVE_CONFIRM_ACCOUNT_LINK'
+export const CLEAR_AUTH_ERRORS = 'CLEAR_AUTH_ERRORS'
 export const LOGIN_REQUEST = 'LOGIN_REQUEST'
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
 export const LOGIN_FAILURE = 'LOGIN_FAILURE'
 export const LOGOUT_REQUEST = 'LOGOUT_REQUEST'
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS'
 export const LOGOUT_FAILURE = 'LOGOUT_FAILURE'
+export const ERROR_CREATE_ACCOUNT = 'ERROR_CREATE_ACCOUNT'
+export const ERROR_CONFIRM_ACCOUNT = 'ERROR_CONFIRM_ACCOUNT'
+export const ERROR_CONFIRM_ACCOUNT_LINK = 'ERROR_CONFIRM_ACCOUNT_LINK'
 export const SHOW_LOCK = 'SHOW_LOCK'
 export const LOCK_SUCCESS = 'LOCK_SUCCESS'
 export const LOCK_FAILURE = 'LOCK_FAILURE'
@@ -325,6 +333,12 @@ export function fetchUpdateActivityIfNeeded (activity) {
   }
 }
 
+export function clearAuthErrors () {
+  return {
+    type: CLEAR_AUTH_ERRORS
+  }
+}
+
 function requestLogin (credentials) {
   return {
     type: LOGIN_REQUEST,
@@ -381,24 +395,25 @@ export function loginUser (creds) {
   let loginRequest = {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `username=${creds.username}&password=${creds.password}`
+    body: `email=${creds.email}&password=${creds.password}`
   }
 
   return dispatch => {
     dispatch(requestLogin(creds))
+
     return fetch(config.api.createSessionUrl, loginRequest)
-    .then(response => {
+    .then(response => response.json().then(user => ({ user, response })))
+    .then(({ user, response }) =>  {
       if (!response.ok) {
-        dispatch(loginError(response.json().message))
-        Promise.reject('Could not login user')
+        dispatch(loginError(user.message))
+        return Promise.reject('Could not login user')
+      } else {
+        setToken(user.id_token)
+        dispatch(receiveLogin(user))
+        dispatch(getUserState(user.id_token))
+        return user
       }
-      return response.json()
-    }).then(user => {
-      setToken(user.id_token)
-      dispatch(receiveLogin(user))
-      dispatch(getUserState(user.id_token))
-      return user
-    }).catch(err => console.log('Error: ', err))
+    }).catch(err => console.log("Error: ", err))
   }
 }
 
@@ -436,21 +451,24 @@ export function getUserState (token) {
   }
 }
 
-function requestCreateAccount (creds) {
+function requestCreateAccount (email) {
   return {
-    type: 'REQUEST_CREATE_ACCOUNT'
+    type: 'REQUEST_CREATE_ACCOUNT',
+    email
   }
 }
 
 function receiveCreateAccount (account) {
   return {
-    type: 'RECEIVE_CREATE_ACCOUNT'
+    type: 'RECEIVE_CREATE_ACCOUNT',
+    email: account.email
   }
 }
 
 function createAccountError (message) {
   return {
-    type: 'ERROR_CREATE_ACCOUNT'
+    type: 'ERROR_CREATE_ACCOUNT',
+    message
   }
 }
 
@@ -458,23 +476,120 @@ export function createAccount (creds) {
   let createAccountRequest = {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `username=${creds.username}&password=${creds.password}`
+    body: `email=${creds.email}&password=${creds.password}&password2=${creds.password2}`
+  }
+  return dispatch => {
+    return fetch(config.api.createAccountUrl, createAccountRequest)
+    .then(response => response.json().then(account => ({ account, response })))
+    .then(({ account, response }) =>  {
+      if (!response.ok) {
+        dispatch(createAccountError(account.message))
+        return Promise.reject(account.message)
+      } else {
+        dispatch(receiveCreateAccount(account))
+        dispatch(requestUserConfirm(account))
+        Promise.resolve(account)
+      }
+    }).catch(err => console.log("Error: ", err))
+  }
+}
+
+function requestUserConfirm (account) {
+  let sendUserConfirmRequest = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `email=${account.email}&code=${account.id}`
+  }
+  return dispatch => {
+    return fetch(config.api.requestUserConfirmUrl, sendUserConfirmRequest)
+    .then(response => {
+      if (!response.ok) {
+        dispatch(requestUserConfirmError(response.json().message))
+        return Promise.reject('Error sending confirmation email to user')
+      }
+    }).catch(err => console.log("Error: ", err))
+  }
+}
+
+function requestUserConfirmError (message) {
+  return {
+    type: 'REQUEST_USER_CONFIRM_ERROR',
+    message
+  }
+}
+
+function receiveConfirmAccount (account) {
+  return {
+    type: 'RECEIVE_CONFIRM_ACCOUNT',
+    email: account.email
+  }
+}
+
+function confirmAccountError (message) {
+  return {
+    type: 'ERROR_CONFIRM_ACCOUNT',
+    message
+  }
+}
+
+export function confirmAccount (creds) {
+  let confirmAccountRequest = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
   }
 
   return dispatch => {
-    dispatch(requestCreateAccount(creds))
-    return fetch(config.api.createAccountUrl, createAccountRequest)
-    .then(response => {
-      if (response.ok) {
-        return response.json()
+    return fetch(`${config.api.confirmAccountUrl}/${creds.code}`, confirmAccountRequest)
+    .then(response => response.json().then(account => ({ account, response })))
+    .then(({ account, response }) =>  {
+      if (!response.ok) {
+        dispatch(confirmAccountError(account.message))
+        return Promise.reject(account.message)
       } else {
-        dispatch(createAccountError(response.json().message))
-        Promise.reject(response.json().message)
+        dispatch(receiveConfirmAccount(account))
+        Promise.resolve(account)
+        return dispatch(redirectTo('/login'))
       }
-    }).then(account => {
-      dispatch(receiveCreateAccount(account))
-      Promise.resolve(account)
-    }).catch(err => console.log('Error: ', err))
+    }).catch(err => console.log("Error: ", err))
+  }
+}
+
+function receiveConfirmAccountFromLink (account) {
+  return {
+    type: 'RECEIVE_CONFIRM_ACCOUNT_LINK',
+    email: account.email
+  }
+}
+
+function confirmAccountFromLinkError (message) {
+  return {
+    type: 'ERROR_CONFIRM_ACCOUNT_LINK',
+    message
+  }
+}
+
+export function confirmAccountFromLink (creds) {
+  let confirmAccountRequest = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+
+  return dispatch => {
+    return fetch(`${config.api.confirmAccountUrl}/${creds.code}`, confirmAccountRequest)
+    .then(response => response.json().then(account => ({ account, response })))
+    .then(({ account, response }) =>  {
+      if (!response.ok) {
+        return dispatch(confirmAccountFromLinkError(account.message))
+      } else {
+        return dispatch(receiveConfirmAccountFromLink(account))
+      }
+    }).then(() => {
+      return dispatch(redirectTo('/login'))
+    }).catch(err => console.log("Error: ", err))
   }
 }
 
