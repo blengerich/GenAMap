@@ -1,4 +1,6 @@
-import { LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_SUCCESS } from '../actions'
+import { CLEAR_AUTH_ERRORS, LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_SUCCESS, ERROR_CREATE_ACCOUNT,
+          RECEIVE_CREATE_ACCOUNT, ERROR_CONFIRM_ACCOUNT, ERROR_CONFIRM_ACCOUNT_LINK,
+          RECEIVE_CONFIRM_ACCOUNT_LINK } from '../actions'
 import { getAndVerifyToken } from '../middleware/token'
 
 // The auth reducer. The starting state sets authentication
@@ -13,6 +15,11 @@ const initialState = {
 
 const auth = (state = initialState, action) => {
   switch (action.type) {
+    case CLEAR_AUTH_ERRORS:
+      return {
+        loginErrorMessage: '',
+        createErrorMessage: ''
+      }
     case LOGIN_REQUEST:
       return {
         isFetching: true,
@@ -23,7 +30,7 @@ const auth = (state = initialState, action) => {
       return {
         isFetching: false,
         isAuthenticated: true,
-        errorMessage: '',
+        loginErrorMessage: '',
         username: action.username,
         isUpdated: true
       }
@@ -31,7 +38,7 @@ const auth = (state = initialState, action) => {
       return {
         isFetching: false,
         isAuthenticated: false,
-        errorMessage: action.message,
+        loginErrorMessage: action.message,
         isUpdated: false
       }
     case LOGOUT_SUCCESS:
@@ -39,6 +46,32 @@ const auth = (state = initialState, action) => {
         isFetching: false,
         isAuthenticated: false,
         isUpdated: false
+      }
+    case ERROR_CREATE_ACCOUNT:
+      return {
+        isAuthenticated: false,
+        createErrorMessage: action.message
+      }
+    case RECEIVE_CREATE_ACCOUNT:
+      return {
+        isAuthenticated: false,
+        verifyDialogOpen: true,
+        emailToVerify: action.email
+      }
+    case ERROR_CONFIRM_ACCOUNT:
+      return {
+        isAuthenticated: false,
+        confirmErrorMessage: action.message
+      }
+    case ERROR_CONFIRM_ACCOUNT_LINK:
+      return {
+        isAuthenticated: false,
+        loginErrorMessage: action.message
+      }
+    case RECEIVE_CONFIRM_ACCOUNT_LINK:
+      return {
+        isAuthenticated: false,
+        emailVerified: action.email
       }
     default:
       return state

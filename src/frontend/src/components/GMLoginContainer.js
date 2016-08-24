@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { loginUser, redirectTo, createAccount } from '../actions'
+import { loginUser, redirectTo, createAccount, clearAuthErrors } from '../actions'
 import GMLogin from './GMLogin'
 
 const parseQuery = (query) => {
@@ -18,11 +18,18 @@ const getParam = (queryObject, name) => {
 }
 
 const mapStateToProps = (state) => ({
-  errorMessage: state.userData.auth.errorMessage,
-  isAuthenticated: state.userData.auth.isAuthenticated
+  errorMessage: state.userData.auth.loginErrorMessage,
+  isAuthenticated: state.userData.auth.isAuthenticated,
+  emailVerified: state.userData.auth.emailVerified
 })
 
 const mapDispatchToProps = (dispatch) => ({
+  clearAuthErrors: () => {
+    dispatch(clearAuthErrors())
+  },
+  linkToSignup: () => {
+    dispatch(redirectTo('/signup'))
+  },
   onLoginClick: (creds, query) => {
     const loginPromise = dispatch(loginUser(creds))
     loginPromise.then(login => {
@@ -49,4 +56,3 @@ const GMLoginContainer = connect(
 )(GMLogin)
 
 export default GMLoginContainer
-
