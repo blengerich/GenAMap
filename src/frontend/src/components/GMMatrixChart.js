@@ -6,11 +6,11 @@ import FloatingActionButton from 'material-ui/lib/floating-action-button'
 import fetch from './fetch'
 import config from '../../config'
 
-const colors = ["#c1f4ec","#91f2ed","#97e6fc","#95d1f9","#64b4dd","#65c5db","#66a9d8"];
 const colorScale = d3.scale.linear()
                       .domain([-1, 0, 1])
                       .range(["#990000", "#EEEEEE", "#000099"]);
 
+// TODO: add map rows/cols, account for in initAxes and parseData
 var axisOnZoom;
 var zoomFunction;
 var mapWidth;
@@ -18,13 +18,14 @@ var mapHeight;
 var miniZoomed;
 var overlayWidth;
 var overlayHeight;
+var populationFactor;
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
 var Graph = function(data, markerLabels, traitLabels) {
-  d3.select('#chart').selectAll('svg').remove()
+  d3.select('#matrixChart').selectAll('svg').remove()
 
   /************************************
   *** visualization setup functions ***
@@ -38,7 +39,7 @@ var Graph = function(data, markerLabels, traitLabels) {
   function legend() {
     const legendWidth = 95
     const margin = 5
-    var legendBody = d3.select("#bottomPanel")
+    var legendBody = d3.select("#matrixBottomPanel")
                         .append("svg")
                         .attr("width", legendWidth + 2 * margin)
                         .attr("class", "legend")
@@ -97,7 +98,7 @@ var Graph = function(data, markerLabels, traitLabels) {
         .attr("y2", mapHeight + margin.bottom);
 
     // horizontal labels
-    for (var i = 0; i < numTraits; i++) {
+    for (var i = 0; i < mapRows; i++) {
       var row = axes.append("g")
                     .attr("class", "row")
                     .attr("transform", "translate(0," + (cellHeight * i) + ")");
@@ -106,7 +107,7 @@ var Graph = function(data, markerLabels, traitLabels) {
          .attr("text-anchor", "end")
          .attr("x", -5)
          .attr("y", 8)
-         .text(trimmedLabel(traitLabels[i], 5));
+         .text(trimmedLabel(traitLabels[Math.floor(i/populationFactor)], 5));
     }
 
     axes.append("text")
@@ -118,7 +119,7 @@ var Graph = function(data, markerLabels, traitLabels) {
         .text("Traits");
 
     // vertical labels
-    for (var i = 0; i < numMarkers; i++) {
+    for (var i = 0; i < mapCols; i++) {
       var col = d3.select(".axes")
                   .append("g")
                   .attr("class", "col")
@@ -160,21 +161,21 @@ var Graph = function(data, markerLabels, traitLabels) {
   function initGridLines() {
     var matrix = d3.select("#overallMatrix");
 
-    for (var i = 0; i < numTraits; i++) {
+    for (var i = 0; i < mapRows; i++) {
       matrix.append("line")
             .attr("x1", 0)
             .attr("y1", cellHeight * i)
-            .attr("x2", cellWidth * numMarkers)
+            .attr("x2", cellWidth * mapCols)
             .attr("y2", cellHeight * i)
             .attr("stroke", "#fff");
     }
 
-    for (var i = 0; i < numMarkers; i++) {
+    for (var i = 0; i < mapCols; i++) {
       matrix.append("line")
             .attr("x1", cellWidth * i)
             .attr("y1", 0)
             .attr("x2", cellWidth * i)
-            .attr("y2", cellHeight * numTraits)
+            .attr("y2", cellHeight * mapRows)
             .attr("stroke", "#fff");
     }
   }
@@ -182,7 +183,7 @@ var Graph = function(data, markerLabels, traitLabels) {
   function hoverOnCell(d, trait, marker, correlation, mousePos) {
     var labelText = "<h2>Trait: " + traitLabels[trait] + "</h2> <h2>Marker: " +
                     markerLabels[marker] + "</h2> <p> Effect Size: " + correlation + "</p>";
-    var tooltip = d3.select("#chart")
+    var tooltip = d3.select("#matrixChart")
                     .append("div")
                     .attr("class", "tooltip")
                     .html(labelText)
@@ -196,27 +197,38 @@ var Graph = function(data, markerLabels, traitLabels) {
   }
 
   /* parse correlation data into visualization */
+  function getPopulationFactor() {
+    var rows = data.v.split(";")
+    return rows[0].split(",").length/numTraits
+  }
+
   function parseData() {
     var parsedData = []
+
     data.v.split(";").forEach(function(row, rowIndex) {
-      row.split(",").forEach(function(d, colIndex) {
-        parsedData.push({
-          value: +d,
-          Marker: rowIndex,
-          Trait: colIndex
+      if (row.length > 0) {
+        var pts = row.split(",")
+        pts.forEach(function(d, colIndex) {
+          parsedData.push({
+            value: +d,
+            Marker: rowIndex,
+            Trait: Math.floor(colIndex/populationFactor),
+            x: rowIndex,
+            y: colIndex
+          })
         })
-      })
+      }
     })
 
     var cards = svg.selectAll(".dots")
-                  .data(parsedData, function(d) { return d.Marker+':'+d.Trait;});
+                  .data(parsedData, function(d) { return d.x+':'+d.y;});
 
     cards.append("title");
 
     // append cells
     cards.enter().append("rect")
-                    .attr("x", function(d) { return d.Marker * cellHeight; })
-                    .attr("y", function(d) { return d.Trait * cellWidth; })
+                    .attr("x", function(d) { return d.x * cellHeight; })
+                    .attr("y", function(d) { return d.y * cellWidth; })
                     .attr("class", "cell")
                     .attr("width", cellWidth)
                     .attr("height", cellHeight)
@@ -229,11 +241,11 @@ var Graph = function(data, markerLabels, traitLabels) {
                       var marker = d.Marker;
                       var correlation = d.value;
                       hoverOnCell(d, trait, marker, correlation, mousePos);
-                      d3.select(d3.event.target).classed("highlight", true);
+                      d3.select(d3.event.target).classed("matrixHighlight", true);
                     })
                     .on('mouseout', function(d) {
                       hoverOutCell();
-                      d3.select(d3.event.target).classed("highlight", false);
+                      d3.select(d3.event.target).classed("matrixHighlight", false);
                     });
     cards.transition().duration(100)
           .style("fill", function(d) { return colorScale(d.value); });
@@ -283,6 +295,7 @@ var Graph = function(data, markerLabels, traitLabels) {
     svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     var zoomAmount = d3.event.scale;
     var translateAmount = d3.event.translate;
+    console.log("zoom", translateAmount, zoomAmount)
 
     axisOnZoom(translateAmount, zoomAmount);
 
@@ -345,6 +358,7 @@ var Graph = function(data, markerLabels, traitLabels) {
     overlay.attr("transform", "translate(" + translateAmount + ")scale(" + 1/d3.event.scale + ")");
     var matrix = d3.select("#overallMatrix");
     var zoomAmount = d3.event.scale;
+    console.log("minizoomed", translateAmount, zoomAmount)
     var newArray = [-translateAmount[0]*(matrixWidth/overlayMapWidth) * zoomAmount,
                     -translateAmount[1]*(matrixHeight/overlayMapHeight) * zoomAmount];
 
@@ -368,11 +382,15 @@ var Graph = function(data, markerLabels, traitLabels) {
 	var cellWidth = 10;
 	var cellHeight = 10;
 
+  var populationFactor = getPopulationFactor(); // may be directly read in future
+  var mapRows = numTraits * populationFactor;
+  var mapCols = numMarkers;
+
   // Need to change percentages again to take into account sidebar
   var maxTotalWidth =  windowWidth * 0.95;
   var maxTotalHeight = windowHeight * 0.65;
-  var matrixHeight = cellHeight * numTraits;
-  var matrixWidth = cellWidth * numMarkers;
+  var matrixHeight = cellHeight * mapRows;
+  var matrixWidth = cellWidth * mapCols;
 
   var axisPadding = 80;
   var margin = { top: 0, right: rightMargin, bottom: 5, left: 5 };
@@ -385,7 +403,7 @@ var Graph = function(data, markerLabels, traitLabels) {
 
   var baseLabelStyle = { fontSize: 10, maxFontSize: 18, titleSize: 20, innerMargin: 8 };
 
-  d3.select('#chart')
+  d3.select('#matrixChart')
     .style({
       "width": (mapWidth + margin.left) + "px"
     })
@@ -401,7 +419,7 @@ var Graph = function(data, markerLabels, traitLabels) {
   d3.select("#reset")
     .on("click", reset);
 
-  var svg = d3.select("#chart")
+  var svg = d3.select("#matrixChart")
               .append("svg")
               .attr("id", "rootSvg")
               .attr("width", totalWidth)
@@ -417,8 +435,8 @@ var Graph = function(data, markerLabels, traitLabels) {
                   .attr("id", "overallMatrix");
 
   legend();
-  initAxes();
   parseData();
+  initAxes();
 
   var maxOverlayDimension = 100;
   var overlayMapWidth, overlayMapHeight;
@@ -430,17 +448,14 @@ var Graph = function(data, markerLabels, traitLabels) {
     overlayMapWidth = maxOverlayDimension * (numMarkers/numTraits);
   }
 
-  var overlayCellWidth = 5;
-  var overlayCellHeight = 5;
-
   /* Some minimap code */
-  var svgGraphic = d3.select("#bottomPanel")
-                      .append("svg")
-                        .attr("class", "minimap")
-                        .attr("width", overlayMapWidth)
-                        .attr("height", overlayMapHeight)
+  var minimap = d3.select("#matrixBottomPanel")
+                  .append("svg")
+                  .attr("class", "minimap")
+                  .attr("width", overlayMapWidth)
+                  .attr("height", overlayMapHeight)
 
-  svgGraphic.append("rect")
+  minimap.append("rect")
     .attr("width", overlayMapWidth)
     .attr("height", overlayMapHeight)
     .style("fill", "#5eacdd")
@@ -459,20 +474,20 @@ var Graph = function(data, markerLabels, traitLabels) {
                     .scaleExtent([1, 8])
                     .on("zoom", miniZoomed)
 
-  svgGraphic.append("g")
-            .attr("class", "frame")
-            .call(miniZoom)
-            .append("rect")
-              .attr("id", "map-background")
-              .attr("value", 1)
-              .style("width", overlayWidth)
-              .style("height", overlayHeight)
-              .attr("transform", "translate(" + 0 + "," + 0 + ")")
+  minimap.append("g")
+         .attr("class", "frame")
+         .call(miniZoom)
+         .append("rect")
+            .attr("id", "map-background")
+            .attr("value", 1)
+            .style("width", overlayWidth)
+            .style("height", overlayHeight)
+            .attr("transform", "translate(" + 0 + "," + 0 + ")")
 
   var overlay = d3.select("#map-background");
 }
 
-var D3Chart = React.createClass({
+var GMMatrixChart = React.createClass({
   validateNewProps: function(nextProps) {
     return (this.props.pageParams !== nextProps.pageParams)
   },
@@ -567,7 +582,7 @@ var D3Chart = React.createClass({
         that.state.element.className = 'marquee'
         that.state.element.style.left = that.state.mouse.x + 'px';
         that.state.element.style.top = that.state.mouse.y + 'px';
-        document.getElementById('chart').appendChild(that.state.element);
+        document.getElementById('matrixChart').appendChild(that.state.element);
       }
     }
   },
@@ -637,10 +652,10 @@ var D3Chart = React.createClass({
 	render: function() {
 		return (
       <div>
-        <div id="chart" style={{ "marginTop": "25px" }}>
+        <div id="matrixChart" style={{ "marginTop": "25px" }}>
           {this.state.subsetTooltip}
         </div>
-        <div id="bottomPanel">
+        <div id="matrixBottomPanel">
           <ul className="buttonContainer">
             <li className="zoomButton">
               <a id="zoom-in" data-zoom="+1">
@@ -670,4 +685,4 @@ var D3Chart = React.createClass({
 	}
 });
 
-export default D3Chart
+export default GMMatrixChart

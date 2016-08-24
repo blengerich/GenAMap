@@ -10,7 +10,7 @@ var diskAdapter = require('sails-disk')
 var omit = require('lodash.omit')
 var mkdirp = require('mkdirp')
 var Converter = require('csvtojson').Converter;
-
+var nodemailer = require('nodemailer')
 require('es6-promise').polyfill()
 require('isomorphic-fetch')
 
@@ -82,11 +82,11 @@ const User = Waterline.Collection.extend({
     },
     username: {
       type: 'string',
-      required: true
+      required: false
     },
     email: {
       type: 'email',
-      required: false
+      required: true
     },
     password: {
       type: 'string',
@@ -173,10 +173,48 @@ const State = Waterline.Collection.extend({
   }
 })
 
+const TempUser = Waterline.Collection.extend({
+  tableName: 'tempUser',
+  connection: 'myLocalDisk',
+
+  attributes: {
+    id: {
+      type: 'text',
+      primaryKey: true,
+      unique: true,
+      defaultsTo: function () {
+        return guid()
+      }
+    },
+    username: {
+      type: 'string',
+      required: false
+    },
+    email: {
+      type: 'email',
+      required: true
+    },
+    password: {
+      type: 'string',
+      required: false
+    },
+    organization: {
+      type: 'int',
+      required: false
+    },
+    toJSON: function () {
+      var obj = this.toObject()
+      delete obj.password
+      return obj
+    }
+  }
+})
+
 orm.loadCollection(User)
 orm.loadCollection(Project)
 orm.loadCollection(File)
 orm.loadCollection(State)
+orm.loadCollection(TempUser)
 
 var guid = function () {
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
@@ -190,45 +228,110 @@ var s4 = function () {
 }
 
 app.post(config.api.createAccountUrl, function (req, res) {
-  const username = req.body.username
+  const email = req.body.email
   const password = req.body.password
+  const password2 = req.body.password2
   const initialState = {}
 
-  if (!username || !password) {
-    return res.status(400).send({message: 'You must send the username and password'})
+  if (!email || !password) {
+    return res.status(400).send({message: 'Missing email or password'})
   }
 
-  app.models.user.findOne({ username }).exec(function (err, foundUser) {
+  if (password !== password2) {
+    return res.status(400).send({message: "Passwords don't match"})
+  }
+
+  app.models.user.findOne({ email }).exec(function (err, foundUser) {
     if (err) console.log(err)
     if (foundUser) {
-      return res.status(400).send({message: 'Please choose another username'})
+      return res.status(400).send({message: 'Email already in use'})
     }
-    app.models.user.create({ username, password }).exec(function (err, createdUser) {
-      if (err) return res.status(500).json({ err, from: 'createdUser' })
-      app.models.state.create({ state: JSON.stringify(initialState), user: createdUser.id }).exec(function (err, createdState) {
-        if (err) return res.status(500).json({ err, from: 'createdState' })
-        return res.json(createdUser)
+
+    app.models.tempuser.findOne({ email }).exec(function (err, foundTempUser) {
+      if (err) console.log(err)
+      if (foundTempUser) {
+        return res.status(400).send({message: 'Email already in use'})
+      }
+
+      app.models.tempuser.create({ email, password }).exec(function (err, createdTempUser) {
+        if (err) {
+          if (err.code === 'E_VALIDATION')
+            return res.status(400).json({message: 'Invalid email address'})
+          return res.status(500).json({ err, from: 'createdUser' })
+        }
+
+        return res.json(createdTempUser)
+      })
+    })
+  })
+})
+
+app.post(config.api.requestUserConfirmUrl, function (req, res) {
+  var transporter = nodemailer.createTransport('smtps://genamap@163.com:genamap2016@smtp.163.com');
+
+  var mailOptions = {
+      from: '"GenAMap" <genamap@163.com>', // sender address
+      to: req.body.email,
+      subject: 'GenAMap Sign-up Comfiration', // Subject line
+      text: 'Registration Comfiration',
+      html: 'Verification code: ' + req.body.code + '<br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code
+  };
+
+  // send mail with defined transport object
+  transporter.sendMail(mailOptions, function(error, info) {
+      if (error) {
+        console.log(error)
+        return res.status(500).send({message: 'Error sending confirmation email to user'})
+      }
+      console.log('Message sent: ' + info.response);
+      return res.json(info.response)
+  });
+})
+
+app.get(`${config.api.confirmAccountUrl}/:code`, function (req, res) {
+  const initialState = {}
+
+  app.models.tempuser.findOne({ id: req.params.code }).exec(function (err, foundTempUser) {
+    if (err) console.log(err)
+    if (!foundTempUser) {
+      return res.status(400).send({message: 'Could not verify user: incorrect code'})
+    }
+
+    var email = foundTempUser.email
+    var password = foundTempUser.password
+
+    app.models.tempuser.destroy({ id: req.params.code }).exec(function (err) {
+      if (err) console.log(err)
+
+      app.models.user.create({ email, password }).exec(function (err, createdUser) {
+        if (err) {
+          return res.status(500).json({ err, from: 'createdUser' })
+        }
+        app.models.state.create({ state: JSON.stringify(initialState), user: createdUser.id }).exec(function (err, createdState) {
+          if (err) return res.status(500).json({ err, from: 'createdState' })
+          return res.json({ email, password })
+        })
       })
     })
   })
 })
 
 app.post(config.api.createSessionUrl, function (req, res) {
-  const username = req.body.username
+  const email = req.body.email
   const password = req.body.password
 
-  if (!username || !password) {
-    return res.status(400).send({message: 'You must send the username and the password'})
+  if (!email || !password) {
+    return res.status(400).send({message: 'Missing email or password'})
   }
 
-  app.models.user.findOne({ username }).exec(function (err, user) {
+  app.models.user.findOne({ email }).exec(function (err, user) {
     if (err) console.log(err)
     if (!user) {
-      return res.status(401).send({message: 'The username or password don\'t match', user: user})
+      return res.status(401).send({message: 'Incorrect username or password', user: user})
     }
 
     if (user.password !== req.body.password) {
-      return res.status(401).send({message: 'The username or password don\'t match'})
+      return res.status(401).send({message: 'Incorrect username or password'})
     }
 
     return res.status(201).send({
@@ -274,7 +377,10 @@ app.post(`${config.api.getAnalysisResultsUrl}`, function(req, res) {
 
 app.get(`${config.api.dataUrl}/:id`, function (req, res) {
   app.models.file.findOne({id: req.params.id}, function (err, model) {
-    if (err) return res.status(500).json({err: err})
+    if (err) return res.status(500).json({ err: err })
+
+    if (!model) return res.status(404).json({ message: 'File not found' })
+
     fs.readFile(model.path, 'utf8', function (error, data) {
       if (error) throw error
       return res.json({file: model, data: data})
@@ -473,7 +579,6 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           Scheduler.setX(jobId, markerData);
           Scheduler.setY(jobId, traitData);
           const startJobFinish = function() {
-            console.log("starting job");
             const userId = extractUserIdFromHeader(req.headers)
             const id = guid()
             const userPath = path.join('./.tmp', userId)

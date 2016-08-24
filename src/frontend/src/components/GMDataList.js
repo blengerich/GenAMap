@@ -56,28 +56,38 @@ const GMDataList = React.createClass({
     }
 
     fetch(`${config.api.dataUrl}/${id}`, dataRequest)
-    .then(response => {
-      if (!response.ok) Promise.reject(response.json())
-      return response.json()
-    }).then(json => {
-      const data = json.data.split('\n')
-      const headers = data[0].split(',')
-      data.splice(0, 1)
-      this.setState({
-        title: json.file.name,
-        data,
-        headers
-      })
+    .then(response => response.json().then(json => ({ json, response })))
+    .then(({ json, response }) => {
+      if (!response.ok) {
+        this.setState({
+          title: json.message,
+          data: undefined
+        })
+        Promise.reject(json.message)
+      } else {
+        const data = json.data.split('\n')
+        const headers = data[0].split(',')
+        data.splice(0, 1)
+        this.setState({
+          title: json.file.name,
+          data,
+          headers
+        })
+      }
     }).catch(err => console.log('Error: ', err))
   },
   componentWillReceiveProps: function (nextProps) {
     this.loadData(nextProps.params.id)
   },
   render: function () {
-    return (
+    return this.state.data ? (
       <div>
         <h1>{this.state.title}</h1>
         <GMDataTable data={this.state.data} headers={this.state.headers} />
+      </div>
+    ) : (
+      <div>
+        <h1>{this.state.title}</h1>
       </div>
     )
   }
