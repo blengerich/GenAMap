@@ -46,3 +46,71 @@ double Stats::FisherExactTest(MatrixXd X) {
 double Stats::BonCorrection(double pVal, int number) {
   return pVal/number;
 }
+
+void StatsBasic::setX(const MatrixXd & m) {
+    X = m;
+}
+
+void StatsBasic::setY(const MatrixXd & n) {
+    y = n;
+}
+
+void StatsBasic::setAttributeMatrix(const string &string1, MatrixXd *xd) {
+
+}
+
+MatrixXd StatsBasic::getBeta() {
+    return beta;
+}
+
+StatsBasic::StatsBasic() {
+    correctNum = 0;
+}
+
+StatsBasic::StatsBasic(const unordered_map<string, string> & options) {
+    try {
+        correctNum = stol(options.at("correctNum"));
+    } catch (std::out_of_range& oor) {
+        correctNum = 0;
+    }
+}
+
+void StatsBasic::checkGenoType() {
+    long r = X.rows();
+    long c = X.cols();
+    int s = 0;
+    bool go = true;
+    for (long i=0;i<r&&go;i++){
+        for (long j=0;j<c&&go;j++){
+            if (X(i,j) == 2){
+                s = 1;
+                go = false;
+            }
+        }
+    }
+    if (s == 0){
+        genoType = 1;
+    }
+    else{
+        genoType = 2;
+    }
+}
+
+
+void StatsBasic::assertReadyToRun() {
+    beta = MatrixXd::Zero(X.cols(), y.cols());
+    checkGenoType();
+}
+
+
+void StatsBasic::setCorrectNum(long i) {
+    correctNum = i;
+}
+
+void StatsBasic::BonferroniCorrection() {
+    if (correctNum!=0){
+        beta = beta*correctNum;
+        MatrixXd m = MatrixXd::Ones(beta.rows(), beta.cols());
+        beta = beta.cwiseMin(m);
+    }
+}
