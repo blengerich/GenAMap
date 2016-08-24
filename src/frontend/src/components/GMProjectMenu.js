@@ -10,6 +10,7 @@ import FontIcon from 'material-ui/lib/font-icon'
 import AutoComplete from 'material-ui/lib/auto-complete'
 
 import GMImportDialog from './GMImportDialog'
+import GMGDCDialog from './GMGDCDialog'
 
 const GMProjectContent = React.createClass({
   getDataUrl: function() {
@@ -212,6 +213,10 @@ class GMProjectMenu extends Component {
         <GMProjectList projects={this.props.projects} actions={this.props.projectActions} />
         <Divider />
         <GMImportDialog
+          submit={this.props.importDataSubmit}
+          projects={this.props.projects}
+        />
+        <GMGDCDialog
           submit={this.props.importDataSubmit}
           projects={this.props.projects}
         />

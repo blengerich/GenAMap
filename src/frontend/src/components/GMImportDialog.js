@@ -160,14 +160,14 @@ class GMImportDialog extends Component {
     return (
       <div>
         <ListItem
-          primaryText='Import Data'
+          primaryText='Import Local Data'
           onClick={this.handleOpen.bind(this)}
           leftIcon={<FontIcon className='material-icons'>add</FontIcon>}
         />
         <Dialog
           autoScrollBodyContent={true}
           className='gm-dialog__import'
-          title='Import Data'
+          title='Import Local Data'
           actions={actions}
           modal={false}
           open={this.state.open}
@@ -180,7 +180,7 @@ class GMImportDialog extends Component {
                 hintText='Choose Project'
                 errorText={!this.state.projectValue && errorText}
                 onChange={this.onChangeProject.bind(this)}
-              >
+                >
                 <MenuItem value={'new'} primaryText='New Project' />
                 {projectList}
               </SelectField>
@@ -234,7 +234,8 @@ class GMImportDialog extends Component {
               <GMFileInput
                 id='markerFile'
                 buttonLabel='Marker File'
-                accept='.csv'
+                hintText= 'PED file can be put here'
+                accept='.csv, .ped'
                 onChange={this.onChangeMarkerFileName.bind(this)}
                 fileLabel={this.state.markerFileName}
               />
@@ -258,7 +259,8 @@ class GMImportDialog extends Component {
               <GMFileInput
                 id='traitFile'
                 buttonLabel='Trait File'
-                accept='.csv'
+                hintText = 'MAP file can be put here'
+                accept='.csv, .map'
                 onChange={this.onChangeTraitFileName.bind(this)}
                 fileLabel={this.state.traitFileName}
               />

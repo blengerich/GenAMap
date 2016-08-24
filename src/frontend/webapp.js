@@ -22,6 +22,8 @@ var jwt = require('jsonwebtoken')
 var http = require('http')
 var querystring = require('querystring')
 //var favicon = require('serve-favicon')
+var request = require('request');
+var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
 const getTokenContent = (token) => {
   try {
