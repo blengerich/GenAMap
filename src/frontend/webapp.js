@@ -265,14 +265,17 @@ app.post(config.api.createAccountUrl, function (req, res) {
 })
 
 app.post(config.api.requestUserConfirmUrl, function (req, res) {
-  var transporter = nodemailer.createTransport('smtps://genamap@163.com:genamap2016@smtp.163.com');
+  var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
 
   var mailOptions = {
-      from: '"GenAMap" <genamap@163.com>', // sender address
+      from: '"GenAMap" <genamap.v2.0@gmail.com>', // sender address
       to: req.body.email,
       subject: 'GenAMap Sign-up Comfiration', // Subject line
       text: 'Registration Comfiration',
-      html: 'Verification code: ' + req.body.code + '<br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code
+      html: 'Hi: <br/>'+
+      'Welcome to register the GenAMap account. Now you can enjoy the advanced bioinformatic software totally free!<br/>'
+      + 'Verification code: ' + req.body.code + '<br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code + '<br/'
+      + 'Yours sincerely<br/>' + 'GenAMap Team'
   };
 
   // send mail with defined transport object
