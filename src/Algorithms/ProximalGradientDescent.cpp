@@ -170,7 +170,8 @@ void ProximalGradientDescent::run(LinearRegression *model) {
     int epoch = 0;
     MatrixXd y = model->getY();
     model->setL1_reg(model->getL1_reg()*10);
-    for (long i=0; i<y.cols(); i++){
+    long s = y.cols();
+    for (long i=0; i<s; i++){
         model->setY(y.col(i));
         model->initBeta();
         double residue = model->cost();
@@ -179,7 +180,7 @@ void ProximalGradientDescent::run(LinearRegression *model) {
         epoch = 0; 
         while (epoch < maxIteration && residue > tolerance && !shouldStop) {
             epoch++;
-            progress = float(epoch) / maxIteration;
+            progress = (float(epoch) + i*maxIteration )/(maxIteration*s);
             grad = model->proximal_derivative();
             in = model->getBeta() - learningRate * grad;
             model->updateBeta(model->proximal_operator(in, learningRate));
@@ -239,6 +240,7 @@ void ProximalGradientDescent::run(MultiPopLasso * model) {
     MatrixXd X = model->getX();
     MatrixXd y = model->getY();
     int epoch = 0;
+    long s = y.cols();
     for (long i=0; i<y.cols(); i++) {
         model->reSetFlag();
         model->setXY(X, y.col(i));
@@ -256,7 +258,7 @@ void ProximalGradientDescent::run(MultiPopLasso * model) {
         double diff = tolerance * 2;
         while (epoch < maxIteration && diff > tolerance && !shouldStop) {
             epoch++;
-            progress = float(epoch) / maxIteration;
+            progress = (float(epoch) + i*maxIteration ) / (maxIteration*s);
             theta_new = 2.0 / (epoch + 2);
             grad = model->proximal_derivative();
             in = beta - 1 / model->getL() * grad;
