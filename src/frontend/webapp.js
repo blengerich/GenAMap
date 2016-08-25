@@ -23,7 +23,6 @@ var http = require('http')
 var querystring = require('querystring')
 //var favicon = require('serve-favicon')
 var request = require('request');
-var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
 const getTokenContent = (token) => {
   try {
@@ -267,14 +266,17 @@ app.post(config.api.createAccountUrl, function (req, res) {
 })
 
 app.post(config.api.requestUserConfirmUrl, function (req, res) {
-  var transporter = nodemailer.createTransport('smtps://genamap@163.com:genamap2016@smtp.163.com');
+  var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
 
   var mailOptions = {
-      from: '"GenAMap" <genamap@163.com>', // sender address
+      from: '"GenAMap" <genamap.v2.0@gmail.com>', // sender address
       to: req.body.email,
       subject: 'GenAMap Sign-up Comfiration', // Subject line
       text: 'Registration Comfiration',
-      html: 'Verification code: ' + req.body.code + '<br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code
+      html: 'Hi: <br/>'+
+      'Welcome to register the GenAMap account. Now you can enjoy the advanced bioinformatic software totally free!<br/>'
+      + 'Verification code: ' + req.body.code + '<br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code + '<br/'
+      + 'Yours sincerely<br/>' + 'GenAMap Team'
   };
 
   // send mail with defined transport object
@@ -460,25 +462,140 @@ app.post(config.api.importDataUrl, function (req, res) {
 
   busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
     if (!!filename) {
-      const id = guid()
       const folderPath = path.join('./.tmp', userId)
       mkdirp.sync(folderPath)
-      const fileName = `${id}.csv`
-      const fullPath = path.join(folderPath, fileName)
-      const fstream = fs.createWriteStream(fullPath)
-      var data
-      file.pipe(fstream);
+      if(filename.split('.')[filename.split('.').length-1] == 'ped'){
+        file.on('data', function(data){
+          result = data.toString()
+          var lines = result.split('\n')
+          var traitLabel = 'defaultTrait'
+          const id_traitval = guid()
+          const traitval_fileName = `${id_traitval}.csv`
+          const traitval_fullPath = path.join(folderPath, traitval_fileName)
+          var traitValStream = fs.createWriteStream(traitval_fullPath, {'flags': 'a'})
+          dataList.trait.filetype = 'traitFile'
+          dataList.trait.path = traitval_fullPath
 
-      if (fieldname === 'markerFile') data = dataList.marker
-      else if (fieldname === 'traitFile') data = dataList.trait
-      else if (fieldname === 'markerLabelFile') data = dataList.markerLabel
-      else if (fieldname === 'traitLabelFile') data = dataList.traitLabel
-      else if (fieldname === 'snpsFeatureFile') data = dataList.snpsFeature
-      else if (fieldname === 'populationFile') data = dataList.population
-      else console.log("Unhandled file:", fieldname)
+          const id_markerval = guid()
+          const markerval_fileName = `${id_markerval}.csv`
+          const markerval_fullPath = path.join(folderPath, markerval_fileName)
+          var markerValStream = fs.createWriteStream(markerval_fullPath, {'flags': 'a'})
+          dataList.marker.filetype = 'markerFile'
+          dataList.marker.path = markerval_fullPath
+          var count = new Array();
+          var genes = lines[0].split(' ');
+          if(genes.length <= 2){genes = lines[0].split('\t');}
+          for(var i=0 ; i < 6; i++){
+            count[i] = new Array();
+            for(var j=0;j < genes.length-6 ; j++){
+              count[i][j] = 0
+            }
+          }
+          var linelength = 0
+          var markerValue = new Array()
+          var markerVal = new Array()
+          for(var i=0 ; i < lines.length; i++){
+            if(lines[i]!=null&&lines[i]!=''){
+              linelength++
+              markerVal[i] = new Array()
+              markerValue[i] = new Array()
+            }
+          }
+          for(var line = 0; line < linelength; line++){
+            var values = lines[line].split(' ')
+            if(values.length <= 2){
+              values = lines[line].split('\t')
+            }
+            if(values.length <=2){
+              // console.log('invalid delimiter1')
+              break
+            }
+            traitValStream.write(values[5]+'\n')
+            for(var i = 0; i < values.length-6; i++){
+              if(values[i+6] == '-9' || values[i+6] == '0' || values[i+6] == 'N'){count[0][i]++;markerVal[line][i]=0;}
+              else if(values[i+6] == '1' || values[i+6] == 'A'){count[1][i]++;markerVal[line][i]=1;}
+              else if(values[i+6] == '2' || values[i+6] == 'T'){count[2][i]++;markerVal[line][i]=2;}
+              else if(values[i+6] == '3' || values[i+6] == 'G'){count[3][i]++;markerVal[line][i]=3;}
+              else if(values[i+6] == '4' || values[i+6] == 'C'){count[4][i]++;markerVal[line][i]=4;}
+              else{count[5][i]++;markerVal[line][i]=5;}
+            }
+          }
+          for(var line = 0; line < linelength; line++){
+            var snp = 0
+            for(var i = 0; i < genes.length-6; i++){
+              var domin = 1
+              for(var j = 2; j < 6; j++){
+                if(count[j][i] > count[domin][i]){
+                  domin = j
+                }
+              }
+              // if (domin == 5){console.log(line +' '+ i + ' invalid marker');}
+              if (markerVal[line][i] == domin){markerVal[line][i]=0;}
+              else{markerVal[line][i]=1;}
+              if(i%2 == 1){
+                snp ++;
+                markerValue[line][snp] = markerVal[line][i-1] + markerVal[line][i];
+              }
+            }
+            markerValStream.write(markerValue[line].slice(1,markerValue[line].length)+'\n');
+          }
+          traitValStream.end()
+          markerValStream.end()
+          const id_traitLabel = guid()
+          const traitLabel_fileName = `${id_traitLabel}.csv`
+          const traitLabel_fullPath = path.join(folderPath, traitLabel_fileName)
+          dataList.traitLabel.filetype = 'traitLabelFile'
+          dataList.traitLabel.path = traitLabel_fullPath
+          fs.writeFile(traitLabel_fullPath,traitLabel,function(err){
+            if(err){throw err;console.log(err);}
+            else{console.log('trait Label done');}
+          })
 
-      data.filetype = fieldname
-      data.path = fullPath
+
+        })
+      }
+      else if(filename.split('.')[filename.split('.').length-1] == 'map'){
+        file.on('data', function(data){
+          result = data.toString()
+          var lines = result.split('\n')
+          const id_markerLabel = guid()
+          const markerLabel_fileName = `${id_markerLabel}.csv`
+          const markerLabel_fullPath = path.join(folderPath, markerLabel_fileName)
+          var markerLabelStream = fs.createWriteStream(markerLabel_fullPath, {'flags': 'a'})
+          dataList.markerLabel.filetype = 'markerLabelFile'
+          dataList.markerLabel.path = markerLabel_fullPath
+          for(var line = 0; line < lines.length; line++){
+            var values = lines[line].split(' ')
+            if(values.length <= 2){
+              values = lines[line].split('\t')
+            }
+            if(values.length <=2){
+              console.log('invalid delimiter2')
+              break
+            }
+            markerLabelStream.write(values[1]+'\n')
+          }
+          markerLabelStream.end()
+        })
+      }
+      else if(filename.split('.')[filename.split('.').length-1] == 'csv'){
+        const id = guid()
+        const fileName = `${id}.csv`
+        const fullPath = path.join(folderPath, fileName)
+        const fstream = fs.createWriteStream(fullPath)
+        file.pipe(fstream)
+        var data
+        if (fieldname === 'markerFile') data = dataList.marker
+        else if (fieldname === 'traitFile') data = dataList.trait
+        else if (fieldname === 'markerLabelFile') data = dataList.markerLabel
+        else if (fieldname === 'traitLabelFile') data = dataList.traitLabel
+        else if (fieldname === 'snpsFeatureFile') data = dataList.snpsFeature
+        else if (fieldname === 'populationFile') data = dataList.population
+        else console.log("Unhandled file:", fieldname)
+        data.filetype = fieldname
+        data.path = fullPath
+      }
+      else {console.log('not recognized data format')}
     }
   })
 
@@ -495,26 +612,6 @@ app.post(config.api.importDataUrl, function (req, res) {
             app.models.file.create(datum).exec(function (err, file) {
               if (err) throw err
               files.push(file)
-              /*
-              if (file.filetype === 'markerFile') {
-                marker.id = file.id
-                marker.files.push(file)
-              } else if (file.filetype === 'markerLabelFile') {
-                marker.labelId = file.id
-                marker.files.push(file)
-              } else if (file.filetype === 'traitFile') {
-                trait.id = file.id
-                trait.files.push(file)
-              } else if (file.filetype === 'traitLabelFile') {
-                trait.labelId = file.id
-                trait.files.push(file)
-              } else if (file.filetype === 'snpsFeatureFile') {
-                snpsFeature.id = file.id
-                snpsFeature.files.push(file)
-              } else if (file.filetype === 'populationFile') {
-                population.id = file.id
-                population.files.push(file)
-              }*/
               callback()
             })
           } else {
@@ -539,7 +636,6 @@ app.post(config.api.importDataUrl, function (req, res) {
 
   req.pipe(busboy)
 })
-
 /**
  * @param {Object} req
  * @param {Object} [req.body]
