@@ -4,7 +4,7 @@
 
 #include <Eigen/Dense>
 #include <unordered_map>
-#include "Models/Model.hpp"
+#include "../Models/Model.hpp"
 
 using namespace Eigen;
 using namespace std;
