@@ -4,7 +4,11 @@
 
 #include <Eigen/Dense>
 #include <unordered_map>
+#ifdef BAZEL
+#include "Models/Model.hpp"
+#else
 #include "../Models/Model.hpp"
+#endif
 
 using namespace Eigen;
 using namespace std;

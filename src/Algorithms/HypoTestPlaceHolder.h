@@ -6,7 +6,11 @@
 #define GENAMAP_V2_HYPOTESTPLACEHOLDER_H
 
 #include "Algorithm.hpp"
+#ifdef BAZEL
+#include "Stats/Stats.hpp"
+#else
 #include "../Stats/Stats.hpp"
+#endif
 
 
 class HypoTestPlaceHolder : public Algorithm {
