@@ -16,6 +16,7 @@ import GMMatrixVisualization from './components/GMMatrixVisualization'
 import GMManhattanVisualization from './components/GMManhattanVisualization'
 import GMLoginContainer from './components/GMLoginContainer'
 import GMCreateAccountContainer from './components/GMCreateAccountContainer'
+import GMForgetPassword from './components/GMForgetPasswordContainer'
 import { setInitialUserState, confirmAccountFromLink } from './actions'
 import { getToken, verifyToken, removeToken } from './middleware/token'
 
@@ -33,6 +34,7 @@ render(
     <Router history={hashHistory}>
       <Route path='/login' component={addDevTools(GMLoginContainer)} />
       <Route path='/register' component={addDevTools(GMCreateAccountContainer)} />
+      <Route path='/forgot-password' component={addDevTools(GMForgetPasswordContainer)}>
       <Route path='/confirm/:id' onEnter={confirmUser} />
       <Route path='/' component={addDevTools(requireAuthentication(GMAppContainer))}>
         <Route path='data/:id' component={GMDataList} />

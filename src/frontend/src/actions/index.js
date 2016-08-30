@@ -83,7 +83,8 @@ export function importData (form) {
     .then(response => {
       if (!response.ok) Promise.reject('Could not import data')
       return response.json()
-    }).then(data => {
+    })
+    .then(data => {
       dispatch(importDataReceive(data))
       Promise.resolve(data)
     }).catch(err => console.log(err))

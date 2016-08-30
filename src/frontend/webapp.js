@@ -13,10 +13,12 @@ var Converter = require('csvtojson').Converter;
 var nodemailer = require('nodemailer')
 require('es6-promise').polyfill()
 require('isomorphic-fetch')
-
+var readline = require('readline')
+var zlib = require('zlib')
 var config = require('./config')
 var Scheduler = require('../Scheduler/node/build/Release/scheduler.node')
 var jwt = require('jsonwebtoken')
+var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest
 
 // temp
 var http = require('http')
@@ -433,6 +435,8 @@ app.post(config.api.importDataUrl, function (req, res) {
 
   busboy.on('field', function (fieldname, val, fieldnameTruncated,
                               valTruncated, encoding, mimetype) {
+
+    file_type = "Gene Expression Quantification"
     switch (fieldname) {
       case 'project':
         projectId = val
@@ -455,10 +459,181 @@ app.post(config.api.importDataUrl, function (req, res) {
       case 'population':
         dataList.population.projectItem = val
         break
+      case 'data_type':
+        file_type = val
+      case 'disease_type':
+        projectObj.species = 'Human'
+        const folderPath = path.join('./.tmp', userId)
+        mkdirp.sync(folderPath)
+        console.log(file_type)
+        getCaseID(val, folderPath, file_type)
+        dataList.marker.projectItem = dataList.markerLabel.projectItem = 'marker'
+        dataList.trait.projectItem = dataList.traitLabel.projectItem = 'trait'
+        break
       default:
         console.log('Unhandled fieldname "' + fieldname + '" of value "' + val + '"')
     }
   })
+
+  function getCaseID(disease_id, folderPath, file_type){
+    const id_traitval = guid()
+    const traitval_fileName = `${id_traitval}.csv`
+    const traitval_fullPath = path.join(folderPath, traitval_fileName)
+    dataList.trait.filetype = 'traitFile'
+    dataList.trait.path = traitval_fullPath
+    const id_traitLabel = guid()
+    const traitLabel_fileName = `${id_traitLabel}.csv`
+    const traitLabel_fullPath = path.join(folderPath, traitLabel_fileName)
+    dataList.traitLabel.filetype = 'traitLabelFile'
+    dataList.traitLabel.path = traitLabel_fullPath
+    const id_markerval = guid()
+    const markerval_fileName = `${id_markerval}.csv`
+    const markerval_fullPath = path.join(folderPath, markerval_fileName)
+    dataList.marker.filetype = 'markerFile'
+    dataList.marker.path = markerval_fullPath
+    const id_markerLabel = guid()
+    const markerLabel_fileName = `${id_markerLabel}.csv`
+    const markerLabel_fullPath = path.join(folderPath, markerLabel_fileName)
+    dataList.markerLabel.filetype = 'markerLabelFile'
+    dataList.markerLabel.path = markerLabel_fullPath
+  	var filt = encodeURIComponent('{"op" : "in" , "content" : {"field" : "cases.project.project_id" ,"value" : ["'+ disease_id +'"]}}')
+  	var url = 'https://gdc-api.nci.nih.gov/cases?filters='+ filt + '&size=65535'
+  	request(url, function(error, response, body){
+  	    if (!error && response.statusCode == 200) {
+  	    	var regcase = /\"case_id\": \"(.+?)\"/ig
+  	    	while (foundcaseid = regcase.exec(body)) {
+  	    		var case_id = foundcaseid[0].split('"')[3]
+  	    		getphenotype(case_id, traitval_fullPath)
+            // getgenotype(case_id, file_type, folderPath, markerval_fullPath, markerLabel_fullPath)
+  	    		regcase.lastIndex -= foundcaseid[0].split(':')[1].length
+  	    	}
+  	    }
+  	    var traitLabelStream = fs.createWriteStream(traitLabel_fullPath, {'flags':'a'})
+  	    traitLabelStream.write(disease_id + '\n')
+  	    traitLabelStream.end()
+  	})
+  }
+
+  function getgenotype(case_id, file_type, folderPath, markerval_fullPath, markerLabel_fullPath){
+  	var filt = encodeURIComponent('{"op":"and","content":[{"op": "=", "content": {"field": "cases.case_id","value": ["'+ case_id +'"]}},{"op": "=", "content":{"field": "access","value": ["open"]}},{"op": "=", "content":{"field": "data_type","value": ["'+ file_type +'"]}}]}')
+  	var url = 'https://gdc-api.nci.nih.gov/files?filters='+ filt + '&size=65535'
+  	request(url, function(error, response, body){
+  	    var UUID = ''
+  	    if (!error && response.statusCode == 200) {
+  	    	var regfile = /\"file_id\": \"(.+?)\"/ig
+  	    	while(foundfile = regfile.exec(body)){
+  	    		UUID = foundfile[0].split('"')[3]
+            if (!fs.existsSync(markerLabel_fullPath)){
+              getMarkerData(UUID, '', markerval_fullPath)
+              getMarkerLabel(UUID, '', markerLabel_fullPath)
+            }
+  	    		regfile.lastIndex -= foundfile[0].split(':')[1].length
+  	    	}
+  	    }
+  	})
+  }
+
+  function getMarkerData(UUID, token, filepath){
+      var options = null
+      var link = 'https://gdc-api.nci.nih.gov/data/' + UUID
+      var suffix
+      var filename
+      var client = new XMLHttpRequest()
+      client.open("GET", link , true)
+      if (token != ''){
+          client.setRequestHeader('X-Auth-Token', token)
+      }
+      client.send()
+      client.onreadystatechange = function() {
+          if(this.readyState == 4 && this.status == 200) {
+              // namelist = client.getResponseHeader("Content-Disposition").split('=')
+              // filename = namelist[namelist.length-1]
+              // console.log(filename)
+              var lineReader = readline.createInterface({
+                input: request(link).pipe(zlib.createGunzip())
+              })
+              var snp = []
+              lineReader.on('line', (line) => {
+                snp.push(line.split("	")[1])
+                console.log(line)
+              }).on('close', () => {
+                var markerValStream = fs.createWriteStream(filepath, {'flags':'a'})
+                console.log('downloading')
+                markerValStream.write(snp + '\n')
+                markerValStream.end()
+              })
+            }
+          else if(client.status == 400){
+              console.log('An entity or element of the query was not valid')
+          }
+          else if(client.status == 403){
+              console.log('Unauthorized request')
+          }
+          else if(client.status == 404){
+              console.log('Requested element not found')
+          }
+      }
+  }
+
+  function getMarkerLabel(UUID, token, filepath){
+      var options = null
+      var link = 'https://gdc-api.nci.nih.gov/data/' + UUID
+      var suffix
+      var filename
+      var client = new XMLHttpRequest()
+      client.open("GET", link , true)
+      if (token != ''){
+          client.setRequestHeader('X-Auth-Token', token)
+      }
+      client.send()
+      client.onreadystatechange = function() {
+          if(this.readyState == 4 && this.status == 200) {
+              var lineReader = readline.createInterface({
+                input: request(link).pipe(zlib.createGunzip())
+              })
+              lineReader.on('line', (line) => {
+                var markerLabelStream = fs.createWriteStream(filepath, {'flags':'a'})
+                markerLabelStream.write(line.split("	")[0] + '\n')
+                markerLabelStream.end()
+              })
+            }
+          else if(client.status == 400){
+              console.log('An entity or element of the query was not valid')
+          }
+          else if(client.status == 403){
+              console.log('Unauthorized request')
+          }
+          else if(client.status == 404){
+              console.log('Requested element not found')
+          }
+      }
+  }
+
+  function getphenotype(case_id, filename){
+  	var url = 'https://gdc-api.nci.nih.gov/cases/'+ case_id + '?expand=diagnoses'
+  	request(url, function(error, response, body){
+  		var pheno = ''
+  	    if (!error && response.statusCode == 200) {
+  	    	var regcase = /\"tumor_stage\": \"(.+?)\"/ig
+  	    	while(foundpheno = regcase.exec(body)){
+  	    		pheno = foundpheno[0].split('"')[3]
+            console.log(pheno)
+  	    		regcase.lastIndex -= foundpheno[0].split(':')[1].length
+  	    	}
+  	    }
+  	    // write pheno into data
+  	    var traitValStream = fs.createWriteStream(filename, {'flags':'a'})
+  	    switch(pheno.split(' ')[0]){
+  	    	case 'stage':
+  	    		pheno = 1
+  	    		break
+  	    	default:
+  	    		pheno = 0
+  	    }
+  	    traitValStream.write(pheno + '\n')
+  	    traitValStream.end()
+  	})
+  }
 
   busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
     if (!!filename) {
@@ -482,6 +657,7 @@ app.post(config.api.importDataUrl, function (req, res) {
           var markerValStream = fs.createWriteStream(markerval_fullPath, {'flags': 'a'})
           dataList.marker.filetype = 'markerFile'
           dataList.marker.path = markerval_fullPath
+
           var count = new Array();
           var genes = lines[0].split(' ');
           if(genes.length <= 2){genes = lines[0].split('\t');}

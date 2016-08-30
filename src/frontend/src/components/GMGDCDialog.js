@@ -10,10 +10,8 @@ import RaisedButton from 'material-ui/lib/raised-button'
 import RadioButton from 'material-ui/lib/radio-button'
 
 import config from '../../config'
-import GMFileInput from './GMFileInput'
 
 const errorText = 'This is a required field'
-const link = 'this is the link'
 
 class GMGDCDialog extends Component {
   initialState () {
@@ -243,7 +241,6 @@ class GMGDCDialog extends Component {
                 value={this.state.disease_type}
                 hintText='Disease Type'
                 errorText={!this.state.disease_type && errorText}
-                link = {this.state.disease_type && link}
                 onChange={this.onChangeDisasterType.bind(this)}
                 >
                 {DiseaseList}
