@@ -320,6 +320,39 @@ app.get(`${config.api.confirmAccountUrl}/:code`, function (req, res) {
   })
 })
 
+app.post(config.api.ForgetPasswordUrl, function (req, res) {
+  const email = req.body.email
+  const code = req.body.code
+  const initialState = {}
+
+  if (!email || !code) {
+    return res.status(400).send({message: 'Missing email or password'})
+  }
+
+  app.models.user.findOne({ email }).exec(function (err, foundUser) {
+    if (err) console.log(err)
+    if (foundUser) {
+      return res.status(400).send({message: 'Email already in use'})
+    }
+
+    app.models.tempuser.findOne({ email }).exec(function (err, foundTempUser) {
+      if (err) console.log(err)
+      if (foundTempUser) {
+        return res.status(400).send({message: 'Email already in use'})
+      }
+
+      app.models.tempuser.create({ email, password }).exec(function (err, createdTempUser) {
+        if (err) {
+          if (err.code === 'E_VALIDATION')
+            return res.status(400).json({message: 'Invalid email address'})
+          return res.status(500).json({ err, from: 'createdUser' })
+        }
+        return res.json(createdTempUser)
+      })
+    })
+  })
+})
+
 app.post(config.api.createSessionUrl, function (req, res) {
   const email = req.body.email
   const password = req.body.password

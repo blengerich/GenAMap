@@ -7,6 +7,7 @@ import Avatar from 'material-ui/lib/avatar'
 import NavigationClose from 'material-ui/lib/svg-icons/navigation/close'
 
 import GMRunAnalysisDialogContainer from './GMRunAnalysisDialogContainer'
+import GMSettingDialogContainer from './GMSettingDialogContainer'
 import GMActivities from './GMActivities'
 import GMActivitiesContainer from './GMActivitiesContainer'
 import config from '../../config'
@@ -42,7 +43,7 @@ const styles = {
 
 var GMTopMenu = React.createClass({
   getInitialState: function () {
-    return {dialogOpen: false, activityOpen: false, anchorEl: null,
+    return {dialogOpen: false, activityOpen: false, settingOpen:false, anchorEl: null,
             logoIndex: 0, logos: ['logo-01.png', 'logo-02.png']}
   },
   handleRunAnalysisButton: function () {
@@ -56,6 +57,7 @@ var GMTopMenu = React.createClass({
   },
   handleSettingsButton: function (event) {
     this.changeLogo()
+    this.setState({settingOpen: true})
   },
   handleLogoutButton: function (event) {
     this.props.handleLogoutButton()
@@ -66,6 +68,9 @@ var GMTopMenu = React.createClass({
   onDialogClose: function () {
     this.setState({dialogOpen: false})
   },
+  onSettingClose: function(){
+    this.setState({settingOpen: false})
+  },
   render: function () {
     var logosrc = 'images/' + this.state.logos[this.state.logoIndex]
     const menuIcon =
@@ -75,7 +80,7 @@ var GMTopMenu = React.createClass({
       >
         menu
       </IconButton>
-      
+
     return (
       <div>
         <AppBar
@@ -97,6 +102,11 @@ var GMTopMenu = React.createClass({
           open={this.state.dialogOpen}
           onClose={this.onDialogClose}
           submit={this.runAnalysis}
+        />
+        <GMSettingDialogContainer
+          open={this.state.settingOpen}
+          onClose={this.onSettingClose}
+          submit={this.setting}
         />
         <GMActivitiesContainer
           open={this.state.activityOpen}

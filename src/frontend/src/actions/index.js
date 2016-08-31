@@ -533,6 +533,29 @@ function confirmAccountError (message) {
   }
 }
 
+export function ForgetPassword (creds) {
+  let ForgetPasswordRequest = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `email=${creds.email}&code=${creds.code}`
+  }
+  return dispatch => {
+    return fetch(config.api.ForgetPasswordUrl, ForgetPasswordRequest)
+    .then(response => response.json().then(account => ({ account, response })))
+    .then(({ account, response }) =>  {
+      if (!response.ok) {
+        dispatch(createAccountError(account.message))
+        return Promise.reject(account.message)
+      } else {
+        dispatch(receiveCreateAccount(account))
+        dispatch(requestUserConfirm(account))
+        Promise.resolve(account)
+      }
+    }).catch(err => console.log("Error: ", err))
+  }
+}
+
+
 export function confirmAccount (creds) {
   let confirmAccountRequest = {
     method: 'GET',

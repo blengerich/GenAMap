@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react'
 import { Link } from 'react-router'
 import Avatar from 'material-ui/lib/avatar'
 import AppBar from 'material-ui/lib/app-bar'
+import Dialog from 'material-ui/lib/dialog'
 import RaisedButton from 'material-ui/lib/raised-button'
 import TextField from 'material-ui/lib/text-field'
 
@@ -48,16 +49,22 @@ const styles = {
   }
 }
 
-class Login extends Component {
+class ForgetPassword extends Component {
   render () {
-    const { errorMessage, emailVerified } = this.props
+    const { errorMessage } = this.props
     const logosrc = 'images/' + logos[0]
-
-    const emailSuccessHeader = emailVerified ? (
-      <p style={{ 'color': 'green', 'fontSize': '0.8em' }}>
-        {emailVerified} successfully verified.
-      </p>
-    ) : undefined
+    router.get('/img', function(req, res, next) {
+        var ccap = require('ccap')({
+            width:400, //寬
+            height:400,//高
+            offset:40,//馬賽克數值
+            generate:function(){//自定義生成隨機數
+            this.width;
+            this.height;
+            return "abcdefg"
+          }
+        })
+      })
 
     return (
       <div style={styles.background}>
@@ -70,10 +77,10 @@ class Login extends Component {
             <Avatar src={logosrc} style={{alignSelf: 'center', border: 'none', order: 0}} />
             <h1 style={styles.header}>GenAMap 2.0</h1>
           </AppBar>
-          <p style={{ 'fontSize': '1.8em' }}>Sign In to GenAMap</p>
-          {emailSuccessHeader}
+          <p style={{ 'fontSize': '1.8em' }}>Forget Password</p>
           <div>
             <TextField
+              className={'form-control'}
               hintText={'Email Address'}
               type={'email'}
               onChange={this.onChangeUsername.bind(this)}
@@ -81,29 +88,28 @@ class Login extends Component {
             /><br/>
           </div>
           <div>
+            <img src= "/img" onclick="javascript:this.src='/img'" />
+          </div>
+          <div>
             <TextField
-              errorText={errorMessage}
-              hintText={'Password'}
-              type={'password'}
-              onChange={this.onChangePassword.bind(this)}
+              className={'validation-code'}
+              hintText={'Validation Code'}
+              type={'code'}
+              onChange={this.onChangeUsername.bind(this)}
               style={styles.form}
             /><br/>
           </div>
           <div>
             <RaisedButton
-              className={'form-control'}
-              label={'Login'}
-              onClick={this.handleLoginClick.bind(this)}
+              label={'Send Password to my email'}
+              onClick={this.handleForgetPasswordClick.bind(this)}
               primary={true}
               style={styles.action}
             />
           </div>
           <div style={{ margin: '10px 0' }}>
-            <Link to='/forget-password'>{'Forgot password?'}</Link>
-          </div>
-          <div style={{ margin: '10px 0' }}>
-            {"Don't have an account? "}
-            <Link to='/register' onClick={this.clearErrors.bind(this)}>{'Sign up'}</Link>
+            {"Remember the password?"}
+            <Link to='/login' onClick={this.clearErrors.bind(this)}>{'Sign in'}</Link>
           </div>
         </div>
       </div>
@@ -118,26 +124,21 @@ class Login extends Component {
     this.setState({ email: event.target.value })
   }
 
-  onChangePassword (event) {
-    this.setState({ password: event.target.value })
+  onChangeCode (event){
+    this.setState({ code: event.target.value })
   }
 
-  handleLoginClick (event) {
+  handleForgetPasswordClick (event) {
     const email = (this.state && this.state.email) ? this.state.email : ''
-    const password = (this.state && this.state.password) ? this.state.password : ''
-    const creds = { email, password }
-    this.props.onLoginClick(creds, this.props.location.search)
-  }
-
-  linkToSignup (event) {
-    this.props.linkToSignup()
+    const code = (this.state && this.state.code) ? this.state.code : ''
+    const creds = { email, code }
+    this.props.onForgetPasswordClick(creds)
   }
 }
 
-Login.propTypes = {
-  onLoginClick: PropTypes.func.isRequired,
-  onCreateAccountClick: PropTypes.func.isRequired,
+ForgetPassword.propTypes = {
+  onForgetPasswordClick: PropTypes.func.isRequired,
   errorMessage: PropTypes.string
 }
 
-export default Login
+export default ForgetPassword
