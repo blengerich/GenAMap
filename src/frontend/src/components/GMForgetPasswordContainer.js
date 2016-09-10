@@ -1,13 +1,10 @@
 import { connect } from 'react-redux'
-import { loginUser, redirectTo, ForgetPassword, clearAuthErrors, confirmAccount } from '../actions'
+import { redirectTo, ForgetPassword, clearAuthErrors} from '../actions'
 import GMForgetPassword from './GMForgetPassword'
 
 const mapStateToProps = (state) => ({
   errorMessage: state.userData.auth.createErrorMessage,
-  confirmErrorMessage: state.userData.auth.confirmErrorMessage,
-  isAuthenticated: state.userData.auth.isAuthenticated,
-  verifyDialogOpen: state.userData.auth.verifyDialogOpen,
-  emailToVerify: state.userData.auth.emailToVerify
+  isAuthenticated: state.userData.auth.isAuthenticated
 })
 
 const mapDispatchToProps = (dispatch) => ({
@@ -19,9 +16,6 @@ const mapDispatchToProps = (dispatch) => ({
     ForgetPasswordPromise.then(account => {
       console.log("ACCOUNT", account)
     })
-  },
-  submitConfirm: (creds) => {
-    dispatch(confirmAccount(creds))
   }
 })
 

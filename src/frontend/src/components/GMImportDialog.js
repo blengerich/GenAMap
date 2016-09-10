@@ -19,6 +19,7 @@ class GMImportDialog extends Component {
       projectValue: '',
       projectName: '',
       speciesValue: '',
+      datatype: 'csv',
       markerLabelFileName: '',
       markerName: '',
       markerFileName: '',
@@ -80,6 +81,10 @@ class GMImportDialog extends Component {
                      optionDisabled: true
       })
     }
+  }
+
+  onChangeFileType (event, index, value){
+    this.setState({datatype: value})
   }
 
   onChangeProjectName (event) {
@@ -222,92 +227,191 @@ class GMImportDialog extends Component {
                 {speciesListReact}
               </select>
             </div>
-            <div>
-              <TextField
-                id='markerName'
-                value={this.state.markerName}
-                hintText='Marker Name'
-                errorText={(this.state.markerFileName || this.state.markerLabelFileName) && !this.state.markerName && errorText}
-                onChange={this.onChangeMarkerName.bind(this)}
-              />
-              <br />
-              <GMFileInput
-                id='markerFile'
-                buttonLabel='Marker File'
-                hintText= 'PED file can be put here'
-                accept='.csv, .ped'
-                onChange={this.onChangeMarkerFileName.bind(this)}
-                fileLabel={this.state.markerFileName}
-              />
-              <GMFileInput
-                id='markerLabelFile'
-                buttonLabel='Marker Label File'
-                accept='.csv'
-                onChange={this.onChangeMarkerLabelFileName.bind(this)}
-                fileLabel={this.state.markerLabelFileName}
-              />
-            </div>
-            <br />
-            <div>
-              <TextField
-                id='traitName'
-                value={this.state.traitName}
-                hintText='Trait Name'
-                errorText={(this.state.traitFileName || this.state.traitLabelFileName) && !this.state.traitName && errorText}
-                onChange={this.onChangeTraitName.bind(this)}
-              />
-              <GMFileInput
-                id='traitFile'
-                buttonLabel='Trait File'
-                hintText = 'MAP file can be put here'
-                accept='.csv, .map'
-                onChange={this.onChangeTraitFileName.bind(this)}
-                fileLabel={this.state.traitFileName}
-              />
-              <GMFileInput
-                id='traitLabelFile'
-                buttonLabel='Trait Label File'
-                accept='.csv'
-                onChange={this.onChangeTraitLabelFileName.bind(this)}
-                fileLabel={this.state.traitLabelFileName}
-              />
-            </div>
-            <div id="populationDiv">
-              <TextField
-                id='population'
-                value={this.state.populationName}
-                hintText='Population File Name'
-                errorText={this.state.populationFileName && !this.state.populationName && errorText}
-                onChange={this.onChangePopulationName.bind(this)}
-                importOnSubmit={true}
-              />
-              <GMFileInput
-                id='populationFile'
-                buttonLabel='Population File'
-                accept='.csv'
-                onChange={this.onChangePopulationFileName.bind(this)}
-                fileLabel={this.state.populationFileName}
-                importOnSubmit={true}
-              />
-            </div>
-            <div id="snpFeaturesDiv">
-              <TextField
-                id='snpsFeature'
-                value={this.state.snpsFeatureName}
-                hintText='SNPs Features Name'
-                errorText={this.state.snpsFeatureFileName && !this.state.snpsFeatureName && errorText}
-                onChange={this.onChangeSnpsFeatureName.bind(this)}
-                importOnSubmit={true}
-              />
-              <GMFileInput
-                id='snpsFeatureFile'
-                buttonLabel='SNPs Feature File'
-                accept='.csv'
-                onChange={this.onChangeSnpsFeatureFileName.bind(this)}
-                fileLabel={this.state.snpsFeatureFileName}
-                importOnSubmit={true}
-              />
-            </div>
+              <SelectField
+                value={this.state.datatype}
+                hintText='Choose file type'
+                onChange={this.onChangeFileType.bind(this)}
+              >
+                <MenuItem value={'csv'} primaryText='CSV data' />
+                <MenuItem value={'plink'} primaryText='PLINK data' />
+                <MenuItem value={'bed'} primaryText='PLINK binary data' />
+              </SelectField>
+              {(this.state.datatype == 'csv') ?
+                <div id="csvformatdata">
+                  <div>
+                    <TextField
+                      id='markerName'
+                      value={this.state.markerName}
+                      hintText='Marker Name'
+                      errorText={(this.state.markerFileName || this.state.markerLabelFileName) && !this.state.markerName && errorText}
+                      onChange={this.onChangeMarkerName.bind(this)}
+                    />
+                    <br />
+                    <GMFileInput
+                      id='markerFile'
+                      buttonLabel='Marker File'
+                      accept='.csv'
+                      onChange={this.onChangeMarkerFileName.bind(this)}
+                      fileLabel={this.state.markerFileName}
+                    />
+                    <GMFileInput
+                      id='markerLabelFile'
+                      buttonLabel='Marker Label File'
+                      accept='.csv'
+                      onChange={this.onChangeMarkerLabelFileName.bind(this)}
+                      fileLabel={this.state.markerLabelFileName}
+                    />
+                  </div>
+                  <br />
+                  <div>
+                    <TextField
+                      id='traitName'
+                      value={this.state.traitName}
+                      hintText='Trait Name'
+                      errorText={(this.state.traitFileName || this.state.traitLabelFileName) && !this.state.traitName && errorText}
+                      onChange={this.onChangeTraitName.bind(this)}
+                    />
+                    <GMFileInput
+                      id='traitFile'
+                      buttonLabel='Trait File'
+                      accept='.csv'
+                      onChange={this.onChangeTraitFileName.bind(this)}
+                      fileLabel={this.state.traitFileName}
+                    />
+                    <GMFileInput
+                      id='traitLabelFile'
+                      buttonLabel='Trait Label File'
+                      accept='.csv'
+                      onChange={this.onChangeTraitLabelFileName.bind(this)}
+                      fileLabel={this.state.traitLabelFileName}
+                    />
+                  </div>
+                  <div id="populationDiv">
+                    <TextField
+                      id='population'
+                      value={this.state.populationName}
+                      hintText='Population File Name'
+                      errorText={this.state.populationFileName && !this.state.populationName && errorText}
+                      onChange={this.onChangePopulationName.bind(this)}
+                      importOnSubmit={true}
+                    />
+                    <GMFileInput
+                      id='populationFile'
+                      buttonLabel='Population File'
+                      accept='.csv'
+                      onChange={this.onChangePopulationFileName.bind(this)}
+                      fileLabel={this.state.populationFileName}
+                      importOnSubmit={true}
+                    />
+                  </div>
+                  <div id="snpFeaturesDiv">
+                    <TextField
+                      id='snpsFeature'
+                      value={this.state.snpsFeatureName}
+                      hintText='SNPs Features Name'
+                      errorText={this.state.snpsFeatureFileName && !this.state.snpsFeatureName && errorText}
+                      onChange={this.onChangeSnpsFeatureName.bind(this)}
+                      importOnSubmit={true}
+                    />
+                    <GMFileInput
+                      id='snpsFeatureFile'
+                      buttonLabel='SNPs Feature File'
+                      accept='.csv'
+                      onChange={this.onChangeSnpsFeatureFileName.bind(this)}
+                      fileLabel={this.state.snpsFeatureFileName}
+                      importOnSubmit={true}
+                    />
+                  </div>
+                </div>:
+               (this.state.datatype == 'plink') ?
+                <div id="plinkdataimport">
+                  <div>
+                    <TextField
+                      id='markerName'
+                      value={this.state.markerName}
+                      hintText='Marker Name'
+                      errorText={(this.state.markerFileName || this.state.markerLabelFileName) && !this.state.markerName && errorText}
+                      onChange={this.onChangeMarkerName.bind(this)}
+                    />
+                    <br />
+                    <GMFileInput
+                      id='markerFile'
+                      buttonLabel='Marker File'
+                      hintText= 'PED file can be put here'
+                      accept='.ped'
+                      onChange={this.onChangeMarkerFileName.bind(this)}
+                      fileLabel={this.state.markerFileName}
+                    />
+                  </div>
+                  <br />
+                  <div>
+                    <TextField
+                      id='traitName'
+                      value={this.state.traitName}
+                      hintText='Trait Name'
+                      errorText={(this.state.traitFileName || this.state.traitLabelFileName) && !this.state.traitName && errorText}
+                      onChange={this.onChangeTraitName.bind(this)}
+                    />
+                    <GMFileInput
+                      id='traitFile'
+                      buttonLabel='Trait File'
+                      hintText = 'MAP file can be put here'
+                      accept='.map'
+                      onChange={this.onChangeTraitFileName.bind(this)}
+                      fileLabel={this.state.traitFileName}
+                    />
+                  </div>
+                </div>:
+               (this.state.datatype == 'bed') ?
+                <div id="plinkbinarydata">
+                <div>
+                  <TextField
+                    id='markerName'
+                    value={this.state.markerName}
+                    hintText='Marker Name'
+                    errorText={(this.state.markerFileName || this.state.markerLabelFileName) && !this.state.markerName && errorText}
+                    onChange={this.onChangeMarkerName.bind(this)}
+                  />
+                  <br />
+                  <TextField
+                    id='traitName'
+                    value={this.state.traitName}
+                    hintText='Trait Name'
+                    errorText={(this.state.traitFileName || this.state.traitLabelFileName) && !this.state.traitName && errorText}
+                    onChange={this.onChangeTraitName.bind(this)}
+                  />
+                </div>
+                  <br />
+                <div>
+                  <GMFileInput
+                    id='bedFile'
+                    buttonLabel='BED File'
+                    hintText= 'BED file can be put here'
+                    accept='.ped'
+                    onChange={this.onChangeMarkerFileName.bind(this)}
+                    fileLabel={this.state.markerFileName}
+                  />
+                  <br />
+                  <GMFileInput
+                    id='File'
+                    buttonLabel='BIM File'
+                    hintText = 'BIM file can be put here'
+                    accept='.map'
+                    onChange={this.onChangeTraitFileName.bind(this)}
+                    fileLabel={this.state.traitFileName}
+                  />
+                  <br />
+                  <GMFileInput
+                    id='traitFile'
+                    buttonLabel='FAM File'
+                    hintText = 'FAM file can be put here'
+                    accept='.map'
+                    onChange={this.onChangeTraitFileName.bind(this)}
+                    fileLabel={this.state.traitFileName}
+                  />
+                </div>
+                </div>:
+                null}
           </form>
         </Dialog>
       </div>

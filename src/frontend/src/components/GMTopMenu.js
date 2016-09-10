@@ -7,7 +7,7 @@ import Avatar from 'material-ui/lib/avatar'
 import NavigationClose from 'material-ui/lib/svg-icons/navigation/close'
 
 import GMRunAnalysisDialogContainer from './GMRunAnalysisDialogContainer'
-import GMSettingDialogContainer from './GMSettingDialogContainer'
+import GMSettingContainer from './GMSettingContainer'
 import GMActivities from './GMActivities'
 import GMActivitiesContainer from './GMActivitiesContainer'
 import config from '../../config'
@@ -43,20 +43,19 @@ const styles = {
 
 var GMTopMenu = React.createClass({
   getInitialState: function () {
-    return {dialogOpen: false, activityOpen: false, settingOpen:false, anchorEl: null,
+    return {dialogOpen: false, activityOpen: false, settingOpen:false, anchorElAct: null, anchorElSet: null,
             logoIndex: 0, logos: ['logo-01.png', 'logo-02.png']}
   },
   handleRunAnalysisButton: function () {
     this.setState({dialogOpen: true})
   },
   handleActivityButton: function (event) {
-    this.setState({activityOpen: true, anchorEl: event.currentTarget})
+    this.setState({activityOpen: true, anchorElAct: event.currentTarget})
   },
   changeLogo: function () {
     this.setState({logoIndex: (this.state.logoIndex + 1) % this.state.logos.length})
   },
   handleSettingsButton: function (event) {
-    this.changeLogo()
     this.setState({settingOpen: true})
   },
   handleLogoutButton: function (event) {
@@ -65,11 +64,11 @@ var GMTopMenu = React.createClass({
   onActivityClose: function () {
     this.setState({activityOpen: false})
   },
+  onSettingClose: function () {
+    this.setState({settingOpen: false})
+  },
   onDialogClose: function () {
     this.setState({dialogOpen: false})
-  },
-  onSettingClose: function(){
-    this.setState({settingOpen: false})
   },
   render: function () {
     var logosrc = 'images/' + this.state.logos[this.state.logoIndex]
@@ -92,7 +91,7 @@ var GMTopMenu = React.createClass({
           <h1 style={Object.assign({visibility: this.props.visibility}, styles.header)}>genamap</h1>
           <FlatButton style={styles.appBarLink} label='Run Analysis' onClick={this.handleRunAnalysisButton} />
           <FlatButton style={styles.appBarLink} label='Activity' onClick={this.handleActivityButton} />
-          <FlatButton style={styles.appBarLink} label='Settings' onClick={this.handleSettingsButton} />
+          <FlatButton style={styles.appBarLink} label='Account' onClick={this.handleSettingsButton} />
           <FlatButton style={styles.appBarLink} label='Logout' onClick={this.handleLogoutButton} />
           <IconButton style={styles.appBarIcon} touch={true} onClick={this.props.handleRightIconTouch}>
             <FontIcon color={styles.appBarLink.color} className='material-icons'>menu</FontIcon>
@@ -103,14 +102,13 @@ var GMTopMenu = React.createClass({
           onClose={this.onDialogClose}
           submit={this.runAnalysis}
         />
-        <GMSettingDialogContainer
+        <GMSettingContainer
           open={this.state.settingOpen}
-          onClose={this.onSettingClose}
-          submit={this.setting}
+          onSettingClose={this.onSettingClose}
         />
         <GMActivitiesContainer
           open={this.state.activityOpen}
-          anchorEl={this.state.anchorEl}
+          anchorElAct={this.state.anchorElAct}
           onActivityClose={this.onActivityClose}
           anchorOrigin={this.state.anchorOrigin}
           targetOrigin={this.state.targetOrigin}

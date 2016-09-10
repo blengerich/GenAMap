@@ -4,6 +4,7 @@ import Avatar from 'material-ui/lib/avatar'
 import AppBar from 'material-ui/lib/app-bar'
 import Dialog from 'material-ui/lib/dialog'
 import RaisedButton from 'material-ui/lib/raised-button'
+import FlatButton from 'material-ui/lib/flat-button'
 import TextField from 'material-ui/lib/text-field'
 
 import config from '../../config'
@@ -50,22 +51,30 @@ const styles = {
 }
 
 class ForgetPassword extends Component {
+  initialState () {
+    return {open: false}
+  }
+  constructor (props, context) {
+    super(props, context)
+    this.state = this.initialState()
+  }
+  handleOpen () {
+    this.setState({open: true})
+  }
+
+  handleClose () {
+    this.setState({open: false})
+  }
   render () {
     const { errorMessage } = this.props
     const logosrc = 'images/' + logos[0]
-    router.get('/img', function(req, res, next) {
-        var ccap = require('ccap')({
-            width:400, //寬
-            height:400,//高
-            offset:40,//馬賽克數值
-            generate:function(){//自定義生成隨機數
-            this.width;
-            this.height;
-            return "abcdefg"
-          }
-        })
-      })
-
+    const actions = [
+      <FlatButton
+        label="OK"
+        primary={true}
+        onTouchTap={this.handleClose.bind(this)}
+      />
+    ]
     return (
       <div style={styles.background}>
         <div style={styles.body}>
@@ -83,18 +92,7 @@ class ForgetPassword extends Component {
               className={'form-control'}
               hintText={'Email Address'}
               type={'email'}
-              onChange={this.onChangeUsername.bind(this)}
-              style={styles.form}
-            /><br/>
-          </div>
-          <div>
-            <img src= "/img" onclick="javascript:this.src='/img'" />
-          </div>
-          <div>
-            <TextField
-              className={'validation-code'}
-              hintText={'Validation Code'}
-              type={'code'}
+              errorText={errorMessage}
               onChange={this.onChangeUsername.bind(this)}
               style={styles.form}
             /><br/>
@@ -106,6 +104,14 @@ class ForgetPassword extends Component {
               primary={true}
               style={styles.action}
             />
+            <Dialog
+              actions={actions}
+              modal={false}
+              open={this.state.open}
+              onRequestClose={this.handleClose.bind(this)}
+            >
+              Your email has sent succesfully
+            </Dialog>
           </div>
           <div style={{ margin: '10px 0' }}>
             {"Remember the password?"}
@@ -130,9 +136,12 @@ class ForgetPassword extends Component {
 
   handleForgetPasswordClick (event) {
     const email = (this.state && this.state.email) ? this.state.email : ''
-    const code = (this.state && this.state.code) ? this.state.code : ''
-    const creds = { email, code }
+    const creds = { email }
     this.props.onForgetPasswordClick(creds)
+    const { errorMessage } = this.props
+    if(errorMessage == null){
+      this.handleOpen()
+    }
   }
 }
 

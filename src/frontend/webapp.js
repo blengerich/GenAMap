@@ -268,28 +268,33 @@ app.post(config.api.createAccountUrl, function (req, res) {
 })
 
 app.post(config.api.requestUserConfirmUrl, function (req, res) {
-  var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
+  fs.readFile('./static/email/Registration_1.html', function (err, html_1) {
+    if (err) {throw err}
+    fs.readFile('./static/email/Registration_2.html', function (err, html_2) {
+      if (err) {throw err}
+      var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
+      var mailOptions = {
+          from: '"GenAMap" <genamap.v2.0@gmail.com>', // sender address
+          to: req.body.email,
+          subject: 'GenAMap Sign-up Comfiration', // Subject line
+          text: 'Registration Comfiration',
+          html: html_1
+          + 'Verification code: <br/> ' + req.body.code + '<br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code + '<br/>'
+          + html_2
+      };
 
-  var mailOptions = {
-      from: '"GenAMap" <genamap.v2.0@gmail.com>', // sender address
-      to: req.body.email,
-      subject: 'GenAMap Sign-up Comfiration', // Subject line
-      text: 'Registration Comfiration',
-      html: 'Hi: <br/>'+
-      'Welcome to register the GenAMap account. Now you can enjoy the advanced bioinformatic software totally free!<br/>'
-      + 'Verification code: ' + req.body.code + '<br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code + '<br/'
-      + 'Yours sincerely<br/>' + 'GenAMap Team'
-  };
+      // send mail with defined transport object
+      transporter.sendMail(mailOptions, function(error, info) {
+          if (error) {
+            console.log(error)
+            return res.status(500).send({message: 'Error sending confirmation email to user'})
+          }
+          console.log('Message sent: ' + info.response);
+          return res.json(info.response)
+      });
 
-  // send mail with defined transport object
-  transporter.sendMail(mailOptions, function(error, info) {
-      if (error) {
-        console.log(error)
-        return res.status(500).send({message: 'Error sending confirmation email to user'})
-      }
-      console.log('Message sent: ' + info.response);
-      return res.json(info.response)
-  });
+    })
+  })
 })
 
 app.get(`${config.api.confirmAccountUrl}/:code`, function (req, res) {
@@ -322,36 +327,98 @@ app.get(`${config.api.confirmAccountUrl}/:code`, function (req, res) {
 
 app.post(config.api.ForgetPasswordUrl, function (req, res) {
   const email = req.body.email
-  const code = req.body.code
   const initialState = {}
 
-  if (!email || !code) {
-    return res.status(400).send({message: 'Missing email or password'})
+  if (!email) {
+    return res.status(400).send({message: 'Missing email'})
   }
 
   app.models.user.findOne({ email }).exec(function (err, foundUser) {
     if (err) console.log(err)
     if (foundUser) {
-      return res.status(400).send({message: 'Email already in use'})
+      return res.json({email})
     }
-
-    app.models.tempuser.findOne({ email }).exec(function (err, foundTempUser) {
-      if (err) console.log(err)
-      if (foundTempUser) {
-        return res.status(400).send({message: 'Email already in use'})
-      }
-
-      app.models.tempuser.create({ email, password }).exec(function (err, createdTempUser) {
-        if (err) {
-          if (err.code === 'E_VALIDATION')
-            return res.status(400).json({message: 'Invalid email address'})
-          return res.status(500).json({ err, from: 'createdUser' })
+    else{
+      app.models.tempuser.findOne({ email }).exec(function (err, foundTempUser) {
+        if (err) console.log(err)
+        if (foundTempUser) {
+          return res.json({email})
         }
-        return res.json(createdTempUser)
-      })
+        else{
+          return res.status(400).send({message: 'Email not sign in'})
+        }
     })
+    }
   })
+  })
+
+app.post(config.api.ForgetPasswordEmailUrl, function (req, res) {
+  var email = req.body.email
+  app.models.user.findOne({ email }).exec(function (err, foundUser) {
+    if (err) console.log(err)
+    if (foundUser) {
+      var password = foundUser.password
+      var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
+      var mailOptions = {
+          from: '"GenAMap" <genamap.v2.0@gmail.com>', // sender address
+          to: req.body.email,
+          subject: 'GenAMap Forget Password Email', // Subject line
+          text: 'Forget Password Email',
+          html: 'Hi: <br/>'+
+          'Welcome to register the GenAMap account. Now you can enjoy the advanced bioinformatic software totally free!<br/>'
+          + 'Your Password: ' + password + '<br/'
+          + 'Yours sincerely<br/>' + 'GenAMap Team'
+      };
+
+      // send mail with defined transport object
+      transporter.sendMail(mailOptions, function(error, info) {
+          if (error) {
+            console.log(error)
+            return res.status(500).send({message: 'Error sending Forget Password email to user'})
+          }
+          console.log('Message sent: ' + info.response);
+          return res.json(info.response)
+      });
+    }
+    else{
+      app.models.tempuser.findOne({ email }).exec(function (err, foundTempUser) {
+        if (err) console.log(err)
+        if (foundTempUser) {
+          var password = foundTempUser.password
+          var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
+          var mailOptions = {
+              from: '"GenAMap" <genamap.v2.0@gmail.com>', // sender address
+              to: req.body.email,
+              subject: 'GenAMap Forget Password Email', // Subject line
+              text: 'Forget Password Email',
+              html: 'Hi: <br/>'+
+              'Welcome to register the GenAMap account. Now you can enjoy the advanced bioinformatic software totally free!<br/>'
+              + 'Your Password: ' + password + '<br/'
+              + 'Yours sincerely<br/>' + 'GenAMap Team'
+          };
+
+          // send mail with defined transport object
+          transporter.sendMail(mailOptions, function(error, info) {
+              if (error) {
+                console.log(error)
+                return res.status(500).send({message: 'Error sending Forget Password email to user'})
+              }
+              console.log('Message sent: ' + info.response);
+              return res.json(info.response)
+          });
+        }
+        else{
+          return res.status(400).send({message: 'Email not sign in'})
+        }
+    })
+    }
+  })
+
+
+
+
 })
+
 
 app.post(config.api.createSessionUrl, function (req, res) {
   const email = req.body.email
@@ -469,7 +536,7 @@ app.post(config.api.importDataUrl, function (req, res) {
   busboy.on('field', function (fieldname, val, fieldnameTruncated,
                               valTruncated, encoding, mimetype) {
 
-    file_type = "Gene Expression Quantification"
+    file_type = "FPKM data"
     switch (fieldname) {
       case 'project':
         projectId = val
@@ -499,7 +566,7 @@ app.post(config.api.importDataUrl, function (req, res) {
         const folderPath = path.join('./.tmp', userId)
         mkdirp.sync(folderPath)
         console.log(file_type)
-        getCaseID(val, folderPath, file_type)
+        getfile(val, folderPath, file_type)
         dataList.marker.projectItem = dataList.markerLabel.projectItem = 'marker'
         dataList.trait.projectItem = dataList.traitLabel.projectItem = 'trait'
         break
@@ -508,165 +575,36 @@ app.post(config.api.importDataUrl, function (req, res) {
     }
   })
 
-  function getCaseID(disease_id, folderPath, file_type){
-    const id_traitval = guid()
-    const traitval_fileName = `${id_traitval}.csv`
-    const traitval_fullPath = path.join(folderPath, traitval_fileName)
-    dataList.trait.filetype = 'traitFile'
-    dataList.trait.path = traitval_fullPath
-    const id_traitLabel = guid()
-    const traitLabel_fileName = `${id_traitLabel}.csv`
-    const traitLabel_fullPath = path.join(folderPath, traitLabel_fileName)
-    dataList.traitLabel.filetype = 'traitLabelFile'
-    dataList.traitLabel.path = traitLabel_fullPath
-    const id_markerval = guid()
-    const markerval_fileName = `${id_markerval}.csv`
-    const markerval_fullPath = path.join(folderPath, markerval_fileName)
-    dataList.marker.filetype = 'markerFile'
-    dataList.marker.path = markerval_fullPath
-    const id_markerLabel = guid()
-    const markerLabel_fileName = `${id_markerLabel}.csv`
-    const markerLabel_fullPath = path.join(folderPath, markerLabel_fileName)
-    dataList.markerLabel.filetype = 'markerLabelFile'
-    dataList.markerLabel.path = markerLabel_fullPath
-  	var filt = encodeURIComponent('{"op" : "in" , "content" : {"field" : "cases.project.project_id" ,"value" : ["'+ disease_id +'"]}}')
-  	var url = 'https://gdc-api.nci.nih.gov/cases?filters='+ filt + '&size=65535'
-  	request(url, function(error, response, body){
-  	    if (!error && response.statusCode == 200) {
-  	    	var regcase = /\"case_id\": \"(.+?)\"/ig
-  	    	while (foundcaseid = regcase.exec(body)) {
-  	    		var case_id = foundcaseid[0].split('"')[3]
-  	    		getphenotype(case_id, traitval_fullPath)
-            // getgenotype(case_id, file_type, folderPath, markerval_fullPath, markerLabel_fullPath)
-  	    		regcase.lastIndex -= foundcaseid[0].split(':')[1].length
-  	    	}
-  	    }
-  	    var traitLabelStream = fs.createWriteStream(traitLabel_fullPath, {'flags':'a'})
-  	    traitLabelStream.write(disease_id + '\n')
-  	    traitLabelStream.end()
-  	})
+  function getfile(disease_type, folderPath, file_type){
+      const id_traitval = guid()
+      const traitval_fileName = `${id_traitval}.csv`
+      const traitval_fullPath = path.join(folderPath, traitval_fileName)
+      dataList.trait.filetype = 'traitFile'
+      dataList.trait.path = traitval_fullPath
+      const id_traitLabel = guid()
+      const traitLabel_fileName = `${id_traitLabel}.csv`
+      const traitLabel_fullPath = path.join(folderPath, traitLabel_fileName)
+      dataList.traitLabel.filetype = 'traitLabelFile'
+      dataList.traitLabel.path = traitLabel_fullPath
+      const id_markerval = guid()
+      const markerval_fileName = `${id_markerval}.csv`
+      const markerval_fullPath = path.join(folderPath, markerval_fileName)
+      dataList.marker.filetype = 'markerFile'
+      dataList.marker.path = markerval_fullPath
+      const id_markerLabel = guid()
+      const markerLabel_fileName = `${id_markerLabel}.csv`
+      const markerLabel_fullPath = path.join(folderPath, markerLabel_fileName)
+      dataList.markerLabel.filetype = 'markerLabelFile'
+      dataList.markerLabel.path = markerLabel_fullPath
+      const origindirpath = path.join('./GDCdata',disease_type)
+      const origintraitlabelfile = path.join(origindirpath, 'traitLabel.csv')
+      const origintraitvaluefile = path.join(origindirpath, 'traitval.csv')
+      const originmarkerlablfile = path.join(origindirpath, 'markerLabel.csv')
+      fs.createReadStream(originmarkerlablfile).pipe(fs.createWriteStream(markerLabel_fullPath))
+      fs.createReadStream(origintraitvaluefile).pipe(fs.createWriteStream(traitval_fullPath))
+      fs.createReadStream(originmarkerlablfile).pipe(fs.createWriteStream(markerLabel_fullPath))
   }
 
-  function getgenotype(case_id, file_type, folderPath, markerval_fullPath, markerLabel_fullPath){
-  	var filt = encodeURIComponent('{"op":"and","content":[{"op": "=", "content": {"field": "cases.case_id","value": ["'+ case_id +'"]}},{"op": "=", "content":{"field": "access","value": ["open"]}},{"op": "=", "content":{"field": "data_type","value": ["'+ file_type +'"]}}]}')
-  	var url = 'https://gdc-api.nci.nih.gov/files?filters='+ filt + '&size=65535'
-  	request(url, function(error, response, body){
-  	    var UUID = ''
-  	    if (!error && response.statusCode == 200) {
-  	    	var regfile = /\"file_id\": \"(.+?)\"/ig
-  	    	while(foundfile = regfile.exec(body)){
-  	    		UUID = foundfile[0].split('"')[3]
-            if (!fs.existsSync(markerLabel_fullPath)){
-              getMarkerData(UUID, '', markerval_fullPath)
-              getMarkerLabel(UUID, '', markerLabel_fullPath)
-            }
-  	    		regfile.lastIndex -= foundfile[0].split(':')[1].length
-  	    	}
-  	    }
-  	})
-  }
-
-  function getMarkerData(UUID, token, filepath){
-      var options = null
-      var link = 'https://gdc-api.nci.nih.gov/data/' + UUID
-      var suffix
-      var filename
-      var client = new XMLHttpRequest()
-      client.open("GET", link , true)
-      if (token != ''){
-          client.setRequestHeader('X-Auth-Token', token)
-      }
-      client.send()
-      client.onreadystatechange = function() {
-          if(this.readyState == 4 && this.status == 200) {
-              // namelist = client.getResponseHeader("Content-Disposition").split('=')
-              // filename = namelist[namelist.length-1]
-              // console.log(filename)
-              var lineReader = readline.createInterface({
-                input: request(link).pipe(zlib.createGunzip())
-              })
-              var snp = []
-              lineReader.on('line', (line) => {
-                snp.push(line.split("	")[1])
-                console.log(line)
-              }).on('close', () => {
-                var markerValStream = fs.createWriteStream(filepath, {'flags':'a'})
-                console.log('downloading')
-                markerValStream.write(snp + '\n')
-                markerValStream.end()
-              })
-            }
-          else if(client.status == 400){
-              console.log('An entity or element of the query was not valid')
-          }
-          else if(client.status == 403){
-              console.log('Unauthorized request')
-          }
-          else if(client.status == 404){
-              console.log('Requested element not found')
-          }
-      }
-  }
-
-  function getMarkerLabel(UUID, token, filepath){
-      var options = null
-      var link = 'https://gdc-api.nci.nih.gov/data/' + UUID
-      var suffix
-      var filename
-      var client = new XMLHttpRequest()
-      client.open("GET", link , true)
-      if (token != ''){
-          client.setRequestHeader('X-Auth-Token', token)
-      }
-      client.send()
-      client.onreadystatechange = function() {
-          if(this.readyState == 4 && this.status == 200) {
-              var lineReader = readline.createInterface({
-                input: request(link).pipe(zlib.createGunzip())
-              })
-              lineReader.on('line', (line) => {
-                var markerLabelStream = fs.createWriteStream(filepath, {'flags':'a'})
-                markerLabelStream.write(line.split("	")[0] + '\n')
-                markerLabelStream.end()
-              })
-            }
-          else if(client.status == 400){
-              console.log('An entity or element of the query was not valid')
-          }
-          else if(client.status == 403){
-              console.log('Unauthorized request')
-          }
-          else if(client.status == 404){
-              console.log('Requested element not found')
-          }
-      }
-  }
-
-  function getphenotype(case_id, filename){
-  	var url = 'https://gdc-api.nci.nih.gov/cases/'+ case_id + '?expand=diagnoses'
-  	request(url, function(error, response, body){
-  		var pheno = ''
-  	    if (!error && response.statusCode == 200) {
-  	    	var regcase = /\"tumor_stage\": \"(.+?)\"/ig
-  	    	while(foundpheno = regcase.exec(body)){
-  	    		pheno = foundpheno[0].split('"')[3]
-            console.log(pheno)
-  	    		regcase.lastIndex -= foundpheno[0].split(':')[1].length
-  	    	}
-  	    }
-  	    // write pheno into data
-  	    var traitValStream = fs.createWriteStream(filename, {'flags':'a'})
-  	    switch(pheno.split(' ')[0]){
-  	    	case 'stage':
-  	    		pheno = 1
-  	    		break
-  	    	default:
-  	    		pheno = 0
-  	    }
-  	    traitValStream.write(pheno + '\n')
-  	    traitValStream.end()
-  	})
-  }
 
   busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
     if (!!filename) {
@@ -1061,5 +999,37 @@ orm.initialize(waterlineConfig, function (err, models) {
   var server = app.listen(3000, function () {
     var port = server.address().port || 'default port'
     console.log('Example app listening on port', port)
+  })
+})
+
+app.post(config.api.ChangePasswordUrl, function (req, res) {
+  const FormerPassword = req.body.FormerPassword
+  const NewPassword = req.body.NewPassword
+  const ConfirmNewPassword = req.body.ConfirmNewPassword
+  const initialState = {}
+  const userId = extractUserIdFromHeader(req.headers)
+  console.log(FormerPassword)
+  console.log(NewPassword)
+  console.log(ConfirmNewPassword)
+
+  if (!NewPassword || !FormerPassword) {
+    return res.status(400).send({message: 'Missing former password or new password'})
+  }
+
+  if (NewPassword != ConfirmNewPassword) {
+    return res.status(400).send({message: "Passwords don't match"})
+  }
+
+  app.models.user.findOne({ id: userId }).exec(function (err, foundUser) {
+    if (err) console.log(err)
+    if (foundUser.password !== FormerPassword) {
+      return res.status(400).send({message: 'Error Former Password'})
+    }
+    app.models.user.update({ id: userId }, {password: NewPassword}).exec(function(err, updated){
+          if (err) return res.status(500).json({ err })
+          console.log(updated)
+          return res.json(foundUser)
+        }
+    )
   })
 })
