@@ -18,7 +18,7 @@ const mapStateToProps = (state, ownProps) => {
     completedActivities: getCompletedActivities(state.userData.activities),
     allActivities: state.userData.activities,
     open: ownProps.open,
-    anchorEl: ownProps.anchorEl,
+    anchorElAct: ownProps.anchorElAct,
     onActivityClose: ownProps.onActivityClose,
     anchorOrigin: ownProps.anchorOrigin,
     targetOrigin: ownProps.targetOrigin,

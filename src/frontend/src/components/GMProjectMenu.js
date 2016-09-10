@@ -10,6 +10,7 @@ import FontIcon from 'material-ui/lib/font-icon'
 import AutoComplete from 'material-ui/lib/auto-complete'
 
 import GMImportDialog from './GMImportDialog'
+import GMGDCDialog from './GMGDCDialog'
 
 const GMProjectContent = React.createClass({
   getDataUrl: function() {
@@ -176,35 +177,6 @@ var GMProjectList = React.createClass({
   }
 })
 
-var GMProjectSearch = React.createClass({
-  getInitialState: function () {
-    return {dataSource: []}
-  },
-  componentWillReceiveProps: function (nextProps) {
-    const dataSource = nextProps.projects.reduce(function (a, b) {
-      return a.concat(b.files.reduce(function (c, d) {
-        return c.concat(d.name)
-      }, []))
-    }, [])
-    this.setState({ dataSource })
-  },
-  render: function () {
-    return (
-      <ListItem
-        primaryText=''
-        disabled={true}
-        leftIcon={<FontIcon className='material-icons'>search</FontIcon>}
-        style={{display: 'inline'}}>
-        <AutoComplete
-          hintText='Search for files'
-          dataSource={this.state.dataSource}
-          filter={AutoComplete.caseInsensitiveFilter}
-          style={{width: 'inherit'}} />
-      </ListItem>
-    )
-  }
-})
-
 class GMProjectMenu extends Component {
   render () {
     return (
@@ -215,7 +187,10 @@ class GMProjectMenu extends Component {
           submit={this.props.importDataSubmit}
           projects={this.props.projects}
         />
-        <GMProjectSearch projects={this.props.projects} />
+        <GMGDCDialog
+          submit={this.props.importDataSubmit}
+          projects={this.props.projects}
+        />
       </List>
     )
   }

@@ -99,7 +99,7 @@ class Login extends Component {
             />
           </div>
           <div style={{ margin: '10px 0' }}>
-            <Link to='/forgot-password'>{'Forgot password?'}</Link>
+            <Link to='/forget-password'>{'Forgot password?'}</Link>
           </div>
           <div style={{ margin: '10px 0' }}>
             {"Don't have an account? "}
