@@ -831,6 +831,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             try {
               var success = Scheduler.startJob(jobId, function (results) {
                 // TODO: streamline this results passing - multiple types of data?
+
                 results[0] = results[0].replace(/(\r\n|\n|\r)/gm,"")
 
                 fs.writeFile(resultsPath, results, function(err) {
