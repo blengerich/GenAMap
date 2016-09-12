@@ -6,7 +6,33 @@ cc_library(
     hdrs = ["Stats.hpp"],
     copts = ["-Iexternal/gtest/include",
             "-DBAZEL"],
-    deps = []
+    deps = ["//Models:Model"]
+)
+
+cc_library(
+	name = "FisherTest",
+	srcs = ["FisherTest.cpp"],
+	hdrs = ["FisherTest.h"],
+	copts = ["-DBAZEL"],
+	deps = ["//Models:Model",
+			"//Stats:Stats"]
+)
+
+cc_library(
+	name = "Chi2Test",
+	srcs = ["Chi2Test.cpp"],
+	hdrs = ["Chi2Test.h"],
+	copts = ["-DBAZEL"],
+	deps = ["//Stats:Stats"]
+)
+
+cc_library(
+	name = "WaldTest",
+	srcs = ["WaldTest.cpp"],
+	hdrs = ["WaldTest.h"],
+	copts = ["-DBAZEL"],
+	deps = ["//Math:Math",
+			"//Stats:Stats"]
 )
 
 cc_test(

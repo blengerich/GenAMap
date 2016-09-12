@@ -3,7 +3,11 @@
 //
 
 #include "WaldTest.h"
+#ifdef BAZEL
 #include "Math/Math.hpp"
+#else
+#include "../Math/Math.hpp"
+#endif
 
 void WaldTest::run() {
     MatrixXd X0 = MatrixXd::Ones(X.rows(), 1);
