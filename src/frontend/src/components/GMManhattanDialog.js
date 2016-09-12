@@ -6,6 +6,8 @@ import MenuItem from 'material-ui/lib/menus/menu-item'
 import TextField from 'material-ui/lib/text-field'
 import ListItem from 'material-ui/lib/lists/list-item'
 import FontIcon from 'material-ui/lib/font-icon'
+import router from 'react-router'
+import { Link } from 'react-router'
 
 import config from '../../config'
 
@@ -35,6 +37,18 @@ class GMManhattanDialog extends Component {
       open: false,
       traitName: ''
     }
+  }
+
+  getDataUrl() {
+    return '/visualization/manhattan/3/4/5'
+    // const file = this.props.data
+    // if (file.filetype === 'resultFile' && file.info.resultType === 'matrix') {
+    //   const markerLabelId = file.info.labels.marker
+    //   const traitLabelId = file.info.labels.trait
+    //   return '/visualization/matrix/' + markerLabelId + '/' + traitLabelId + '/' + file.id
+    // } else {
+    //   return '/data/' + file.id
+    // }
   }
 
   constructor (props, context) {
@@ -76,6 +90,8 @@ class GMManhattanDialog extends Component {
         keyboardFocused={true}
         onClick={this.handleSubmit.bind(this)}
         disabled={!this.validateForm()}
+        containerElement={<Link to={this.getDataUrl()}/>}
+        linkButton={true}
       />
     ]
     return (

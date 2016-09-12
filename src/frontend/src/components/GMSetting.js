@@ -80,13 +80,6 @@ const GMSetting = React.createClass({
         onRequestClose={this.handleRequestClose}
       >
       <form name='ChangePassword'>
-        <TextField
-          id='Account Name'
-          value={this.state.AccountName}
-          hintText='jk.yang1995@gmail.com'
-          disabled={true}
-        />
-        <br />
         <div>
         <TextField
           id='FormerPassword'
