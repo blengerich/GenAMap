@@ -4,10 +4,12 @@
 
 ## Website:
 [Version 1](http://www.sailing.cs.cmu.edu/main/genamap/)
+
 [Version 2](http://www.sailing.cs.cmu.edu/main/genamap/v2)
 
 ## Documentation:
 See [docs](https://github.com/blengerich/GenAMap_V2/tree/master/Documentation).
+
 [Google group](https://groups.google.com/forum/#!forum/genamap-users)
 
 ## Dependencies:
