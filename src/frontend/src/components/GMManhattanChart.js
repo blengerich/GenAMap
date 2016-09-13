@@ -3,6 +3,7 @@ import FontIcon from 'material-ui/lib/font-icon'
 import FlatButton from 'material-ui/lib/flat-button'
 import FloatingActionButton from 'material-ui/lib/floating-action-button'
 
+import fetch from './fetch'
 import config from '../../config'
 
 var axisOnZoom;
@@ -17,13 +18,14 @@ var colorScale;
 var xScale;
 var yScale;
 
-var Graph = function() {
+var Graph = function(data, markerLabels, traitLabelsNum) {
   d3.select('#manhattanChart').selectAll('svg').remove()
-
   /************************************
   *** visualization setup functions ***
   ************************************/
-
+    //  console.log(markerLabels)
+    //  console.log(data)
+    //  console.log(traitLabelsNum)
   /* initialize axes and axis labels */
   function initAxes() {
     var axes = d3.select("#manhattanRoot")
@@ -106,26 +108,26 @@ var Graph = function() {
      * TODO: connect to runAnalysis
      * temp data is not tracked
      */
-    const dataPath = 'tempManhattanData'
-    const markerLabelFile = 'markerLabelsReal.txt'
-    const pValsFile = 'pvals.txt'
+      var parsedData = []
 
-    // used for scaling axes
-    var maxPValLog = 0
-    var maxChromosome = 0
+      // used for scaling axes
+      var maxPValLog = 0
+      var maxChromosome = 0
 
-    var markerData = []
+      var markerData = []
 
-    d3.text(dataPath + "/" + markerLabelFile, function(text) {
-      var markerData =
-      d3.tsv.parseRows(text, function(d) {
-        maxChromosome = Math.max(maxChromosome, +d[1])
-        return {
-          marker: d[0],
-          chromosome: +d[1],
-          chromosomePosition: +d[2]
+      markerLabels.forEach(function(row, rowIndex){
+        if (row.length > 0){
+          var pts = row.split(',')
+          markerData.push({
+            marker: pts[0],
+            chromosome: +pts[1],
+            chromosomePosition: +pts[2]
+          })
         }
-      })
+        }
+      )
+
 
       // get cummulative positions
       var cummulativePosition = new Array(maxChromosome + 1).fill(0)
@@ -144,12 +146,19 @@ var Graph = function() {
       })
 
       // finalize visualization
-      d3.text(dataPath + "/" + pValsFile, function(text) {
-        d3.csv.parseRows(text, function(d, i) {
+      data.v.split(";").forEach(function(row, rowIndex){
+        if (row.length > 0) {
+          var pts = row.split(",")
           const log10 = (x) => Math.log(x)/Math.log(10)
-          maxPValLog = Math.max(maxPValLog, -log10(+d[0]))
-          markerData[i].pVal = -log10(+d[0])
-        })
+          // maxPValLog = Math.max(maxPValLog, -log10(+pts[0]))
+          maxPValLog = Math.max(maxPValLog, +pts[0])
+          console.log(pts[0])
+          // markerData[rowIndex].pVal = -log10(+pts[0])
+          markerData[rowIndex].pVal = Math.abs(+pts[0])
+        }
+      })
+
+      console.log(markerData)
 
         colorScale = d3.scale.linear()
                               .domain([0, maxChromosome])
@@ -184,8 +193,6 @@ var Graph = function() {
              .attr('fill', function(d) { return colorScale(d.chromosome) })
 
         cards.exit().remove()
-      })
-    })
   }
 
   /*************************
@@ -373,7 +380,7 @@ var GMManhattanChart = React.createClass({
   componentWillReceiveProps(nextProps) {
     if (this.validateNewProps(nextProps)) {
       this.setState({
-        points: Graph()
+        points: Graph(nextProps.data, nextProps.markerLabels, nextProps.traitLabelsNum)
       })
     }
   },
