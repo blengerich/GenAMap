@@ -137,4 +137,3 @@ void StatsBasic::finishRun() {
     isRunning = false;
     progress = 1.0;
 }
->>>>>>> master
