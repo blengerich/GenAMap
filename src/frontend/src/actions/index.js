@@ -26,6 +26,9 @@ export const RECEIVE_UPDATE_ACTIVITY = 'RECEIVE_UPDATE_ACTIVITY'
 export const RECEIVE_ANALYSIS_RESULTS = 'RECEIVE_ANALYSIS_RESULTS'
 export const REQUEST_CREATE_ACCOUNT = 'REQUEST_CREATE_ACCOUNT'
 export const RECEIVE_CREATE_ACCOUNT = 'RECEIVE_CREATE_ACCOUNT'
+export const RECEIVE_FORGET_PASSWORD = 'RECEIVE_FORGET_PASSWORD'
+export const ERROR_FORGET_PASSWORD = 'ERROR_FORGET_PASSWORD'
+export const ERROR_FORGET_PASSWORD_EMAIL = 'ERROR_FORGET_PASSWORD_EMAIL'
 export const RECEIVE_CONFIRM_ACCOUNT = 'RECEIVE_CONFIRM_ACCOUNT'
 export const RECEIVE_CONFIRM_ACCOUNT_LINK = 'RECEIVE_CONFIRM_ACCOUNT_LINK'
 export const CLEAR_AUTH_ERRORS = 'CLEAR_AUTH_ERRORS'
@@ -46,6 +49,8 @@ export const USER_STATE_SUCCESS = 'USER_STATE_SUCCESS'
 export const USER_STATE_FAILURE = 'USER_STATE_FAILURE'
 export const LOAD_INITIAL_PROJECTS = 'LOAD_INITIAL_PROJECTS'
 export const LOAD_INITIAL_ACTIVITIES = 'LOAD_INITIAL_ACTIVITIES'
+export const CHANGE_PASSWORD = 'CHANGE_PASSWORD'
+export const CHANGE_PASSWORD_ERROR = 'CHANGE_PASSWORD_ERROR'
 
 /*
  * action creators
@@ -83,7 +88,8 @@ export function importData (form) {
     .then(response => {
       if (!response.ok) Promise.reject('Could not import data')
       return response.json()
-    }).then(data => {
+    })
+    .then(data => {
       dispatch(importDataReceive(data))
       Promise.resolve(data)
     }).catch(err => console.log(err))
@@ -391,6 +397,20 @@ function userStateError () {
   }
 }
 
+function receiveChangePassword (email) {
+  return {
+    type: CHANGE_PASSWORD,
+    email
+  }
+}
+
+function ChangePasswordError (message) {
+  return{
+    type: CHANGE_PASSWORD_ERROR,
+    message
+  }
+}
+
 export function loginUser (creds) {
   let loginRequest = {
     method: 'POST',
@@ -472,6 +492,20 @@ function createAccountError (message) {
   }
 }
 
+function receiveForgerPassword (user) {
+  return{
+    type: 'RECEIVE_FORGET_PASSWORD',
+    email: user.email
+  }
+}
+
+function ForgetPasswordError (message) {
+  return{
+    type: 'ERROR_FORGET_PASSWORD',
+    message
+  }
+}
+
 export function createAccount (creds) {
   let createAccountRequest = {
     method: 'POST',
@@ -528,6 +562,52 @@ function receiveConfirmAccount (account) {
 function confirmAccountError (message) {
   return {
     type: 'ERROR_CONFIRM_ACCOUNT',
+    message
+  }
+}
+
+export function ForgetPassword (creds) {
+  let ForgetPasswordRequest = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `email=${creds.email}`
+  }
+  return dispatch => {
+    return fetch(config.api.ForgetPasswordUrl, ForgetPasswordRequest)
+    .then(response => response.json().then(account => ({ account, response })))
+    .then(({ account, response }) =>  {
+      if (!response.ok) {
+        dispatch(ForgetPasswordError(account.message))
+        return Promise.reject(account.message)
+      } else {
+        dispatch(receiveForgerPassword(account))
+        dispatch(ForgetPasswordEmail(account))
+        Promise.resolve(account)
+      }
+    }).catch(err => console.log("Error: ", err))
+  }
+}
+
+function ForgetPasswordEmail (user) {
+  let ForgetPasswordEmailRequest = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `email=${user.email}`
+  }
+  return dispatch => {
+    return fetch(config.api.ForgetPasswordEmailUrl, ForgetPasswordEmailRequest)
+    .then(response => {
+      if (!response.ok) {
+        dispatch(ForgetPasswordEmailError(response.json().message))
+        return Promise.reject('Error sending confirmation email to user')
+      }
+    }).catch(err => console.log("Error: ", err))
+  }
+}
+
+function ForgetPasswordEmailError (){
+  return {
+    type: 'ERROR_FORGET_PASSWORD_EMAIL',
     message
   }
 }
@@ -638,5 +718,29 @@ export function redirectToLogin (next) {
       ? config.api.loginUrl
       : config.api.loginUrl + '?next=' + next
     dispatch(redirectTo(to))
+  }
+}
+
+export function ChangePassword (creds) {
+  let ChangePasswordRequest = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `FormerPassword=${creds.Password0}&NewPassword=${creds.Password1}&ConfirmNewPassword=${creds.Password2}`
+  }
+  return dispatch => {
+    return fetch(config.api.ChangePasswordUrl, ChangePasswordRequest)
+    .then(response => response.json().then(account => ({ account, response })))
+    .then(({ account, response }) =>  {
+      if (!response.ok) {
+        dispatch(ChangePasswordError(account.message))
+        // return Promise.reject(account.message)
+        console.log('200')
+      } else {
+        // dispatch(receiveChangePassword(account.email))
+        // console.log('I am comming')
+        // Promise.resolve(account)
+        console.log('400')
+      }
+    }).catch(err => console.log("Error: ", err))
   }
 }

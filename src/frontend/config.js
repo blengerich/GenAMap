@@ -12,11 +12,14 @@ const config = {
     saveUrl: '/api/save',
     createSessionUrl: '/sessions/create',
     createAccountUrl: '/user/create',
+    ForgetPasswordUrl: '/user/forget-password',
+    ForgetPasswordEmailUrl: '/user/forget-password-email',
     confirmAccountUrl: '/user/verify',
     requestUserConfirmUrl: '/user/request-confirm',
     getActivityUrl: '/activity',
     cancelJobUrl: '/api/cancelJob',
-    getAnalysisResultsUrl: '/analysis-results'
+    getAnalysisResultsUrl: '/analysis-results',
+    ChangePasswordUrl: '/user/change-password'
   },
   ui: {
     navWidth: 300,
