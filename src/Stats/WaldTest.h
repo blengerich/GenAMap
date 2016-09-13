@@ -10,6 +10,8 @@
 class WaldTest : public StatsBasic{
 public:
     void run();
+    WaldTest(){};
+    WaldTest(const unordered_map<string, string> &){};
 };
 
 

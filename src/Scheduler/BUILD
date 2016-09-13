@@ -18,6 +18,7 @@ cc_library(
         "//Algorithms:AlgorithmOptions",
         "//Algorithms:BrentSearch",
         "//Algorithms:GridSearch",
+        "//Algorithms:HypoTestPlaceholder",
         "//Algorithms:IterativeUpdate",
         "//Algorithms:ProximalGradientDescent",
         "//Models:AdaMultiLasso",
@@ -27,7 +28,10 @@ cc_library(
         "//Models:Model",
         "//Models:ModelOptions",
         "//Models:TreeLasso",
-        "//Scheduler:Job"]
+        "//Scheduler:Job",
+        "//Stats:FisherTest",
+        "//Stats:Chi2Test",
+        "//Stats:WaldTest"]
 )
 
 
