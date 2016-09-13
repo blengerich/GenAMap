@@ -1,6 +1,6 @@
 # How to Build/Run GenAMap
 
-Enter Docker. To install Docker, see [here](../Docker/Quick_Start.md)
+Enter Docker. To install Docker, see [here](./Docker/Quick_Start.md)
 
 	cd scripts	
 	./launch_docker.sh
