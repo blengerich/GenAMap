@@ -43,14 +43,14 @@ function RUN {
 }
 
 function NODEGYP {
-  docker run --name ${OPT_NAME} -ti --rm -p ${OPT_PORT}:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap:${OPT_IMAGE_TAG} /bin/bash -c "cd /usr/src/genamap/src/Scheduler/node && node-gyp rebuild"
+  docker run --name ${OPT_NAME} -ti --rm -p ${OPT_PORT}:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap:${OPT_IMAGE_TAG} /bin/bash -c "cd /usr/src/genamap/Scheduler/node && node-gyp rebuild"
 }
 
 function NODE {
   if [ ! -f ./src/Scheduler/node/build/Release/scheduler.node ]; then
     NODEGYP
   fi
-  open "http://${IP}:${OPT_PORT}" && docker run --name ${OPT_NAME} -ti --rm -p ${OPT_PORT}:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap:${OPT_IMAGE_TAG} /bin/bash -c "cd /usr/src/genamap/src/frontend/genamapApp && nodemon -L webapp.js"
+  open "http://${IP}:${OPT_PORT}" && docker run --name ${OPT_NAME} -ti --rm -p ${OPT_PORT}:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap:${OPT_IMAGE_TAG} /bin/bash -c "cd /usr/src/genamap/frontend/genamapApp && nodemon -L webapp.js"
 }
 
 function GULP {
