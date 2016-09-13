@@ -25,3 +25,5 @@ sampleData/*
 **/genamapApp/activity/*
 **/frontend/build/*
 **/bundle.js
+**/*.start
+**/Scheduler/**/build/*

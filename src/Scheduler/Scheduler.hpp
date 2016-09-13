@@ -16,16 +16,16 @@
 #include <vector>
 
 #ifdef BAZEL
-#include "algorithm/Algorithm.hpp"
-#include "algorithm/AlgorithmOptions.hpp"
-#include "model/ModelOptions.hpp"
+#include "Algorithms/Algorithm.hpp"
+#include "Algorithms/AlgorithmOptions.hpp"
+#include "Models/ModelOptions.hpp"
 #include "Scheduler/Job.hpp"
 #include "gtest/gtest_prod.h"
 #else
-#include "../algorithm/Algorithm.hpp"
-#include "../algorithm/AlgorithmOptions.hpp"
+#include "../Algorithms/Algorithm.hpp"
+#include "../Algorithms/AlgorithmOptions.hpp"
 #include "Job.hpp"
-#include "../model/ModelOptions.hpp"
+#include "../Models/ModelOptions.hpp"
 #endif
 
 
@@ -47,6 +47,8 @@ public:
 	bool setY(const int, const Eigen::MatrixXd&);
 	// returns true on success, false otherwise.
 
+	bool setModelAttributeMatrix(const int, const string&, Eigen::MatrixXd*);
+	// returns true on success, false otherwise.
 
 	bool startJob(const int, void (*f)(uv_work_t*, int));
 	// Returns true if successfully queued, false otherwise.
@@ -56,7 +58,6 @@ public:
 
 	bool cancelJob(const int);
 	// Cancels a potentially running job.
-
 
 	Model* getModel(const int);
 	Algorithm* getAlgorithm(const int);

@@ -1,20 +1,21 @@
 #ifndef JOB_HPP
 #define JOB_HPP
 
+#include <exception>
 #include <uv.h>
 #include <v8.h>
 #include <Eigen/Dense>
 
 #ifdef BAZEL
-#include "algorithm/Algorithm.hpp"
-#include "algorithm/AlgorithmOptions.hpp"
-#include "model/Model.hpp"
-#include "model/ModelOptions.hpp"
+#include "Algorithms/Algorithm.hpp"
+#include "Algorithms/AlgorithmOptions.hpp"
+#include "Models/Model.hpp"
+#include "Models/ModelOptions.hpp"
 #else
-#include "../algorithm/Algorithm.hpp"
-#include "../algorithm/AlgorithmOptions.hpp"
-#include "../model/Model.hpp"
-#include "../model/ModelOptions.hpp"
+#include "../Algorithms/Algorithm.hpp"
+#include "../Algorithms/AlgorithmOptions.hpp"
+#include "../Models/Model.hpp"
+#include "../Models/ModelOptions.hpp"
 #endif
 
 using namespace std;
@@ -26,6 +27,7 @@ typedef struct Job_t {
 	int job_id;
 	Algorithm* algorithm;
 	Model* model;
+	exception_ptr exception;
 } Job_t;
 
 typedef struct JobOptions_t {

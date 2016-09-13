@@ -7,7 +7,7 @@ See [docs](https://github.com/blengerich/GenAMap_V2/tree/master/Documentation).
 
 
 ## Dependencies:
-For informational purposes only, you don't need to install anything. We are now using [Docker](docker.com) to sync our environments. See docs for more information.
+For informational purposes only, you don't need to install anything. We are now using [Docker](http://docker.com) to sync our environments. See [docs](https://github.com/blengerich/GenAMap_V2/blob/master/Documentation/Development/Docker/Quick_Start.md) for more information.
 
 * [Java (JDK) 1.8 or greater](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 * [Eigen C++](http://eigen.tuxfamily.org/index.php?title=Main_Page)
