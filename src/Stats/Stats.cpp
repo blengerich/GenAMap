@@ -47,6 +47,13 @@ double Stats::BonCorrection(double pVal, int number) {
   return pVal/number;
 }
 
+double Stats::get_ts(double beta, double var, double sigma){
+  return beta/(sqrt(var * sigma));
+}
+
+double Stats::get_qs(double ts, int N, int q){
+  return 2*Stats::ChiToPValue(abs(ts), N-q);  
+}
 
 void StatsBasic::setAttributeMatrix(const string &string1, MatrixXd *xd) {
 
