@@ -34,7 +34,7 @@ const GMActivities = React.createClass({
   componentWillReceiveProps: function (nextProps) {
     this.setState({
       open: nextProps.open,
-      anchorEl: nextProps.anchorEl
+      anchorEl: nextProps.anchorElAct
     })
   },
   handleRequestClose: function () {

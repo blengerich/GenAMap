@@ -25,7 +25,6 @@ const GMMatrixVisualization = React.createClass({
         'Content-Type': 'application/json'
       }
     }
-
     const vizData = { }
     return fetch(`${config.api.dataUrl}/${params.result}`, dataRequest)
     .then(response => {
