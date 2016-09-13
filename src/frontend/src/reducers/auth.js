@@ -1,6 +1,6 @@
 import { CLEAR_AUTH_ERRORS, LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT_SUCCESS, ERROR_CREATE_ACCOUNT,
-          RECEIVE_CREATE_ACCOUNT, ERROR_CONFIRM_ACCOUNT, ERROR_CONFIRM_ACCOUNT_LINK,
-          RECEIVE_CONFIRM_ACCOUNT_LINK } from '../actions'
+          RECEIVE_CREATE_ACCOUNT, RECEIVE_FORGET_PASSWORD, ERROR_FORGET_PASSWORD, ERROR_FORGET_PASSWORD_EMAIL, ERROR_CONFIRM_ACCOUNT, ERROR_CONFIRM_ACCOUNT_LINK,
+          RECEIVE_CONFIRM_ACCOUNT_LINK, CHANGE_PASSWORD, CHANGE_PASSWORD_ERROR } from '../actions'
 import { getAndVerifyToken } from '../middleware/token'
 
 // The auth reducer. The starting state sets authentication
@@ -58,6 +58,21 @@ const auth = (state = initialState, action) => {
         verifyDialogOpen: true,
         emailToVerify: action.email
       }
+    case RECEIVE_FORGET_PASSWORD:
+      return{
+        isAuthenticated: false,
+        email: action.email
+      }
+    case ERROR_FORGET_PASSWORD:
+      return {
+        isAuthenticated: false,
+        createErrorMessage: action.message
+      }
+    case ERROR_FORGET_PASSWORD_EMAIL:
+      return {
+        isAuthenticated: false,
+        createErrorMessage: action.message
+      }
     case ERROR_CONFIRM_ACCOUNT:
       return {
         isAuthenticated: false,
@@ -73,6 +88,14 @@ const auth = (state = initialState, action) => {
         isAuthenticated: false,
         emailVerified: action.email
       }
+    case CHANGE_PASSWORD:
+     return{
+       changePasswordEmail: action.email
+     }
+    case CHANGE_PASSWORD_ERROR:
+     return{
+       changepasswordError: action.message
+     }
     default:
       return state
   }

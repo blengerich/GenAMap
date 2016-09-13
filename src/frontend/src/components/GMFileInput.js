@@ -42,6 +42,7 @@ class GMFileInput extends Component {
           onChange={this.onChange.bind(this)}
           />
         <TextField
+          hintText = {this.props.hintText}
           value={this.props.fileLabel}
           disabled={true}
         />
@@ -54,7 +55,8 @@ GMFileInput.propTypes = {
   buttonLabel: PropTypes.string.isRequired,
   accept: PropTypes.string,
   onChange: PropTypes.func,
-  fileLabel: PropTypes.string.isRequired
+  fileLabel: PropTypes.string.isRequired,
+  hintText: PropTypes.string
 }
 
 export default GMFileInput

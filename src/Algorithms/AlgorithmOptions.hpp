@@ -15,6 +15,7 @@ enum algorithm_type {
 	proximal_gradient_descent = 1,
 	grid_search = 2,
 	iterative_update = 3,
+	hypo_test = 4,
 };
 
 typedef struct AlgorithmOptions_t {

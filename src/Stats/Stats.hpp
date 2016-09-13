@@ -4,6 +4,11 @@
 
 #include <Eigen/Dense>
 #include <unordered_map>
+#ifdef BAZEL
+#include "Models/Model.hpp"
+#else
+#include "../Models/Model.hpp"
+#endif
 
 using namespace Eigen;
 using namespace std;
@@ -17,29 +22,35 @@ namespace Stats {
     double BonCorrection(double, int);
 };
 
-class StatsBasic{
+class StatsBasic : public Model{
 protected:
-    MatrixXd X;
-    MatrixXd beta;
-    MatrixXd y;
     long correctNum;
     int genoType;
 
+    // algorithm use
+    double progress;
+    bool isRunning;
+    bool shouldStop;
+
     void checkGenoType();
 public:
-    void setX(const MatrixXd&);
-    void setY(const MatrixXd&);
     void setCorrectNum(long);
     virtual void setAttributeMatrix(const string&, MatrixXd*);
-    MatrixXd getBeta();
 
     void BonferroniCorrection();
 
     virtual void assertReadyToRun();
     virtual void run(){};
+    virtual void setUpRun();
+    virtual void finishRun();
 
     StatsBasic();
     StatsBasic(const unordered_map<string, string>&);
+
+    // algorithm replacement
+    double getProgress();
+    bool getIsRunning();
+    void stop();
 
     virtual ~StatsBasic(){};
 };
