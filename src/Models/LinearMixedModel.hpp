@@ -3,6 +3,7 @@
  *
  *  Created on: Mar 17, 2016
  *      Author: Aditya Gautam (agautam1@andrew.cmu.edu)
+ *      EDITED BY: Liuyu Jin (liuyuj@andrew.cmu.edu)
  */
 
 #ifndef SRC_MODEL_LINEARMIXEDMODEL_HPP_
@@ -60,7 +61,8 @@ public:
     long get_num_samples();
     long get_X_features();
     double get_lambda();
-    double getSigma();
+    double get_sigma();
+    MatrixXd get_betaVar(double);
     void set_lambda(double);
     void set_S(MatrixXd);
     void set_U(MatrixXd);
