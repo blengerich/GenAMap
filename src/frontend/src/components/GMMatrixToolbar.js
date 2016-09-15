@@ -83,6 +83,8 @@ const GMMatrixToolbar = React.createClass({
     this.props.subset.subsetSelector(event);
   },
   render: function () {
+    console.log(this.props.pageParams)
+    console.log(this.props.traitLabels)
     return (
       <div>
         <GMToolbar
@@ -98,7 +100,10 @@ const GMMatrixToolbar = React.createClass({
           />
           <span style={styles.sliderValue}>{this.state.slider.threshold.toFixed(2)}</span>
           <GMSliderName />
-          <GMManhattanDialog/>
+          <GMManhattanDialog
+            pageParams={this.props.pageParams}
+            traitLabels={this.props.traitLabels}
+          />
           <FlatButton
             label='Create Subset'
             icon={<FontIcon className='material-icons'>add</FontIcon>}
