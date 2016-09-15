@@ -732,14 +732,16 @@ export function ChangePassword (creds) {
     .then(response => response.json().then(account => ({ account, response })))
     .then(({ account, response }) =>  {
       if (!response.ok) {
+
         dispatch(ChangePasswordError(account.message))
         // return Promise.reject(account.message)
-        console.log('200')
+
       } else {
-        // dispatch(receiveChangePassword(account.email))
-        // console.log('I am comming')
+
+        dispatch(receiveChangePassword(account.email))
+
         // Promise.resolve(account)
-        console.log('400')
+
       }
     }).catch(err => console.log("Error: ", err))
   }

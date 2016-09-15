@@ -120,6 +120,7 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
         if (row.length > 0){
           var pts = row.split(',')
           markerData.push({
+            index: rowIndex,
             marker: pts[0],
             chromosome: +pts[1],
             chromosomePosition: +pts[2]
@@ -141,8 +142,8 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
 
       var maxPosition = 0
       markerData.forEach(function (d, i) {
-        d.position = d.chromosomePosition + cummulativePosition[d.chromosome - 1] + 1
-        maxPosition = Math.max(maxPosition, d.position)
+        // d.position = d.chromosomePosition + cummulativePosition[d.chromosome - 1] + 1
+        maxPosition = Math.max(maxPosition, d.index)
       })
 
       // finalize visualization
@@ -151,14 +152,14 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
           var pts = row.split(",")
           const log10 = (x) => Math.log(x)/Math.log(10)
           // maxPValLog = Math.max(maxPValLog, -log10(+pts[0]))
-          maxPValLog = Math.max(maxPValLog, +pts[0])
-          console.log(pts[0])
+          maxPValLog = Math.max(maxPValLog, +pts[traitLabelsNum])
+          // console.log(pts[0])
           // markerData[rowIndex].pVal = -log10(+pts[0])
-          markerData[rowIndex].pVal = Math.abs(+pts[0])
+          markerData[rowIndex].pVal = Math.abs(+pts[traitLabelsNum])
         }
       })
 
-      console.log(markerData)
+      // console.log(markerData)
 
         colorScale = d3.scale.linear()
                               .domain([0, maxChromosome])
@@ -174,7 +175,7 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
                        .data(markerData, function(d) { return d.marker })
 
         cards.enter().append('circle')
-                     .attr('cx', function(d) { return xScale(d.position) })
+                     .attr('cx', function(d) { return xScale(d.index) })
                      .attr('cy', function(d) { return yScale(d.pVal) })
                      .attr('class', 'cell')
                      .attr('r', cellRadius)

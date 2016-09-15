@@ -39,25 +39,23 @@ class GMManhattanDialog extends Component {
     }
   }
 
-  getDataUrl() {
-    return '/visualization/manhattan/3/4/5'
-    // const file = this.props.data
-    // if (file.filetype === 'resultFile' && file.info.resultType === 'matrix') {
-    //   const markerLabelId = file.info.labels.marker
-    //   const traitLabelId = file.info.labels.trait
-    //   return '/visualization/matrix/' + markerLabelId + '/' + traitLabelId + '/' + file.id
-    // } else {
-    //   return '/data/' + file.id
-    // }
-  }
-
   constructor (props, context) {
     super(props, context)
     this.state = this.initialState()
   }
 
+
+  getDataUrl() {
+    if(this.props.pageParams){
+      var params = this.props.pageParams
+      var link = params.marker.toString() + '/' + params.trait.toString() + '/' + params.result.toString() + '/' + this.state.traitName
+      console.log(link)
+      return '/visualization/manhattan/' + link
+    }
+  }
+
   validateForm () {
-    return (!!this.state.traitName)
+    return (Number.isInteger(this.state.traitName))
   }
 
   handleSubmit () {
@@ -78,6 +76,8 @@ class GMManhattanDialog extends Component {
   }
 
   render () {
+    console.log(this.props.pageParams)
+    console.log(this.props.traitLabels)
     var actions = [
       <FlatButton
         label='Cancel'
@@ -94,6 +94,11 @@ class GMManhattanDialog extends Component {
         linkButton={true}
       />
     ]
+    if (this.props.traitLabels){
+      var traitList = this.props.traitLabels.map((trait, i) =>
+        <MenuItem key={i} value={i} primaryText={trait} />
+      )
+    }
     return (
       <div>
         <FlatButton
@@ -117,7 +122,7 @@ class GMManhattanDialog extends Component {
                 value={this.state.traitName}
                 onChange={this.handleChangeTraitName.bind(this)}
                 >
-                <MenuItem value={1} primaryText='Tumour' />
+                {traitList}
               </SelectField>
 
             </div>

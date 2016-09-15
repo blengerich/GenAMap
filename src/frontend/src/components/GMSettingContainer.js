@@ -12,10 +12,7 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   onClickChangePassword: (creds) => {
-    const changepasswordPromise = dispatch(ChangePassword(creds))
-    changepasswordPromise.then(account =>{
-      console.log("Account", account)
-    })
+    dispatch(ChangePassword(creds))
   }
 })
 
