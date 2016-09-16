@@ -12,9 +12,15 @@
 #ifdef BAZEL
 #include "json/json.h"
 #include "IO/DataBaseCommunicator.hpp"
+#include "Models/TreeLasso.hpp"
+#include <queue>
+#include <sstream>
 #else
 #include "json.h"
 #include "../IO/DataBaseCommunicator.hpp"
+#include "../Models/TreeLasso.hpp"
+#include <queue>
+#include <sstream>
 #endif
 
 using namespace std;
@@ -38,6 +44,8 @@ private:
     void operator=(JsonCoder const &); // don't implement
 
     Json::Value decodeStr(string);
+    string long2string(long);
+    Json::Value node2json(vector<treeNode*>, int, MatrixXd);
 
 public:
     static JsonCoder &getInstance() {
@@ -49,6 +57,8 @@ public:
     string encodeMatrix(MatrixXd);
     string encodeResultPack(result_pack);
     string encodeProgressPack(progress_pack);
+    string encodeTraitTreeEffectsizes(Tree*, MatrixXd);
+    Json::Value encodeVector(MatrixXd);
 
     mainMessage decodeMainMessage(string);
     jobOrder decodeJobOrder(string);

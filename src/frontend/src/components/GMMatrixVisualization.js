@@ -100,6 +100,8 @@ const GMMatrixVisualization = React.createClass({
           right={this.props.minPad}
           slider={{"onThresholdChange": this.onThresholdChange}}
           subsetSelector={this.subsetSelector}
+          pageParams={this.state.pageParams}
+          traitLabels={this.state.traitLabels}
         />
       </div>
     )

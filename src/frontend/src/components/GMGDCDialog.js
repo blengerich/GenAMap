@@ -7,11 +7,25 @@ import TextField from 'material-ui/lib/text-field'
 import ListItem from 'material-ui/lib/lists/list-item'
 import FontIcon from 'material-ui/lib/font-icon'
 import RaisedButton from 'material-ui/lib/raised-button'
+import RadioButtonGroup from 'material-ui/lib/raised-button'
 import RadioButton from 'material-ui/lib/radio-button'
 
 import config from '../../config'
 
 const errorText = 'This is a required field'
+
+const styles = {
+  block: {
+    maxWidth: 250,
+  },
+  radioButton: {
+    marginBottom: 16,
+  },
+  RadioButtonGroup:{
+    maxWidth: 100,
+    maxLength: 100
+  }
+};
 
 class GMGDCDialog extends Component {
   initialState () {
@@ -19,9 +33,8 @@ class GMGDCDialog extends Component {
       open: false,
       projectValue: '',
       projectName: '',
-      disease_type: '',
+      disease: {disease_type:'', datatype: 'FPKM'},
       showAdvancedOptions: false,
-      datatype: 'RNA',
       gdcweb: 'https://gdc-portal.nci.nih.gov/projects/t'
     }
   }
@@ -74,26 +87,25 @@ class GMGDCDialog extends Component {
   }
 
   onChangeDisasterType(event, index, value){
-    this.setState({disease_type: value,
-                   optionDisabled: false,
-                   gdcweb: "https://gdc-portal.nci.nih.gov/projects/"+this.state.disease_type
+    this.setState({disease: {disease_type: value, datatype: this.state.disease.datatype},
+                   gdcweb: "https://gdc-portal.nci.nih.gov/projects/"+this.state.disease.disease_type
                  })
   }
 
   handleShowAdvancedOptions(event) {
-    this.setState({showAdvancedOptions: true})
+    this.setState({showAdvancedOptions: !this.state.showAdvancedOptions})
   }
 
   setDataTypeGen(event) {
-    this.setState({datatype: 'Geno'})
+    this.setState({disease: {disease_type: this.state.disease.disease_type, datatype: 'FPKM'}})
   }
 
   setDataTypeRNA(event) {
-    this.setState({datatype: 'RNA'})
+    this.setState({disease: {disease_type: this.state.disease.disease_type, datatype: 'FPKM-UQ'}})
   }
 
   setDataTypemiRNA(event) {
-    this.setState({datatype: 'miRNA'})
+    this.setState({disease: {disease_type: this.state.disease.disease_type, datatype: 'HTSEQ'}})
   }
 
   projectSearching(){
@@ -238,9 +250,9 @@ class GMGDCDialog extends Component {
               onChange={this.onChangeProjectName.bind(this)}
             />
             <SelectField style={{width: '80%'}}
-                value={this.state.disease_type}
+                value={this.state.disease.disease_type}
                 hintText='Disease Type'
-                errorText={!this.state.disease_type && errorText}
+                errorText={!this.state.disease.disease_type && errorText}
                 onChange={this.onChangeDisasterType.bind(this)}
                 >
                 {DiseaseList}
@@ -248,12 +260,13 @@ class GMGDCDialog extends Component {
             <select
                 id = 'disease_type'
                 className = 'hidden'
-                value ={this.state.disease_type}
+                value ={this.state.disease.disease_type}
                 readOnly
                 >
                 {DiseaseReact}
             </select>
             <br />
+            {console.log(this.state.gdcweb)}
             <a href = {this.state.gdcweb} target="_blank">
             <img src="images/GDCLOGO.ico" style={{width:"50%"}}/></a>
           </div>
@@ -264,20 +277,37 @@ class GMGDCDialog extends Component {
             </div>
             <br / >
             {(this.state.showAdvancedOptions) ?
-            <div id='advancedOptionsDiv'>
+            <div id='advancedOptionsDiv' style= {{width:'80%', height:'80%', float:'bottom'}}>
               <span>Data Type</span>
-              <RadioButton
-                onClick={this.setDataTypeGen.bind(this)}
-                label="Genotyping array" checked={this.state.datatype === 'Geno'}
-              />
-              <RadioButton
-                onClick={this.setDataTypeRNA.bind(this)}
-                label="RNA Sequence" checked={this.state.datatype === 'RNA'}
-              />
-              <RadioButton
-                onClick={this.setDataTypemiRNA.bind(this)}
-                label="mi-RNA Sequence" checked={this.state.datatype === 'miRNA'}
-              />
+              <br/>
+              <div>
+                <RadioButtonGroup
+                  name="dataType"
+                  id="dataType"
+                  defaultSelected="FPKM"
+                  value = {this.state.disease.datatype}
+                  style={{width:'80%', height:'80%', float:'bottom'}}
+                >
+                  <RadioButton
+                    value = "FPKM"
+                    onClick={this.setDataTypeGen.bind(this)}
+                    style={styles.radioButton}
+                    label="FPKM" checked={this.state.disease.datatype === 'FPKM'}
+                  />
+                  <RadioButton
+                    value = "FPKMUQ"
+                    onClick={this.setDataTypeRNA.bind(this)}
+                    style={styles.radioButton}
+                    label ="FPKM-UQ" checked={this.state.disease.datatype === 'FPKM-UQ'}
+                  />
+                  <RadioButton
+                    value = "HTSEQ"
+                    onClick={this.setDataTypemiRNA.bind(this)}
+                    style={styles.radioButton}
+                    label="HTSEQ" checked={this.state.disease.datatype === 'HTSEQ'}
+                  />
+                </RadioButtonGroup>
+              </div>
             </div>
               : null
             }
