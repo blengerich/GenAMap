@@ -13,7 +13,7 @@ Build the backend as a Node addon
 Build the frontend. Gulp watches all the source files and compiles them into `bundle.js` every time we change a JS file. So it won’t ever finish (that’s why we run it as a background process).
 
 	cd ../../frontend
-	npm install
+	npm install --no-bin-links
 	gulp watch &
 	
 Run GenAMap

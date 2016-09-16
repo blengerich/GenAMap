@@ -39,7 +39,7 @@ render(
       <Route path='/' component={addDevTools(requireAuthentication(GMAppContainer))}>
         <Route path='data/:id' component={GMDataList} />
         <Route path='visualization/matrix/:marker/:trait/:result' component={GMMatrixVisualization} />
-        <Route path='visualization/manhattan/:markers/:traits/:results' component={GMManhattanVisualization} />
+        <Route path='visualization/manhattan/:markers/:traits/:results/:traitNum' component={GMManhattanVisualization} />
       </Route>
     </Router>
   </Provider>,

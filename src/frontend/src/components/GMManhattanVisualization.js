@@ -64,7 +64,7 @@ const GMManhattanVisualization = React.createClass({
           <GMManhattanChart
             data={this.state.data}
             markerLabels={this.state.markerLabels}
-            traitLabelsNum={0}
+            traitLabelsNum={this.state.pageParams.traitNum}
             pageParams={this.state.pageParams}
           />
         </div>

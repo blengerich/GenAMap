@@ -2,7 +2,7 @@ var express = require('express')
 var Waterline = require('waterline')
 var bodyParser = require('body-parser')
 var Busboy = require('busboy')
-var fs = require('fs')
+var fs = require('fs-extra')
 var path = require('path')
 var expressjwt = require('express-jwt')
 var async = require('async')
@@ -279,7 +279,7 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
           subject: 'GenAMap Sign-up Comfiration', // Subject line
           text: 'Registration Comfiration',
           html: html_1
-          + 'Verification code: <br/> ' + req.body.code + '<br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code + '<br/>'
+          + req.body.code + '<br/> <br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code + '<br/>'
           + html_2
       };
 
@@ -543,12 +543,13 @@ app.post(config.api.importDataUrl, function (req, res) {
       name: 'Populations'
     }
   }
+
+  var GDCdatainfo = {disease_type: '', datatype: ''}
+
   const userId = extractUserIdFromHeader(req.headers)
 
   busboy.on('field', function (fieldname, val, fieldnameTruncated,
                               valTruncated, encoding, mimetype) {
-
-    file_type = "FPKM data"
     switch (fieldname) {
       case 'project':
         projectId = val
@@ -571,50 +572,76 @@ app.post(config.api.importDataUrl, function (req, res) {
       case 'population':
         dataList.population.projectItem = val
         break
-      case 'data_type':
-        file_type = val
       case 'disease_type':
+        GDCdatainfo.disease_type = val
+        console.log(val)
         projectObj.species = 'Human'
-        const folderPath = path.join('./.tmp', userId)
-        mkdirp.sync(folderPath)
-        console.log(file_type)
-        getfile(val, folderPath, file_type)
         dataList.marker.projectItem = dataList.markerLabel.projectItem = 'marker'
         dataList.trait.projectItem = dataList.traitLabel.projectItem = 'trait'
+        break
+      case 'dataType':
+        GDCdatainfo.datatype = val
         break
       default:
         console.log('Unhandled fieldname "' + fieldname + '" of value "' + val + '"')
     }
+    if (!!GDCdatainfo.disease_type){
+      const folderPath = path.join('./.tmp', userId)
+      mkdirp.sync(folderPath)
+      console.log(GDCdatainfo.disease_type)
+      console.log(GDCdatainfo.datatype)
+      getfile(GDCdatainfo.disease_type, folderPath, GDCdatainfo.datatype.toString())
+    }
   })
 
   function getfile(disease_type, folderPath, file_type){
+      if(!file_type){file_type="FPKM"}
       const id_traitval = guid()
       const traitval_fileName = `${id_traitval}.csv`
       const traitval_fullPath = path.join(folderPath, traitval_fileName)
-      dataList.trait.filetype = 'traitFile'
-      dataList.trait.path = traitval_fullPath
+
       const id_traitLabel = guid()
       const traitLabel_fileName = `${id_traitLabel}.csv`
       const traitLabel_fullPath = path.join(folderPath, traitLabel_fileName)
-      dataList.traitLabel.filetype = 'traitLabelFile'
-      dataList.traitLabel.path = traitLabel_fullPath
+
       const id_markerval = guid()
       const markerval_fileName = `${id_markerval}.csv`
       const markerval_fullPath = path.join(folderPath, markerval_fileName)
-      dataList.marker.filetype = 'markerFile'
-      dataList.marker.path = markerval_fullPath
+
       const id_markerLabel = guid()
       const markerLabel_fileName = `${id_markerLabel}.csv`
       const markerLabel_fullPath = path.join(folderPath, markerLabel_fileName)
-      dataList.markerLabel.filetype = 'markerLabelFile'
-      dataList.markerLabel.path = markerLabel_fullPath
+
       const origindirpath = path.join('./GDCdata',disease_type)
       const origintraitlabelfile = path.join(origindirpath, 'traitLabel.csv')
       const origintraitvaluefile = path.join(origindirpath, 'traitval.csv')
-      const originmarkerlablfile = path.join(origindirpath, 'markerLabel.csv')
-      fs.createReadStream(originmarkerlablfile).pipe(fs.createWriteStream(markerLabel_fullPath))
-      fs.createReadStream(origintraitvaluefile).pipe(fs.createWriteStream(traitval_fullPath))
-      fs.createReadStream(originmarkerlablfile).pipe(fs.createWriteStream(markerLabel_fullPath))
+      const originmarkerlabelfile = path.join(origindirpath, 'markerLabel.csv')
+      const originmarkervaluefile = path.join(origindirpath, 'markerValue_'+ file_type + '.csv')
+
+      dataList.markerLabel.filetype = 'markerLabelFile'
+      dataList.markerLabel.path = markerLabel_fullPath
+      fs.copy(originmarkerlabelfile,markerLabel_fullPath,function(err){
+        if (err) return console.error(err)
+      })
+
+      dataList.marker.filetype = 'markerFile'
+      dataList.marker.path = markerval_fullPath
+      fs.copy(originmarkervaluefile,markerval_fullPath,function(err){
+        if (err) return console.error(err)
+      })
+
+      dataList.traitLabel.filetype = 'traitLabelFile'
+      dataList.traitLabel.path = traitLabel_fullPath
+      fs.copy(origintraitlabelfile,traitLabel_fullPath,function(err){
+        if (err) return console.error(err)
+      })
+
+      dataList.trait.filetype = 'traitFile'
+      dataList.trait.path = traitval_fullPath
+      fs.copy(origintraitvaluefile,traitval_fullPath,function(err){
+        if (err) return console.error(err)
+      })
+
   }
 
 
@@ -756,7 +783,8 @@ app.post(config.api.importDataUrl, function (req, res) {
       }
       else {console.log('not recognized data format')}
     }
-  })
+  }
+  )
 
   busboy.on('finish', function () {
     const projectFinish = function (err, project) {

@@ -13,8 +13,6 @@ const styles = {
   }
 }
 
-
-
 const GMSetting = React.createClass({
   getInitialState: function () {
     return {
@@ -55,6 +53,9 @@ const GMSetting = React.createClass({
   },
   render: function () {
     const {errorMessage , accountname} = this.props
+    console.log(errorMessage)
+    console.log(accountname)
+    console.log(this.props)
     var actions = [
       <FlatButton
         label='Cancel'
@@ -114,11 +115,5 @@ const GMSetting = React.createClass({
     )
   }
 })
-
-// GMSetting.propTypes = {
-//   onClickChangePassword: propTypes.func.isRequired,
-//   errorMessage : propTypes.string,
-//   accountname : propTypes.string
-// }
 
 export default GMSetting
