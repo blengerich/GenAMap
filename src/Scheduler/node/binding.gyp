@@ -12,7 +12,7 @@
 			"../../Models/LinearMixedModel.cpp", "../../Models/LinearRegression.cpp",
 			"../../Models/Model.cpp", "../../Models/MultiPopLasso.cpp",
 			"../../Models/SparseLMM.cpp", "../../Models/TreeLasso.cpp",
-			"../../Stats/Stats.cpp"],
+			"../../Stats/Stats.cpp", "../../Stats/Chi2Test.cpp", "../../Stats/FisherTest.cpp", "../../Stats/WaldTest.cpp"],
 		'cflags': [
 			'-Wall',
 			'-std=c++11',

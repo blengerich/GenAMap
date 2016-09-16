@@ -9,9 +9,11 @@ void FisherTest::run() {
     long r = X.rows();
     long aa = 0, ab = 0, ac = 0, ba = 0, bb = 0, bc = 0;
     MatrixXd o = MatrixXd::Zero(2, 2);
-    for (long k = 0; k < y.cols(); k++) {
-        for (long j = 0; j < c; j++) {
-            for (long i = 0; i < r; i++) {
+    long t = y.cols();
+    for (long k = 0; k < t && !shouldStop; k++) {
+        for (long j = 0; j < c && !shouldStop; j++) {
+            progress = float(k*c+j)/(t*c);
+            for (long i = 0; i < r && !shouldStop; i++) {
                 if (y(i, k) == 0) {
                     if (genoType == 1) {
                         if (X(i, j) == 0) {

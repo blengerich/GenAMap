@@ -26,3 +26,4 @@ sampleData/*
 **/frontend/build/*
 **/bundle.js
 **/*.start
+**/Scheduler/**/build/*

@@ -47,21 +47,18 @@ double Stats::BonCorrection(double pVal, int number) {
   return pVal/number;
 }
 
-void StatsBasic::setX(const MatrixXd & m) {
-    X = m;
+double Stats::get_ts(double beta, double var, double sigma){
+  return beta/(sqrt(var * sigma));
 }
 
-void StatsBasic::setY(const MatrixXd & n) {
-    y = n;
+double Stats::get_qs(double ts, int N, int q){
+  return 2*Stats::ChiToPValue(abs(ts), N-q);  
 }
 
 void StatsBasic::setAttributeMatrix(const string &string1, MatrixXd *xd) {
 
 }
 
-MatrixXd StatsBasic::getBeta() {
-    return beta;
-}
 
 StatsBasic::StatsBasic() {
     correctNum = 0;
@@ -113,4 +110,30 @@ void StatsBasic::BonferroniCorrection() {
         MatrixXd m = MatrixXd::Ones(beta.rows(), beta.cols());
         beta = beta.cwiseMin(m);
     }
+}
+
+// algorithm use
+
+double StatsBasic::getProgress() {
+    return progress;
+}
+
+bool StatsBasic::getIsRunning() {
+    return isRunning;
+}
+
+
+void StatsBasic::stop() {
+    shouldStop = true;
+}
+
+void StatsBasic::setUpRun() {
+    isRunning = true;
+    progress = 0.0;
+    shouldStop = false;
+}
+
+void StatsBasic::finishRun() {
+    isRunning = false;
+    progress = 1.0;
 }
