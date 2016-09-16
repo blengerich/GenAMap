@@ -164,14 +164,14 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 				models_map[id] = unique_ptr<WaldTest>(new WaldTest(options.options));
 				break;
 			}
-			case lmm: {
-				models_map[id] = unique_ptr<LinearMixedModel>(new LinearMixedModel(options.options));
-				break;
-			}
-			case slmm: {
-				models_map[id] = unique_ptr<SparseLMM>(new SparseLMM(options.options));
-				break;
-			}
+//			case lmm: {
+//				models_map[id] = unique_ptr<LinearMixedModel>(new LinearMixedModel(options.options));
+//				break;
+//			}
+//			case slmm: {
+//				models_map[id] = unique_ptr<SparseLMM>(new SparseLMM(options.options));
+//				break;
+//			}
 			default:
 				return -1;
 		}
@@ -303,8 +303,8 @@ void trainAlgorithmThread(uv_work_t* req) {
 		        alg->run(model);
 		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 		        alg->run(model);
-		    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
-				alg->run(model);
+//		    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
+//				alg->run(model);
 			} else {
 		        throw runtime_error("Requested model type not implemented for the requested algorithm");
 		    }
@@ -323,8 +323,8 @@ void trainAlgorithmThread(uv_work_t* req) {
 		        alg->run(model);
 		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 		        alg->run(model);
-		    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
-				alg->run(model);
+//		    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
+//				alg->run(model);
 			} else {
 		        throw runtime_error("Requested model type not implemented for the requested algorithm");
 		    }
@@ -476,8 +476,8 @@ MatrixXd Scheduler::getJobResult(const int job_id) {
 	        return model->getBeta();
 	    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 	        return model->getBeta();
-	    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
-			return model->getBeta();
+//	    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
+//			return model->getBeta();
 		} else if (FisherTest* model = dynamic_cast<FisherTest*>(job->model)) {
 			return model->getBeta();
 		} else if (Chi2Test* model = dynamic_cast<Chi2Test*>(job->model)) {
