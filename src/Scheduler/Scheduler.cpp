@@ -303,8 +303,8 @@ void trainAlgorithmThread(uv_work_t* req) {
 		        alg->run(model);
 		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 		        alg->run(model);
-//		    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
-//				alg->run(model);
+		    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
+				alg->run(model);
 			} else {
 		        throw runtime_error("Requested model type not implemented for the requested algorithm");
 		    }
@@ -323,8 +323,8 @@ void trainAlgorithmThread(uv_work_t* req) {
 		        alg->run(model);
 		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 		        alg->run(model);
-//		    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
-//				alg->run(model);
+		    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
+				alg->run(model);
 			} else {
 		        throw runtime_error("Requested model type not implemented for the requested algorithm");
 		    }
@@ -476,8 +476,8 @@ MatrixXd Scheduler::getJobResult(const int job_id) {
 	        return model->getBeta();
 	    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 	        return model->getBeta();
-//	    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
-//			return model->getBeta();
+	    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
+			return model->getBeta();
 		} else if (FisherTest* model = dynamic_cast<FisherTest*>(job->model)) {
 			return model->getBeta();
 		} else if (Chi2Test* model = dynamic_cast<Chi2Test*>(job->model)) {
