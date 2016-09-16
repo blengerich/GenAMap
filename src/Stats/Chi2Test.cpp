@@ -12,9 +12,11 @@ void Chi2Test::run() {
     double chi = 0;
     VectorXd e = VectorXd::Zero(4);
     VectorXd o = VectorXd::Zero(4);
-    for (long k = 0; k < y.cols(); k++) {
-        for (long j = 0; j < c; j++) {
-            for (long i = 0; i < r; i++) {
+    long t = y.cols();
+    for (long k = 0; k < t && !shouldStop; k++) {
+        for (long j = 0; j < c && !shouldStop; j++) {
+            progress = float(k*c+j)/(t*c);
+            for (long i = 0; i < r && !shouldStop; i++) {
                 if (y(i, k) == 0) {
                     if (genoType == 1) {
                         if (X(i, j) == 0) {

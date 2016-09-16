@@ -1,7 +1,9 @@
 * [Install Docker](https://docs.docker.com/engine/installation/mac/)
 * Create account for [DockerHub](https://hub.docker.com/)
 * Send username to me (@blengerich)
-Once you have been added to the project:
+
+Dylan made a great convenience script for Macs. It's located at //scripts/genamap.sh
+Here's how to use it:
 * Open Docker Quickstart Terminal for Mac
 * Pull the docker image:
    $ docker login
@@ -33,7 +35,7 @@ To run the node app (without CLI):
 * From the root directory (Genamap_V2), run:
    $ docker run -ti -p 49160:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap
 * This will create a local image of the docker container. Now we will need to run the node app:
-  $ cd /usr/src/genamap/src/frontend/genamapApp
+  $ cd /usr/src/genamap/frontend/genamapApp
   $ nodemon -L webapp.js
 * To view the website, from a different terminal window, run:
   $ docker-machine ip default
