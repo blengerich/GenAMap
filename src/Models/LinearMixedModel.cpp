@@ -18,13 +18,6 @@ LinearMixedModel::LinearMixedModel() {
 }
 
 LinearMixedModel::LinearMixedModel(const unordered_map<string, string> &options) {
-    // LinearMixedModel does not really take parameters, this is added to pass test.
-    float tmp = 0;
-    try {
-        tmp = stof(options.at("lambda"));
-    } catch (std::out_of_range& oor) {
-        tmp = 0;
-    }
     K = MatrixXd::Zero(1,1);
     S = MatrixXd::Zero(1,1);
     initFlag = false;
