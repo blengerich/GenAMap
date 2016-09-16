@@ -164,14 +164,14 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 				models_map[id] = unique_ptr<WaldTest>(new WaldTest(options.options));
 				break;
 			}
-//			case lmm: {
-//				models_map[id] = unique_ptr<LinearMixedModel>(new LinearMixedModel(options.options));
-//				break;
-//			}
-//			case slmm: {
-//				models_map[id] = unique_ptr<SparseLMM>(new SparseLMM(options.options));
-//				break;
-//			}
+			case lmm: {
+				models_map[id] = unique_ptr<LinearMixedModel>(new LinearMixedModel(options.options));
+				break;
+			}
+			case slmm: {
+				models_map[id] = unique_ptr<SparseLMM>(new SparseLMM(options.options));
+				break;
+			}
 			default:
 				return -1;
 		}
