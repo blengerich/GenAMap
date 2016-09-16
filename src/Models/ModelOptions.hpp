@@ -18,6 +18,8 @@ enum model_type {
 	fisher_test = 5,
 	chi2_test = 6,
 	wald_test = 7,
+	lmm = 8,
+	slmm = 9,
 };
 
 typedef struct ModelOptions_t {
