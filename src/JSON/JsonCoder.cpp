@@ -32,6 +32,8 @@ string JsonCoder::encodeMatrix(MatrixXd X) {
     return writer.write(root);
 }
 
+
+
 string JsonCoder::encodeResultPack(result_pack rp) {
     Json::Value root;
     root["id"] = rp.result_id;
@@ -122,4 +124,52 @@ organization_info JsonCoder::decodeOrganizationInfo(string str) {
     oi.id = stoi(root["id"].asString());
     oi.name = root["name"].asString();
     return oi;
+}
+
+string JsonCoder::encodeTraitTreeEffectsizes(Tree *tree, MatrixXd matrix) {
+    Json::Value root;
+    treeNode * rt = tree->getRoot();
+    int count = 0;
+    string tmp = "root ";
+    root["id"] = tmp + to_string(count);
+    root["children"] = node2json(rt->children, count, matrix);
+    return writer.write(root);
+}
+
+string JsonCoder::long2string(long i1) {
+    std::string number;
+    std::stringstream strstream;
+    strstream << i1;
+    strstream >> number;
+    return number;
+}
+
+Json::Value JsonCoder::node2json(vector<treeNode *> children, int count, MatrixXd matrix) {
+    Json::Value root;
+    string tmp = "child ";
+    string tmp2 = "node ";
+    string tmp3 = "leaf";
+    int count2 = count + children.size();
+    for (unsigned int i=0;i<children.size(); i++){
+        if (children[i]->children.size()>0){
+            root["id"] = tmp2 + to_string(++count);
+            root[tmp+to_string(i+1)] = node2json(children[i]->children, count2, matrix);
+        }
+        else{
+            root["id"] = tmp3 + long2string(children[i]->trait[0]);
+            root["value"] = encodeVector(matrix.col(children[i]->trait[0]));
+        }
+    }
+    return root;
+}
+
+Json::Value JsonCoder::encodeVector(MatrixXd X) {
+    Json::Value root;
+    double r = X.rows();
+    string v = "";
+    for (int j=0; j<r-1;j++){
+        v+=to_string(X(j,0))+",";
+    }
+    root["v"]=v;
+    return root;
 }
