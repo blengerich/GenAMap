@@ -247,23 +247,14 @@ app.post(config.api.createAccountUrl, function (req, res) {
     if (foundUser) {
       return res.status(400).send({message: 'Email already in use'})
     }
-
-    app.models.tempuser.findOne({ email }).exec(function (err, foundTempUser) {
-      if (err) console.log(err)
-      if (foundTempUser) {
-        return res.status(400).send({message: 'Email already in use'})
-      }
-
       app.models.tempuser.create({ email, password }).exec(function (err, createdTempUser) {
         if (err) {
           if (err.code === 'E_VALIDATION')
             return res.status(400).json({message: 'Invalid email address'})
           return res.status(500).json({ err, from: 'createdUser' })
         }
-
         return res.json(createdTempUser)
       })
-    })
   })
 })
 
@@ -351,15 +342,7 @@ app.post(config.api.ForgetPasswordUrl, function (req, res) {
       return res.json({email})
     }
     else{
-      app.models.tempuser.findOne({ email }).exec(function (err, foundTempUser) {
-        if (err) console.log(err)
-        if (foundTempUser) {
-          return res.json({email})
-        }
-        else{
-          return res.status(400).send({message: 'Email not sign in'})
-        }
-    })
+      return res.status(400).send({message: 'Email not sign in'})
     }
   })
   })
