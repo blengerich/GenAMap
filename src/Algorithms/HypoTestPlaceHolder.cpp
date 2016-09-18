@@ -8,7 +8,7 @@ HypoTestPlaceHolder::HypoTestPlaceHolder() {
     model = NULL;
 }
 
-HypoTestPlaceHolder::HypoTestPlaceHolder(const unordered_map<string, string> map) {
+HypoTestPlaceHolder::HypoTestPlaceHolder(const unordered_map<string, string>& opts) {
     model = NULL;
 }
 
@@ -41,6 +41,27 @@ void HypoTestPlaceHolder::stop() {
 }
 
 void HypoTestPlaceHolder::run(StatsBasic *m) {
+    model = m;
+    m->setUpRun();
+    model->run();
+    m->finishRun();
+}
+
+void HypoTestPlaceHolder::run(Chi2Test *m) {
+    model = m;
+    m->setUpRun();
+    model->run();
+    m->finishRun();
+}
+
+void HypoTestPlaceHolder::run(FisherTest *m) {
+    model = m;
+    m->setUpRun();
+    model->run();
+    m->finishRun();
+}
+
+void HypoTestPlaceHolder::run(WaldTest *m) {
     model = m;
     m->setUpRun();
     model->run();

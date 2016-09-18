@@ -17,6 +17,7 @@
 #include "../../Algorithms/IterativeUpdate.hpp"
 #include "../../Algorithms/Algorithm.hpp"
 #include "../../Algorithms/AlgorithmOptions.hpp"
+#include "../../Algorithms/HypoTestPlaceHolder.h"
 #include "../../Models/ModelOptions.hpp"
 #include "../Job.hpp"
 #include "../Scheduler.hpp"
