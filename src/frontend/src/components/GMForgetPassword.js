@@ -110,7 +110,15 @@ class ForgetPassword extends Component {
               open={this.state.open}
               onRequestClose={this.handleClose.bind(this)}
             >
-              Your email has sent succesfully
+            {(!errorMessage)?
+              <div>
+                Your email has sent succesfully
+              </div>
+              :
+              <div>
+              {errorMessage}
+              </div>
+            }
             </Dialog>
           </div>
           <div style={{ margin: '10px 0' }}>
@@ -139,12 +147,9 @@ class ForgetPassword extends Component {
     const creds = { email }
     this.props.onForgetPasswordClick(creds)
     const { errorMessage } = this.props
-    if(errorMessage == null){
-      this.handleOpen()
-    }
+    this.setState({open: true})
   }
 }
-
 ForgetPassword.propTypes = {
   onForgetPasswordClick: PropTypes.func.isRequired,
   errorMessage: PropTypes.string
