@@ -416,15 +416,11 @@ const GMRunAnalysisDialog = React.createClass({
                   null
                 }
                 </SelectField>
-                <select id='structuremodel' className='hidden' value={this.state.modelValue} readOnly>
-                  {StructuremodelListReact}
-                </select>
-                <select id='hypomodel' className='hidden' value={this.state.modelValue} readOnly>
-                {HypomodelListReact}
-                </select>
-                <select id='confoundingmodel' className='hidden' value={this.state.modelValue} readOnly>
-                {ConfoundingListReact}
-                </select>
+                <select id='model' className='hidden' value={this.state.modelValue} readOnly>
+                  {(this.state.modelClass == 'Structure Association') ? StructuremodelList :
+                    (this.state.modelClass == 'Hypothesis Analysis') ? HypomodelListReact:
+                    (this.state.modelClass == 'Confounding Association') ? ConfoundingmodelListReact:
+                            null}
               </div>
               <div id='projectValueDiv'>
                 <SelectField
