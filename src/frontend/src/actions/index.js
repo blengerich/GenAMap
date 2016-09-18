@@ -727,17 +727,15 @@ export function ChangePassword (creds) {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: `FormerPassword=${creds.Password0}&NewPassword=${creds.Password1}&ConfirmNewPassword=${creds.Password2}`
   }
-  return dispatch => {
+  return (dispatch) => {
     return fetch(config.api.ChangePasswordUrl, ChangePasswordRequest)
     .then(response => response.json().then(account => ({ account, response })))
     .then(({ account, response }) =>  {
       if (!response.ok) {
         dispatch(ChangePasswordError(account.message))
-        Promise.reject(account.message)
-      }
-      else {
-        // dispatch(receiveChangePassword(account.email))
-        // Promise.resolve(account)
+        return Promise.reject(account.message)
+      } else {
+        console.log('success')
       }
     }).catch(err => console.log("Error: ", err))
   }
