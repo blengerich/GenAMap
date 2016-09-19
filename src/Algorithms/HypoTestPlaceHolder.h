@@ -8,8 +8,14 @@
 #include "Algorithm.hpp"
 #ifdef BAZEL
 #include "Stats/Stats.hpp"
+#include "Stats/Chi2Test.h"
+#include "Stats/FisherTest.h"
+#include "Stats/WaldTest.h"
 #else
 #include "../Stats/Stats.hpp"
+#include "../Stats/Chi2Test.h"
+#include "../Stats/FisherTest.h"
+#include "../Stats/WaldTest.h"
 #endif
 
 
@@ -19,7 +25,7 @@ private:
 public:
 
     HypoTestPlaceHolder();
-    HypoTestPlaceHolder(const unordered_map<string, string>);
+    HypoTestPlaceHolder(const unordered_map<string, string>&);
 
     double getProgress();
     bool getIsRunning();
@@ -27,8 +33,11 @@ public:
 
     void assertReadyToRun(){};
     void run(StatsBasic*);
-    void setUpRun(){};
-    void finishRun(){};
+    void run(Chi2Test*);
+    void run(FisherTest*);
+    void run(WaldTest*);
+    void setUpRun();
+    void finishRun();
 };
 
 

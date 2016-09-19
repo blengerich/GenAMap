@@ -61,6 +61,8 @@ const GMRunAnalysisDialog = React.createClass({
       snpsFeature2FileName: '',*/
       // Model parameters
       Structuremodels: config.Structuremodels,
+      Hypomodels: config.Hypomodels,
+      Confoundingmodels: config.Confoundingmodels,
       modelValue: '',
       modelClass: '',
       lambda: 5,
@@ -332,6 +334,20 @@ const GMRunAnalysisDialog = React.createClass({
     const StructuremodelListReact = this.state.Structuremodels.map((model, index) =>
       <option key={index} value={model.id}>{model.name}</option>
     )
+    const HypomodelList = this.state.Hypomodels.map((model, index) =>
+        <MenuItem key={index} value={model.id} primaryText={model.name} />
+    )
+    const HypomodelListReact = this.state.Hypomodels.map((model, index) =>
+        <option key={index} value={model.id}>{model.name}</option>
+    )
+
+    const ConfoundingmodelList = this.state.Confoundingmodels.map((model, index) =>
+        <MenuItem key={index} value={model.id} primaryText={model.name} />
+    )
+    const ConfoundingmodelListReact = this.state.Confoundingmodels.map((model, index) =>
+        <option key={index} value={model.id}>{model.name}</option>
+    )
+
     const snpsFeatureList = this.state.snpsFeatures.map((f, index) =>
       <MenuItem key={index} value={f} primaryText={f.name} />
     )
@@ -399,11 +415,18 @@ const GMRunAnalysisDialog = React.createClass({
                   <MenuItem key={1} value={'Hypothesis Analysis'} primaryText={'Hypothesis Analysis'} /> :
                   (this.state.modelClass == 'Confounding Association') ?
                   <MenuItem key={3} value={'Confounding Association'} primaryText={'Confounding Association'} />:
+                  (this.state.modelClass == 'Hypothesis Analysis') ? HypomodelList:
+                  (this.state.modelClass == 'Confounding Association') ? ConfoundingmodelList:
                   null
                 }
                 </SelectField>
                 <select id='model' className='hidden' value={this.state.modelValue} readOnly>
                   {StructuremodelListReact}
+                </select>
+                  {(this.state.modelClass == 'Structure Association') ? StructuremodelList :
+                    (this.state.modelClass == 'Hypothesis Analysis') ? HypomodelListReact:
+                    (this.state.modelClass == 'Confounding Association') ? ConfoundingmodelListReact:
+                            null}
                 </select>
               </div>
               <div id='projectValueDiv'>

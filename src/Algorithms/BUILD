@@ -39,7 +39,10 @@ cc_library(
 	srcs = ["HypoTestPlaceHolder.cpp"],
 	hdrs = ["HypoTestPlaceHolder.h"],
 	deps = ["//Algorithms:Algorithm",
-			"//Stats:Stats"],
+			"//Stats:Stats",
+		"//Stats:Chi2Test",
+		"//Stats:FisherTest",
+		"//Stats:WaldTest"],
 	copts = ["-DBAZEL"])
 
 cc_library(

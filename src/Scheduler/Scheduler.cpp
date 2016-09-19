@@ -119,6 +119,7 @@ int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 			}
 			case algorithm_type::hypo_test:{
 				algorithms_map[id] = unique_ptr<HypoTestPlaceHolder>(new HypoTestPlaceHolder(options.options));
+				break;
 			}
 			default:
 				return -1;

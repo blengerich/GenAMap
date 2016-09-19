@@ -42,7 +42,7 @@ public:
     void BonferroniCorrection();
 
     virtual void assertReadyToRun();
-    virtual void run(){};
+    virtual void run() {};
     virtual void setUpRun();
     virtual void finishRun();
 
