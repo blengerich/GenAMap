@@ -838,13 +838,10 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
         traitConverter.fromFile(traitFile.path, function(err, traitData) {
           if (err) console.log('Error getting trait for analysis: ', err)
           // Create job
-          console.log(req.body.algorithmOptions);
-          console.log(req.body.modelOptions);
           const jobId = Scheduler.newJob({'algorithm_options': req.body.algorithmOptions, 'model_options': req.body.modelOptions})
           if (jobId === -1) {
             return res.json({msg: 'error creating job'});
           }
-          console.log(jobID);
           Scheduler.setX(jobId, markerData);
           Scheduler.setY(jobId, traitData);
           const startJobFinish = function() {

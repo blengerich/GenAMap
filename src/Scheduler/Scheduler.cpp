@@ -119,6 +119,7 @@ int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 			}
 			case algorithm_type::hypo_test:{
 				algorithms_map[id] = unique_ptr<HypoTestPlaceHolder>(new HypoTestPlaceHolder(options.options));
+				break;
 			}
 			default:
 				return -1;
@@ -218,21 +219,13 @@ int Scheduler::newJob(const JobOptions_t& options) {
 	const int job_id = getNewJobId();
 	if (job_id >= 0) {
 		my_job->job_id = job_id;
-		cout << options.alg_opts.type << endl;
 		int algorithm_id = newAlgorithm(options.alg_opts);
-		cout << "555" <<endl;
 		if (getAlgorithm(algorithm_id)) {
-			cout << "666" <<endl;
 			my_job->algorithm = getAlgorithm(algorithm_id);
-			cout << "777" <<endl;
 			int model_id = newModel(options.model_opts);
-			cout << "888" <<endl;
 			if (getModel(model_id)) {
-				cout << "999" <<endl;
 				my_job->model = getModel(algorithm_id);
-				cout << "000" <<endl;
 				jobs_map[my_job->job_id] = unique_ptr<Job_t>(my_job);
-				cout << "111" <<endl;
 				return job_id;
 			} else {
 				throw runtime_error("Error creating model");

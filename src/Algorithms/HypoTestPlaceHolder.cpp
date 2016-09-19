@@ -3,6 +3,8 @@
 //
 
 #include "HypoTestPlaceHolder.h"
+#include <iostream>
+using namespace std;
 
 HypoTestPlaceHolder::HypoTestPlaceHolder() {
     model = NULL;
@@ -17,19 +19,19 @@ double HypoTestPlaceHolder::getProgress() {
         return 0;
     }
     else {
-        model->getProgress();
+        progress = model->getProgress();
+        return progress;
     }
-    return 0;
 }
 
 bool HypoTestPlaceHolder::getIsRunning() {
     if (model==NULL){
-        return false;
+        return true;
     }
     else{
-        model->getIsRunning();
+        isRunning = model->getIsRunning();
+        return isRunning;
     }
-    return false;
 }
 
 void HypoTestPlaceHolder::stop() {
@@ -42,28 +44,39 @@ void HypoTestPlaceHolder::stop() {
 
 void HypoTestPlaceHolder::run(StatsBasic *m) {
     model = m;
-    m->setUpRun();
+    model->setUpRun();
     model->run();
-    m->finishRun();
+    model->finishRun();
 }
 
 void HypoTestPlaceHolder::run(Chi2Test *m) {
     model = m;
-    m->setUpRun();
+    model->setUpRun();
     model->run();
-    m->finishRun();
+    model->finishRun();
 }
 
 void HypoTestPlaceHolder::run(FisherTest *m) {
     model = m;
-    m->setUpRun();
+    model->setUpRun();
     model->run();
-    m->finishRun();
+    model->finishRun();
 }
 
 void HypoTestPlaceHolder::run(WaldTest *m) {
     model = m;
-    m->setUpRun();
+    model->setUpRun();
     model->run();
-    m->finishRun();
+    model->finishRun();
+}
+
+void HypoTestPlaceHolder::setUpRun() {
+    isRunning = true;
+    progress = 0.0;
+    shouldStop = false;
+}
+
+void HypoTestPlaceHolder::finishRun() {
+    isRunning = false;
+    progress = 1.0;
 }

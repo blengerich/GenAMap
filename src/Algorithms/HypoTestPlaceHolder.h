@@ -36,8 +36,8 @@ public:
     void run(Chi2Test*);
     void run(FisherTest*);
     void run(WaldTest*);
-    void setUpRun(){};
-    void finishRun(){};
+    void setUpRun();
+    void finishRun();
 };
 
 
