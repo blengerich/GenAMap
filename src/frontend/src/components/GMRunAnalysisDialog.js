@@ -421,7 +421,7 @@ const GMRunAnalysisDialog = React.createClass({
                     (this.state.modelClass == 'Hypothesis Analysis') ? HypomodelListReact:
                     (this.state.modelClass == 'Confounding Association') ? ConfoundingmodelListReact:
                             null}
-                            </select>
+                </select>
               </div>
               <div id='projectValueDiv'>
                 <SelectField
