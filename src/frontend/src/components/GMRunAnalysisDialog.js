@@ -411,18 +411,12 @@ const GMRunAnalysisDialog = React.createClass({
                   onChange={this.onChangeModel}
                 >
                 {(this.state.modelClass == 'Structure Association') ? StructuremodelList :
-                  (this.state.modelClass == 'Hypothesis Analysis') ?
-                  <MenuItem key={1} value={'Hypothesis Analysis'} primaryText={'Hypothesis Analysis'} /> :
-                  (this.state.modelClass == 'Confounding Association') ?
-                  <MenuItem key={3} value={'Confounding Association'} primaryText={'Confounding Association'} />:
                   (this.state.modelClass == 'Hypothesis Analysis') ? HypomodelList:
                   (this.state.modelClass == 'Confounding Association') ? ConfoundingmodelList:
                   null
                 }
                 </SelectField>
                 <select id='model' className='hidden' value={this.state.modelValue} readOnly>
-                  {StructuremodelListReact}
-                </select>
                   {(this.state.modelClass == 'Structure Association') ? StructuremodelList :
                     (this.state.modelClass == 'Hypothesis Analysis') ? HypomodelListReact:
                     (this.state.modelClass == 'Confounding Association') ? ConfoundingmodelListReact:
