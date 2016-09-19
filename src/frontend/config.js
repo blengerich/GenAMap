@@ -54,6 +54,11 @@ const config = {
     name: 'Iterative Update',
     image: '',
     info: 'info about IU'
+  }, {
+    id: 4,
+    name: 'Hypothesis Testing',
+    image: '',
+    info: 'info about Hypothesis Testing'
   }],
   algorithmsByModel: {
   0 : [// Linear Regression
@@ -69,11 +74,25 @@ const config = {
     1 // Proximal Gradient Descent
   ],
   4 : [// Tree Lasso
-    3, // Iterative Update
+    1  // Proximal Gradient Descent
+  ],
+  5 : [// Fisher Exact
+    4  // hypo
+  ],
+  6 : [// Chi2
+    4  // hypo
+  ],
+  7 : [// Wald
+    4  // hypo
+  ],
+  8 : [// lmm
+    0  // brent search
+  ],
+  9 : [// slmm
     1  // Proximal Gradient Descent
   ],
   },
-  models: [{
+  Structuremodels: [{
     id: 0,
     name: 'Linear Regression',
     image: '',
@@ -98,6 +117,34 @@ const config = {
     name: 'Tree Lasso',
     image: '',
     info: 'info about IU'
+  }],
+
+  Hypomodels: [{
+    id: 5,
+    name: 'Fisher Exact Test',
+    image: '',
+    info: 'info about Fisher Exact Test'
+  }, {
+    id: 6,
+    name: 'Chi-squared Test',
+    image: 'images/grid_search.png',
+    info: 'Chi-squared Test'
+  }, {
+    id: 7,
+    name: 'Wald Test',
+    image: '',
+    info: 'info about Wald Test'
+  }],
+  Confoundingmodels: [{
+    id: 8,
+    name: 'LMM',
+    image: '',
+    info: 'info about LMM'
+  }, {
+    id: 9,
+    name: 'sparse LMM',
+    image: 'images/grid_search.png',
+    info: 'sparse LMM'
   }]
 }
 
