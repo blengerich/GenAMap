@@ -73,7 +73,7 @@ const config = {
     1  // Proximal Gradient Descent
   ],
   },
-  models: [{
+  Structuremodels: [{
     id: 0,
     name: 'Linear Regression',
     image: '',

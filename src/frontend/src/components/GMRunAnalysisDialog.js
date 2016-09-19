@@ -60,8 +60,9 @@ const GMRunAnalysisDialog = React.createClass({
       /*snpsFeature2Name: '',
       snpsFeature2FileName: '',*/
       // Model parameters
-      models: config.models,
+      Structuremodels: config.Structuremodels,
       modelValue: '',
+      modelClass: '',
       lambda: 5,
       lambdal2: 0.1,
       mu: 0.1,
@@ -228,6 +229,9 @@ const GMRunAnalysisDialog = React.createClass({
                     this.setState({algorithmValue: this.state.availableAlgorithmList["0"].props.value})
                   })
   },
+  onChangeModelClass: function (event, index, value) {
+    this.setState({modelClass: value})
+  },
   onChangeLambda: function(event) {
     this.setState({lambda : event.target.value})
   },
@@ -322,10 +326,10 @@ const GMRunAnalysisDialog = React.createClass({
     const traitListReact = this.state.traits.map((trait, index) =>
       <option key={index} value={trait}>{trait.name}</option>
     )
-    const modelList = this.state.models.map((model, index) =>
+    const StructuremodelList = this.state.Structuremodels.map((model, index) =>
       <MenuItem key={index} value={model.id} primaryText={model.name} />
     )
-    const modelListReact = this.state.models.map((model, index) =>
+    const StructuremodelListReact = this.state.Structuremodels.map((model, index) =>
       <option key={index} value={model.id}>{model.name}</option>
     )
     const snpsFeatureList = this.state.snpsFeatures.map((f, index) =>
@@ -371,6 +375,18 @@ const GMRunAnalysisDialog = React.createClass({
                   onChange={this.onChangeJobName}
                 />
               </div>
+              <div id='modelclassDiv'>
+                <SelectField
+                  value={this.state.modelClass}
+                  hintText='Choose Model Class'
+                  errorText={this.state.modelClass === '' && errorText}
+                  onChange={this.onChangeModelClass}
+                >
+                <MenuItem key={1} value={'Hypothesis Analysis'} primaryText={'Hypothesis Analysis'} />
+                <MenuItem key={2} value={'Structure Association'} primaryText={'Structure Association'} />
+                <MenuItem key={3} value={'Confounding Association'} primaryText={'Confounding Association'} />
+                </SelectField>
+              </div>
               <div id='modelTypeDiv'>
                 <SelectField
                   value={this.state.modelValue}
@@ -378,10 +394,16 @@ const GMRunAnalysisDialog = React.createClass({
                   errorText={this.state.modelValue === '' && errorText}
                   onChange={this.onChangeModel}
                 >
-                {modelList}
+                {(this.state.modelClass == 'Structure Association') ? StructuremodelList :
+                  (this.state.modelClass == 'Hypothesis Analysis') ?
+                  <MenuItem key={1} value={'Hypothesis Analysis'} primaryText={'Hypothesis Analysis'} /> :
+                  (this.state.modelClass == 'Confounding Association') ?
+                  <MenuItem key={3} value={'Confounding Association'} primaryText={'Confounding Association'} />:
+                  null
+                }
                 </SelectField>
                 <select id='model' className='hidden' value={this.state.modelValue} readOnly>
-                  {modelListReact}
+                  {StructuremodelListReact}
                 </select>
               </div>
               <div id='projectValueDiv'>
