@@ -3,8 +3,6 @@
 //
 
 #include "HypoTestPlaceHolder.h"
-#include <iostream>
-using namespace std;
 
 HypoTestPlaceHolder::HypoTestPlaceHolder() {
     model = NULL;
