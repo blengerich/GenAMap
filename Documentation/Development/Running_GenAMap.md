@@ -21,4 +21,4 @@ Run GenAMap
 	nodemon -L webapp.js
 	# listening on port 3000
 	
-Now navigate in a web browser to the port. On Linux, this is localhost:7000. On Mac, this is 192.168.99.100:7000. 
+Now navigate in a web browser to the port. On Linux, this is localhost:7000. On Mac, this is 192.168.99.100:7000, or 0.0.0.0:7000 if your docker version > 1.2.x.
