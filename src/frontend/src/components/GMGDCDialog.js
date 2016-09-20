@@ -101,11 +101,11 @@ class GMGDCDialog extends Component {
   }
 
   setDataTypeRNA(event) {
-    this.setState({disease: {disease_type: this.state.disease.disease_type, datatype: 'FPKM-UQ'}})
+    this.setState({disease: {disease_type: this.state.disease.disease_type, datatype: 'FPKMUQ'}})
   }
 
   setDataTypemiRNA(event) {
-    this.setState({disease: {disease_type: this.state.disease.disease_type, datatype: 'HTSEQ'}})
+    this.setState({disease: {disease_type: this.state.disease.disease_type, datatype: 'htseq'}})
   }
 
   projectSearching(){
@@ -298,13 +298,13 @@ class GMGDCDialog extends Component {
                     value = "FPKMUQ"
                     onClick={this.setDataTypeRNA.bind(this)}
                     style={styles.radioButton}
-                    label ="FPKM-UQ" checked={this.state.disease.datatype === 'FPKM-UQ'}
+                    label ="FPKM-UQ" checked={this.state.disease.datatype === 'FPKMUQ'}
                   />
                   <RadioButton
-                    value = "HTSEQ"
+                    value = "htseq"
                     onClick={this.setDataTypemiRNA.bind(this)}
                     style={styles.radioButton}
-                    label="HTSEQ" checked={this.state.disease.datatype === 'HTSEQ'}
+                    label="htseq" checked={this.state.disease.datatype === 'htseq'}
                   />
                 </RadioButtonGroup>
               </div>

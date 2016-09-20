@@ -595,11 +595,12 @@ app.post(config.api.importDataUrl, function (req, res) {
       const markerLabel_fileName = `${id_markerLabel}.csv`
       const markerLabel_fullPath = path.join(folderPath, markerLabel_fileName)
 
-      const origindirpath = path.join('./GDCdata',disease_type)
+      const origindirpath = path.join('./GDCdata/data',disease_type)
       const origintraitlabelfile = path.join(origindirpath, 'traitLabel.csv')
-      const origintraitvaluefile = path.join(origindirpath, 'traitval.csv')
+      const origintraitvaluefile = path.join(origindirpath, 'traitValue.csv')
       const originmarkerlabelfile = path.join(origindirpath, 'markerLabel.csv')
-      const originmarkervaluefile = path.join(origindirpath, 'markerValue_'+ file_type + '.csv')
+      const originmarkervaluefile = path.join(origindirpath, file_type + '.csv')
+      console.log(file_type)
 
       dataList.markerLabel.filetype = 'markerLabelFile'
       dataList.markerLabel.path = markerLabel_fullPath
