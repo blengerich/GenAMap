@@ -126,8 +126,10 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
             chromosomePosition: +pts[2]
           })
         }
+        if( +pts[1] > maxChromosome){
+          maxChromosome = +pts[1]
         }
-      )
+      })
 
 
       // get cummulative positions
