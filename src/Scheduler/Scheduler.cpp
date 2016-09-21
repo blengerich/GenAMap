@@ -409,7 +409,6 @@ bool Scheduler::cancelJob(const int job_id) {
 
 
 bool Scheduler::deleteAlgorithm(const int algorithm_id) {
-	// TODO: Safety checks here - How to ensure that no jobs refer to this algorithm? Reference count in algorithm object? [Issue: https://github.com/blengerich/GenAMap_V2/issues/22]
 	if (getAlgorithm(algorithm_id)) {
 		algorithms_map[algorithm_id].reset();
 		algorithms_map.erase(algorithm_id);
@@ -421,7 +420,6 @@ bool Scheduler::deleteAlgorithm(const int algorithm_id) {
 
 
 bool Scheduler::deleteModel(const int model_id) {
-	// TODO: Safety checks - How to ensure that no jobs refer to this algorithm? Reference count in algorithm obejct? [Issue: https://github.com/blengerich/GenAMap_V2/issues/24]
 	if (models_map[model_id]) {
 		models_map[model_id].reset();
 		models_map.erase(model_id);
@@ -435,8 +433,8 @@ bool Scheduler::deleteModel(const int model_id) {
 bool Scheduler::deleteJob(const int job_id) {
 	// TODO: check that user owns this job [Issue: https://github.com/blengerich/GenAMap_V2/issues/23]
 	if (ValidJobId(job_id) && cancelJob(job_id)) {
-		//jobs_map[job_id].reset();
-		jobs_map.erase(job_id);
+		jobs_map[job_id].reset();
+		//jobs_map.erase(job_id);
 		return true;
 	}
 	return false;
