@@ -106,9 +106,31 @@ TEST_F(SchedulerTest, getNewAlgorithmId) {
 TEST_F(SchedulerTest, newAlgorithm) {
 	int alg_num1 = my_scheduler->newAlgorithm(alg_opts);
 	EXPECT_GE(alg_num1, 0);
-	// TODO: other checks to ensure the algorithm was constructed correctly [Issue: https://github.com/blengerich/GenAMap_V2/issues/15]
+    EXPECT_TRUE(my_scheduler->deleteAlgorithm(alg_num1));
 
-	// TODO: test other algorithm types here [Issue: https://github.com/blengerich/GenAMap_V2/issues/7]
+	AlgorithmOptions_t alg_opts2 = AlgorithmOptions_t(brent_search, 
+        {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
+    int alg_num2 = my_scheduler->newAlgorithm(alg_opts2);
+    EXPECT_GE(alg_num2, 0);
+    EXPECT_TRUE(my_scheduler->deleteAlgorithm(alg_num2));
+
+    AlgorithmOptions_t alg_opts3 = AlgorithmOptions_t( grid_search, 
+        {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
+    int alg_num3 = my_scheduler->newAlgorithm(alg_opts3);
+    EXPECT_GE(alg_num3, 0);
+    EXPECT_TRUE(my_scheduler->deleteAlgorithm(alg_num3));
+
+    AlgorithmOptions_t alg_opts4 = AlgorithmOptions_t(iterative_update,
+        {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
+    int alg_num4 = my_scheduler->newAlgorithm(alg_opts4);
+    EXPECT_GE(alg_num4, 0);
+    EXPECT_TRUE(my_scheduler->deleteAlgorithm(alg_num4));
+    
+    AlgorithmOptions_t alg_opts5 = AlgorithmOptions_t(hypo_test,
+        {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
+    int alg_num5 = my_scheduler->newAlgorithm(alg_opts5);
+    EXPECT_GE(alg_num5, 0);
+    EXPECT_TRUE(my_scheduler->deleteAlgorithm(alg_num5));
 }
 
 
@@ -274,8 +296,8 @@ TEST_F(SchedulerTest, CheckJobProgress) {
     }
     ASSERT_EQ(1.0, my_scheduler->checkJobProgress(job_id3));
 
-	/*ASSERT_TRUE(my_scheduler->deleteJob(job_id3));
-	ASSERT_EQ(my_scheduler->checkJobProgress(job_id3), -1);	// job progress == -1 after being deleted*/
+	ASSERT_TRUE(my_scheduler->deleteJob(job_id3));
+	ASSERT_EQ(my_scheduler->checkJobProgress(job_id3), -1);	// job progress == -1 after being deleted
 }
 
 
