@@ -600,7 +600,6 @@ app.post(config.api.importDataUrl, function (req, res) {
       const origintraitvaluefile = path.join(origindirpath, 'traitValue.csv')
       const originmarkerlabelfile = path.join(origindirpath, 'markerLabel.csv')
       const originmarkervaluefile = path.join(origindirpath, file_type + '.csv')
-      console.log(file_type)
 
       dataList.markerLabel.filetype = 'markerLabelFile'
       dataList.markerLabel.path = markerLabel_fullPath
