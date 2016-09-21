@@ -16,6 +16,7 @@ const FPKMval_fullPath = path.join(folderPath, 'FPKM.csv')
 const FPKMUQval_fullPath = path.join(folderPath, 'FPKMUQ.csv')
 const htseqval_fullPath = path.join(folderPath, 'htseq.csv')
 const markerLabel_fullPath = path.join(folderPath, 'markerLabel.csv')
+const traitLabel_fullPath = path.join(folderPath, 'traitLabel.csv')
 
 const caseid_fullPath = path.join(folderPath, 'case_id.csv')
 const FPKM_fullPath = path.join(folderPath, 'FPKM_list.csv')
@@ -29,10 +30,12 @@ var FPKM_index = 1
 var FPKMUQ_index = 1
 var htseq_index = 1
 
-FPKMDataCompose(FPKM_index)
-FPKMUQDataCompose(FPKMUQ_index)
-htseqDataCompose(htseq_index)
-markerLabelCompose()
+// FPKMDataCompose(FPKM_index)
+// FPKMUQDataCompose(FPKMUQ_index)
+// htseqDataCompose(htseq_index)
+// markerLabelCompose()
+// traitValueCompose()
+traitLabelCompose()
 
 function FPKMDataCompose(caseid){
   var filename = path.join(FPKMPath, 'FPKM_'+caseid+'.csv')
@@ -105,4 +108,52 @@ function markerLabelCompose(){
   lineReader.on('close',()=>{
     markerValueStream.end()
   })
+}
+
+function traitValueCompose(){
+  var filename = path.join(folderPath, 'traitval.csv')
+  var newfilename = path.join(folderPath, 'traitValue.csv')
+  var lineReader = readline.createInterface({input: fs.createReadStream(filename)})
+  var snp = []
+  lineReader.on('line', (line) => {
+    snp.push({id: line.split(' ')[0] , value: line.split(' ')[1]})
+  })
+  lineReader.on('close',()=>{
+    var result = sortObj(snp, 'id', 'asc')
+    var Stream = fs.createWriteStream(newfilename, {'flags':'a'})
+    var index = 0
+    while (index < result.length){
+      Stream.write(result[index]['value']+'\n')
+      index++
+    }
+    Stream.end()
+  })
+}
+
+function sortObj(arr,key,dir){
+	key=key||'id';
+	dir=dir||'asc';
+	if (arr.length == 0) return [];
+
+	var left = new Array();
+	var right = new Array();
+	var pivot = parseInt(arr[0][key]);
+	var pivotObj = arr[0];
+
+	if(dir==='asc'){
+		for (var i = 1; i < arr.length; i++) {
+			parseInt(arr[i][key]) < pivot ? left.push(arr[i]): right.push(arr[i]);
+		}
+	}else{
+		for (var i = 1; i < arr.length; i++) {
+			parseInt(arr[i][key]) > pivot ? left.push(arr[i]): right.push(arr[i]);
+		}
+	}
+	return sortObj(left,key,dir).concat(pivotObj, sortObj(right,key,dir));
+}
+
+function traitLabelCompose(){
+  var traitLabelStream = fs.createWriteStream(traitLabel_fullPath, {'flags':'w'})
+  traitLabelStream.write('tumour')
+  traitLabelStream.end()
 }
