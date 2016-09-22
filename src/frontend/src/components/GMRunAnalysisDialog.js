@@ -70,6 +70,7 @@ const GMRunAnalysisDialog = React.createClass({
       mu: 0.1,
       gamma: 0.1,
       threshold: 1,
+      correct: 1,
       clusteringMethods: ['average', 'single', 'complete'],
       clusteringMethod: 'single',
       showAdvancedOptionsButton: false,
@@ -239,6 +240,9 @@ const GMRunAnalysisDialog = React.createClass({
   },
   onChangeLambdaL2: function(event) {
     this.setState({lambdal2: event.target.value})
+  },
+  onChangeCorrect: function(event) {
+    this.setState({correct : event.target.value})
   },
   // Algorithm Options
   onChangeGamma: function(event) {
@@ -573,8 +577,11 @@ const GMRunAnalysisDialog = React.createClass({
                           {clusteringMethodListReact}
                         </select>
                       </div>
-                    </div>
-                  : null}
+                    </div>:
+                  (this.state.modelValue == 5 || this.state.modelValue == 6 || this.state.modelValue == 7) ? // Chi2Test
+                    <div><div>Correction Number: <input type="number" value={this.state.correct} onChange={this.onChangeCorrect}/></div>
+                    </div>  :
+                    null}
                   <div id='algorithmSelectDiv'>
                     <SelectField
                       value={this.state.algorithmValue}
