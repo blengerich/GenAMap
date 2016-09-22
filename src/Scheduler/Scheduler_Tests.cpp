@@ -106,31 +106,9 @@ TEST_F(SchedulerTest, getNewAlgorithmId) {
 TEST_F(SchedulerTest, newAlgorithm) {
 	int alg_num1 = my_scheduler->newAlgorithm(alg_opts);
 	EXPECT_GE(alg_num1, 0);
-    EXPECT_TRUE(my_scheduler->deleteAlgorithm(alg_num1));
+	// TODO: other checks to ensure the algorithm was constructed correctly [Issue: https://github.com/blengerich/GenAMap_V2/issues/15]
 
-	AlgorithmOptions_t alg_opts2 = AlgorithmOptions_t(brent_search, 
-        {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
-    int alg_num2 = my_scheduler->newAlgorithm(alg_opts2);
-    EXPECT_GE(alg_num2, 0);
-    EXPECT_TRUE(my_scheduler->deleteAlgorithm(alg_num2));
-
-    AlgorithmOptions_t alg_opts3 = AlgorithmOptions_t( grid_search, 
-        {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
-    int alg_num3 = my_scheduler->newAlgorithm(alg_opts3);
-    EXPECT_GE(alg_num3, 0);
-    EXPECT_TRUE(my_scheduler->deleteAlgorithm(alg_num3));
-
-    AlgorithmOptions_t alg_opts4 = AlgorithmOptions_t(iterative_update,
-        {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
-    int alg_num4 = my_scheduler->newAlgorithm(alg_opts4);
-    EXPECT_GE(alg_num4, 0);
-    EXPECT_TRUE(my_scheduler->deleteAlgorithm(alg_num4));
-    
-    AlgorithmOptions_t alg_opts5 = AlgorithmOptions_t(hypo_test,
-        {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
-    int alg_num5 = my_scheduler->newAlgorithm(alg_opts5);
-    EXPECT_GE(alg_num5, 0);
-    EXPECT_TRUE(my_scheduler->deleteAlgorithm(alg_num5));
+	// TODO: test other algorithm types here [Issue: https://github.com/blengerich/GenAMap_V2/issues/7]
 }
 
 
@@ -242,7 +220,6 @@ TEST_F(SchedulerTest, Train) {
 TEST_F(SchedulerTest, CheckJobProgress) {
     EXPECT_EQ(-1, my_scheduler->checkJobProgress(-1));	// job progress == -1 for bad ID
 
-    // Large Job
     int job_id = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
     ASSERT_TRUE(my_scheduler->setX(job_id, LargeX));
     ASSERT_TRUE(my_scheduler->setY(job_id, LargeY));
@@ -297,47 +274,8 @@ TEST_F(SchedulerTest, CheckJobProgress) {
     }
     ASSERT_EQ(1.0, my_scheduler->checkJobProgress(job_id3));
 
-	ASSERT_TRUE(my_scheduler->deleteJob(job_id3));
-	ASSERT_EQ(my_scheduler->checkJobProgress(job_id3), -1);	// job progress == -1 after being deleted
-}
-
-
-TEST_F(SchedulerTest, DeleteJob) {
-    ASSERT_FALSE(my_scheduler->deleteJob(-1));  // can't delete non-existent job
-
-    // Short job - delete after finishing
-    int job_id = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
-    my_scheduler->setX(job_id, X);
-    my_scheduler->setY(job_id, y);
-    ASSERT_TRUE(my_scheduler->startJob(job_id, NullFunc));
-
-    double progress = my_scheduler->checkJobProgress(job_id);
-    ASSERT_GE(progress, 0);
-    double progress_2 = my_scheduler->checkJobProgress(job_id);
-    ASSERT_GE(progress_2, progress);
-    while(my_scheduler->checkJobProgress(job_id) < 1.0) {
-        usleep(1);
-    }
-    ASSERT_EQ(1.0, my_scheduler->checkJobProgress(job_id));
-    ASSERT_TRUE(my_scheduler->deleteJob(job_id));
-    ASSERT_FALSE(my_scheduler->deleteJob(job_id));  // can't delete job twice
-
-    // Large job - delete while it is running
-    job_id = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
-    ASSERT_TRUE(my_scheduler->setX(job_id, LargeX));
-    ASSERT_TRUE(my_scheduler->setY(job_id, LargeY));
-    ASSERT_EQ(0, my_scheduler->checkJobProgress(job_id));   // job progress == 0 before being run
-    ASSERT_TRUE(my_scheduler->startJob(job_id, NullFunc));
-    while(my_scheduler->checkJobProgress(job_id) == 0) {
-        usleep(1);
-    }
-    progress = my_scheduler->checkJobProgress(job_id);   // 0 < job progress < 1 before end of run
-    ASSERT_GE(progress, 0);
-    ASSERT_LT(progress, 1);
-    ASSERT_TRUE(my_scheduler->deleteJob(job_id));   // should be able to safely delete a job while it's running (it gets cancelled)
-    
-    progress_2 = my_scheduler->checkJobProgress(job_id); // job progress monotonically increasing
-    ASSERT_EQ(-1, progress_2); // deleted job has progress = -1
+	/*ASSERT_TRUE(my_scheduler->deleteJob(job_id3));
+	ASSERT_EQ(my_scheduler->checkJobProgress(job_id3), -1);	// job progress == -1 after being deleted*/
 }
 
 
