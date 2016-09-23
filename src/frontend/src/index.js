@@ -14,6 +14,7 @@ import GMAppContainer from './components/GMAppContainer'
 import GMDataList from './components/GMDataList'
 import GMMatrixVisualization from './components/GMMatrixVisualization'
 import GMManhattanVisualization from './components/GMManhattanVisualization'
+import GMErrorPage from './components/GMErrorPage'
 import GMLoginContainer from './components/GMLoginContainer'
 import GMForgetPasswordContainer from './components/GMForgetPasswordContainer'
 import GMCreateAccountContainer from './components/GMCreateAccountContainer'
@@ -36,6 +37,7 @@ render(
       <Route path='/register' component={addDevTools(GMCreateAccountContainer)} />
       <Route path='/forget-password' component={addDevTools(GMForgetPasswordContainer)} />
       <Route path='/confirm/:id' onEnter={confirmUser} />
+      <Route path='/error/:name' component={GMErrorPage} />
       <Route path='/' component={addDevTools(requireAuthentication(GMAppContainer))}>
         <Route path='data/:id' component={GMDataList} />
         <Route path='visualization/matrix/:marker/:trait/:result' component={GMMatrixVisualization} />

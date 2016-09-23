@@ -224,7 +224,7 @@ int Scheduler::newJob(const JobOptions_t& options) {
 			my_job->algorithm = getAlgorithm(algorithm_id);
 			int model_id = newModel(options.model_opts);
 			if (getModel(model_id)) {
-				my_job->model = getModel(algorithm_id);
+				my_job->model = getModel(model_id);
 				jobs_map[my_job->job_id] = unique_ptr<Job_t>(my_job);
 				return job_id;
 			} else {
