@@ -27,7 +27,7 @@ namespace Stats {
 
 class StatsBasic : public Model{
 protected:
-    bool correct;
+    bool shouldCorrect;
     int genoType;
 
     // algorithm use

@@ -81,12 +81,12 @@ Chi2Test::Chi2Test(const unordered_map<string, string> &options) {
     try {
         tmp = options.at("correctNum");
         if (tmp.compare("Bonferroni correction") == 0){
-            correct = true;
+            shouldCorrect = true;
         }
         else{
-            correct = false;
+            shouldCorrect = false;
         }
     } catch (std::out_of_range& oor) {
-        correct = true;
+        shouldCorrect = true;
     }
 }

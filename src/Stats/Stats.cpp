@@ -62,21 +62,21 @@ void StatsBasic::setAttributeMatrix(const string &string1, MatrixXd *xd) {
 
 
 StatsBasic::StatsBasic() {
-    correct = false;
+    shouldCorrect = false;
 }
 
 StatsBasic::StatsBasic(const unordered_map<string, string> & options) {
     string tmp;
     try {
         tmp = options.at("correctNum");
-        if (tmp.compare("Bonferroni correction") == 0){
-            correct = true;
+        if (tmp == "Bonferroni correction"){
+            shouldCorrect = true;
         }
         else{
-            correct = false;
+            shouldCorrect = false;
         }
     } catch (std::out_of_range& oor) {
-        correct = true;
+        shouldCorrect = true;
     }
 }
 
@@ -109,7 +109,7 @@ void StatsBasic::assertReadyToRun() {
 
 
 void StatsBasic::BonferroniCorrection() {
-    if (correct){
+    if (shouldCorrect){
         beta = beta*X.rows();
         MatrixXd m = MatrixXd::Ones(beta.rows(), beta.cols());
         beta = beta.cwiseMin(m);
