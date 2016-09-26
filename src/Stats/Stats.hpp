@@ -4,6 +4,7 @@
 
 #include <Eigen/Dense>
 #include <unordered_map>
+#include <string>
 #ifdef BAZEL
 #include "Models/Model.hpp"
 #else
@@ -26,7 +27,7 @@ namespace Stats {
 
 class StatsBasic : public Model{
 protected:
-    long correctNum;
+    bool shouldCorrect;
     int genoType;
 
     // algorithm use
@@ -36,7 +37,6 @@ protected:
 
     void checkGenoType();
 public:
-    void setCorrectNum(long);
     virtual void setAttributeMatrix(const string&, MatrixXd*);
 
     void BonferroniCorrection();
