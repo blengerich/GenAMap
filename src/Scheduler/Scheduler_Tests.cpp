@@ -334,10 +334,8 @@ TEST_F(SchedulerTest, DeleteJob) {
     progress = my_scheduler->checkJobProgress(job_id);   // 0 < job progress < 1 before end of run
     ASSERT_GE(progress, 0);
     ASSERT_LT(progress, 1);
-    ASSERT_TRUE(my_scheduler->deleteJob(job_id));   // should be able to safely delete a job while it's running (it gets cancelled)
-    
-    progress_2 = my_scheduler->checkJobProgress(job_id); // job progress monotonically increasing
-    ASSERT_EQ(-1, progress_2); // deleted job has progress = -1
+    ASSERT_TRUE(my_scheduler->deleteJob(job_id));   // should be able to safely delete a job while it's running (it gets cancelled)    
+    ASSERT_EQ(-1, my_scheduler->checkJobProgress(job_id)); // deleted job has progress = -1
 }
 
 
