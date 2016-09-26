@@ -1,6 +1,7 @@
 #include <Eigen/Dense>
 #include <boost/math/distributions.hpp>
 #include <math.h>
+#include <iostream>
 
 #ifdef BAZEL
 #include "Stats/Stats.hpp"
@@ -61,14 +62,21 @@ void StatsBasic::setAttributeMatrix(const string &string1, MatrixXd *xd) {
 
 
 StatsBasic::StatsBasic() {
-    correctNum = 0;
+    correct = false;
 }
 
 StatsBasic::StatsBasic(const unordered_map<string, string> & options) {
+    string tmp;
     try {
-        correctNum = stol(options.at("correctNum"));
+        tmp = options.at("correctNum");
+        if (tmp.compare("Bonferroni correction") == 0){
+            correct = true;
+        }
+        else{
+            correct = false;
+        }
     } catch (std::out_of_range& oor) {
-        correctNum = 0;
+        correct = true;
     }
 }
 
@@ -100,13 +108,9 @@ void StatsBasic::assertReadyToRun() {
 }
 
 
-void StatsBasic::setCorrectNum(long i) {
-    correctNum = i;
-}
-
 void StatsBasic::BonferroniCorrection() {
-    if (correctNum!=0){
-        beta = beta*correctNum;
+    if (correct){
+        beta = beta*X.rows();
         MatrixXd m = MatrixXd::Ones(beta.rows(), beta.cols());
         beta = beta.cwiseMin(m);
     }

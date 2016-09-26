@@ -70,9 +70,10 @@ const GMRunAnalysisDialog = React.createClass({
       mu: 0.1,
       gamma: 0.1,
       threshold: 1,
-      correct: 1,
       clusteringMethods: ['average', 'single', 'complete'],
+      correctionMethods: ['Bonferroni correction', 'No correction'],
       clusteringMethod: 'single',
+      correctionMethod: 'Bonferroni correction',
       showAdvancedOptionsButton: false,
       showAdvancedOptions: false,
       // Algorithm parameters
@@ -147,7 +148,8 @@ const GMRunAnalysisDialog = React.createClass({
           mu: this.state.mu,
           gamma: this.state.gamma,
           threshold: this.state.threshold,
-          clusteringMethod: this.state.clusteringMethod
+          clusteringMethod: this.state.clusteringMethod,
+          correctionMethod: this.state.correctionMethod
         }
       },
       other_data: [
@@ -241,9 +243,6 @@ const GMRunAnalysisDialog = React.createClass({
   onChangeLambdaL2: function(event) {
     this.setState({lambdal2: event.target.value})
   },
-  onChangeCorrect: function(event) {
-    this.setState({correct : event.target.value})
-  },
   // Algorithm Options
   onChangeGamma: function(event) {
     this.setState({gamma: event.target.value})
@@ -256,6 +255,9 @@ const GMRunAnalysisDialog = React.createClass({
   },
   onChangeClusteringMethod: function(event, index, value) {
     this.setState({clusteringMethod: value})
+  },
+  onChangeCorrectionMethod: function(event, index, value) {
+    this.setState({correctionMethod: value})
   },
   onChangeAlgorithm: function(event, index, value) {
     this.setState({algorithmValue: value})
@@ -367,8 +369,14 @@ const GMRunAnalysisDialog = React.createClass({
     const clusteringMethodList = this.state.clusteringMethods.map((method, index) =>
       <MenuItem key={index} value={method} primaryText={method} />
     )
+    const correctionMethodList = this.state.correctionMethods.map((method, index) =>
+        <MenuItem key={index} value={method} primaryText={method} />
+    )
     const clusteringMethodListReact = this.state.clusteringMethods.map((method, index) =>
       <option key={index} value={method}>{method}</option>
+    )
+    const correctionMethodListReact = this.state.correctionMethods.map((method, index) =>
+        <option key={index} value={method}>{method}</option>
     )
     const algorithmListReact = this.state.algorithms.map((algorithm, index) =>
       <option key={index} value={algorithm.id}>{algorithm.name}</option>
@@ -579,7 +587,18 @@ const GMRunAnalysisDialog = React.createClass({
                       </div>
                     </div>:
                   (this.state.modelValue == 5 || this.state.modelValue == 6 || this.state.modelValue == 7) ? // Chi2Test
-                    <div><div>Correction Number: <input type="number" value={this.state.correct} onChange={this.onChangeCorrect}/></div>
+                    <div><div>Correction Method: <SelectField
+                        value={this.state.correctionMethod}
+                        hintText='Correction Method'
+                        errorText={!this.state.correctionMethod && errorText}
+                        onChange={this.onChangeCorrectionMethod}
+                        >
+                        {correctionMethodList}
+                        </SelectField>
+                        <select id='correctionMethod' className='hidden' value={this.state.correctionMethod} readOnly>
+                        {correctionMethodListReact}
+                        </select>
+                    </div>
                     </div>  :
                     null}
                   <div id='algorithmSelectDiv'>
