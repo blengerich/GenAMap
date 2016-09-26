@@ -46,6 +46,7 @@ private:
     Json::Value decodeStr(string);
     string long2string(long);
     Json::Value node2json(vector<treeNode*>, int, MatrixXd);
+    Json::Value node2json(vector<treeNode*>, int);
 
 public:
     static JsonCoder &getInstance() {
@@ -58,6 +59,7 @@ public:
     string encodeResultPack(result_pack);
     string encodeProgressPack(progress_pack);
     string encodeTraitTreeEffectsizes(Tree*, MatrixXd);
+    string encodeTraitTree(Tree*);
     Json::Value encodeVector(MatrixXd);
 
     mainMessage decodeMainMessage(string);
