@@ -27,3 +27,18 @@ void WaldTest::run() {
     }
     BonferroniCorrection();
 }
+
+WaldTest::WaldTest(const unordered_map<string, string> & options) {
+    string tmp;
+    try {
+        tmp = options.at("correctNum");
+        if (tmp.compare("Bonferroni correction") == 0){
+            shouldCorrect = true;
+        }
+        else{
+            shouldCorrect = false;
+        }
+    } catch (std::out_of_range& oor) {
+        shouldCorrect = true;
+    }
+}
