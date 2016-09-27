@@ -264,10 +264,10 @@ bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) 
 		job->model->assertReadyToRun();
 		job->request.data = job;
 		uv_queue_work(uv_default_loop(), &(job->request), trainAlgorithmThread, completion);
-		usleep(10);	// TODO: fix this rare race condition (stopping job before the worker thread has started is bad) in a better way? [Issue: https://github.com/blengerich/GenAMap_V2/issues/27]
+		//usleep(10);	// TODO: fix this rare race condition (stopping job before the worker thread has started is bad) in a better way? [Issue: https://github.com/blengerich/GenAMap_V2/issues/27]
 		return true;
 	} catch (const exception& ex) {
-		//job->exception = current_exception();	// Must save the exception so that it can be passed between threads - but this is running in main thread?
+		// Must save the exception so that it can be passed between threads - but this is running in main thread?
 		rethrow_exception(current_exception());
 		return false;
 	}
@@ -397,11 +397,7 @@ double Scheduler::checkJobProgress(const int job_id) {
 
 bool Scheduler::cancelJob(const int job_id) {
 	if (ValidJobId(job_id) && getJob(job_id)->algorithm) {
-		getJob(job_id)->algorithm->stop();	// TODO: switch to sending shutdown signal? [Issue: https://github.com/blengerich/GenAMap_V2/issues/21]
-		while(getJob(job_id)->algorithm->getIsRunning()) {
-			// TODO: stopping should be async with callback? [Issue: https://github.com/blengerich/GenAMap_V2/issues/26]
-			usleep(100);
-		}
+		getJob(job_id)->algorithm->stop();
 		return true;
 	}
 	return false;
@@ -409,7 +405,7 @@ bool Scheduler::cancelJob(const int job_id) {
 
 
 bool Scheduler::deleteAlgorithm(const int algorithm_id) {
-	if (getAlgorithm(algorithm_id)) {
+	if (getAlgorithm(algorithm_id) && !getAlgorithm(algorithm_id)->getIsRunning()) {
 		algorithms_map[algorithm_id].reset();
 		algorithms_map.erase(algorithm_id);
 		return true;
@@ -431,8 +427,10 @@ bool Scheduler::deleteModel(const int model_id) {
 
 
 bool Scheduler::deleteJob(const int job_id) {
-	// TODO: check that user owns this job [Issue: https://github.com/blengerich/GenAMap_V2/issues/23]
 	if (ValidJobId(job_id) && cancelJob(job_id)) {
+		while(getJob(job_id)->algorithm->getIsRunning()) {
+			usleep(100);
+		}
 		jobs_map[job_id].reset();
 		jobs_map.erase(job_id);
 		return true;
