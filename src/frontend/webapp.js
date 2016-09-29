@@ -742,7 +742,7 @@ app.post(config.api.importDataUrl, function (req, res) {
               console.log('invalid delimiter2')
               break
             }
-            markerLabelStream.write(values[1]+'\n')
+            markerLabelStream.write(values[1]+","+values[0]+'\n')
           }
           markerLabelStream.end()
         })

@@ -8,7 +8,7 @@ var path = require('path')
 var readline = require('readline')
 var async = require('async')
 
-const projectname = 'TCGA-TGCT'
+const projectname = 'TCGA-GBM'
 
 const folderPath = path.join('../data', projectname)
 mkdirp.sync(folderPath)
@@ -53,13 +53,13 @@ htseq_text.split(/\r?\n/).forEach(function (line) {
   htseq_list.push(line)
 })
 
-// var FPKM_index = 0
-var FPKMUQ_index = 0
-// var htseq_index = 0
+var FPKM_index = 1
+var FPKMUQ_index = 1
+var htseq_index = 1
 
-// FPKMDownload(FPKM_list[FPKM_index])
+FPKMDownload(FPKM_list[FPKM_index])
 FPKMUQDownload(FPKMUQ_list[FPKMUQ_index])
-// htseqDownload(htseq_list[htseq_index])
+htseqDownload(htseq_list[htseq_index])
 
 function FPKMDownload(line){
     const FPKMPath = path.join(folderPath, 'FPKM')
@@ -83,7 +83,7 @@ function FPKMDownload(line){
           stream.on('finish', function() {
               markerStream.end()
               FPKM_index = FPKM_index + 1
-              console.log('FPKM_'+FPKM_index)
+              console.log('F_'+FPKM_index)
               if(FPKM_index < FPKM_list.length){FPKMDownload(FPKM_list[FPKM_index])}
           })
         }
@@ -188,7 +188,7 @@ function htseqDownload(line){
           stream.on('finish', function() {
               markerStream.end()
               htseq_index = htseq_index + 1
-              console.log('htseq_'+htseq_index)
+              console.log('....htseq_'+htseq_index)
               if(htseq_index < htseq_list.length){htseqDownload(htseq_list[htseq_index])}
           })
         }
