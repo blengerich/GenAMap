@@ -487,6 +487,24 @@ var Graph = function(data, markerLabels, traitLabels) {
   var overlay = d3.select("#map-background");
 }
 
+const SquareButton = (props) => (
+    <div style={{
+      background: '#ff4081',
+      color: '#fff',
+      padding: 5,
+      borderRadius: 5,
+      boxShadow: '0px 3px 10px rgba(0,0,0,0.16)',
+      cursor: 'pointer',
+      margin: 2,
+      ':hover': {
+        background: '#ff8db3'
+      }
+    }}>
+      {props.children}
+    </div>
+)
+
+
 var GMMatrixChart = React.createClass({
   validateNewProps: function(nextProps) {
     return (this.props.pageParams !== nextProps.pageParams)
@@ -659,23 +677,23 @@ var GMMatrixChart = React.createClass({
           <ul className="buttonContainer">
             <li className="zoomButton">
               <a id="zoom-in" data-zoom="+1">
-                <FloatingActionButton mini={true}>
-                  <FontIcon className="material-icons">add</FontIcon>
-                </FloatingActionButton>
+                <SquareButton>
+                  <FontIcon color="white" className="material-icons">add</FontIcon>
+                </SquareButton>
               </a>
             </li>
             <li className="zoomButton">
               <a id="zoom-out" data-zoom="-1">
-                <FloatingActionButton mini={true}>
-                  <FontIcon className="material-icons">remove</FontIcon>
-                </FloatingActionButton>
+                <SquareButton>
+                  <FontIcon color="white" className="material-icons">remove</FontIcon>
+                </SquareButton>
               </a>
             </li>
             <li className="zoomButton">
               <a id="reset" data-zoom="-8">
-                <FloatingActionButton mini={true}>
-                  <FontIcon className="material-icons">settings_backup_restore</FontIcon>
-                </FloatingActionButton>
+                <SquareButton>
+                  <FontIcon color="white" className="material-icons">settings_backup_restore</FontIcon>
+                </SquareButton>
               </a>
             </li>
           </ul>
