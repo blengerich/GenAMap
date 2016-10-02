@@ -1,7 +1,7 @@
 var fs = require('fs')
 var path = require('path')
 
-const projectname = 'TCGA-GBM'
+const projectname = 'TCGA-OV'
 
 var maximum = 0
 
