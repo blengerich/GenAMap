@@ -1,4 +1,7 @@
-import GMMatrixChart from './GMMatrixChart'
+import React from 'react'
+import FontIcon from 'material-ui/lib/font-icon'
+import FlatButton from 'material-ui/lib/flat-button'
+import FloatingActionButton from 'material-ui/lib/floating-action-button'
 
 import fetch from './fetch'
 import config from '../../config'
@@ -694,6 +697,36 @@ var GMDendrogramChart = React.createClass({
           {this.state.subsetTooltip}
         </div>
         <div id="matrixBottomPanel">
+=======
+var Graph = function(data, tree1, tree2) {
+  console.log(data)
+  console.log(tree1)
+  console.log(tree2)
+}
+
+var GMDendrogramChart = React.createClass({
+  validateNewProps(nextProps) {
+    return (this.props.pageParams !== nextProps.pageParams)
+  },
+  componentWillReceiveProps(nextProps) {
+    if (this.validateNewProps(nextProps)) {
+      this.setState({
+        points: Graph(nextProps.data, nextProps.tree1, nextProps.tree2)
+      })
+    }
+  },
+  getInitialState() {
+    return {
+      points: []
+    }
+  },
+	render() {
+		return (
+      <div>
+        <div id="dendrogramChart" style={{ "marginTop": "25px" }}>
+        </div>
+        <div id="dendrogramBottomPanel">
+>>>>>>> origin/dendrogram
           <ul className="buttonContainer">
             <li className="zoomButton">
               <a id="zoom-in" data-zoom="+1">
@@ -723,6 +756,7 @@ var GMDendrogramChart = React.createClass({
 	}
 });
 
+<<<<<<< HEAD
 var GMDendrogramChart = React.createClass({
 	render: function() {
 	  	<div>
@@ -742,3 +776,6 @@ var GMDendrogramChart = React.createClass({
 	}
 
 })
+=======
+export default GMDendrogramChart
+>>>>>>> origin/dendrogram

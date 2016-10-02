@@ -14,6 +14,7 @@ import GMAppContainer from './components/GMAppContainer'
 import GMDataList from './components/GMDataList'
 import GMMatrixVisualization from './components/GMMatrixVisualization'
 import GMManhattanVisualization from './components/GMManhattanVisualization'
+import GMDendrogramVisualization from './components/GMDendrogramVisualization'
 import GMErrorPage from './components/GMErrorPage'
 import GMLoginContainer from './components/GMLoginContainer'
 import GMForgetPasswordContainer from './components/GMForgetPasswordContainer'
@@ -42,6 +43,7 @@ render(
         <Route path='data/:id' component={GMDataList} />
         <Route path='visualization/matrix/:marker/:trait/:result' component={GMMatrixVisualization} />
         <Route path='visualization/manhattan/:markers/:traits/:results/:traitNum' component={GMManhattanVisualization} />
+        <Route path='visualization/dendrogram/:markers/:traits/:results/:tree1/:tree2' component={GMDendrogramVisualization} />
       </Route>
     </Router>
   </Provider>,
