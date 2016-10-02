@@ -6,30 +6,8 @@ import FloatingActionButton from 'material-ui/lib/floating-action-button'
 import fetch from './fetch'
 import config from '../../config'
 
-var matrix_height
-var matrix_width
-var tree_height = 40
-
-const colorScale = d3.scale.linear()
-                      .domain([-1, 0, 1])
-                      .range(["#990000", "#EEEEEE", "#000099"]);
-
-// TODO: add map rows/cols, account for in initAxes and parseData
-var axisOnZoom;
-var zoomFunction;
-var mapWidth;
-var mapHeight;
-var miniZoomed;
-var overlayWidth;
-var overlayHeight;
-var populationFactor;
-
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
-}
-
-var Graph = function(data, markerLabels, traitLabels, tree1, tree2) {
-  d3.select('#matrixChart').selectAll('svg').remove()
+var Graph = function(data, markerLabels, traitLabels) {
+  d3.select('#dendrogramChart').selectAll('svg').remove()
 
   /************************************
   *** visualization setup functions ***
@@ -43,7 +21,7 @@ var Graph = function(data, markerLabels, traitLabels, tree1, tree2) {
   function legend() {
     const legendWidth = 95
     const margin = 5
-    var legendBody = d3.select("#matrixBottomPanel")
+    var legendBody = d3.select("#dendrogramBottomPanel")
                         .append("svg")
                         .attr("width", legendWidth + 2 * margin)
                         .attr("class", "legend")
@@ -134,7 +112,7 @@ var Graph = function(data, markerLabels, traitLabels, tree1, tree2) {
          .attr("text-anchor", "end")
          .attr("x", -5)
          .attr("y", 8)
-         .text(trimmedLabel(markerLabels[i], 5));
+         .text(trimmedLabel(markerLabels[i].split(',')[0], 5));
     }
 
     axes.append("text")
@@ -186,8 +164,8 @@ var Graph = function(data, markerLabels, traitLabels, tree1, tree2) {
 
   function hoverOnCell(d, trait, marker, correlation, mousePos) {
     var labelText = "<h2>Trait: " + traitLabels[trait] + "</h2> <h2>Marker: " +
-                    markerLabels[marker] + "</h2> <p> Effect Size: " + correlation + "</p>";
-    var tooltip = d3.select("#matrixChart")
+                    markerLabels[marker].split(',')[0] + "</h2> <p> Effect Size: " + correlation + "</p>";
+    var tooltip = d3.select("#dendrogramChart")
                     .append("div")
                     .attr("class", "tooltip")
                     .html(labelText)
@@ -378,18 +356,17 @@ var Graph = function(data, markerLabels, traitLabels, tree1, tree2) {
   var numTraits = traitLabels.length
   var numMarkers = markerLabels.length
 
-	var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-	var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+  var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+  var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
-	var leftMargin = 0.1 * windowWidth;
-	var rightMargin = 0.1 * windowWidth;
-	var cellWidth = 10;
-	var cellHeight = 10;
+  var leftMargin = 0.1 * windowWidth;
+  var rightMargin = 0.1 * windowWidth;
+  var cellWidth = 10;
+  var cellHeight = 10;
 
-/* TREE CONSTANTS */
-	var matrix_height = cellHeight * numTraits;
-	var matrix_width = cellWidth * numMarkers;
-	var tree_height = 40
+  var matrix_height = cellHeight * numTraits;
+  var matrix_width = cellWidth * numMarkers;
+  var tree_height = 40;
 
   var populationFactor = getPopulationFactor(); // may be directly read in future
   var mapRows = numTraits * populationFactor;
@@ -412,7 +389,7 @@ var Graph = function(data, markerLabels, traitLabels, tree1, tree2) {
 
   var baseLabelStyle = { fontSize: 10, maxFontSize: 18, titleSize: 20, innerMargin: 8 };
 
-  d3.select('#matrixChart')
+  d3.select('#dendrogramChart')
     .style({
       "width": (mapWidth + margin.left) + "px"
     })
@@ -428,7 +405,7 @@ var Graph = function(data, markerLabels, traitLabels, tree1, tree2) {
   d3.select("#reset")
     .on("click", reset);
 
-  var svg = d3.select("#matrixChart")
+  var svg = d3.select("#dendrogramChart")
               .append("svg")
               .attr("id", "rootSvg")
               .attr("width", totalWidth)
@@ -447,34 +424,34 @@ var Graph = function(data, markerLabels, traitLabels, tree1, tree2) {
   parseData();
   initAxes();
 
-/* TREE CODE*/
-	var drawTree = function (data, dim, group) {
-		var cluster = d3.layout.cluster()
-		    .size(dim)
-		    .separation(function(a,b) { return 1; });
+  /* TREE CODE*/
+  var drawTree = function (data, dim, group) {
+    var cluster = d3.layout.cluster()
+        .size(dim)
+        .separation(function(a,b) { return 1; });
 
-		// Makes tree with square links between nodes
-		function elbow(d, i) {
-		  return "M" + d.source.y + "," + d.source.x
-		      + "V" + d.target.x + "H" + d.target.y;
-		}
+    // Makes tree with square links between nodes
+    function elbow(d, i) {
+      return "M" + d.source.y + "," + d.source.x
+          + "V" + d.target.x + "H" + d.target.y;
+    }
 
-		var nodes = cluster.nodes(data);
-		var link = group.selectAll(".link")
-		  .data(cluster.links(nodes))
-		.enter().append("path")
-		  .attr("class", "link")
-		  .attr("d", elbow);
-	}
+    var nodes = cluster.nodes(data);
+    var link = group.selectAll(".link")
+      .data(cluster.links(nodes))
+    .enter().append("path")
+      .attr("class", "link")
+      .attr("d", elbow);
+  }
 
-	var vertical_tree = svg.append("g");
-	var horizontal_tree = svg.append("g");
+  var vertical_tree = svg.append("g");
+  var horizontal_tree = svg.append("g");
 
-	drawTree(tree1,[matrix_height,tree_height],vertical_tree);
-	drawTree(tree2,[matrix_width,tree_height],horizontal_tree);
+  drawTree(tree1,[matrix_height,tree_height],vertical_tree);
+  drawTree(tree2,[matrix_width,tree_height],horizontal_tree);
 
-	vertical_tree.attr("transform","translate(0,"+tree_height+")");
-	horizontal_tree.attr("transform","translate("+ (matrix_width+tree_height) +",0) rotate(90)");
+  vertical_tree.attr("transform","translate(0,"+(tree_height)+")");
+  horizontal_tree.attr("transform","translate("+ (matrix_width+tree_height) +",0) rotate(90)");
 
 
 
@@ -489,7 +466,7 @@ var Graph = function(data, markerLabels, traitLabels, tree1, tree2) {
   }
 
   /* Some minimap code */
-  var minimap = d3.select("#matrixBottomPanel")
+  var minimap = d3.select("#dendrogramBottomPanel")
                   .append("svg")
                   .attr("class", "minimap")
                   .attr("width", overlayMapWidth)
@@ -527,183 +504,6 @@ var Graph = function(data, markerLabels, traitLabels, tree1, tree2) {
   var overlay = d3.select("#map-background");
 }
 
-
-var GMDendrogramChart = React.createClass({
-  validateNewProps: function(nextProps) {
-    return (this.props.pageParams !== nextProps.pageParams)
-  },
-  componentWillReceiveProps: function(nextProps) {
-    if (this.validateNewProps(nextProps)) {
-      this.setState({
-        points: Graph(nextProps.data, nextProps.markerLabels, nextProps.traitLabels)
-      })
-    }
-  },
-  getInitialState: function() {
-		return {
-			points: [],
-      subsetCells: [],
-      numClicked: 0,
-      element: null,
-      mouse: {x: 0, y: 0, startX: 0, startY: 0}
-		}
-	},
-  resetSubsetCells: function() {
-    this.setState({
-      subsetCells: [],
-      subsetTooltip: null
-    })
-    d3.select(".marquee").remove()
-  },
-  subsetIndicator: function(trait1, marker1, trait2, marker2, mouseEvent) {
-    const position = d3.select('.marquee').node().getBoundingClientRect()
-    const addSubset = function() {
-      this.resetSubsetCells()
-    }
-    const selectorStyle = {
-      "position": "absolute",
-      "left": position.left + position.width/2,
-      "top": position.top + position.height/2
-    }
-    const tooltip = (
-      <div className='selector' style={selectorStyle}>
-        <h4> Selected Subset: </h4>
-        <p>{trait1 + " - " + trait2}</p>
-        <p>{marker1 + " - " + marker2}</p>
-        <FlatButton
-          label='Cancel'
-          secondary={true}
-          onClick={this.resetSubsetCells}
-        />
-        <FlatButton
-          label='Add'
-          primary={true}
-          onClick={addSubset}
-        />
-      </div>
-    )
-    this.setState({ subsetTooltip: tooltip })
-  },
-  drawMarquee: function(div) {
-    var that = this;
-
-    function setMousePosition(event) {
-      var ev = event || window.event; // Firefox || IE
-      if (ev.pageX) { // Firefox
-          var mousePosition = that.state.mouse;
-          mousePosition.x = ev.pageX + window.pageXOffset - 10;
-          mousePosition.y = ev.pageY + window.pageYOffset - 10;
-          that.setState({mouse: mousePosition});
-      } else if (ev.clientX) { // IE
-          var mousePosition = that.state.mouse;
-          mousePosition.x = ev.clientX + document.body.scrollLeft - 10;
-          mousePosition.y = ev.clientY + document.body.scrollTop - 10;
-          that.setState({mouse: mousePosition});
-      }
-    };
-
-    div.onmousemove = function (event) {
-      setMousePosition(event);
-      if (that.state.element !== null) {
-          that.state.element.style.width = Math.abs(that.state.mouse.x - that.state.mouse.startX) + 'px';
-          that.state.element.style.height = Math.abs(that.state.mouse.y - that.state.mouse.startY) + 'px';
-          that.state.element.style.left = (that.state.mouse.x - that.state.mouse.startX < 0) ? that.state.mouse.x + 'px' : that.state.mouse.startX + 'px';
-          that.state.element.style.top = (that.state.mouse.y - that.state.mouse.startY < 0) ? that.state.mouse.y + 'px' : that.state.mouse.startY + 'px';
-      }
-    }
-
-    div.onclick = function(event) {
-      if (that.state.element !== null) {
-          that.setState({element : null});
-      }
-      else {
-        that.state.mouse.startX = that.state.mouse.x;
-        that.state.mouse.startY = that.state.mouse.y;
-        that.setState({element : document.createElement('div')});
-        that.state.element.className = 'marquee'
-        that.state.element.style.left = that.state.mouse.x + 'px';
-        that.state.element.style.top = that.state.mouse.y + 'px';
-        document.getElementById('matrixChart').appendChild(that.state.element);
-      }
-    }
-  },
-  componentDidUpdate: function() {
-    if (this.state.points) return
-
-    var threshold = this.props.threshold;
-    d3.select("#overallMatrix")
-      .selectAll('.cell')
-      .each(function(d) {
-        if (Math.abs(d.value) < threshold) {
-          d3.select(this).style("fill", "#dcdcdc");
-        } else {
-          d3.select(this).style("fill", colorScale(d.value));
-        }
-      });
-    var zoomEnabled = this.props.zoom;
-    var disableZoom = d3.behavior.zoom()
-                        .on("zoom", null);
-    var reZoomMap = d3.behavior.zoom()
-                      .size([mapWidth, mapHeight])
-                      .scaleExtent([1, 8])
-                      .on("zoom", zoomFunction);
-    var reZoomMini = d3.behavior.zoom()
-                      .size([overlayWidth, overlayHeight])
-                      .scaleExtent([1, 8])
-                      .on("zoom", miniZoomed)
-    var that = this;
-    if (!zoomEnabled) {
-      that.drawMarquee(document.getElementById("overallMatrix"));
-      document.getElementById("overallMatrix").style.cursor = "cell";
-      d3.select("#matrixHolder")
-        .call(disableZoom);
-      d3.select("#overallMatrix")
-        .selectAll('.cell')
-        .on("click", function() {
-          var mouseEvent = window.event;
-          // Allocates a new array so uses more memory, but online said it was safer lol
-          var subsetCells = that.state.subsetCells.slice();
-          // Just adding the name here for display purposes, add the whole cell ('this') if wanted
-          subsetCells.push("Trait " + this.getAttribute("trait"));
-          subsetCells.push("Marker " + this.getAttribute("marker"));
-          that.setState({subsetCells: subsetCells});
-          that.setState({numClicked: that.state.numClicked + 1});
-          if (that.state.numClicked == 2) {
-            that.subsetIndicator(that.state.subsetCells[0], that.state.subsetCells[1],
-                                  that.state.subsetCells[2], that.state.subsetCells[3],
-                                  mouseEvent);
-            that.setState({numClicked: 0});
-            var reset = that.state.subsetCells.slice(0, 0);
-            that.setState({subsetCells: reset});
-          }
-        });
-      document.getElementById("map-background").style.cursor = "default";
-      d3.select(".frame")
-        .call(disableZoom);
-    }
-    else {
-      document.getElementById("overallMatrix").style.cursor = "default";
-      d3.select("#matrixHolder")
-        .call(reZoomMap);
-      document.getElementById("map-background").style.cursor = "move";
-      d3.select(".frame")
-        .call(reZoomMini);
-    }
-  },
-	render: function() {
-		return (
-      <div>
-        <div id="matrixChart" style={{ "marginTop": "25px" }}>
-          {this.state.subsetTooltip}
-        </div>
-        <div id="matrixBottomPanel">
-=======
-var Graph = function(data, tree1, tree2) {
-  console.log(data)
-  console.log(tree1)
-  console.log(tree2)
-}
-
 var GMDendrogramChart = React.createClass({
   validateNewProps(nextProps) {
     return (this.props.pageParams !== nextProps.pageParams)
@@ -720,13 +520,12 @@ var GMDendrogramChart = React.createClass({
       points: []
     }
   },
-	render() {
-		return (
+  render() {
+    return (
       <div>
         <div id="dendrogramChart" style={{ "marginTop": "25px" }}>
         </div>
         <div id="dendrogramBottomPanel">
->>>>>>> origin/dendrogram
           <ul className="buttonContainer">
             <li className="zoomButton">
               <a id="zoom-in" data-zoom="+1">
@@ -752,30 +551,8 @@ var GMDendrogramChart = React.createClass({
           </ul>
         </div>
       </div>
-		);
-	}
+    );
+  }
 });
 
-<<<<<<< HEAD
-var GMDendrogramChart = React.createClass({
-	render: function() {
-	  	<div>
-	  	  <div id="dendrogram">
-	  	  	<g tranform="translate("+(tree_height)+","+(tree_height)+")">
-		  	  <GMMatrixChart
-		 		data={this.state.data}
-		        markerLabels={this.state.markerLabels}
-		        traitLabels={this.state.traitLabels}
-		        pageParams={this.state.pageParams}
-		        threshold={this.state.correlationThreshold}
-		        zoom={this.state.zoomEnabled}
-		      />
-		    </g>
-	      </div>
-	  	</div>
-	}
-
-})
-=======
 export default GMDendrogramChart
->>>>>>> origin/dendrogram
