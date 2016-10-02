@@ -5,7 +5,7 @@ var backend = require('../../Scheduler/node/build/Release/scheduler.node');
 // Model Options
 var model_opts = {'type': '0',	// Linear Regression
 			'options': {'lambda': 0.05, 'L2_lambda': 0.01}};
-var bad_model_opts = {'type': 8,
+var bad_model_opts = {'type': 108,
 			'options': {'lambda': 0.05, 'L2_lambda': 0.01}};
 
 // Algorithm Options

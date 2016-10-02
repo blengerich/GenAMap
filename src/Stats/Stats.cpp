@@ -1,6 +1,7 @@
 #include <Eigen/Dense>
 #include <boost/math/distributions.hpp>
 #include <math.h>
+#include <iostream>
 
 #ifdef BAZEL
 #include "Stats/Stats.hpp"
@@ -47,31 +48,35 @@ double Stats::BonCorrection(double pVal, int number) {
   return pVal/number;
 }
 
-void StatsBasic::setX(const MatrixXd & m) {
-    X = m;
+double Stats::get_ts(double beta, double var, double sigma){
+  return beta/(sqrt(var * sigma));
 }
 
-void StatsBasic::setY(const MatrixXd & n) {
-    y = n;
+double Stats::get_qs(double ts, int N, int q){
+  return 2*Stats::ChiToPValue(abs(ts), N-q);  
 }
 
 void StatsBasic::setAttributeMatrix(const string &string1, MatrixXd *xd) {
 
 }
 
-MatrixXd StatsBasic::getBeta() {
-    return beta;
-}
 
 StatsBasic::StatsBasic() {
-    correctNum = 0;
+    shouldCorrect = false;
 }
 
 StatsBasic::StatsBasic(const unordered_map<string, string> & options) {
+    string tmp;
     try {
-        correctNum = stol(options.at("correctNum"));
+        tmp = options.at("correctNum");
+        if (tmp == "Bonferroni correction"){
+            shouldCorrect = true;
+        }
+        else{
+            shouldCorrect = false;
+        }
     } catch (std::out_of_range& oor) {
-        correctNum = 0;
+        shouldCorrect = true;
     }
 }
 
@@ -103,14 +108,36 @@ void StatsBasic::assertReadyToRun() {
 }
 
 
-void StatsBasic::setCorrectNum(long i) {
-    correctNum = i;
-}
-
 void StatsBasic::BonferroniCorrection() {
-    if (correctNum!=0){
-        beta = beta*correctNum;
+    if (shouldCorrect){
+        beta = beta*X.rows();
         MatrixXd m = MatrixXd::Ones(beta.rows(), beta.cols());
         beta = beta.cwiseMin(m);
     }
+}
+
+// algorithm use
+
+double StatsBasic::getProgress() {
+    return progress;
+}
+
+bool StatsBasic::getIsRunning() {
+    return isRunning;
+}
+
+
+void StatsBasic::stop() {
+    shouldStop = true;
+}
+
+void StatsBasic::setUpRun() {
+    isRunning = true;
+    progress = 0.0;
+    shouldStop = false;
+}
+
+void StatsBasic::finishRun() {
+    isRunning = false;
+    progress = 1.0;
 }

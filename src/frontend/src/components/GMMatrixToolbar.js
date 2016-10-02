@@ -10,6 +10,7 @@ import Menu from 'material-ui/lib/menus/menu'
 
 import GMProjectSearch from './GMProjectSearch'
 import GMToolbar from './GMToolbar'
+import GMManhattanDialog from './GMManhattanDialog'
 
 const styles = {
   slider: {
@@ -82,6 +83,8 @@ const GMMatrixToolbar = React.createClass({
     this.props.subset.subsetSelector(event);
   },
   render: function () {
+    console.log(this.props.pageParams)
+    console.log(this.props.traitLabels)
     return (
       <div>
         <GMToolbar
@@ -97,18 +100,16 @@ const GMMatrixToolbar = React.createClass({
           />
           <span style={styles.sliderValue}>{this.state.slider.threshold.toFixed(2)}</span>
           <GMSliderName />
+          <GMManhattanDialog
+            pageParams={this.props.pageParams}
+            traitLabels={this.props.traitLabels}
+          />
           <FlatButton
-            label='Create a subset'
+            label='Create Subset'
             icon={<FontIcon className='material-icons'>add</FontIcon>}
             style={styles.action}
             onClick={this.props.subsetSelector}
           />
-          <FlatButton
-            label='Sort'
-            icon={<FontIcon className='material-icons'>sort</FontIcon>}
-            style={styles.action}
-          />
-          <GMProjectSearch />
         </GMToolbar>
       </div>
     )

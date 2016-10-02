@@ -3,6 +3,7 @@ import FontIcon from 'material-ui/lib/font-icon'
 import FlatButton from 'material-ui/lib/flat-button'
 import FloatingActionButton from 'material-ui/lib/floating-action-button'
 
+import fetch from './fetch'
 import config from '../../config'
 
 var axisOnZoom;
@@ -17,13 +18,14 @@ var colorScale;
 var xScale;
 var yScale;
 
-var Graph = function() {
+var Graph = function(data, markerLabels, traitLabelsNum) {
   d3.select('#manhattanChart').selectAll('svg').remove()
-
   /************************************
   *** visualization setup functions ***
   ************************************/
-
+    //  console.log(markerLabels)
+    //  console.log(data)
+    //  console.log(traitLabelsNum)
   /* initialize axes and axis labels */
   function initAxes() {
     var axes = d3.select("#manhattanRoot")
@@ -48,12 +50,7 @@ var Graph = function() {
                     .attr("transform", "translate(" + (-axisPadding + baseLabelStyle.titleSize)
                       + ",0)rotate(-90,0," + mapHeight/2 + ")")
     xText.append("tspan")
-         .text("-log")
-    xText.append("tspan")
-         .attr("baseline-shift", "sub")
-         .text("10")
-    xText.append("tspan")
-         .text("(P)")
+         .text("P Value")
 
     // TODO: vertical labels
 
@@ -87,13 +84,25 @@ var Graph = function() {
                   + "<p><b>Chromosome: </b>" + d.chromosome + "</p>"
                   + "<p><b>Position: </b>" + d.chromosomePosition + "</p>"
                   + "<p><b>p-value: </b>" + d.pVal + "</p>"
-    var tooltip = d3.select("#manhattanChart")
-                    .append("div")
-                    .attr("class", "tooltip")
-                    .html(labelText)
-                    .style("position", "absolute")
-                    .style("left", mousePos.pageX + "px")
-                    .style("top", mousePos.pageY + "px")
+
+    if ( windowWidth - mousePos.pageX < 240){
+      var tooltip = d3.select("#manhattanChart")
+                      .append("div")
+                      .attr("class", "tooltip")
+                      .html(labelText)
+                      .style("position", "absolute")
+                      .style("left", (mousePos.pageX - 233) + "px")
+                      .style("top", mousePos.pageY + "px")
+    }
+    else{
+      var tooltip = d3.select("#manhattanChart")
+                      .append("div")
+                      .attr("class", "tooltip")
+                      .html(labelText)
+                      .style("position", "absolute")
+                      .style("left", mousePos.pageX + "px")
+                      .style("top", mousePos.pageY + "px")
+    }
   }
 
   function hoverOutCell() {
@@ -102,30 +111,30 @@ var Graph = function() {
 
   // parse marker data
   function parseData() {
-    /*
-     * TODO: connect to runAnalysis
-     * temp data is not tracked
-     */
-    const dataPath = 'tempManhattanData'
-    const markerLabelFile = 'markerLabelsReal.txt'
-    const pValsFile = 'pvals.txt'
 
-    // used for scaling axes
-    var maxPValLog = 0
-    var maxChromosome = 0
+      var parsedData = []
 
-    var markerData = []
+      // used for scaling axes
+      var maxPValLog = 0
+      var maxChromosome = 0
 
-    d3.text(dataPath + "/" + markerLabelFile, function(text) {
-      var markerData =
-      d3.tsv.parseRows(text, function(d) {
-        maxChromosome = Math.max(maxChromosome, +d[1])
-        return {
-          marker: d[0],
-          chromosome: +d[1],
-          chromosomePosition: +d[2]
+      var markerData = []
+
+      markerLabels.forEach(function(row, rowIndex){
+        if (row.length > 0){
+          var pts = row.split(',')
+          markerData.push({
+            index: rowIndex,
+            marker: pts[0],
+            chromosome: +pts[1],
+            chromosomePosition: +pts[2]
+          })
+        }
+        if( +pts[1] > maxChromosome){
+          maxChromosome = +pts[1]
         }
       })
+
 
       // get cummulative positions
       var cummulativePosition = new Array(maxChromosome + 1).fill(0)
@@ -139,17 +148,26 @@ var Graph = function() {
 
       var maxPosition = 0
       markerData.forEach(function (d, i) {
-        d.position = d.chromosomePosition + cummulativePosition[d.chromosome - 1] + 1
-        maxPosition = Math.max(maxPosition, d.position)
+        // d.position = d.chromosomePosition + cummulativePosition[d.chromosome - 1] + 1
+        maxPosition = Math.max(maxPosition, d.index)
       })
 
       // finalize visualization
-      d3.text(dataPath + "/" + pValsFile, function(text) {
-        d3.csv.parseRows(text, function(d, i) {
+      data.v.split(";").forEach(function(row, rowIndex){
+        if (row.length > 0) {
+          var pts = row.split(",")
           const log10 = (x) => Math.log(x)/Math.log(10)
-          maxPValLog = Math.max(maxPValLog, -log10(+d[0]))
-          markerData[i].pVal = -log10(+d[0])
-        })
+          // maxPValLog = Math.max(maxPValLog, -log10(+pts[traitLabelsNum]))
+          maxPValLog = Math.max(maxPValLog, +pts[traitLabelsNum])
+          // console.log(pts[0])
+          // markerData[rowIndex].pVal = -log10(+pts[traitLabelsNum])
+          markerData[rowIndex].pVal = Math.abs(+pts[traitLabelsNum])
+        }
+      })
+
+      // console.log(markerData)
+
+        var cellRadius = 0.5*windowWidth/markerData.length;
 
         colorScale = d3.scale.linear()
                               .domain([0, maxChromosome])
@@ -165,7 +183,7 @@ var Graph = function() {
                        .data(markerData, function(d) { return d.marker })
 
         cards.enter().append('circle')
-                     .attr('cx', function(d) { return xScale(d.position) })
+                     .attr('cx', function(d) { return xScale(d.index) })
                      .attr('cy', function(d) { return yScale(d.pVal) })
                      .attr('class', 'cell')
                      .attr('r', cellRadius)
@@ -184,16 +202,13 @@ var Graph = function() {
              .attr('fill', function(d) { return colorScale(d.chromosome) })
 
         cards.exit().remove()
-      })
-    })
   }
 
   /*************************
   **** zoom functions *****
   *************************/
 
-  axisOnZoom = function(translateAmount, zoomAmount) {
-  }
+  axisOnZoom = function(translateAmount, zoomAmount) {}
 
   zoomFunction = function() {
     svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
@@ -278,8 +293,6 @@ var Graph = function() {
 
   const totalWidth =  windowWidth * 0.95;
   const totalHeight = windowHeight * 0.65;
-
-  var cellRadius = 3;
 
   var leftMargin = 0.1 * windowWidth;
 	var rightMargin = 0.1 * windowWidth;
@@ -373,7 +386,7 @@ var GMManhattanChart = React.createClass({
   componentWillReceiveProps(nextProps) {
     if (this.validateNewProps(nextProps)) {
       this.setState({
-        points: Graph()
+        points: Graph(nextProps.data, nextProps.markerLabels, nextProps.traitLabelsNum)
       })
     }
   },

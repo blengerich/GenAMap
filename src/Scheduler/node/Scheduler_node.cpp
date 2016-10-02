@@ -17,6 +17,7 @@
 #include "../../Algorithms/IterativeUpdate.hpp"
 #include "../../Algorithms/Algorithm.hpp"
 #include "../../Algorithms/AlgorithmOptions.hpp"
+#include "../../Algorithms/HypoTestPlaceHolder.h"
 #include "../../Models/ModelOptions.hpp"
 #include "../Job.hpp"
 #include "../Scheduler.hpp"
@@ -158,7 +159,6 @@ void getJobResult(const v8::FunctionCallbackInfo<v8::Value>& args) {
 		int job_id = (int)Local<Number>::Cast(args[0])->Value();
 		const MatrixXd& result = Scheduler::Instance()->getJobResult(job_id);
 		Local<v8::Array> obj = v8::Array::New(isolate);
-		// TODO: Fewer convserions to return a matrix [Issue: https://github.com/blengerich/GenAMap_V2/issues/17]
 		obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
 		args.GetReturnValue().Set(obj);
 	}

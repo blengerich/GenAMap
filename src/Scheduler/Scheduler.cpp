@@ -26,6 +26,7 @@
 #include "Algorithms/GridSearch.hpp"
 #include "Algorithms/IterativeUpdate.hpp"
 #include "Algorithms/ProximalGradientDescent.hpp"
+#include "Algorithms/HypoTestPlaceHolder.h"
 #include "Models/AdaMultiLasso.hpp"
 #include "Models/GFlasso.h"
 #include "Models/lasso.hpp"
@@ -34,6 +35,11 @@
 #include "Models/ModelOptions.hpp"
 #include "Models/MultiPopLasso.hpp"
 #include "Models/TreeLasso.hpp"
+#include "Models/LinearMixedModel.hpp"
+#include "Models/SparseLMM.h"
+#include "Stats/FisherTest.h"
+#include "Stats/Chi2Test.h"
+#include "Stats/WaldTest.h"
 #include "Scheduler/Job.hpp"
 #else
 #include "../Algorithms/Algorithm.hpp"
@@ -42,6 +48,7 @@
 #include "../Algorithms/GridSearch.hpp"
 #include "../Algorithms/IterativeUpdate.hpp"
 #include "../Algorithms/ProximalGradientDescent.hpp"
+#include "../Algorithms/HypoTestPlaceHolder.h"
 #include "../Models/AdaMultiLasso.hpp"
 #include "../Models/GFlasso.h"
 #include "../Models/lasso.hpp"
@@ -49,7 +56,12 @@
 #include "../Models/Model.hpp"
 #include "../Models/ModelOptions.hpp"
 #include "../Models/MultiPopLasso.hpp"
+#include "../Models/LinearMixedModel.hpp"
+#include "../Models/SparseLMM.h"
 #include "../Models/TreeLasso.hpp"
+#include "../Stats/FisherTest.h"
+#include "../Stats/Chi2Test.h"
+#include "../Stats/WaldTest.h"
 #include "../Scheduler/Job.hpp"
 #endif
 
@@ -105,6 +117,10 @@ int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 				algorithms_map[id] = unique_ptr<ProximalGradientDescent>(new ProximalGradientDescent(options.options));	
 				break;
 			}
+			case algorithm_type::hypo_test:{
+				algorithms_map[id] = unique_ptr<HypoTestPlaceHolder>(new HypoTestPlaceHolder(options.options));
+				break;
+			}
 			default:
 				return -1;
 		}
@@ -135,6 +151,26 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 			}
 			case tree_lasso: {
 				models_map[id] = unique_ptr<TreeLasso>(new TreeLasso(options.options));
+				break;
+			}
+			case fisher_test: {
+				models_map[id] = unique_ptr<FisherTest>(new FisherTest(options.options));
+				break;
+			}
+			case chi2_test: {
+				models_map[id] = unique_ptr<Chi2Test>(new Chi2Test(options.options));
+				break;
+			}
+			case wald_test: {
+				models_map[id] = unique_ptr<WaldTest>(new WaldTest(options.options));
+				break;
+			}
+			case lmm: {
+				models_map[id] = unique_ptr<LinearMixedModel>(new LinearMixedModel(options.options));
+				break;
+			}
+			case slmm: {
+				models_map[id] = unique_ptr<SparseLMM>(new SparseLMM(options.options));
 				break;
 			}
 			default:
@@ -188,7 +224,7 @@ int Scheduler::newJob(const JobOptions_t& options) {
 			my_job->algorithm = getAlgorithm(algorithm_id);
 			int model_id = newModel(options.model_opts);
 			if (getModel(model_id)) {
-				my_job->model = getModel(algorithm_id);
+				my_job->model = getModel(model_id);
 				jobs_map[my_job->job_id] = unique_ptr<Job_t>(my_job);
 				return job_id;
 			} else {
@@ -268,8 +304,10 @@ void trainAlgorithmThread(uv_work_t* req) {
 		        alg->run(model);
 		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 		        alg->run(model);
-		    } else {
-		        throw runtime_error("Requested model type not implemented");
+		    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
+				alg->run(model);
+			} else {
+		        throw runtime_error("Requested model type not implemented for the requested algorithm");
 		    }
 		    alg->finishRun();
 		} else if (GridSearch* alg = dynamic_cast<GridSearch*>(job->algorithm)) {
@@ -286,8 +324,10 @@ void trainAlgorithmThread(uv_work_t* req) {
 		        alg->run(model);
 		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 		        alg->run(model);
-		    } else {
-		        throw runtime_error("Requested model type not implemented");
+		    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
+				alg->run(model);
+			} else {
+		        throw runtime_error("Requested model type not implemented for the requested algorithm");
 		    }
 		    alg->finishRun();
 		} else if (IterativeUpdate* alg = dynamic_cast<IterativeUpdate*>(job->algorithm)) {
@@ -305,7 +345,7 @@ void trainAlgorithmThread(uv_work_t* req) {
 		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 		        alg->run(model);
 		    } else {
-		        throw runtime_error("Requested model type not implemented");
+		        throw runtime_error("Requested model type not implemented for the requested algorithm");
 		    }
 		    alg->finishRun();
 		} else if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
@@ -323,9 +363,21 @@ void trainAlgorithmThread(uv_work_t* req) {
 		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 		        alg->run(model);
 		    } else {
-		        throw runtime_error("Requested model type not implemented");
+		        throw runtime_error("Requested model type not implemented for the requested algorithm");
 		    }
 		    alg->finishRun();
+		} else if (HypoTestPlaceHolder* alg = dynamic_cast<HypoTestPlaceHolder*>(job->algorithm)){
+			alg->setUpRun();
+			if (FisherTest* model = dynamic_cast<FisherTest*>(job->model)) {
+				alg->run(model);
+			} else if (Chi2Test* model = dynamic_cast<Chi2Test*>(job->model)) {
+				alg->run(model);
+			} else if (WaldTest* model = dynamic_cast<WaldTest*>(job->model)) {
+				alg->run(model);
+			} else {
+				throw runtime_error("Requested model type not implemented for the requested algorithm");
+			}
+			alg->finishRun();
 		} else {
 			throw runtime_error("Requested algorithm type not implemented");
 		}
@@ -425,7 +477,15 @@ MatrixXd Scheduler::getJobResult(const int job_id) {
 	        return model->getBeta();
 	    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 	        return model->getBeta();
-	    } else {
+	    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
+			return model->getBeta();
+		} else if (FisherTest* model = dynamic_cast<FisherTest*>(job->model)) {
+			return model->getBeta();
+		} else if (Chi2Test* model = dynamic_cast<Chi2Test*>(job->model)) {
+			return model->getBeta();
+		} else if (WaldTest* model = dynamic_cast<WaldTest*>(job->model)) {
+			return model->getBeta();
+		} else {
 	    	return model->getBeta();
 	    }
 	} else {

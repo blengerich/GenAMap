@@ -60,15 +60,20 @@ const GMRunAnalysisDialog = React.createClass({
       /*snpsFeature2Name: '',
       snpsFeature2FileName: '',*/
       // Model parameters
-      models: config.models,
+      Structuremodels: config.Structuremodels,
+      Hypomodels: config.Hypomodels,
+      Confoundingmodels: config.Confoundingmodels,
       modelValue: '',
+      modelClass: '',
       lambda: 5,
       lambdal2: 0.1,
       mu: 0.1,
       gamma: 0.1,
       threshold: 1,
       clusteringMethods: ['average', 'single', 'complete'],
+      correctionMethods: ['Bonferroni correction', 'No correction'],
       clusteringMethod: 'single',
+      correctionMethod: 'Bonferroni correction',
       showAdvancedOptionsButton: false,
       showAdvancedOptions: false,
       // Algorithm parameters
@@ -143,7 +148,8 @@ const GMRunAnalysisDialog = React.createClass({
           mu: this.state.mu,
           gamma: this.state.gamma,
           threshold: this.state.threshold,
-          clusteringMethod: this.state.clusteringMethod
+          clusteringMethod: this.state.clusteringMethod,
+          correctionMethod: this.state.correctionMethod
         }
       },
       other_data: [
@@ -228,6 +234,9 @@ const GMRunAnalysisDialog = React.createClass({
                     this.setState({algorithmValue: this.state.availableAlgorithmList["0"].props.value})
                   })
   },
+  onChangeModelClass: function (event, index, value) {
+    this.setState({modelClass: value})
+  },
   onChangeLambda: function(event) {
     this.setState({lambda : event.target.value})
   },
@@ -246,6 +255,9 @@ const GMRunAnalysisDialog = React.createClass({
   },
   onChangeClusteringMethod: function(event, index, value) {
     this.setState({clusteringMethod: value})
+  },
+  onChangeCorrectionMethod: function(event, index, value) {
+    this.setState({correctionMethod: value})
   },
   onChangeAlgorithm: function(event, index, value) {
     this.setState({algorithmValue: value})
@@ -322,12 +334,26 @@ const GMRunAnalysisDialog = React.createClass({
     const traitListReact = this.state.traits.map((trait, index) =>
       <option key={index} value={trait}>{trait.name}</option>
     )
-    const modelList = this.state.models.map((model, index) =>
+    const StructuremodelList = this.state.Structuremodels.map((model, index) =>
       <MenuItem key={index} value={model.id} primaryText={model.name} />
     )
-    const modelListReact = this.state.models.map((model, index) =>
+    const StructuremodelListReact = this.state.Structuremodels.map((model, index) =>
       <option key={index} value={model.id}>{model.name}</option>
     )
+    const HypomodelList = this.state.Hypomodels.map((model, index) =>
+        <MenuItem key={index} value={model.id} primaryText={model.name} />
+    )
+    const HypomodelListReact = this.state.Hypomodels.map((model, index) =>
+        <option key={index} value={model.id}>{model.name}</option>
+    )
+
+    const ConfoundingmodelList = this.state.Confoundingmodels.map((model, index) =>
+        <MenuItem key={index} value={model.id} primaryText={model.name} />
+    )
+    const ConfoundingmodelListReact = this.state.Confoundingmodels.map((model, index) =>
+        <option key={index} value={model.id}>{model.name}</option>
+    )
+
     const snpsFeatureList = this.state.snpsFeatures.map((f, index) =>
       <MenuItem key={index} value={f} primaryText={f.name} />
     )
@@ -343,8 +369,14 @@ const GMRunAnalysisDialog = React.createClass({
     const clusteringMethodList = this.state.clusteringMethods.map((method, index) =>
       <MenuItem key={index} value={method} primaryText={method} />
     )
+    const correctionMethodList = this.state.correctionMethods.map((method, index) =>
+        <MenuItem key={index} value={method} primaryText={method} />
+    )
     const clusteringMethodListReact = this.state.clusteringMethods.map((method, index) =>
       <option key={index} value={method}>{method}</option>
+    )
+    const correctionMethodListReact = this.state.correctionMethods.map((method, index) =>
+        <option key={index} value={method}>{method}</option>
     )
     const algorithmListReact = this.state.algorithms.map((algorithm, index) =>
       <option key={index} value={algorithm.id}>{algorithm.name}</option>
@@ -371,6 +403,18 @@ const GMRunAnalysisDialog = React.createClass({
                   onChange={this.onChangeJobName}
                 />
               </div>
+              <div id='modelclassDiv'>
+                <SelectField
+                  value={this.state.modelClass}
+                  hintText='Choose Model Class'
+                  errorText={this.state.modelClass === '' && errorText}
+                  onChange={this.onChangeModelClass}
+                >
+                <MenuItem key={1} value={'Hypothesis Analysis'} primaryText={'Hypothesis Analysis'} />
+                <MenuItem key={2} value={'Structure Association'} primaryText={'Structure Association'} />
+                <MenuItem key={3} value={'Confounding Association'} primaryText={'Confounding Association'} />
+                </SelectField>
+              </div>
               <div id='modelTypeDiv'>
                 <SelectField
                   value={this.state.modelValue}
@@ -378,10 +422,17 @@ const GMRunAnalysisDialog = React.createClass({
                   errorText={this.state.modelValue === '' && errorText}
                   onChange={this.onChangeModel}
                 >
-                {modelList}
+                {(this.state.modelClass == 'Structure Association') ? StructuremodelList :
+                  (this.state.modelClass == 'Hypothesis Analysis') ? HypomodelList:
+                  (this.state.modelClass == 'Confounding Association') ? ConfoundingmodelList:
+                  null
+                }
                 </SelectField>
                 <select id='model' className='hidden' value={this.state.modelValue} readOnly>
-                  {modelListReact}
+                  {(this.state.modelClass == 'Structure Association') ? StructuremodelList :
+                    (this.state.modelClass == 'Hypothesis Analysis') ? HypomodelListReact:
+                    (this.state.modelClass == 'Confounding Association') ? ConfoundingmodelListReact:
+                            null}
                 </select>
               </div>
               <div id='projectValueDiv'>
@@ -534,8 +585,22 @@ const GMRunAnalysisDialog = React.createClass({
                           {clusteringMethodListReact}
                         </select>
                       </div>
+                    </div>:
+                  (this.state.modelValue == 5 || this.state.modelValue == 6 || this.state.modelValue == 7) ? // Chi2Test
+                    <div><div>Correction Method: <SelectField
+                        value={this.state.correctionMethod}
+                        hintText='Correction Method'
+                        errorText={!this.state.correctionMethod && errorText}
+                        onChange={this.onChangeCorrectionMethod}
+                        >
+                        {correctionMethodList}
+                        </SelectField>
+                        <select id='correctionMethod' className='hidden' value={this.state.correctionMethod} readOnly>
+                        {correctionMethodListReact}
+                        </select>
                     </div>
-                  : null}
+                    </div>  :
+                    null}
                   <div id='algorithmSelectDiv'>
                     <SelectField
                       value={this.state.algorithmValue}

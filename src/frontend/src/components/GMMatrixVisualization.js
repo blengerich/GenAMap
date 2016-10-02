@@ -25,7 +25,6 @@ const GMMatrixVisualization = React.createClass({
         'Content-Type': 'application/json'
       }
     }
-
     const vizData = { }
     return fetch(`${config.api.dataUrl}/${params.result}`, dataRequest)
     .then(response => {
@@ -101,6 +100,8 @@ const GMMatrixVisualization = React.createClass({
           right={this.props.minPad}
           slider={{"onThresholdChange": this.onThresholdChange}}
           subsetSelector={this.subsetSelector}
+          pageParams={this.state.pageParams}
+          traitLabels={this.state.traitLabels}
         />
       </div>
     )

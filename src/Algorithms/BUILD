@@ -35,6 +35,17 @@ cc_library(
 	copts = ["-DBAZEL"])
 
 cc_library(
+	name = "HypoTestPlaceholder",
+	srcs = ["HypoTestPlaceHolder.cpp"],
+	hdrs = ["HypoTestPlaceHolder.h"],
+	deps = ["//Algorithms:Algorithm",
+			"//Stats:Stats",
+		"//Stats:Chi2Test",
+		"//Stats:FisherTest",
+		"//Stats:WaldTest"],
+	copts = ["-DBAZEL"])
+
+cc_library(
 	name = "ProximalGradientDescent",
 	srcs = ["ProximalGradientDescent.cpp"],
 	hdrs = ["ProximalGradientDescent.hpp"],

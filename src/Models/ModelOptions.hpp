@@ -14,7 +14,12 @@ enum model_type {
 	ada_multi_lasso = 1,
 	gf_lasso = 2,
 	multi_pop_lasso = 3,
-	tree_lasso = 4
+	tree_lasso = 4,
+	fisher_test = 5,
+	chi2_test = 6,
+	wald_test = 7,
+	lmm = 8,
+	slmm = 9,
 };
 
 typedef struct ModelOptions_t {

@@ -1,15 +1,17 @@
-import React from 'react'
+import React, { Component, PropTypes } from 'react'
 import AutoComplete from 'material-ui/lib/auto-complete'
 import FontIcon from 'material-ui/lib/font-icon'
 import IconButton from 'material-ui/lib/icon-button'
+import FlatButton from 'material-ui/lib/flat-button'
+import { Link } from 'react-router'
 
 import GMProjectSearch from './GMProjectSearch'
 import GMToolbar from './GMToolbar'
 
 const styles = {
   action: {
-    flex: '0 1 auto'
-  },
+      flex: '2 1 auto'
+    },
   icon: {
     position: 'relative',
     top: '5px'
@@ -73,16 +75,36 @@ const GMManhattanThresholdUpdate = React.createClass({
   }
 })
 
-const GMManhattanToolbar = React.createClass({
-  getInitialState: function () {
+class GMManhattanToolbar extends Component {
+  initialState(){
     return {
         open: true
-    };
-  },
-  handleToggle: function () {
+    }
+  }
+
+  constructor (props, context) {
+    super(props, context)
+    this.state = this.initialState()
+  }
+
+  handleToggle () {
     this.setState({open: !this.state.open});
-  },
-  render: function () {
+  }
+
+  getDataUrl() {
+    console.log(this.props.pageParams.markers)
+    if(this.props.pageParams.markers){
+      var params = this.props.pageParams
+      console.log( params.markers)
+      var link = params.markers.toString() + '/' + params.traits.toString() + '/' + params.results.toString()
+      console.log(link)
+      return '/visualization/matrix/' + link
+    }
+    else{return null}
+  }
+  render () {
+    console.log(this.getDataUrl())
+    console.log(this.props.pageParams.markers)
     return (
       <div>
         <GMToolbar
@@ -91,12 +113,26 @@ const GMManhattanToolbar = React.createClass({
           left={this.props.left}
           right={this.props.right}
         >
-          <GMManhattanThresholdUpdate maxPVal={50} />
-          <GMProjectSearch style={styles.thresholdManager} />
+          <GMManhattanThresholdUpdate maxPVal={1} />
+          {(this.getDataUrl())?
+          <FlatButton
+            label='Matrix Visualization'
+            style={styles.action}
+            icon={<FontIcon className='material-icons'>equalizer</FontIcon>}
+            containerElement={<Link to= {this.getDataUrl()} />}
+            linkButton={true}
+          />
+          :
+          <FlatButton
+            label='Matrix Visualization'
+            style={styles.action}
+            icon={<FontIcon className='material-icons'>equalizer</FontIcon>}
+          />
+          }
         </GMToolbar>
       </div>
     )
   }
-})
+}
 
 export default GMManhattanToolbar
