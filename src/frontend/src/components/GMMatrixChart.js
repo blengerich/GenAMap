@@ -6,9 +6,18 @@ import FloatingActionButton from 'material-ui/lib/floating-action-button'
 import fetch from './fetch'
 import config from '../../config'
 
-const colorScale = d3.scale.linear()
-                      .domain([-1, 0, 1])
-                      .range(["#990000", "#EEEEEE", "#000099"]);
+const colorRange = ["#990000", "#eeeeee", "#ffffff", "#eeeeee", "#000099"]
+
+const calculateColorScale = (min, max, threshold) => {
+    const mid = (min + max) / 2
+    //find the range in which colors can be muted, as a percentage of data range
+    const bound = (max - min) * threshold / 2
+    return d3.scale.linear()
+                  .domain([min, mid - bound, mid, mid + bound, max]) //this means that between mid +- bound, colors are muted
+                  .range(colorRange)
+} 
+
+    
 
 // TODO: add map rows/cols, account for in initAxes and parseData
 var axisOnZoom;
@@ -24,8 +33,10 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-var Graph = function(data, markerLabels, traitLabels) {
+var Graph = function(data, markerLabels, traitLabels, min, max, threshold = 0.5) {
   d3.select('#matrixChart').selectAll('svg').remove()
+
+
 
   /************************************
   *** visualization setup functions ***
@@ -36,9 +47,10 @@ var Graph = function(data, markerLabels, traitLabels) {
   }
 
   /* initialize legend */
-  function legend() {
-    const legendWidth = 95
+  function legend(threshold = 0.5) {
+    const legendWidth = 100
     const margin = 5
+
     var legendBody = d3.select("#matrixBottomPanel")
                         .append("svg")
                         .attr("width", legendWidth + 2 * margin)
@@ -58,21 +70,24 @@ var Graph = function(data, markerLabels, traitLabels) {
     const cellWidth = legendWidth/numRowCells
     const cellHeight = 10
 
+    const legendMid = numRowCells / 2
+    const legendBound = numRowCells * threshold / 2
     const legendColorScale = d3.scale.linear()
-                               .domain([0, numRowCells/2, numRowCells])
-                               .range(["#990000", "#EEEEEE", "#000099"])
+                               .domain([0, legendMid - legendBound, 250, legendMid + legendBound, numRowCells])
+                               .range(colorRange)
 
     for (var i = 0; i < numRowCells; i++) {
       legendBody.append("rect")
                 .attr("x", i * cellWidth)
                 .attr("y", 15)
+                .attr("value", i)
                 .attr("width", cellWidth)
                 .attr("height", cellHeight)
                 .style("fill", legendColorScale(i))
     }
 
-    const mapCorr = d3.scale.linear().domain([-1, 1]).range([0, legendWidth])
-    const markers = [-1, 0, 1].map((i) => {
+    const mapCorr = d3.scale.linear().domain([+min.toFixed(2), +max.toFixed(2)]).range([0, legendWidth])
+    const markers = [+min.toFixed(2), 0, +max.toFixed(2)].map((i) => {
       legendBody.append("text")
                 .text(i)
                 .attr("x", mapCorr(i))
@@ -248,7 +263,7 @@ var Graph = function(data, markerLabels, traitLabels) {
                       d3.select(d3.event.target).classed("matrixHighlight", false);
                     });
     cards.transition().duration(100)
-          .style("fill", function(d) { return colorScale(d.value); });
+          .style("fill", function(d) { return calculateColorScale(min, max, threshold)(d.value); });
 
     cards.exit().remove();
     initGridLines();
@@ -511,8 +526,21 @@ var GMMatrixChart = React.createClass({
   },
   componentWillReceiveProps: function(nextProps) {
     if (this.validateNewProps(nextProps)) {
+      
+      //find min and max value
+      let min = 0
+      let max = 0
+      nextProps.data.v.split(";").forEach((row) => {
+        row.split(",").forEach((item) => {
+          let num = +item
+          if (num > max) max = num
+          if (num < min) min = num
+        })
+      })
+
       this.setState({
-        points: Graph(nextProps.data, nextProps.markerLabels, nextProps.traitLabels)
+        min, max, 
+        points: Graph(nextProps.data, nextProps.markerLabels, nextProps.traitLabels, min, max)
       })
     }
   },
@@ -608,15 +636,25 @@ var GMMatrixChart = React.createClass({
     if (this.state.points) return
 
     var threshold = this.props.threshold;
+    let min = this.state.min
+    let max = this.state.max
+
+    const cellColorScale = calculateColorScale(min, max, threshold)
     d3.select("#overallMatrix")
       .selectAll('.cell')
       .each(function(d) {
-        if (Math.abs(d.value) < threshold) {
-          d3.select(this).style("fill", "#dcdcdc");
-        } else {
-          d3.select(this).style("fill", colorScale(d.value));
-        }
+          d3.select(this).style("fill", cellColorScale(d.value));
       });
+
+    //update the legend
+    const legendColorScale = calculateColorScale(0, 500, threshold)
+    d3.select('#legendBody')
+      .selectAll('rect')
+      .each(function(d) {
+        d3.select(this).style("fill", legendColorScale(d3.select(this).attr("value")))
+      });
+    
+
     var zoomEnabled = this.props.zoom;
     var disableZoom = d3.behavior.zoom()
                         .on("zoom", null);
@@ -667,6 +705,7 @@ var GMMatrixChart = React.createClass({
         .call(reZoomMini);
     }
   },
+
 	render: function() {
 		return (
       <div>

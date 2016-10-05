@@ -64,7 +64,7 @@ const GMMatrixToolbar = React.createClass({
     return {
         open: true,
         slider: {
-          threshold: 0.0
+          threshold: 0.5
         }
     };
   },
@@ -96,7 +96,7 @@ const GMMatrixToolbar = React.createClass({
           <Slider id={"slider"}
             style={styles.slider}
             onChange={this.onThresholdChange}
-            defaultValue={0}
+            defaultValue={0.5}
           />
           <span style={styles.sliderValue}>{this.state.slider.threshold.toFixed(2)}</span>
           <GMSliderName />
