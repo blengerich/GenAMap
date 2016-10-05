@@ -4,10 +4,48 @@ import fetch from './fetch'
 import config from '../../config'
 
 const styles = {
+  action: {
+    margin: '10px 0',
+    width: '70%'
+  },
+  error: {
+    color: '#e74c3c'
+  },
+  largeFace: {
+    color: '#ecf0f1',
+    fontSize: '10em',
+    margin: '50px 0px'
+  },
+  appBar: {
+    backgroundColor: config.ui.baseColor,
+    marginBottom: '5%'
+  },
   textStyle: {
-    fontFamily: Raleway,
+    fontFamily: 'Roboto',
     marginTop: '100px',
-    textAlign: center
+    textAlign: 'center'
+  },
+  body: {
+    backgroundColor: '#FFFFFF',
+    fontFamily: 'Roboto, sans-serif',
+    position: 'absolute',
+    left: '35%',
+    top: '20%',
+    width: '30%',
+    height: '60%',
+    textAlign: 'center'
+  },
+  form: {
+    width: '70%'
+  },
+  header: {
+    margin: '0 0 0 10px',
+    paddingTop: 0,
+    fontFamily: 'Roboto, sans-serif',
+    fontSize: '2.2em',
+    fontWeight: 400,
+    color: '#ffffff',
+    lineHeight: '64px'
   }
 }
 
@@ -31,17 +69,16 @@ const GMErrorPage = React.createClass({
   },
   render() {
     return (
-      <head>
-        <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet"></link>
-      </head>
-      <body style={styles.textStyle}>
-          <h1>Error!</h1>
-          <img style="width: 300px; height: 300px" src="../images/sad-face.svg"/>
-          <p>Sorry, but your input was invalid.</p>
-          <p>Check: {this.props.params.name}</p>
-      </body>
+      <div style={styles.textStyle}>
+        <h1>Error!</h1>
+        <span style={styles.largeFace}>:(</span>
+        <p>Sorry, but we ran into an error while trying to change your password!</p>
+        <p>Error: <i style={styles.error}>{this.props.params.name}</i></p>
+      </div>
+
     )
   }
 })
+
 
 export default GMErrorPage

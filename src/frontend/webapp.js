@@ -1041,13 +1041,13 @@ app.post(config.api.ChangePasswordUrl, function (req, res) {
   }
 
   if (NewPassword != ConfirmNewPassword) {
-    return res.status(400).send({message: "Passwords don't match"})
+    return res.status(400).send({message: "New passwords did not match"})
   }
 
   app.models.user.findOne({ id: userId }).exec(function (err, foundUser) {
     if (err) console.log(err)
     if (foundUser.password !== FormerPassword) {
-      return res.status(400).send({message: 'Error Former Password'})
+      return res.status(400).send({message: 'Former password did not match'})
     }
     app.models.user.update({ id: userId }, {password: NewPassword}).exec(function(err, updated){
           if (err) return res.status(500).json({ err })
