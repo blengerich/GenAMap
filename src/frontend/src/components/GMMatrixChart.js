@@ -130,7 +130,7 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold = 0.5)
         .attr("text-anchor", "middle")
         .attr("y", mapHeight/2)
         .attr("transform", "translate(" + (-axisPadding + baseLabelStyle.titleSize)
-            + ",0)rotate(-90,0," + mapHeight/2 + ")")
+            + ",20)rotate(-90,0," + mapHeight/2 + ")")
         .text("Traits");
 
     // vertical labels
@@ -157,12 +157,12 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold = 0.5)
         .text("Markers");
 
     // opaque bottom-left selector
-    axes.append("rect")
-        .attr("x", -(axisPadding + margin.left))
-        .attr("y", mapHeight + margin.bottom)
-        .attr("width", axisPadding + margin.left)
-        .attr("height", axisPadding + margin.bottom)
-        .attr("fill", "#fff");
+    // axes.append("rect")
+    //     .attr("x", -(axisPadding + margin.left))
+    //     .attr("y", mapHeight + margin.bottom)
+    //     .attr("width", axisPadding + margin.left)
+    //     .attr("height", axisPadding + margin.bottom)
+    //     .attr("fill", "#fff");
 
     d3.selectAll(".title")
       .style("font-size", baseLabelStyle.titleSize + "px");
@@ -709,9 +709,12 @@ var GMMatrixChart = React.createClass({
 	render: function() {
 		return (
       <div>
-        <div id="matrixChart" style={{ "marginTop": "25px" }}>
-          {this.state.subsetTooltip}
+        <div style={{height: 500, display: "flex", alignItems: 'flex-end', overflowY: 'scroll'}}>
+          <div id="matrixChart" style={{ "marginTop": "25px", overflowX: 'scroll' }}>
+            {this.state.subsetTooltip}
+          </div>
         </div>
+        
         <div id="matrixBottomPanel">
           <ul className="buttonContainer">
             <li className="zoomButton">
