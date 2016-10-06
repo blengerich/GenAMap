@@ -80,7 +80,7 @@ Chi2Test::Chi2Test(const unordered_map<string, string> &options) {
     string tmp;
     try {
         tmp = options.at("correctNum");
-        if (tmp.compare("Bonferroni correction") == 0){
+        if (tmp == "Bonferroni correction"){
             shouldCorrect = true;
         }
         else{
