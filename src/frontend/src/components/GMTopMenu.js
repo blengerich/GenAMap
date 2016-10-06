@@ -93,9 +93,6 @@ var GMTopMenu = React.createClass({
           <FlatButton style={styles.appBarLink} label='Activity' onClick={this.handleActivityButton} />
           <FlatButton style={styles.appBarLink} label='Account' onClick={this.handleSettingsButton} />
           <FlatButton style={styles.appBarLink} label='Logout' onClick={this.handleLogoutButton} />
-          <IconButton style={styles.appBarIcon} touch={true} onClick={this.props.handleRightIconTouch}>
-            <FontIcon color={styles.appBarLink.color} className='material-icons'>menu</FontIcon>
-          </IconButton>
         </AppBar>
         <GMRunAnalysisDialogContainer
           open={this.state.dialogOpen}
