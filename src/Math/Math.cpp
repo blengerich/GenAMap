@@ -50,3 +50,17 @@ VectorXd Math::L2Thresholding(VectorXd in) {
         return in;
     }
 }
+
+MatrixXd Math::pinv(MatrixXd xd) {
+    JacobiSVD<MatrixXd> svd(xd, ComputeThinU | ComputeThinV);
+    MatrixXd tmpS = svd.singularValues();
+    MatrixXd U = svd.matrixU();
+    MatrixXd V = svd.matrixV();
+    MatrixXd invS = MatrixXd::Zero(tmpS.rows(), tmpS.rows());
+    for (long i = 0; i<tmpS.rows(); i++){
+        if (tmpS(i, 0) !=0){
+            invS(i, i) = 1/tmpS(i, 0);
+        }
+    }
+    return U*invS*V;
+}

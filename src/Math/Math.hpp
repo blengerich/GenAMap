@@ -26,6 +26,7 @@ public:
     double correlation(VectorXd, VectorXd);
     // matrix
     void removeCol(MatrixXd*, long);
+    MatrixXd pinv(MatrixXd);
 
     VectorXd L2Thresholding(VectorXd in);
 };

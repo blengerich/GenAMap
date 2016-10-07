@@ -86,9 +86,9 @@ const GMRunAnalysisDialog = React.createClass({
       learning_rate: 1e-5,
       learning_rate2: 0.001,
       tolerance: 0.000001,
-      lambda_start_point: 0.0,  // TODO: how to set good defaults for these?
-      lambda_end_point: 0.0,
-      lambda_interval: 0.0,
+      lambda_start_point: -5,  // TODO: how to set good defaults for these?
+      lambda_end_point: 5,
+      lambda_interval: 0.5,
       a: 0.0,
       b: 0.0,
       c: 0.0,

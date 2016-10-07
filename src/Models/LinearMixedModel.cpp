@@ -83,7 +83,7 @@ long LinearMixedModel::get_num_samples() {
 }
 
 void LinearMixedModel::assertReadyToRun() {
-    throw runtime_error("LinearMixedModel not implemented");
+//    throw runtime_error("LinearMixedModel not implemented");
 }
 
 // Decomposition of Similarity Matrix ->
@@ -113,7 +113,7 @@ void LinearMixedModel::calculate_beta(double lambda) {
 //    MatrixXd first_term = MatrixXd::Random(d, d); // d*d
 //    MatrixXd second_term = MatrixXd::Random(d, 1); // d*1
 
-    MatrixXd first_term = ((U_X_trans * S_lambda_inv) * U_trans_X).inverse();
+    MatrixXd first_term = Math::getInstance().pinv((U_X_trans * S_lambda_inv) * U_trans_X);
     MatrixXd second_term = (U_X_trans * S_lambda_inv) * U_trans_Y;
 
     beta = first_term * second_term;
@@ -131,7 +131,6 @@ void LinearMixedModel::calculate_sigma(double lambda) {
     MatrixXd U_tran_X_beta = U_tran_X * beta;
 
     long n = U_tran_X.rows();
-
     for (int i = 0; i < n; i++) {
         temp_val = U_tran_Y(i, 0) - U_tran_X_beta(i, 0);
         temp_val = temp_val / (double(S(i, i) + lambda));
@@ -196,6 +195,10 @@ double LinearMixedModel::f(double lambda) {
 void LinearMixedModel::init() {
     MatrixXd tmp = MatrixXd::Zero(1,1);
     if (!initFlag){
+        this->beta = MatrixXd::Random(X.cols(), y.rows());
+        this->K = X*X.transpose();
+        this->n = get_num_samples();
+        this->d = X.cols();
         if (K.rows() == 1){
             K = X*X.transpose();
             decomposition();

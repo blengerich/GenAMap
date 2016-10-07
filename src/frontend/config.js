@@ -86,7 +86,7 @@ const config = {
     4  // hypo
   ],
   8 : [// lmm
-    0  // brent search
+    2  // Grid Search
   ],
   9 : [// slmm
     1  // Proximal Gradient Descent
