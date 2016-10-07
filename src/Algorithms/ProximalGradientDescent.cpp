@@ -23,6 +23,8 @@
 #include "../Models/Model.hpp"
 #include "../Models/MultiPopLasso.hpp"
 #include "../Models/TreeLasso.hpp"
+#include "GridSearch.hpp"
+
 #endif
 
 using namespace Eigen;
@@ -356,9 +358,8 @@ bool ProximalGradientDescent::checkVectorConvergence(VectorXd v1, VectorXd v2, d
 }
 
 void ProximalGradientDescent::run(SparseLMM *model) {
-    BrentSearch *brentSearch = new BrentSearch();
-    brentSearch->set_delta(0.5);
-    brentSearch->run(model);
+    GridSearch *gs = new GridSearch();
+    gs->run(model);
     double delta = model->get_lambda();
     model->rotateXY(delta);
     LinearRegression lr = LinearRegression();
