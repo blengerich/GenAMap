@@ -4,6 +4,13 @@
 
 #include <Eigen/Dense>
 #include <unordered_map>
+#include <queue>
+
+#ifdef BAZEL
+#include "Models/TreeLasso.hpp"
+#else
+#include "../Models/TreeLasso.hpp"
+#endif
 
 using namespace Eigen;
 using namespace std;
@@ -11,9 +18,10 @@ using namespace std;
 #ifndef ALGORITHMS_MODEL_HPP
 #define ALGORITHMS_MODEL_HPP
 
-struct clusteringResult{
+struct modelResult{
     string rowStr;
     string colStr;
+    MatrixXd beta;
 };
 
 class Model {
@@ -31,7 +39,7 @@ public:
     MatrixXd getX();
     MatrixXd getBeta();
     MatrixXd getY();
-    clusteringResult getClusteringResult(); // Scheduler needs to make sure to call this method before call getBeta();
+    modelResult getClusteringResult(); // Scheduler needs to run model.getClusteringResult() for the result, instead of getBeta();
 
     MatrixXd predict();
     MatrixXd predict(MatrixXd);

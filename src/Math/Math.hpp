@@ -6,7 +6,12 @@
 #define ALGORITHMS_MATH_HPP
 
 #include <Eigen/Dense>
-#include <Models/TreeLasso.hpp>
+
+#ifdef BAZEL
+#include "Models/TreeLasso.hpp"
+#else
+#include "../Models/TreeLasso.hpp"
+#endif
 
 using namespace Eigen;
 

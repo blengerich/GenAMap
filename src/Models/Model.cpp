@@ -3,12 +3,19 @@
 //
 
 #include "Model.hpp"
-#include "TreeLasso.hpp"
 
 #include <stdexcept>
 #include <unordered_map>
-#include <Math/Math.hpp>
-#include <JSON/JsonCoder.hpp>
+
+#ifdef BAZEL
+#include "Math/Math.hpp"
+#include "../JSON/JsonCoder.hpp"
+#include "Models/TreeLasso.hpp"
+#else
+#include "../Math/Math.hpp"
+#include "../JSON/JsonCoder.hpp"
+#include "../Models/TreeLasso.hpp"
+#endif
 
 using namespace Eigen;
 using namespace std;
@@ -67,17 +74,18 @@ MatrixXd Model::proximal_operator(MatrixXd xd, float d) {
     return VectorXd::Random(1);
 }
 
-clusteringResult Model::getClusteringResult() {
-    Tree * t1 = Math::getInstance().hierarchicalClustering(beta);
-    Tree * t2 = Math::getInstance().hierarchicalClustering(beta.transpose());
-    MatrixXd tmp = MatrixXd::Zero(beta.rows(), beta.cols());
+modelResult Model::getClusteringResult() {
+    MatrixXd B = this->getBeta();
+    Tree * t1 = Math::getInstance().hierarchicalClustering(B);
+    Tree * t2 = Math::getInstance().hierarchicalClustering(B.transpose());
+    MatrixXd tmp = MatrixXd::Zero(B.rows(), B.cols());
     queue<treeNode*> nodes;
     long count = -1;
     nodes.push(t1->getRoot());
     while (nodes.size()>0){
         treeNode * n = nodes.front();
         if (n->children.size()==0){
-            tmp.col(++count) = beta.col(n->trait[0]);
+            tmp.col(++count) = B.col(n->trait[0]);
         }
         else{
             for (unsigned int i=0; i<n->children.size();i++){
@@ -87,12 +95,12 @@ clusteringResult Model::getClusteringResult() {
         nodes.pop();
     }
     count = -1;
-    beta = tmp;
+    B = tmp;
     nodes.push(t2->getRoot());
     while (nodes.size()>0){
         treeNode * n = nodes.front();
         if (n->children.size()==0){
-            tmp.row(++count) = beta.row(n->trait[0]);
+            tmp.row(++count) = B.row(n->trait[0]);
         }
         else{
             for (unsigned int i=0; i<n->children.size();i++){
@@ -101,9 +109,10 @@ clusteringResult Model::getClusteringResult() {
         }
         nodes.pop();
     }
-    beta = tmp;
-    clusteringResult cr;
+    B = tmp;
+    modelResult cr;
     cr.colStr = JsonCoder::getInstance().encodeTraitTree(t1);
     cr.rowStr = JsonCoder::getInstance().encodeTraitTree(t2);
+    cr.beta = B;
     return cr;
 }
