@@ -71,6 +71,7 @@ const GMManhattanVisualization = React.createClass({
         <GMManhattanToolbar
           left={this.props.minPad}
           right={this.props.minPad}
+          pageParams={this.state.pageParams}
         />
       </div>
     )
