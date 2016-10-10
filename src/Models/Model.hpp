@@ -11,6 +11,11 @@ using namespace std;
 #ifndef ALGORITHMS_MODEL_HPP
 #define ALGORITHMS_MODEL_HPP
 
+struct clusteringResult{
+    string rowStr;
+    string colStr;
+};
+
 class Model {
 protected:
     MatrixXd X;
@@ -26,6 +31,7 @@ public:
     MatrixXd getX();
     MatrixXd getBeta();
     MatrixXd getY();
+    clusteringResult getClusteringResult(); // Scheduler needs to make sure to call this method before call getBeta();
 
     MatrixXd predict();
     MatrixXd predict(MatrixXd);

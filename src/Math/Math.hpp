@@ -6,6 +6,7 @@
 #define ALGORITHMS_MATH_HPP
 
 #include <Eigen/Dense>
+#include <Models/TreeLasso.hpp>
 
 using namespace Eigen;
 
@@ -14,6 +15,12 @@ private:
     Math() {};
     Math(Math const &);  // don't implement
     void operator=(Math const &); // don't implement
+
+    minXY searchMin(MatrixXd);
+    MatrixXd appendColRow(MatrixXd, minXY);
+    void updateMap(unordered_map<long, treeNode*>*, minXY);
+
+
 public:
     static Math &getInstance() {
         static Math instance;
@@ -26,8 +33,13 @@ public:
     double correlation(VectorXd, VectorXd);
     // matrix
     void removeCol(MatrixXd*, long);
+    void removeRow(MatrixXd*, long);
+    void removeColRow(MatrixXd*, minXY);
+
 
     VectorXd L2Thresholding(VectorXd in);
+
+    Tree* hierarchicalClustering(MatrixXd);
 };
 
 
