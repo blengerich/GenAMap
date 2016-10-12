@@ -49,7 +49,6 @@ class GMManhattanDialog extends Component {
     if(this.props.pageParams){
       var params = this.props.pageParams
       var link = params.marker.toString() + '/' + params.trait.toString() + '/' + params.result.toString() + '/' + this.state.traitName
-      console.log(link)
       return '/visualization/manhattan/' + link
     }
   }
@@ -76,8 +75,6 @@ class GMManhattanDialog extends Component {
   }
 
   render () {
-    console.log(this.props.pageParams)
-    console.log(this.props.traitLabels)
     var actions = [
       <FlatButton
         label='Cancel'

@@ -33,9 +33,8 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-var Graph = function(data, markerLabels, traitLabels, min, max, threshold = 0.5) {
+var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
   d3.select('#matrixChart').selectAll('svg').remove()
-
 
 
   /************************************
@@ -47,7 +46,7 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold = 0.5)
   }
 
   /* initialize legend */
-  function legend(threshold = 0.5) {
+  function legend(threshold) {
     const legendWidth = 100
     const margin = 5
 
@@ -86,7 +85,7 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold = 0.5)
                 .style("fill", legendColorScale(i))
     }
 
-    const mapCorr = d3.scale.linear().domain([+min.toFixed(2), +max.toFixed(2)]).range([0, legendWidth])
+    const mapCorr = d3.scale.linear().domain([+min.toFixed(2), +max.toFixed(2)]).range([10, legendWidth])
     const markers = [+min.toFixed(2), 0, +max.toFixed(2)].map((i) => {
       legendBody.append("text")
                 .text(i)
@@ -125,13 +124,13 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold = 0.5)
          .text(trimmedLabel(traitLabels[Math.floor(i/populationFactor)], 5));
     }
 
-    axes.append("text")
-        .attr("class", "title")
-        .attr("text-anchor", "middle")
-        .attr("y", mapHeight/2)
-        .attr("transform", "translate(" + (-axisPadding + baseLabelStyle.titleSize)
-            + ",20)rotate(-90,0," + mapHeight/2 + ")")
-        .text("Traits");
+    // axes.append("text")
+    //     .attr("class", "title")
+    //     .attr("text-anchor", "middle")
+    //     .attr("y", mapHeight/2)
+    //     .attr("transform", "translate(" + (-axisPadding + baseLabelStyle.titleSize)
+    //         + ",20)rotate(-90,0," + mapHeight/2 + ")")
+    //     .text("Traits");
 
     // vertical labels
     for (var i = 0; i < mapCols; i++) {
@@ -148,13 +147,13 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold = 0.5)
          .text(trimmedLabel(markerLabels[i], 5));
     }
 
-    axes.append("text")
-        .attr("class", "title")
-        .attr("text-anchor", "middle")
-        .attr("y", mapHeight)
-        .attr("x", mapWidth/2)
-        .attr("transform", "translate(0," + axisPadding + ")")
-        .text("Markers");
+    // axes.append("text")
+    //     .attr("class", "title")
+    //     .attr("text-anchor", "middle")
+    //     .attr("y", mapHeight)
+    //     .attr("x", mapWidth/2)
+    //     .attr("transform", "translate(0," + axisPadding + ")")
+    //     .text("Markers");
 
     // opaque bottom-left selector
     // axes.append("rect")
@@ -402,15 +401,15 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold = 0.5)
   var mapCols = numMarkers;
 
   // Need to change percentages again to take into account sidebar
-  var maxTotalWidth =  windowWidth * 0.95;
+  var maxTotalWidth =  windowWidth;
   var maxTotalHeight = windowHeight * 0.65;
   var matrixHeight = cellHeight * mapRows;
   var matrixWidth = cellWidth * mapCols;
 
-  var axisPadding = 80;
-  var margin = { top: 0, right: rightMargin, bottom: 5, left: 5 };
+  var axisPadding = 60;
+  var margin = { top: 0, right: rightMargin, bottom: 0, left: 5 };
 
-  var totalWidth = Math.min(maxTotalWidth, matrixWidth + axisPadding + margin.left)
+  var totalWidth = Math.max(maxTotalWidth, matrixWidth + axisPadding + margin.left)
   var totalHeight = Math.min(maxTotalHeight, matrixHeight + axisPadding + margin.bottom)
 
   mapWidth = totalWidth - axisPadding - margin.left
@@ -449,7 +448,7 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold = 0.5)
                 .append("g")
                   .attr("id", "overallMatrix");
 
-  legend();
+  legend(threshold);
   parseData();
   initAxes();
 
@@ -524,6 +523,18 @@ var GMMatrixChart = React.createClass({
   validateNewProps: function(nextProps) {
     return (this.props.pageParams !== nextProps.pageParams)
   },
+
+  componentDidMount: function () {
+    //add scroll listeners for the minimap
+    const matrixChart = document.getElementById('matrixChart')
+    matrixChart.addEventListener('scroll', () => {
+      this.setState({
+        minimapLeftScrollPosition: matrixChart.scrollLeft, 
+        minimapTopScrollPosition: matrixChart.scrollTop
+      })
+    })
+  },
+
   componentWillReceiveProps: function(nextProps) {
     if (this.validateNewProps(nextProps)) {
       
@@ -540,8 +551,28 @@ var GMMatrixChart = React.createClass({
 
       this.setState({
         min, max, 
-        points: Graph(nextProps.data, nextProps.markerLabels, nextProps.traitLabels, min, max)
+        points: Graph(nextProps.data, nextProps.markerLabels, nextProps.traitLabels, min, max, 0)
       })
+
+      //how big is the view container
+      const rootSvg = document.getElementById('rootSvg')
+      const boundingRect = rootSvg.getBoundingClientRect()
+      const actualWidth = boundingRect.width
+      const actualHeight = boundingRect.height
+      const viewPercentageWidth = document.getElementById('matrixChart').clientWidth / actualWidth
+      const viewPercentageHeight = document.getElementById('matrixChart').clientHeight / actualHeight
+      this.setState({
+        actualWidth,
+        actualHeight,
+        viewPercentageWidth,
+        viewPercentageHeight
+      })
+
+      setTimeout(() => {
+        const image = Pancake('matrixHolder')
+        this.setState({minimap: image.src})
+      }, 350)
+
     }
   },
   getInitialState: function() {
@@ -550,7 +581,9 @@ var GMMatrixChart = React.createClass({
       subsetCells: [],
       numClicked: 0,
       element: null,
-      mouse: {x: 0, y: 0, startX: 0, startY: 0}
+      mouse: {x: 0, y: 0, startX: 0, startY: 0},
+      threshold: 0,
+      minimapScaleFactor: 0.3
 		}
 	},
   resetSubsetCells: function() {
@@ -639,20 +672,30 @@ var GMMatrixChart = React.createClass({
     let min = this.state.min
     let max = this.state.max
 
-    const cellColorScale = calculateColorScale(min, max, threshold)
-    d3.select("#overallMatrix")
-      .selectAll('.cell')
-      .each(function(d) {
-          d3.select(this).style("fill", cellColorScale(d.value));
-      });
+    if (this.state.threshold != this.props.threshold) {
+      const cellColorScale = calculateColorScale(min, max, threshold)
+      d3.select("#overallMatrix")
+        .selectAll('.cell')
+        .each(function(d) {
+            d3.select(this).style("fill", cellColorScale(d.value));
+        });
 
-    //update the legend
-    const legendColorScale = calculateColorScale(0, 500, threshold)
-    d3.select('#legendBody')
-      .selectAll('rect')
-      .each(function(d) {
-        d3.select(this).style("fill", legendColorScale(d3.select(this).attr("value")))
-      });
+      //update the legend
+      const legendColorScale = calculateColorScale(0, 500, threshold)
+      d3.select('#legendBody')
+        .selectAll('rect')
+        .each(function(d) {
+          d3.select(this).style("fill", legendColorScale(d3.select(this).attr("value")))
+        });
+
+      setTimeout(() => {
+        const image = Pancake('matrixHolder')
+        const aspectRatio = image.width/image.height
+        this.setState({minimap: image.src})
+      }, 200)
+
+      this.state.threshold = this.props.threshold
+    }
     
 
     var zoomEnabled = this.props.zoom;
@@ -707,15 +750,41 @@ var GMMatrixChart = React.createClass({
   },
 
 	render: function() {
+    console.log(this.state.viewPercentageWidth)
+    console.log(document.getElementById('minimap') ? document.getElementById('minimap').clientWidth : '')
 		return (
       <div>
-        <div style={{height: 500, display: "flex", alignItems: 'flex-end', overflowY: 'scroll'}}>
-          <div id="matrixChart" style={{ "marginTop": "25px", overflowX: 'scroll' }}>
-            {this.state.subsetTooltip}
+        <div style={{height: 500, display: "flex", flexDirection: 'column', justifyContent: 'flex-end'}}>
+          <div id="matrixChart" style={{"marginTop": "25px", overflow: 'scroll', maxWidth: 'calc(100vw - 40px)'}}>
           </div>
+          <div style={{fontFamily: 'Helvetica', fontWeight: 'bold', fontSize: 20, textAlign: 'center', width: '100%'}}>Markers</div>
         </div>
         
         <div id="matrixBottomPanel">
+          <div style={{
+            position: 'relative',
+            margin: '30px 0 0 300px',
+            maxWidth: '500px',
+            height: '150px',
+            overflow: 'scroll'
+          }}>
+            <img id="minimap" style={{
+              transformOrigin: 'left top', 
+              position: 'absolute', 
+              left: 0, 
+              top: 0, 
+              transform: `scale(${this.state.minimapScaleFactor})`}} 
+              src={this.state.minimap} />
+            <div style={{
+              position: 'absolute',
+              left: this.state.minimapLeftScrollPosition * this.state.minimapScaleFactor,
+              top: this.minimapTopScrollPosition * this.state.minimapScaleFactor,
+              background: 'rgba(255, 255, 255, 0.4)',
+              width: document.getElementById('minimap') ? (document.getElementById('minimap').clientWidth * this.state.viewPercentageWidth * this.state.minimapScaleFactor) : 0,
+              height: document.getElementById('minimap') ? (document.getElementById('minimap').clientHeight * this.state.viewPercentageHeight * this.state.minimapScaleFactor) : 0,
+              border: '1px solid grey'
+            }} id="minimapViewOverlay"></div>
+          </div>
           <ul className="buttonContainer">
             <li className="zoomButton">
               <a id="zoom-in" data-zoom="+1">
