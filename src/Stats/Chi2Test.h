@@ -10,7 +10,7 @@
 class Chi2Test : public StatsBasic{
 public:
     void run();
-    Chi2Test(){};
+    Chi2Test(){shouldCorrect=true;};
     Chi2Test(const unordered_map<string, string> &);
 };
 
