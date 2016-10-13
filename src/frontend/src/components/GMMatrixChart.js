@@ -583,7 +583,7 @@ var GMMatrixChart = React.createClass({
       element: null,
       mouse: {x: 0, y: 0, startX: 0, startY: 0},
       threshold: 0,
-      minimapScaleFactor: 0.3
+      minimapScaleFactor: 0.5
 		}
 	},
   resetSubsetCells: function() {
@@ -749,9 +749,13 @@ var GMMatrixChart = React.createClass({
     }
   },
 
+  onMinimapClick: function(e) {
+    const matrixChart = document.getElementById('matrixChart')
+    matrixChart.scrollLeft = e.nativeEvent.offsetX - 200
+    matrixChart.scrollTop = e.nativeEvent.offsetX - 200
+  },
+
 	render: function() {
-    console.log(this.state.viewPercentageWidth)
-    console.log(document.getElementById('minimap') ? document.getElementById('minimap').clientWidth : '')
 		return (
       <div>
         <div style={{height: 500, display: "flex", flexDirection: 'column', justifyContent: 'flex-end'}}>
@@ -766,7 +770,8 @@ var GMMatrixChart = React.createClass({
             margin: '30px 0 0 300px',
             maxWidth: '500px',
             height: '150px',
-            overflow: 'scroll'
+            overflow: 'scroll',
+            border: '1px solid black'
           }}>
             <img id="minimap" style={{
               transformOrigin: 'left top', 
@@ -774,7 +779,8 @@ var GMMatrixChart = React.createClass({
               left: 0, 
               top: 0, 
               transform: `scale(${this.state.minimapScaleFactor})`}} 
-              src={this.state.minimap} />
+              src={this.state.minimap} 
+              onClick={this.onMinimapClick} />
             <div style={{
               position: 'absolute',
               left: this.state.minimapLeftScrollPosition * this.state.minimapScaleFactor,
