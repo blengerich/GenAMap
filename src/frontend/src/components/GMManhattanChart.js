@@ -18,6 +18,8 @@ var colorScale;
 var xScale;
 var yScale;
 
+const loadGIF = 'processing.gif';
+
 var Graph = function(data, markerLabels, traitLabelsNum) {
   d3.select('#manhattanChart').selectAll('svg').remove()
   /************************************
@@ -107,6 +109,10 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
 
   function hoverOutCell() {
     d3.select(".tooltip").remove();
+  }
+
+  function loadingAnimation() {
+	  document.getElementById("loadingScreen").style.display = "none";
   }
 
   // parse marker data
@@ -377,6 +383,8 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
             .attr("transform", "translate(" + 0 + "," + 0 + ")")
 
   var overlay = d3.select("#map-background")
+  
+  loadingAnimation();
 }
 
 var GMManhattanChart = React.createClass({
@@ -396,8 +404,14 @@ var GMManhattanChart = React.createClass({
     }
   },
 	render() {
+    const loadGIFsrc = 'images/' + loadGIF
+
 		return (
       <div>
+        <div id="loadingScreen" style={{"position": "fixed", "top": "10%", "height": "100%",
+	      "width": "100%", "textAlign": "center", "zIndex":"999", "backgroundColor": "white"}}>
+	        <img src={loadGIFsrc} />
+        </div>
         <div id="manhattanChart" style={{ "marginTop": "25px" }}>
         </div>
         <div id="manhattanBottomPanel">

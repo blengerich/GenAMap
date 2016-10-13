@@ -19,9 +19,14 @@ var miniZoomed;
 var overlayWidth;
 var overlayHeight;
 var populationFactor;
+const loadGIF = 'processing.gif';
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function loadingAnimation() {
+	document.getElementById("loadingScreen").style.display = "none";
 }
 
 var Graph = function(data, markerLabels, traitLabels) {
@@ -252,6 +257,7 @@ var Graph = function(data, markerLabels, traitLabels) {
 
     cards.exit().remove();
     initGridLines();
+    loadingAnimation();
   }
 
   /*************************
@@ -650,8 +656,14 @@ var GMMatrixChart = React.createClass({
     }
   },
 	render: function() {
+    const loadGIFsrc = 'images/' + loadGIF
+
 		return (
       <div>
+      	<div id="loadingScreen" style={{"position": "fixed", "top": "10%", "height": "100%",
+	      "width": "100%", "textAlign": "center", "zIndex":"999", "backgroundColor": "white"}}>
+	        <img src={loadGIFsrc} />
+        </div>
         <div id="matrixChart" style={{ "marginTop": "25px" }}>
           {this.state.subsetTooltip}
         </div>
