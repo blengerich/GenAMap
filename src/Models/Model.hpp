@@ -4,12 +4,19 @@
 
 #include <Eigen/Dense>
 #include <unordered_map>
+#include <queue>
 
 using namespace Eigen;
 using namespace std;
 
 #ifndef ALGORITHMS_MODEL_HPP
 #define ALGORITHMS_MODEL_HPP
+
+struct modelResult{
+    string rowStr;
+    string colStr;
+    MatrixXd beta;
+};
 
 class Model {
 protected:
@@ -26,6 +33,7 @@ public:
     MatrixXd getX();
     MatrixXd getBeta();
     MatrixXd getY();
+    modelResult getClusteringResult(); // Scheduler needs to run model.getClusteringResult() for the result, instead of getBeta();
 
     MatrixXd predict();
     MatrixXd predict(MatrixXd);

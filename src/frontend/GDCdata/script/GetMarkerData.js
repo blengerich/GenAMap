@@ -8,7 +8,7 @@ var path = require('path')
 var readline = require('readline')
 var async = require('async')
 
-const projectname = 'TCGA-GBM'
+const projectname = 'TCGA-LUAD'
 
 const folderPath = path.join('../data', projectname)
 mkdirp.sync(folderPath)
@@ -53,13 +53,13 @@ htseq_text.split(/\r?\n/).forEach(function (line) {
   htseq_list.push(line)
 })
 
-var FPKM_index = 1
-var FPKMUQ_index = 1
-var htseq_index = 1
+// var FPKM_index = 324
+var FPKMUQ_index = 167
+// var htseq_index = 590
 
-FPKMDownload(FPKM_list[FPKM_index])
+// FPKMDownload(FPKM_list[FPKM_index])
 FPKMUQDownload(FPKMUQ_list[FPKMUQ_index])
-htseqDownload(htseq_list[htseq_index])
+// htseqDownload(htseq_list[htseq_index])
 
 function FPKMDownload(line){
     const FPKMPath = path.join(folderPath, 'FPKM')
