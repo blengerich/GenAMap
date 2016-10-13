@@ -659,21 +659,21 @@ var GMMatrixChart = React.createClass({
           <ul className="buttonContainer">
             <li className="zoomButton">
               <a id="zoom-in" data-zoom="+1">
-                <FloatingActionButton mini={true}>
+                <FloatingActionButton mini={true} className="zoomBackground">
                   <FontIcon className="material-icons">add</FontIcon>
                 </FloatingActionButton>
               </a>
             </li>
             <li className="zoomButton">
               <a id="zoom-out" data-zoom="-1">
-                <FloatingActionButton mini={true}>
+                <FloatingActionButton  mini={true} className="zoomBackground">
                   <FontIcon className="material-icons">remove</FontIcon>
                 </FloatingActionButton>
               </a>
             </li>
             <li className="zoomButton">
               <a id="reset" data-zoom="-8">
-                <FloatingActionButton mini={true}>
+                <FloatingActionButton mini={true} className="zoomBackground">
                   <FontIcon className="material-icons">settings_backup_restore</FontIcon>
                 </FloatingActionButton>
               </a>

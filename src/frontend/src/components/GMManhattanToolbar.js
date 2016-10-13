@@ -10,14 +10,12 @@ import GMToolbar from './GMToolbar'
 
 const styles = {
   action: {
-      flex: '2 1 auto'
     },
   icon: {
     position: 'relative',
     top: '5px'
   },
   thresholdManage: {
-    flex: '0 1 auto'
   }
 }
 

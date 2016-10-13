@@ -14,20 +14,17 @@ import GMManhattanDialog from './GMManhattanDialog'
 
 const styles = {
   slider: {
-    flex: '2 1 auto'
+    width: '500px'
   },
   sliderValue: {
     position: 'relative',
     fontSize: '14px',
     fontFamily: 'Roboto,sans-serif',
     fontWeight: 'bold',
-    flex: '0 1 auto',
+    left: '-280px',
     bottom: '7px',
     marginLeft: '15px',
     marginRight: '20px'
-  },
-  action: {
-    flex: '2 1 auto'
   }
 }
 
@@ -79,9 +76,6 @@ const GMMatrixToolbar = React.createClass({
       }
     })
   },
-  subsetSelector: function(event) {
-    this.props.subset.subsetSelector(event);
-  },
   render: function () {
     console.log(this.props.pageParams)
     console.log(this.props.traitLabels)
@@ -90,6 +84,7 @@ const GMMatrixToolbar = React.createClass({
         <GMToolbar
           open={this.state.open}
           height={60}
+          style={{overflow: 'hidden'}}
           left={this.props.left}
           right={this.props.right}
         >

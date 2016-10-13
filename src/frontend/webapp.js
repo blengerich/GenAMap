@@ -94,7 +94,7 @@ const User = Waterline.Collection.extend({
       required: false
     },
     organization: {
-      type: 'int',
+      type: 'string',
       required: false
     },
     toJSON: function () {
@@ -200,7 +200,7 @@ const TempUser = Waterline.Collection.extend({
       required: false
     },
     organization: {
-      type: 'int',
+      type: 'string',
       required: false
     },
     toJSON: function () {
@@ -232,6 +232,7 @@ app.post(config.api.createAccountUrl, function (req, res) {
   const email = req.body.email
   const password = req.body.password
   const password2 = req.body.password2
+  const organization = req.body.organization
   const initialState = {}
 
   if (!email || !password) {
@@ -247,7 +248,7 @@ app.post(config.api.createAccountUrl, function (req, res) {
     if (foundUser) {
       return res.status(400).send({message: 'Email already in use'})
     }
-      app.models.tempuser.create({ email, password }).exec(function (err, createdTempUser) {
+      app.models.tempuser.create({ email, password, organization }).exec(function (err, createdTempUser) {
         if (err) {
           if (err.code === 'E_VALIDATION')
             return res.status(400).json({message: 'Invalid email address'})
@@ -311,11 +312,12 @@ app.get(`${config.api.confirmAccountUrl}/:code`, function (req, res) {
 
     var email = foundTempUser.email
     var password = foundTempUser.password
+    var organization = foundTempUser.organization
 
     app.models.tempuser.destroy({ id: req.params.code }).exec(function (err) {
       if (err) console.log(err)
 
-      app.models.user.create({ email, password }).exec(function (err, createdUser) {
+      app.models.user.create({ email, password, organization }).exec(function (err, createdUser) {
         if (err) {
           return res.status(500).json({ err, from: 'createdUser' })
         }
