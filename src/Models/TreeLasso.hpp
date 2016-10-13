@@ -7,39 +7,15 @@
 
 #include "Model.hpp"
 
-#include <unordered_map>
-#include <vector>
+#ifdef BAZEL
+#include "Math/Math.hpp"
+#else
+#include "../Math/Math.hpp"
+#endif
 
 using namespace std;
 using namespace Eigen;
 
-struct treeNode{
-    vector<long> trait;
-    vector<treeNode*> children;
-    double s;
-    double weight;
-};
-
-struct minXY{
-    long x;
-    long y;
-};
-
-class Tree{
-private:
-    treeNode* root;
-public:
-    treeNode* getRoot();
-    treeNode* buildParentFromChildren(vector<treeNode*>);
-    treeNode* buildLeafNode(long);
-
-    void setRoot(treeNode*);
-
-    void setWeight();
-
-    Tree();
-    ~Tree();
-};
 
 class TreeLasso :public Model {
 private:

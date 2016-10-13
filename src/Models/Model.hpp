@@ -6,12 +6,6 @@
 #include <unordered_map>
 #include <queue>
 
-#ifdef BAZEL
-#include "Models/TreeLasso.hpp"
-#else
-#include "../Models/TreeLasso.hpp"
-#endif
-
 using namespace Eigen;
 using namespace std;
 

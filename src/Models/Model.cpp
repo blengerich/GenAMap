@@ -9,12 +9,10 @@
 
 #ifdef BAZEL
 #include "Math/Math.hpp"
-#include "../JSON/JsonCoder.hpp"
-#include "Models/TreeLasso.hpp"
+#include "JSON/JsonCoder.hpp"
 #else
 #include "../Math/Math.hpp"
 #include "../JSON/JsonCoder.hpp"
-#include "../Models/TreeLasso.hpp"
 #endif
 
 using namespace Eigen;

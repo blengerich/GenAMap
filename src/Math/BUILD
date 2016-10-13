@@ -13,8 +13,6 @@ cc_test(
     srcs = ["Math_Tests.cpp"],
     copts = ["-Iexternal/gtest/include"],
     deps = ["Math","@gtest//:main",
-            "//Models:TreeLasso",
-            "//Models:Model",
             ],
     size = "small"
 )

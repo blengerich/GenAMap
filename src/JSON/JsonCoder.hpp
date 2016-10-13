@@ -10,15 +10,15 @@
 #include <unordered_map>
 
 #ifdef BAZEL
-#include "json/json.h"
-#include "IO/DataBaseCommunicator.hpp"
-#include "Models/TreeLasso.hpp"
+#include "json.h"
+#include "../IO/DataBaseCommunicator.hpp"
+#include "../Math/Math.hpp"
 #include <queue>
 #include <sstream>
 #else
 #include "json.h"
 #include "../IO/DataBaseCommunicator.hpp"
-#include "../Models/TreeLasso.hpp"
+#include "../Math/Math.hpp"
 #include <queue>
 #include <sstream>
 #endif

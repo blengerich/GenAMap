@@ -6,14 +6,39 @@
 #define ALGORITHMS_MATH_HPP
 
 #include <Eigen/Dense>
-
-#ifdef BAZEL
-#include "Models/TreeLasso.hpp"
-#else
-#include "../Models/TreeLasso.hpp"
-#endif
+#include <vector>
+#include <unordered_map>
 
 using namespace Eigen;
+using namespace std;
+
+struct treeNode{
+    vector<long> trait;
+    vector<treeNode*> children;
+    double s;
+    double weight;
+};
+
+struct minXY{
+    long x;
+    long y;
+};
+
+class Tree{
+private:
+    treeNode* root;
+public:
+    treeNode* getRoot();
+    treeNode* buildParentFromChildren(vector<treeNode*>);
+    treeNode* buildLeafNode(long);
+
+    void setRoot(treeNode*);
+
+    void setWeight();
+
+    Tree();
+    ~Tree();
+};
 
 class Math {
 private:
