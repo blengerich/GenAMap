@@ -50,7 +50,7 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
                     .attr("transform", "translate(" + (-axisPadding + baseLabelStyle.titleSize)
                       + ",0)rotate(-90,0," + mapHeight/2 + ")")
     xText.append("tspan")
-         .text("P Value")
+         .text("Correlation")
 
     // TODO: vertical labels
 
