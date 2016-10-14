@@ -767,9 +767,9 @@ var GMMatrixChart = React.createClass({
         <div id="matrixBottomPanel">
           <div style={{
             position: 'relative',
-            margin: '30px 0 0 300px',
-            maxWidth: '500px',
-            height: '150px',
+            margin: '30px auto 0 auto',
+            maxWidth: 'calc(100vw - 500px)',
+            height: '130px',
             overflow: 'scroll',
             border: '1px solid black'
           }}>
