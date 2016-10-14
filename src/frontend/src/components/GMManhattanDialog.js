@@ -80,6 +80,7 @@ class GMManhattanDialog extends Component {
         label='Cancel'
         secondary={true}
         onClick={this.handleClose.bind(this)}
+        linkButton={true}
       />,
       <FlatButton
         label='View'

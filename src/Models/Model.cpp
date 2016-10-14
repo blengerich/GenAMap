@@ -7,6 +7,14 @@
 #include <stdexcept>
 #include <unordered_map>
 
+#ifdef BAZEL
+#include "Math/Math.hpp"
+#include "JSON/JsonCoder.hpp"
+#else
+#include "../Math/Math.hpp"
+#include "../JSON/JsonCoder.hpp"
+#endif
+
 using namespace Eigen;
 using namespace std;
 
@@ -62,4 +70,47 @@ MatrixXd Model::proximal_derivative() {
 
 MatrixXd Model::proximal_operator(MatrixXd xd, float d) {
     return VectorXd::Random(1);
+}
+
+modelResult Model::getClusteringResult() {
+    MatrixXd B = this->getBeta();
+    Tree * t1 = Math::getInstance().hierarchicalClustering(B);
+    Tree * t2 = Math::getInstance().hierarchicalClustering(B.transpose());
+    MatrixXd tmp = MatrixXd::Zero(B.rows(), B.cols());
+    queue<treeNode*> nodes;
+    long count = -1;
+    nodes.push(t1->getRoot());
+    while (nodes.size()>0){
+        treeNode * n = nodes.front();
+        if (n->children.size()==0){
+            tmp.col(++count) = B.col(n->trait[0]);
+        }
+        else{
+            for (unsigned int i=0; i<n->children.size();i++){
+                nodes.push(n->children[i]);
+            }
+        }
+        nodes.pop();
+    }
+    count = -1;
+    B = tmp;
+    nodes.push(t2->getRoot());
+    while (nodes.size()>0){
+        treeNode * n = nodes.front();
+        if (n->children.size()==0){
+            tmp.row(++count) = B.row(n->trait[0]);
+        }
+        else{
+            for (unsigned int i=0; i<n->children.size();i++){
+                nodes.push(n->children[i]);
+            }
+        }
+        nodes.pop();
+    }
+    B = tmp;
+    modelResult cr;
+    cr.colStr = JsonCoder::getInstance().encodeTraitTree(t1);
+    cr.rowStr = JsonCoder::getInstance().encodeTraitTree(t2);
+    cr.beta = B;
+    return cr;
 }

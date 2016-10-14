@@ -8,7 +8,7 @@ var path = require('path')
 var readline = require('readline')
 var async = require('async')
 
-const projectname = 'TCGA-TGCT'
+const projectname = 'TCGA-LUAD'
 
 const folderPath = path.join('../data', projectname)
 
@@ -107,7 +107,7 @@ function getphenotype(case_id, filename, index){
     request(url, function(error, response, body){
         var pheno = ''
         if (!error && response.statusCode == 200) {
-          var regcase = /\"tumor_stage\": \"(.+?)\"/ig
+          var regcase = /\"site_of_resection_or_biopsy\": \"(.+?)\"/ig
           var reggender = /\"gender\": \"(.+?)\"/ig
           var reggender = /\"race\": \"(.+?)\"/ig
           while(foundpheno = regcase.exec(body)){
@@ -116,13 +116,7 @@ function getphenotype(case_id, filename, index){
           }
         }
         var traitValStream = fs.createWriteStream(filename, {'flags':'a'})
-        switch(pheno.split(' ')[0]){
-          case 'stage':
-            pheno = 1
-            break
-          default:
-            pheno = 0
-        }
+        pheno = pheno.split('c')[1]
         // console.log(pheno)
         traitValStream.write(index + ' ' + pheno + '\n')
         traitValStream.end()

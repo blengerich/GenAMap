@@ -144,7 +144,7 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
          .attr("text-anchor", "end")
          .attr("x", -5)
          .attr("y", 8)
-         .text(trimmedLabel(markerLabels[i], 5));
+         .text(trimmedLabel(markerLabels[i].split(',')[0], 5));
     }
 
     // axes.append("text")
@@ -196,7 +196,7 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
 
   function hoverOnCell(d, trait, marker, correlation, mousePos) {
     var labelText = "<h2>Trait: " + traitLabels[trait] + "</h2> <h2>Marker: " +
-                    markerLabels[marker] + "</h2> <p> Effect Size: " + correlation + "</p>";
+                    markerLabels[marker].split(',')[0] + "</h2> <p> Effect Size: " + correlation + "</p>";
     var tooltip = d3.select("#matrixChart")
                     .append("div")
                     .attr("class", "tooltip")

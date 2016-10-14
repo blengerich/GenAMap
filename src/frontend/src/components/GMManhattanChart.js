@@ -50,12 +50,7 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
                     .attr("transform", "translate(" + (-axisPadding + baseLabelStyle.titleSize)
                       + ",0)rotate(-90,0," + mapHeight/2 + ")")
     xText.append("tspan")
-         .text("-log")
-    xText.append("tspan")
-         .attr("baseline-shift", "sub")
-         .text("10")
-    xText.append("tspan")
-         .text("(P)")
+         .text("Correlation")
 
     // TODO: vertical labels
 
@@ -89,13 +84,25 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
                   + "<p><b>Chromosome: </b>" + d.chromosome + "</p>"
                   + "<p><b>Position: </b>" + d.chromosomePosition + "</p>"
                   + "<p><b>p-value: </b>" + d.pVal + "</p>"
-    var tooltip = d3.select("#manhattanChart")
-                    .append("div")
-                    .attr("class", "tooltip")
-                    .html(labelText)
-                    .style("position", "absolute")
-                    .style("left", mousePos.pageX + "px")
-                    .style("top", mousePos.pageY + "px")
+
+    if ( windowWidth - mousePos.pageX < 240){
+      var tooltip = d3.select("#manhattanChart")
+                      .append("div")
+                      .attr("class", "tooltip")
+                      .html(labelText)
+                      .style("position", "absolute")
+                      .style("left", (mousePos.pageX - 233) + "px")
+                      .style("top", mousePos.pageY + "px")
+    }
+    else{
+      var tooltip = d3.select("#manhattanChart")
+                      .append("div")
+                      .attr("class", "tooltip")
+                      .html(labelText)
+                      .style("position", "absolute")
+                      .style("left", mousePos.pageX + "px")
+                      .style("top", mousePos.pageY + "px")
+    }
   }
 
   function hoverOutCell() {
@@ -104,10 +111,7 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
 
   // parse marker data
   function parseData() {
-    /*
-     * TODO: connect to runAnalysis
-     * temp data is not tracked
-     */
+
       var parsedData = []
 
       // used for scaling axes
@@ -153,15 +157,17 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
         if (row.length > 0) {
           var pts = row.split(",")
           const log10 = (x) => Math.log(x)/Math.log(10)
-          // maxPValLog = Math.max(maxPValLog, -log10(+pts[0]))
+          // maxPValLog = Math.max(maxPValLog, -log10(+pts[traitLabelsNum]))
           maxPValLog = Math.max(maxPValLog, +pts[traitLabelsNum])
           // console.log(pts[0])
-          // markerData[rowIndex].pVal = -log10(+pts[0])
+          // markerData[rowIndex].pVal = -log10(+pts[traitLabelsNum])
           markerData[rowIndex].pVal = Math.abs(+pts[traitLabelsNum])
         }
       })
 
       // console.log(markerData)
+
+        var cellRadius = 0.5*windowWidth/markerData.length;
 
         colorScale = d3.scale.linear()
                               .domain([0, maxChromosome])
@@ -202,8 +208,7 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
   **** zoom functions *****
   *************************/
 
-  axisOnZoom = function(translateAmount, zoomAmount) {
-  }
+  axisOnZoom = function(translateAmount, zoomAmount) {}
 
   zoomFunction = function() {
     svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
@@ -288,8 +293,6 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
 
   const totalWidth =  windowWidth * 0.95;
   const totalHeight = windowHeight * 0.65;
-
-  var cellRadius = 3;
 
   var leftMargin = 0.1 * windowWidth;
 	var rightMargin = 0.1 * windowWidth;

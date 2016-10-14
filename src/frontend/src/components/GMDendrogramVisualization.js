@@ -1,11 +1,11 @@
 import React from 'react'
-import GMManhattanChart from './GMManhattanChart'
-import GMManhattanToolbar from './GMManhattanToolbar'
+import GMDendrogramChart from './GMDendrogramChart'
+import GMDendrogramToolbar from './GMDendrogramToolbar'
 
 import fetch from './fetch'
 import config from '../../config'
 
-const GMManhattanVisualization = React.createClass({
+const GMDendrogramVisualization = React.createClass({
   componentDidMount() {
     this.loadData(this.props.params),
     this.setState({ pageParams: [] })
@@ -32,6 +32,18 @@ const GMManhattanVisualization = React.createClass({
       return response.json()
     }).then(json => {
       vizData.data = JSON.parse(json.data)
+      return fetch(`${config.api.dataUrl}/${params.tree1}`, dataRequest)
+    }).then(response => {
+        if (!response.ok) Promise.reject(response.json())
+        return response.json()
+    }).then(json => {
+      vizData.tree1 = JSON.parse(json.data)
+      return fetch(`${config.api.dataUrl}/${params.tree1}`, dataRequest)
+    }).then(response => {
+        if (!response.ok) Promise.reject(response.json())
+        return response.json()
+    }).then(json => {
+      vizData.tree2 = JSON.parse(json.data)
       return fetch(`${config.api.dataUrl}/${params.markers}`, dataRequest)
     }).then(response => {
       if (!response.ok) Promise.reject(response.json())
@@ -52,6 +64,8 @@ const GMManhattanVisualization = React.createClass({
         data: vizData.data,
         markerLabels: vizData.markerLabels,
         traitLabels: vizData.traitLabels,
+        tree1: vizData.tree1,
+        tree2: vizData.tree2,
         pageParams: params
       })
       return json
@@ -60,15 +74,17 @@ const GMManhattanVisualization = React.createClass({
   render() {
     return (
       <div>
-        <div className="Manhattan">
-          <GMManhattanChart
+        <div className="dendrogram">
+          <GMDendrogramChart
             data={this.state.data}
             markerLabels={this.state.markerLabels}
-            traitLabelsNum={this.state.pageParams.traitNum}
+            traitLabels={this.state.traitLabels}
+            tree1={this.state.tree1}
+            tree2={this.state.tree2}
             pageParams={this.state.pageParams}
           />
         </div>
-        <GMManhattanToolbar
+        <GMDendrogramToolbar
           left={this.props.minPad}
           right={this.props.minPad}
           pageParams={this.state.pageParams}
@@ -78,4 +94,4 @@ const GMManhattanVisualization = React.createClass({
   }
 })
 
-export default GMManhattanVisualization
+export default GMDendrogramVisualization
