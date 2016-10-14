@@ -8,15 +8,22 @@ const styles = {
     margin: '10px 0',
     width: '70%'
   },
+  error: {
+    color: '#e74c3c'
+  },
+  largeFace: {
+    color: '#ecf0f1',
+    fontSize: '10em',
+    margin: '50px 0px'
+  },
   appBar: {
     backgroundColor: config.ui.baseColor,
     marginBottom: '5%'
   },
-  background: {
-    backgroundColor: 'rgba(0, 0, 0, 0.25)',
-    position: 'absolute',
-    width: '100%',
-    height: '100%'
+  textStyle: {
+    fontFamily: 'Roboto',
+    marginTop: '100px',
+    textAlign: 'center'
   },
   body: {
     backgroundColor: '#FFFFFF',
@@ -42,7 +49,6 @@ const styles = {
   }
 }
 
-
 const GMErrorPage = React.createClass({
   componentDidMount() {
     this.loadData(this.props.params),
@@ -63,13 +69,16 @@ const GMErrorPage = React.createClass({
   },
   render() {
     return (
-      <div style={styles.background}>
-      OOOPS!
-        <br/>
-          {this.props.params.name}
+      <div style={styles.textStyle}>
+        <h1>Error!</h1>
+        <span style={styles.largeFace}>:(</span>
+        <p>Sorry, but we ran into an error while trying to change your password!</p>
+        <p>Error: <i style={styles.error}>{this.props.params.name}</i></p>
       </div>
+
     )
   }
 })
+
 
 export default GMErrorPage
