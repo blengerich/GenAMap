@@ -10,7 +10,7 @@
 class FisherTest : public StatsBasic {
 public:
     void run();
-    FisherTest(){};
+    FisherTest(){shouldCorrect=true;};
     FisherTest(const unordered_map<string, string> &);
 };
 

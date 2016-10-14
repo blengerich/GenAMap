@@ -8,8 +8,8 @@ var path = require('path')
 var readline = require('readline')
 var async = require('async')
 
-const projectname = 'TCGA-GBM'
-const maximum = 611
+const projectname = 'TCGA-OV'
+const maximum = 609
 const freelist = []
 
 
@@ -42,6 +42,10 @@ var FPKM_index = 1
 var FPKMUQ_index = 1
 var htseq_index = 1
 
+while (freelist.indexOf(FPKM_index) != -1){ FPKM_index = FPKM_index + 1}
+while (freelist.indexOf(FPKMUQ_index) != -1){ FPKMUQ_index = FPKMUQ_index + 1}
+while (freelist.indexOf(htseq_index) != -1){ htseq_index = htseq_index + 1}
+
 FPKMDataCompose(FPKM_index)
 FPKMUQDataCompose(FPKMUQ_index)
 htseqDataCompose(htseq_index)
@@ -50,7 +54,6 @@ traitValueCompose()
 traitLabelCompose()
 
 function FPKMDataCompose(caseid){
-  while (freelist.indexOf(caseid) != -1){ caseid = caseid+1}
   var filename = path.join(FPKMPath, 'FPKM_'+caseid+'.csv')
   var lineReader = readline.createInterface({input: fs.createReadStream(filename)})
   var snp = []
@@ -64,6 +67,7 @@ function FPKMDataCompose(caseid){
     markerValueStream.end()
     markerValueStream.on('finish', function(){
       caseid = caseid + 1
+      while (freelist.indexOf(caseid) != -1){ caseid = caseid+1}
       if(caseid <= maximum){FPKMDataCompose(caseid)}
       else{console.log('FPKM DONE')}
     })
@@ -71,7 +75,6 @@ function FPKMDataCompose(caseid){
 }
 
 function FPKMUQDataCompose(caseid){
-  while (freelist.indexOf(caseid) != -1){ caseid = caseid+1}
   var filename = path.join(FPKMUQPath, 'FPKMUQ_'+caseid+'.csv')
   var lineReader = readline.createInterface({input: fs.createReadStream(filename)})
   var snp = []
@@ -85,6 +88,7 @@ function FPKMUQDataCompose(caseid){
     markerValueStream.end()
     markerValueStream.on('finish', function(){
       caseid = caseid + 1
+      while (freelist.indexOf(caseid) != -1){ caseid = caseid+1}
       if(caseid <= maximum){FPKMUQDataCompose(caseid)}
       else{console.log('FPKM_UQ DONE')}
     })
@@ -92,7 +96,6 @@ function FPKMUQDataCompose(caseid){
 }
 
 function htseqDataCompose(caseid){
-  while (freelist.indexOf(caseid) != -1){ caseid = caseid + 1}
   var filename = path.join(htseqPath, 'htseq_'+caseid+'.csv')
   var lineReader = readline.createInterface({input: fs.createReadStream(filename)})
   var snp = []
@@ -106,6 +109,7 @@ function htseqDataCompose(caseid){
     markerValueStream.end()
     markerValueStream.on('finish', function(){
       caseid = caseid + 1
+      while (freelist.indexOf(caseid) != -1){ caseid = caseid + 1}
       if(caseid <= maximum){htseqDataCompose(caseid)}
       else{console.log('htseq DONE')}
     })
