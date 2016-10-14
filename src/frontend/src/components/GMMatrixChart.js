@@ -502,7 +502,7 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
 }
 
 const SquareButton = (props) => (
-    <div style={{
+    <div className="square-button" style={{
       background: '#ff4081',
       color: '#fff',
       padding: 5,
@@ -510,9 +510,6 @@ const SquareButton = (props) => (
       boxShadow: '0px 3px 10px rgba(0,0,0,0.16)',
       cursor: 'pointer',
       margin: 2,
-      ':hover': {
-        background: '#ff8db3'
-      }
     }}>
       {props.children}
     </div>
