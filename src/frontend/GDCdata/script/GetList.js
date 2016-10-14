@@ -8,7 +8,7 @@ var path = require('path')
 var readline = require('readline')
 var async = require('async')
 
-const projectname = 'TCGA-GBM'
+const projectname = 'TCGA-LUAD'
 
 const folderPath = path.join('../data', projectname)
 
