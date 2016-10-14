@@ -21,7 +21,7 @@ const styles = {
     fontSize: '14px',
     fontFamily: 'Roboto,sans-serif',
     fontWeight: 'bold',
-    left: '-280px',
+    left: '-40px',
     bottom: '7px',
     marginLeft: '15px',
     marginRight: '20px'
