@@ -408,9 +408,10 @@ var GMManhattanChart = React.createClass({
 
 		return (
       <div>
-        <div id="loadingScreen" style={{"position": "fixed", "top": "10%", "height": "100%",
+        <div id="loadingScreen" style={{"position": "fixed", "top": "0%", "left": "0%", "height": "100%",
 	      "width": "100%", "textAlign": "center", "zIndex":"999", "backgroundColor": "white"}}>
-	        <img src={loadGIFsrc} />
+	        <img src={loadGIFsrc} style={{"marginTop": "20%", "width": "100px", "height": "100px"}} />
+          <p style={{"marginTop":"25px", "fontFamily":"Roboto, sans-serif"}}>Loading Visualization</p>
         </div>
         <div id="manhattanChart" style={{ "marginTop": "25px" }}>
         </div>
