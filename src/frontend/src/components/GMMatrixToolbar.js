@@ -64,7 +64,7 @@ const GMMatrixToolbar = React.createClass({
     return {
         open: true,
         slider: {
-          threshold: 0.0
+          threshold: 0
         }
     };
   },
@@ -83,8 +83,6 @@ const GMMatrixToolbar = React.createClass({
     this.props.subset.subsetSelector(event);
   },
   render: function () {
-    console.log(this.props.pageParams)
-    console.log(this.props.traitLabels)
     return (
       <div>
         <GMToolbar
