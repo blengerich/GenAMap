@@ -27,3 +27,8 @@ sampleData/*
 **/bundle.js
 **/*.start
 **/Scheduler/**/build/*
+
+# TeX Documentation
+**/*.out
+**/*.toc
+**/*.synctex.gz
