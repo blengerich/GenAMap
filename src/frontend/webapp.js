@@ -268,10 +268,13 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
       var mailOptions = {
           from: '"GenAMap" <genamap.v2.0@gmail.com>', // sender address
           to: req.body.email,
-          subject: 'GenAMap Sign-up Comfiration', // Subject line
-          text: 'Registration Comfiration',
+          subject: 'GenAMap Sign-up Confirmation', // Subject line
+          text: 'Registration Confirmation',
           html: html_1
-          + req.body.code + '<br/> <br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code + '<br/>'
+          + "'http://192.168.99.100:49160/#/confirm/" 
+          + req.body.code + "'>Confirm E-mail</a>" 
+          + '<br/> Or copy this verification code into the confirmation field: <b><br/>'
+          + req.body.code + '</b>'
           + html_2
       };
 
@@ -344,7 +347,7 @@ app.post(config.api.ForgetPasswordUrl, function (req, res) {
       return res.json({email})
     }
     else{
-      return res.status(400).send({message: 'Email not sign in'})
+      return res.status(400).send({message: 'This account does not exist'})
     }
   })
   })
@@ -354,6 +357,10 @@ app.post(config.api.ForgetPasswordEmailUrl, function (req, res) {
   app.models.user.findOne({ email }).exec(function (err, foundUser) {
     if (err) console.log(err)
     if (foundUser) {
+      fs.readFile('./static/email/Password_1.html', function (err, html_1) {
+      if (err) {throw err}
+      fs.readFile('./static/email/Password_2.html', function (err, html_2) {
+        if (err) {throw err}
       var password = foundUser.password
       var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
       var mailOptions = {
@@ -361,10 +368,7 @@ app.post(config.api.ForgetPasswordEmailUrl, function (req, res) {
           to: req.body.email,
           subject: 'GenAMap Forget Password Email', // Subject line
           text: 'Forget Password Email',
-          html: 'Hi: <br/>'+
-          'Welcome to register the GenAMap account. Now you can enjoy the advanced bioinformatic software totally free!<br/>'
-          + 'Your Password: ' + password + '<br/'
-          + 'Yours sincerely<br/>' + 'GenAMap Team'
+          html: html_1 + password + html_2
       };
 
       // send mail with defined transport object
@@ -376,11 +380,17 @@ app.post(config.api.ForgetPasswordEmailUrl, function (req, res) {
           console.log('Message sent: ' + info.response);
           return res.json(info.response)
       });
-    }
+      })
+      })  
+  }
     else{
       app.models.tempuser.findOne({ email }).exec(function (err, foundTempUser) {
         if (err) console.log(err)
         if (foundTempUser) {
+          fs.readFile('./static/email/Password_1.html', function (err, html_1) {
+          if (err) {throw err}
+          fs.readFile('./static/email/Password_2.html', function (err, html_2) {
+            if (err) {throw err}
           var password = foundTempUser.password
           var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
           var mailOptions = {
@@ -388,10 +398,7 @@ app.post(config.api.ForgetPasswordEmailUrl, function (req, res) {
               to: req.body.email,
               subject: 'GenAMap Forget Password Email', // Subject line
               text: 'Forget Password Email',
-              html: 'Hi: <br/>'+
-              'Welcome to register the GenAMap account. Now you can enjoy the advanced bioinformatic software totally free!<br/>'
-              + 'Your Password: ' + password + '<br/'
-              + 'Yours sincerely<br/>' + 'GenAMap Team'
+              html: html_1 + password + html_2
           };
 
           // send mail with defined transport object
@@ -403,17 +410,15 @@ app.post(config.api.ForgetPasswordEmailUrl, function (req, res) {
               console.log('Message sent: ' + info.response);
               return res.json(info.response)
           });
+          })
+          })
         }
         else{
-          return res.status(400).send({message: 'Email not sign in'})
+          return res.status(400).send({message: 'This account does not exist'})
         }
     })
     }
   })
-
-
-
-
 })
 
 
