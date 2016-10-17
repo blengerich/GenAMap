@@ -18,6 +18,8 @@ var colorScale;
 var xScale;
 var yScale;
 
+const loadGIF = 'processing.gif';
+
 var Graph = function(data, markerLabels, traitLabelsNum) {
   d3.select('#manhattanChart').selectAll('svg').remove()
   /************************************
@@ -107,6 +109,10 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
 
   function hoverOutCell() {
     d3.select(".tooltip").remove();
+  }
+
+  function loadingAnimation() {
+	  document.getElementById("loadingScreen").style.display = "none";
   }
 
   // parse marker data
@@ -377,6 +383,8 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
             .attr("transform", "translate(" + 0 + "," + 0 + ")")
 
   var overlay = d3.select("#map-background")
+  
+  loadingAnimation();
 }
 
 var GMManhattanChart = React.createClass({
@@ -396,29 +404,36 @@ var GMManhattanChart = React.createClass({
     }
   },
 	render() {
+    const loadGIFsrc = 'images/' + loadGIF
+
 		return (
       <div>
+        <div id="loadingScreen" style={{"position": "fixed", "top": "0%", "left": "0%", "height": "100%",
+	      "width": "100%", "textAlign": "center", "zIndex":"999", "backgroundColor": "white"}}>
+	        <img src={loadGIFsrc} style={{"marginTop": "20%", "width": "100px", "height": "100px"}} />
+          <p style={{"marginTop":"25px", "fontFamily":"Roboto, sans-serif"}}>Loading Visualization</p>
+        </div>
         <div id="manhattanChart" style={{ "marginTop": "25px" }}>
         </div>
         <div id="manhattanBottomPanel">
           <ul className="buttonContainer">
             <li className="zoomButton">
               <a id="zoom-in" data-zoom="+1">
-                <FloatingActionButton mini={true}>
+                <FloatingActionButton mini={true} className="zoomBackground">
                   <FontIcon className="material-icons">add</FontIcon>
                 </FloatingActionButton>
               </a>
             </li>
             <li className="zoomButton">
               <a id="zoom-out" data-zoom="-1">
-                <FloatingActionButton mini={true}>
+                <FloatingActionButton mini={true} className="zoomBackground">
                   <FontIcon className="material-icons">remove</FontIcon>
                 </FloatingActionButton>
               </a>
             </li>
             <li className="zoomButton">
               <a id="reset" data-zoom="-8">
-                <FloatingActionButton mini={true}>
+                <FloatingActionButton mini={true} className="zoomBackground">
                   <FontIcon className="material-icons">settings_backup_restore</FontIcon>
                 </FloatingActionButton>
               </a>

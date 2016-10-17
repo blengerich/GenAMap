@@ -58,6 +58,9 @@ var GMTopMenu = React.createClass({
   handleSettingsButton: function (event) {
     this.setState({settingOpen: true})
   },
+  handleAboutButton: function(event) {
+    window.open('http://www.sailing.cs.cmu.edu/main/genamap/v2/', '_blank')
+  },
   handleLogoutButton: function (event) {
     this.props.handleLogoutButton()
   },
@@ -92,10 +95,8 @@ var GMTopMenu = React.createClass({
           <FlatButton style={styles.appBarLink} label='Run Analysis' onClick={this.handleRunAnalysisButton} />
           <FlatButton style={styles.appBarLink} label='Activity' onClick={this.handleActivityButton} />
           <FlatButton style={styles.appBarLink} label='Account' onClick={this.handleSettingsButton} />
+          <FlatButton style={styles.appBarLink} label='About' onClick={this.handleAboutButton} />
           <FlatButton style={styles.appBarLink} label='Logout' onClick={this.handleLogoutButton} />
-          <IconButton style={styles.appBarIcon} touch={true} onClick={this.props.handleRightIconTouch}>
-            <FontIcon color={styles.appBarLink.color} className='material-icons'>menu</FontIcon>
-          </IconButton>
         </AppBar>
         <GMRunAnalysisDialogContainer
           open={this.state.dialogOpen}
