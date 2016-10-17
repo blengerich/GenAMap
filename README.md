@@ -1,6 +1,6 @@
 ![GenAMap Logo](http://daniellehu.com/photos/flat/genamap.png)
 
-[![Build Status](http://ec2-52-201-224-46.compute-1.amazonaws.com:8080/buildStatus/icon?job=GenAMap_Master)](http://ec2-52-201-224-46.compute-1.amazonaws.com:8080/job/GenAMap_Master/)
+[![Build Status](http://ec2-52-201-224-46.compute-1.amazonaws.com:8080/buildStatus/icon?job=GenAMap_Master)](http://ec2-52-201-224-46.compute-1.amazonaws.com:8080/job/GenAMap_Master/)[![Website](https://img.shields.io/website-up-down-green-red/http/genamap.github.io.svg)](http://sailing.cs.cmu.edu/main/genamap)
 
 ## Website:
 [GenAMap](http://www.sailing.cs.cmu.edu/main/genamap/) is an open-source platform for visual machine learning of genomics.
