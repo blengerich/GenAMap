@@ -14,20 +14,26 @@ import GMManhattanDialog from './GMManhattanDialog'
 
 const styles = {
   slider: {
-    flex: '2 1 auto'
+    width: '500px'
   },
   sliderValue: {
     position: 'relative',
     fontSize: '14px',
     fontFamily: 'Roboto,sans-serif',
     fontWeight: 'bold',
-    flex: '0 1 auto',
+    left: '-40px',
     bottom: '7px',
     marginLeft: '15px',
     marginRight: '20px'
   },
-  action: {
-    flex: '2 1 auto'
+  disclaimer: {
+    fontFamily: 'Roboto',
+    color: '#BDBDBD',
+    fontSize: '0.9em'
+  },
+  webLinks: {
+    color: '#9E9E9E',
+    textDecoration: 'underline'
   }
 }
 
@@ -64,7 +70,7 @@ const GMMatrixToolbar = React.createClass({
     return {
         open: true,
         slider: {
-          threshold: 0.0
+          threshold: 0
         }
     };
   },
@@ -79,17 +85,13 @@ const GMMatrixToolbar = React.createClass({
       }
     })
   },
-  subsetSelector: function(event) {
-    this.props.subset.subsetSelector(event);
-  },
   render: function () {
-    console.log(this.props.pageParams)
-    console.log(this.props.traitLabels)
     return (
       <div>
         <GMToolbar
           open={this.state.open}
           height={60}
+          style={{overflow: 'hidden'}}
           left={this.props.left}
           right={this.props.right}
         >
@@ -104,12 +106,10 @@ const GMMatrixToolbar = React.createClass({
             pageParams={this.props.pageParams}
             traitLabels={this.props.traitLabels}
           />
-          <FlatButton
-            label='Create Subset'
-            icon={<FontIcon className='material-icons'>add</FontIcon>}
-            style={styles.action}
-            onClick={this.props.subsetSelector}
-          />
+          <p style={styles.disclaimer}>GenAMap is a project of&nbsp;
+            <a style={styles.webLinks} href="http://www.sailing.cs.cmu.edu/main/">Sailing Lab</a> at&nbsp;
+            <a style={styles.webLinks} href="http://www.cmu.edu/">Carnegie Mellon University.</a>
+          </p>
         </GMToolbar>
       </div>
     )
