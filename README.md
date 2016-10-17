@@ -1,4 +1,5 @@
-# GenAMap
+![GenAMap Logo]("http://daniellehu.com/photos/flat/genamap.png "GenAMap")
+
 [![Build Status](http://ec2-52-201-224-46.compute-1.amazonaws.com:8080/buildStatus/icon?job=GenAMap_Master)](http://ec2-52-201-224-46.compute-1.amazonaws.com:8080/job/GenAMap_Master/)
 
 ## Website:
