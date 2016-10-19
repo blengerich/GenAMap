@@ -264,9 +264,13 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
     if (err) {throw err}
     fs.readFile('./static/email/Registration_2.html', function (err, html_2) {
       if (err) {throw err}
-      var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
+      //fs.readFile('./static/email/Authentication.txt', 'utf8', function (err, auth_details) {
+      var auth_details = require('./static/email/Authentication.json');
+      //if (err) {throw err}
+      var transporter = nodemailer.createTransport(auth_details.user + ':' + auth_details.pass);
+      //var transporter = nodemailer.createTransport('smtps://email@gmail.com:pass@smtp.gmail.com');
       var mailOptions = {
-          from: '"GenAMap" <genamap.v2.0@gmail.com>', // sender address
+          from: '"GenAMap" <genamap.team@gmail.com>', // sender address
           to: req.body.email,
           subject: 'GenAMap Sign-up Confirmation', // Subject line
           text: 'Registration Confirmation',
@@ -287,6 +291,12 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
           console.log('Message sent: ' + info.response);
           return res.json(info.response)
       });
+      //});
+    })
+  })
+})
+
+  /*
   var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
 
   var mailOptions = {
@@ -298,11 +308,7 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
       'Thanks for registering for GenAMap. Now you can enjoy visual machine learning software totally free!<br/>'
       + 'Verification code: ' + req.body.code + '<br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code + '<br/'
       + 'Yours sincerely<br/>' + 'GenAMap Team'
-  };
-
-    })
-  })
-})
+  };*/
 
 app.get(`${config.api.confirmAccountUrl}/:code`, function (req, res) {
   const initialState = {}
