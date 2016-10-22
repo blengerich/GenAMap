@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 #include <unordered_map>
 #include <string>
+#include <math.h>
 #ifdef BAZEL
 #include "Models/Model.hpp"
 #else
@@ -40,6 +41,8 @@ public:
     virtual void setAttributeMatrix(const string&, MatrixXd*);
 
     void BonferroniCorrection();
+
+    MatrixXd getBeta();
 
     virtual void assertReadyToRun();
     virtual void run() {};

@@ -14,7 +14,7 @@ void WaldTest::run() {
     X.conservativeResize(X.rows(),X.cols()+1);
     X.col(X.cols()-1) = X0;
 
-    MatrixXd beta0 = (X.transpose()*X).inverse()*X.transpose()*y;
+    MatrixXd beta0 = ((X.transpose()*X).inverse()*X.transpose()*y).array().abs().matrix();
     long r = beta.rows();
     long c = beta.cols();
     for (long i=0;i<beta.rows() && !shouldStop;i++){
@@ -32,7 +32,7 @@ WaldTest::WaldTest(const unordered_map<string, string> & options) {
     string tmp;
     try {
         tmp = options.at("correctNum");
-        if (tmp.compare("Bonferroni correction") == 0){
+        if (tmp == "Bonferroni correction"){
             shouldCorrect = true;
         }
         else{

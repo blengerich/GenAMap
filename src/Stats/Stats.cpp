@@ -141,3 +141,18 @@ void StatsBasic::finishRun() {
     isRunning = false;
     progress = 1.0;
 }
+
+MatrixXd StatsBasic::getBeta() {
+    MatrixXd tmp = MatrixXd::Zero(beta.rows(), beta.cols());
+    for (long i = 0; i<beta.rows(); i++){
+        for (long j=0; j<beta.cols(); j++){
+            if (beta(i,j)>0){
+                tmp(i,j) = -log10(beta(i,j));
+            }
+            else{
+                tmp(i,j) = 0;
+            }
+        }
+    }
+    return tmp;
+}

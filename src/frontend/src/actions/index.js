@@ -510,7 +510,7 @@ export function createAccount (creds) {
   let createAccountRequest = {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `email=${creds.email}&password=${creds.password}&password2=${creds.password2}`
+    body: `email=${creds.email}&password=${creds.password}&password2=${creds.password2}&organization=${creds.organization}`
   }
   return dispatch => {
     return fetch(config.api.createAccountUrl, createAccountRequest)

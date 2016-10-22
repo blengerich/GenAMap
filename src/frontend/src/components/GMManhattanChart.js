@@ -18,6 +18,8 @@ var colorScale;
 var xScale;
 var yScale;
 
+const loadGIF = 'processing.gif';
+
 var Graph = function(data, markerLabels, traitLabelsNum) {
   d3.select('#manhattanChart').selectAll('svg').remove()
   /************************************
@@ -50,12 +52,7 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
                     .attr("transform", "translate(" + (-axisPadding + baseLabelStyle.titleSize)
                       + ",0)rotate(-90,0," + mapHeight/2 + ")")
     xText.append("tspan")
-         .text("-log")
-    xText.append("tspan")
-         .attr("baseline-shift", "sub")
-         .text("10")
-    xText.append("tspan")
-         .text("(P)")
+         .text("Correlation")
 
     // TODO: vertical labels
 
@@ -89,25 +86,38 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
                   + "<p><b>Chromosome: </b>" + d.chromosome + "</p>"
                   + "<p><b>Position: </b>" + d.chromosomePosition + "</p>"
                   + "<p><b>p-value: </b>" + d.pVal + "</p>"
-    var tooltip = d3.select("#manhattanChart")
-                    .append("div")
-                    .attr("class", "tooltip")
-                    .html(labelText)
-                    .style("position", "absolute")
-                    .style("left", mousePos.pageX + "px")
-                    .style("top", mousePos.pageY + "px")
+
+    if ( windowWidth - mousePos.pageX < 240){
+      var tooltip = d3.select("#manhattanChart")
+                      .append("div")
+                      .attr("class", "tooltip")
+                      .html(labelText)
+                      .style("position", "absolute")
+                      .style("left", (mousePos.pageX - 233) + "px")
+                      .style("top", mousePos.pageY + "px")
+    }
+    else{
+      var tooltip = d3.select("#manhattanChart")
+                      .append("div")
+                      .attr("class", "tooltip")
+                      .html(labelText)
+                      .style("position", "absolute")
+                      .style("left", mousePos.pageX + "px")
+                      .style("top", mousePos.pageY + "px")
+    }
   }
 
   function hoverOutCell() {
     d3.select(".tooltip").remove();
   }
 
+  function loadingAnimation() {
+	  document.getElementById("loadingScreen").style.display = "none";
+  }
+
   // parse marker data
   function parseData() {
-    /*
-     * TODO: connect to runAnalysis
-     * temp data is not tracked
-     */
+
       var parsedData = []
 
       // used for scaling axes
@@ -153,15 +163,17 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
         if (row.length > 0) {
           var pts = row.split(",")
           const log10 = (x) => Math.log(x)/Math.log(10)
-          // maxPValLog = Math.max(maxPValLog, -log10(+pts[0]))
+          // maxPValLog = Math.max(maxPValLog, -log10(+pts[traitLabelsNum]))
           maxPValLog = Math.max(maxPValLog, +pts[traitLabelsNum])
           // console.log(pts[0])
-          // markerData[rowIndex].pVal = -log10(+pts[0])
+          // markerData[rowIndex].pVal = -log10(+pts[traitLabelsNum])
           markerData[rowIndex].pVal = Math.abs(+pts[traitLabelsNum])
         }
       })
 
       // console.log(markerData)
+
+        var cellRadius = 0.5*windowWidth/markerData.length;
 
         colorScale = d3.scale.linear()
                               .domain([0, maxChromosome])
@@ -202,8 +214,7 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
   **** zoom functions *****
   *************************/
 
-  axisOnZoom = function(translateAmount, zoomAmount) {
-  }
+  axisOnZoom = function(translateAmount, zoomAmount) {}
 
   zoomFunction = function() {
     svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
@@ -289,8 +300,6 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
   const totalWidth =  windowWidth * 0.95;
   const totalHeight = windowHeight * 0.65;
 
-  var cellRadius = 3;
-
   var leftMargin = 0.1 * windowWidth;
 	var rightMargin = 0.1 * windowWidth;
 
@@ -374,6 +383,8 @@ var Graph = function(data, markerLabels, traitLabelsNum) {
             .attr("transform", "translate(" + 0 + "," + 0 + ")")
 
   var overlay = d3.select("#map-background")
+  
+  loadingAnimation();
 }
 
 var GMManhattanChart = React.createClass({
@@ -393,29 +404,36 @@ var GMManhattanChart = React.createClass({
     }
   },
 	render() {
+    const loadGIFsrc = 'images/' + loadGIF
+
 		return (
       <div>
+        <div id="loadingScreen" style={{"position": "fixed", "top": "0%", "left": "0%", "height": "100%",
+	      "width": "100%", "textAlign": "center", "zIndex":"999", "backgroundColor": "white"}}>
+	        <img src={loadGIFsrc} style={{"marginTop": "20%", "width": "100px", "height": "100px"}} />
+          <p style={{"marginTop":"25px", "fontFamily":"Roboto, sans-serif"}}>Loading Visualization</p>
+        </div>
         <div id="manhattanChart" style={{ "marginTop": "25px" }}>
         </div>
         <div id="manhattanBottomPanel">
           <ul className="buttonContainer">
             <li className="zoomButton">
               <a id="zoom-in" data-zoom="+1">
-                <FloatingActionButton mini={true}>
+                <FloatingActionButton mini={true} className="zoomBackground">
                   <FontIcon className="material-icons">add</FontIcon>
                 </FloatingActionButton>
               </a>
             </li>
             <li className="zoomButton">
               <a id="zoom-out" data-zoom="-1">
-                <FloatingActionButton mini={true}>
+                <FloatingActionButton mini={true} className="zoomBackground">
                   <FontIcon className="material-icons">remove</FontIcon>
                 </FloatingActionButton>
               </a>
             </li>
             <li className="zoomButton">
               <a id="reset" data-zoom="-8">
-                <FloatingActionButton mini={true}>
+                <FloatingActionButton mini={true} className="zoomBackground">
                   <FontIcon className="material-icons">settings_backup_restore</FontIcon>
                 </FloatingActionButton>
               </a>

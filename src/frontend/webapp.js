@@ -94,7 +94,7 @@ const User = Waterline.Collection.extend({
       required: false
     },
     organization: {
-      type: 'int',
+      type: 'string',
       required: false
     },
     toJSON: function () {
@@ -200,7 +200,7 @@ const TempUser = Waterline.Collection.extend({
       required: false
     },
     organization: {
-      type: 'int',
+      type: 'string',
       required: false
     },
     toJSON: function () {
@@ -232,6 +232,7 @@ app.post(config.api.createAccountUrl, function (req, res) {
   const email = req.body.email
   const password = req.body.password
   const password2 = req.body.password2
+  const organization = req.body.organization
   const initialState = {}
 
   if (!email || !password) {
@@ -247,7 +248,7 @@ app.post(config.api.createAccountUrl, function (req, res) {
     if (foundUser) {
       return res.status(400).send({message: 'Email already in use'})
     }
-      app.models.tempuser.create({ email, password }).exec(function (err, createdTempUser) {
+      app.models.tempuser.create({ email, password, organization }).exec(function (err, createdTempUser) {
         if (err) {
           if (err.code === 'E_VALIDATION')
             return res.status(400).json({message: 'Invalid email address'})
@@ -263,14 +264,21 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
     if (err) {throw err}
     fs.readFile('./static/email/Registration_2.html', function (err, html_2) {
       if (err) {throw err}
-      var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
+      //fs.readFile('./static/email/Authentication.txt', 'utf8', function (err, auth_details) {
+      var auth_details = require('./static/email/Authentication.json');
+      //if (err) {throw err}
+      var transporter = nodemailer.createTransport(auth_details.user + ':' + auth_details.pass);
+      //var transporter = nodemailer.createTransport('smtps://email@gmail.com:pass@smtp.gmail.com');
       var mailOptions = {
-          from: '"GenAMap" <genamap.v2.0@gmail.com>', // sender address
+          from: '"GenAMap" <genamap.team@gmail.com>', // sender address
           to: req.body.email,
-          subject: 'GenAMap Sign-up Comfiration', // Subject line
-          text: 'Registration Comfiration',
+          subject: 'GenAMap Sign-up Confirmation', // Subject line
+          text: 'Registration Confirmation',
           html: html_1
-          + req.body.code + '<br/> <br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code + '<br/>'
+          + "'http://192.168.99.100:49160/#/confirm/" 
+          + req.body.code + "'>Confirm E-mail</a>" 
+          + '<br/> Or copy this verification code into the confirmation field: <b><br/>'
+          + req.body.code + '</b>'
           + html_2
       };
 
@@ -283,6 +291,12 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
           console.log('Message sent: ' + info.response);
           return res.json(info.response)
       });
+      //});
+    })
+  })
+})
+
+  /*
   var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
 
   var mailOptions = {
@@ -294,11 +308,7 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
       'Thanks for registering for GenAMap. Now you can enjoy visual machine learning software totally free!<br/>'
       + 'Verification code: ' + req.body.code + '<br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code + '<br/'
       + 'Yours sincerely<br/>' + 'GenAMap Team'
-  };
-
-    })
-  })
-})
+  };*/
 
 app.get(`${config.api.confirmAccountUrl}/:code`, function (req, res) {
   const initialState = {}
@@ -311,11 +321,12 @@ app.get(`${config.api.confirmAccountUrl}/:code`, function (req, res) {
 
     var email = foundTempUser.email
     var password = foundTempUser.password
+    var organization = foundTempUser.organization
 
     app.models.tempuser.destroy({ id: req.params.code }).exec(function (err) {
       if (err) console.log(err)
 
-      app.models.user.create({ email, password }).exec(function (err, createdUser) {
+      app.models.user.create({ email, password, organization }).exec(function (err, createdUser) {
         if (err) {
           return res.status(500).json({ err, from: 'createdUser' })
         }
@@ -342,7 +353,7 @@ app.post(config.api.ForgetPasswordUrl, function (req, res) {
       return res.json({email})
     }
     else{
-      return res.status(400).send({message: 'Email not sign in'})
+      return res.status(400).send({message: 'This account does not exist'})
     }
   })
   })
@@ -352,6 +363,10 @@ app.post(config.api.ForgetPasswordEmailUrl, function (req, res) {
   app.models.user.findOne({ email }).exec(function (err, foundUser) {
     if (err) console.log(err)
     if (foundUser) {
+      fs.readFile('./static/email/Password_1.html', function (err, html_1) {
+      if (err) {throw err}
+      fs.readFile('./static/email/Password_2.html', function (err, html_2) {
+        if (err) {throw err}
       var password = foundUser.password
       var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
       var mailOptions = {
@@ -359,10 +374,7 @@ app.post(config.api.ForgetPasswordEmailUrl, function (req, res) {
           to: req.body.email,
           subject: 'GenAMap Forget Password Email', // Subject line
           text: 'Forget Password Email',
-          html: 'Hi: <br/>'+
-          'Welcome to register the GenAMap account. Now you can enjoy the advanced bioinformatic software totally free!<br/>'
-          + 'Your Password: ' + password + '<br/'
-          + 'Yours sincerely<br/>' + 'GenAMap Team'
+          html: html_1 + password + html_2
       };
 
       // send mail with defined transport object
@@ -374,11 +386,17 @@ app.post(config.api.ForgetPasswordEmailUrl, function (req, res) {
           console.log('Message sent: ' + info.response);
           return res.json(info.response)
       });
-    }
+      })
+      })  
+  }
     else{
       app.models.tempuser.findOne({ email }).exec(function (err, foundTempUser) {
         if (err) console.log(err)
         if (foundTempUser) {
+          fs.readFile('./static/email/Password_1.html', function (err, html_1) {
+          if (err) {throw err}
+          fs.readFile('./static/email/Password_2.html', function (err, html_2) {
+            if (err) {throw err}
           var password = foundTempUser.password
           var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
           var mailOptions = {
@@ -386,10 +404,7 @@ app.post(config.api.ForgetPasswordEmailUrl, function (req, res) {
               to: req.body.email,
               subject: 'GenAMap Forget Password Email', // Subject line
               text: 'Forget Password Email',
-              html: 'Hi: <br/>'+
-              'Welcome to register the GenAMap account. Now you can enjoy the advanced bioinformatic software totally free!<br/>'
-              + 'Your Password: ' + password + '<br/'
-              + 'Yours sincerely<br/>' + 'GenAMap Team'
+              html: html_1 + password + html_2
           };
 
           // send mail with defined transport object
@@ -401,17 +416,15 @@ app.post(config.api.ForgetPasswordEmailUrl, function (req, res) {
               console.log('Message sent: ' + info.response);
               return res.json(info.response)
           });
+          })
+          })
         }
         else{
-          return res.status(400).send({message: 'Email not sign in'})
+          return res.status(400).send({message: 'This account does not exist'})
         }
     })
     }
   })
-
-
-
-
 })
 
 
@@ -742,7 +755,7 @@ app.post(config.api.importDataUrl, function (req, res) {
               console.log('invalid delimiter2')
               break
             }
-            markerLabelStream.write(values[1]+'\n')
+            markerLabelStream.write(values[1]+","+values[0]+'\n')
           }
           markerLabelStream.end()
         })
@@ -1041,13 +1054,13 @@ app.post(config.api.ChangePasswordUrl, function (req, res) {
   }
 
   if (NewPassword != ConfirmNewPassword) {
-    return res.status(400).send({message: "Passwords don't match"})
+    return res.status(400).send({message: "New passwords did not match"})
   }
 
   app.models.user.findOne({ id: userId }).exec(function (err, foundUser) {
     if (err) console.log(err)
     if (foundUser.password !== FormerPassword) {
-      return res.status(400).send({message: 'Error Former Password'})
+      return res.status(400).send({message: 'Former password did not match'})
     }
     app.models.user.update({ id: userId }, {password: NewPassword}).exec(function(err, updated){
           if (err) return res.status(500).json({ err })

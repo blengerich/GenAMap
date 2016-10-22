@@ -3,6 +3,79 @@
 //
 
 #include "Math.hpp"
+#include <queue>
+
+Tree::Tree() {
+    root = 0;
+}
+
+Tree::~Tree() {
+    if (root == 0) {
+    }
+    else {
+        treeNode *tmp = root;
+        vector<treeNode *> tmplist = tmp->children;
+        while (tmplist.size() > 0) {
+            delete tmp;
+            tmp = tmplist[0];
+            if (tmp->children.size() != 0) {
+                tmplist.insert(tmplist.end(), tmp->children.begin(), tmp->children.end());
+            }
+            tmplist.erase(tmplist.begin());
+        }
+    }
+}
+
+treeNode *Tree::getRoot() {
+    return root;
+}
+
+void Tree::setRoot(treeNode *r) {
+    root = r;
+}
+
+treeNode *Tree::buildParentFromChildren(vector<treeNode *> chd) {
+    treeNode *par = new treeNode();
+    vector<long> tmp;
+    par->trait = tmp;
+    par->s = 0;
+    for (unsigned long i = 0; i < chd.size(); i++) {
+        par->trait.insert(par->trait.end(), chd[i]->trait.begin(), chd[i]->trait.end());
+        par->s = max(chd[i]->s + 1, par->s);
+    }
+    par->children = chd;
+    par->weight = 0;
+    return par;
+}
+
+treeNode *Tree::buildLeafNode(long t) {
+    treeNode *n = new treeNode();
+    vector<long> tmp1;
+    vector<treeNode *> tmp2;
+    n->trait = tmp1;
+    n->trait.push_back(t);
+    n->children = tmp2;
+    n->s = 1;
+    n->weight = 0;
+    return n;
+}
+
+void Tree::setWeight() {
+    double n = root->s;
+    double prev_s = 0;
+    queue<treeNode *> nodes;
+    nodes.push(root);
+    while (nodes.size()>0){
+        treeNode * node = nodes.front();
+        prev_s = node->s;
+        node->s = node->s / n;
+        for (unsigned int i=0;i<node->children.size(); i++){
+            node->children[i]->s = prev_s - 1;
+            nodes.push(node->children[i]);
+        }
+        nodes.pop();
+    }
+}
 
 double Math::variance(VectorXd v) {
     double mean = v.mean();
@@ -49,4 +122,101 @@ VectorXd Math::L2Thresholding(VectorXd in) {
     else{
         return in;
     }
+}
+
+Tree *Math::hierarchicalClustering(MatrixXd X) {
+    Tree * T;
+    long n = X.cols();
+    MatrixXd weights = MatrixXd::Zero(n, n);
+    T = new Tree();
+    unordered_map<long, treeNode *> maps;
+    for (long i = 0; i < n; i++) {
+        treeNode *t = T->buildLeafNode(i);
+        maps.insert({i, t});
+        weights.row(i) = (X.colwise() - X.col(i)).colwise().squaredNorm();
+    }
+    minXY xy;
+    while (maps.size() > 1) {
+        xy = searchMin(weights);
+        treeNode *t1 = maps.at(xy.x);
+        treeNode *t2 = maps.at(xy.y);
+        vector<treeNode *> tv;
+        tv.push_back(t1);
+        tv.push_back(t2);
+        treeNode *p = T->buildParentFromChildren(tv);
+        maps.insert({maps.size(), p});
+        weights = appendColRow(weights, xy);
+        removeColRow(&weights, xy);
+        updateMap(&maps, xy);
+    }
+    treeNode *root = maps.at(0);
+    T->setRoot(root);
+    return T;
+}
+
+void Math::removeRow(MatrixXd *mptr, long x) {
+    long numRows = mptr->rows() - 1;
+    long numCols = mptr->cols();
+
+    if (x < numRows)
+        mptr->block(x, 0, numRows - x, numCols) = mptr->block(x + 1, 0, numRows - x, numCols);
+
+    mptr->conservativeResize(numRows, numCols);
+}
+
+void Math::updateMap(unordered_map<long, treeNode *> *mptr, minXY xy) {
+    long n = mptr->size();
+    mptr->erase(xy.x);
+    mptr->erase(xy.y);
+    long k;
+    treeNode *t;
+    for (long i = xy.x + 1; i < n; i++) {
+        if (i != xy.y) {
+            t = mptr->at(i);
+            if (i < xy.y) {
+                k = i - 1;
+            }
+            else if (i > xy.y) {
+                k = i - 2;
+            }
+            mptr->erase(i);
+            mptr->insert({k, t});
+        }
+    }
+}
+
+MatrixXd Math::appendColRow(MatrixXd mat, minXY xy) {
+    long r = mat.rows();
+    MatrixXd result = MatrixXd::Zero(r + 1, r + 1);
+    VectorXd col = VectorXd::Zero(r);
+    col = ((mat.col(xy.x).array()).max(mat.col(xy.y).array())).matrix();
+    result.block(0, 0, r, r) = mat;
+    result.block(0, r, r, 1) = col;
+    result.block(r, 0, 1, r) = col.transpose();
+    return result;
+}
+
+minXY Math::searchMin(MatrixXd m) {
+    long r = m.rows();
+    minXY xy;
+    xy.x = 0;
+    xy.y = 0;
+    double tmpV = numeric_limits<double>::max();
+    for (long i = 0; i < r; i++) {
+        for (long j = i + 1; j < r; j++) {
+            if (m(i, j) < tmpV) {
+                tmpV = m(i, j);
+                xy.x = i;
+                xy.y = j;
+            }
+        }
+    }
+    return xy;
+}
+
+void Math::removeColRow(MatrixXd *mptr, minXY xy) {
+    removeRow(mptr, xy.y);
+    removeRow(mptr, xy.x);
+    removeCol(mptr, xy.y);
+    removeCol(mptr, xy.x);
 }

@@ -173,3 +173,30 @@ Json::Value JsonCoder::encodeVector(MatrixXd X) {
     root["v"]=v;
     return root;
 }
+
+string JsonCoder::encodeTraitTree(Tree *tree) {
+    int count = 0;
+    Json::Value root;
+    treeNode * rt = tree->getRoot();
+    root["name"] = "root";
+    root["children"] = node2json(rt->children, count);
+    return writer.write(root);
+}
+
+Json::Value JsonCoder::node2json(vector<treeNode *> children, int count){
+    int count2 = count + children.size();
+    Json::Value vec(Json::arrayValue);
+    for (unsigned int i=0;i<children.size(); i++){
+        Json::Value root;
+        if (children[i]->children.size()>0){
+            root["name"] = "node" + to_string(++count);
+            root["children"] = node2json(children[i]->children, count2);
+            vec.append(root);
+        }
+        else{
+            root["name"] = "trait: " + long2string(children[i]->trait[0]);
+            vec.append(root);
+        }
+    }
+    return vec;
+}

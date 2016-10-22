@@ -10,15 +10,15 @@
 #include <unordered_map>
 
 #ifdef BAZEL
-#include "json/json.h"
-#include "IO/DataBaseCommunicator.hpp"
-#include "Models/TreeLasso.hpp"
+#include "json.h"
+#include "../IO/DataBaseCommunicator.hpp"
+#include "../Math/Math.hpp"
 #include <queue>
 #include <sstream>
 #else
 #include "json.h"
 #include "../IO/DataBaseCommunicator.hpp"
-#include "../Models/TreeLasso.hpp"
+#include "../Math/Math.hpp"
 #include <queue>
 #include <sstream>
 #endif
@@ -46,6 +46,7 @@ private:
     Json::Value decodeStr(string);
     string long2string(long);
     Json::Value node2json(vector<treeNode*>, int, MatrixXd);
+    Json::Value node2json(vector<treeNode*>, int);
 
 public:
     static JsonCoder &getInstance() {
@@ -58,6 +59,7 @@ public:
     string encodeResultPack(result_pack);
     string encodeProgressPack(progress_pack);
     string encodeTraitTreeEffectsizes(Tree*, MatrixXd);
+    string encodeTraitTree(Tree*);
     Json::Value encodeVector(MatrixXd);
 
     mainMessage decodeMainMessage(string);
