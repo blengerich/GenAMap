@@ -124,14 +124,6 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
          .text(trimmedLabel(traitLabels[Math.floor(i/populationFactor)], 5));
     }
 
-    // axes.append("text")
-    //     .attr("class", "title")
-    //     .attr("text-anchor", "middle")
-    //     .attr("y", mapHeight/2)
-    //     .attr("transform", "translate(" + (-axisPadding + baseLabelStyle.titleSize)
-    //         + ",20)rotate(-90,0," + mapHeight/2 + ")")
-    //     .text("Traits");
-
     // vertical labels
     for (var i = 0; i < mapCols; i++) {
       var col = d3.select(".axes")
@@ -146,22 +138,6 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
          .attr("y", 8)
          .text(trimmedLabel(markerLabels[i].split(',')[0], 5));
     }
-
-    // axes.append("text")
-    //     .attr("class", "title")
-    //     .attr("text-anchor", "middle")
-    //     .attr("y", mapHeight)
-    //     .attr("x", mapWidth/2)
-    //     .attr("transform", "translate(0," + axisPadding + ")")
-    //     .text("Markers");
-
-    // opaque bottom-left selector
-    // axes.append("rect")
-    //     .attr("x", -(axisPadding + margin.left))
-    //     .attr("y", mapHeight + margin.bottom)
-    //     .attr("width", axisPadding + margin.left)
-    //     .attr("height", axisPadding + margin.bottom)
-    //     .attr("fill", "#fff");
 
     d3.selectAll(".title")
       .style("font-size", baseLabelStyle.titleSize + "px");
