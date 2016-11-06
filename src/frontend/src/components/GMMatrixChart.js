@@ -28,6 +28,7 @@ var miniZoomed;
 var overlayWidth;
 var overlayHeight;
 var populationFactor;
+var hoverTimeout;
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
@@ -149,40 +150,43 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
 
   /* create spaces between cells */
   function initGridLines() {
-    var matrix = d3.select("#overallMatrix");
+    // var matrix = d3.select("#overallMatrix");
 
-    for (var i = 0; i < mapRows; i++) {
-      matrix.append("line")
-            .attr("x1", 0)
-            .attr("y1", cellHeight * i)
-            .attr("x2", cellWidth * mapCols)
-            .attr("y2", cellHeight * i)
-            .attr("stroke", "#fff");
-    }
+    // for (var i = 0; i < mapRows; i++) {
+    //   matrix.append("line")
+    //         .attr("x1", 0)
+    //         .attr("y1", cellHeight * i)
+    //         .attr("x2", cellWidth * mapCols)
+    //         .attr("y2", cellHeight * i)
+    //         .attr("stroke", "#fff");
+    // }
 
-    for (var i = 0; i < mapCols; i++) {
-      matrix.append("line")
-            .attr("x1", cellWidth * i)
-            .attr("y1", 0)
-            .attr("x2", cellWidth * i)
-            .attr("y2", cellHeight * mapRows)
-            .attr("stroke", "#fff");
-    }
+    // for (var i = 0; i < mapCols; i++) {
+    //   matrix.append("line")
+    //         .attr("x1", cellWidth * i)
+    //         .attr("y1", 0)
+    //         .attr("x2", cellWidth * i)
+    //         .attr("y2", cellHeight * mapRows)
+    //         .attr("stroke", "#fff");
+    // }
   }
 
   function hoverOnCell(d, trait, marker, correlation, mousePos) {
-    var labelText = "<h2>Trait: " + traitLabels[trait] + "</h2> <h2>Marker: " +
-                    markerLabels[marker].split(',')[0] + "</h2> <p> Effect Size: " + correlation + "</p>";
-    var tooltip = d3.select("#matrixChart")
-                    .append("div")
-                    .attr("class", "tooltip")
-                    .html(labelText)
-                    .style("position", "absolute")
-                    .style("left", mousePos.pageX + "px")
-                    .style("top", mousePos.pageY + "px")
+    hoverTimeout = setTimeout(() => {
+      var labelText = "<h2>Trait: " + traitLabels[trait] + "</h2> <h2>Marker: " +
+                      markerLabels[marker].split(',')[0] + "</h2> <p> Effect Size: " + correlation + "</p>";
+      var tooltip = d3.select("#matrixChart")
+                      .append("div")
+                      .attr("class", "tooltip")
+                      .html(labelText)
+                      .style("position", "absolute")
+                      .style("left", mousePos.pageX + "px")
+                      .style("top", mousePos.pageY + "px")
+    }, 500)
   }
 
   function hoverOutCell() {
+    clearTimeout(hoverTimeout)
     d3.select(".tooltip").remove();
   }
 
@@ -194,7 +198,7 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
 
   function parseData() {
     var parsedData = []
-
+    let start = new Date()
     data.v.split(";").forEach(function(row, rowIndex) {
       if (row.length > 0) {
         var pts = row.split(",")
@@ -209,6 +213,8 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
         })
       }
     })
+    console.log(new Date() - start + ' ms - read csv into js objects')
+    start = new Date()
 
     var cards = svg.selectAll(".dots")
                   .data(parsedData, function(d) { return d.x+':'+d.y;});
@@ -217,8 +223,8 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
 
     // append cells
     cards.enter().append("rect")
-                    .attr("x", function(d) { return d.x * cellHeight; })
-                    .attr("y", function(d) { return d.y * cellWidth; })
+                    .attr("x", function(d) { return d.x * (cellHeight + 1); })
+                    .attr("y", function(d) { return d.y * (cellWidth + 1); })
                     .attr("class", "cell")
                     .attr("width", cellWidth)
                     .attr("height", cellHeight)
@@ -242,6 +248,8 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
 
     cards.exit().remove();
     initGridLines();
+
+    console.log(new Date() - start + ' ms - render d3')
   }
 
   /*************************
@@ -348,7 +356,7 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
     overlay.attr("transform", "translate(" + translateAmount + ")scale(" + 1/d3.event.scale + ")");
     var matrix = d3.select("#overallMatrix");
     var zoomAmount = d3.event.scale;
-    console.log("minizoomed", translateAmount, zoomAmount)
+    // console.log("minizoomed", translateAmount, zoomAmount)
     var newArray = [-translateAmount[0]*(matrixWidth/overlayMapWidth) * zoomAmount,
                     -translateAmount[1]*(matrixHeight/overlayMapHeight) * zoomAmount];
 
