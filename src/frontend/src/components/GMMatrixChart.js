@@ -148,29 +148,6 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
       .style("font-size", baseLabelStyle.fontSize + "px");
   }
 
-  /* create spaces between cells */
-  function initGridLines() {
-    // var matrix = d3.select("#overallMatrix");
-
-    // for (var i = 0; i < mapRows; i++) {
-    //   matrix.append("line")
-    //         .attr("x1", 0)
-    //         .attr("y1", cellHeight * i)
-    //         .attr("x2", cellWidth * mapCols)
-    //         .attr("y2", cellHeight * i)
-    //         .attr("stroke", "#fff");
-    // }
-
-    // for (var i = 0; i < mapCols; i++) {
-    //   matrix.append("line")
-    //         .attr("x1", cellWidth * i)
-    //         .attr("y1", 0)
-    //         .attr("x2", cellWidth * i)
-    //         .attr("y2", cellHeight * mapRows)
-    //         .attr("stroke", "#fff");
-    // }
-  }
-
   function hoverOnCell(d, trait, marker, correlation, mousePos) {
     hoverTimeout = setTimeout(() => {
       var labelText = "<h2>Trait: " + traitLabels[trait] + "</h2> <h2>Marker: " +
@@ -213,6 +190,7 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
         })
       }
     })
+    console.log('Number of data cells: ' + parsedData.length)
     console.log(new Date() - start + ' ms - read csv into js objects')
     start = new Date()
 
@@ -247,7 +225,6 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
           .style("fill", function(d) { return calculateColorScale(min, max, threshold)(d.value); });
 
     cards.exit().remove();
-    initGridLines();
 
     console.log(new Date() - start + ' ms - render d3')
   }
