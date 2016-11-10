@@ -122,7 +122,7 @@ class ForgetPassword extends Component {
             </Dialog>
           </div>
           <div style={{ margin: '10px 0' }}>
-            {"Remember the password?"}
+            {"Remembered the password? "}
             <Link to='/login' onClick={this.clearErrors.bind(this)}>{'Sign in'}</Link>
           </div>
         </div>

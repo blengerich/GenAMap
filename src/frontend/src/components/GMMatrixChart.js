@@ -29,9 +29,14 @@ var overlayWidth;
 var overlayHeight;
 var populationFactor;
 var hoverTimeout;
+const loadGIF = 'processing.gif';
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function loadingAnimation() {
+	document.getElementById("loadingScreen").style.display = "none";
 }
 
 var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
@@ -225,8 +230,7 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
           .style("fill", function(d) { return calculateColorScale(min, max, threshold)(d.value); });
 
     cards.exit().remove();
-
-    console.log(new Date() - start + ' ms - render d3')
+    loadingAnimation();
   }
 
   /*************************
@@ -714,8 +718,15 @@ var GMMatrixChart = React.createClass({
   },
 
 	render: function() {
+    const loadGIFsrc = 'images/' + loadGIF
+
 		return (
       <div>
+      	<div id="loadingScreen" style={{"position": "fixed", "top": "0%", "left": "0%", "height": "100%",
+	      "width": "100%", "textAlign": "center", "zIndex":"999", "backgroundColor": "white"}}>
+	        <img src={loadGIFsrc} style={{"marginTop": "20%", "width": "100px", "height": "100px"}} />
+          <p style={{"marginTop":"25px", "fontFamily":"Roboto, sans-serif"}}>Loading Visualization</p>
+        </div>
         <div style={{height: 500, display: "flex", flexDirection: 'column', justifyContent: 'flex-end'}}>
           <div id="matrixChart" style={{"marginTop": "25px", overflow: 'scroll', maxWidth: 'calc(100vw - 40px)'}}>
           </div>

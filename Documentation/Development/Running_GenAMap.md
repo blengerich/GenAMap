@@ -53,3 +53,15 @@ Click on the file named "Matrix View" and the visualization should appear in the
 
 ### Manhattan Plot
 TODO: Jingkang, what is the status of Manhattan plot?
+
+
+## Dependencies:
+For informational purposes only, you don't need to install anything. We are now using [Docker](http://docker.com) to sync our environments. See [docs](https://github.com/blengerich/GenAMap_V2/blob/master/Documentation/Development/Docker/Quick_Start.md) for more information.
+
+* [Java (JDK) 1.8 or greater](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+* [Eigen C++](http://eigen.tuxfamily.org/index.php?title=Main_Page)
+* [MySQL C++ connector](http://dev.mysql.com/downloads/connector/cpp/)
+* [JsonCPP](https://github.com/open-source-parsers/jsoncpp)
+* [Boost](http://www.boost.org/)
+* [Bazel](https://github.com/bazelbuild/bazel)
+* [Google Testing Framework](https://github.com/google/googletest)

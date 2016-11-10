@@ -10,14 +10,22 @@ import GMToolbar from './GMToolbar'
 
 const styles = {
   action: {
-      flex: '2 1 auto'
+    float: 'left'
     },
   icon: {
     position: 'relative',
     top: '5px'
   },
+  disclaimer: {
+    fontFamily: 'Roboto',
+    color: '#BDBDBD',
+    fontSize: '0.9em'
+  },
+  webLinks: {
+    color: '#9E9E9E',
+    textDecoration: 'underline'
+  },
   thresholdManage: {
-    flex: '0 1 auto'
   }
 }
 
@@ -129,6 +137,10 @@ class GMManhattanToolbar extends Component {
             icon={<FontIcon className='material-icons'>equalizer</FontIcon>}
           />
           }
+          <p style={styles.disclaimer}>GenAMap is a project of&nbsp;
+            <a style={styles.webLinks} href="http://www.sailing.cs.cmu.edu/main/">Sailing Lab</a> at&nbsp;
+            <a style={styles.webLinks} href="http://www.cmu.edu/">Carnegie Mellon University.</a>
+          </p>
         </GMToolbar>
       </div>
     )

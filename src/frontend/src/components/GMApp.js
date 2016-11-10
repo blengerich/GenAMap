@@ -2,7 +2,6 @@ import React, { PropTypes, Component } from 'react'
 
 import GMTopMenu from './GMTopMenu'
 import GMLeftMenu from './GMLeftMenu'
-import GMRightMenu from './GMRightMenu'
 import config from '../../config'
 
 class GMApp extends Component {
@@ -22,10 +21,6 @@ class GMApp extends Component {
 
   handleLeftIconTouch () {
     this.props.leftIconTouch()
-  }
-
-  handleRightIconTouch () {
-    this.props.rightIconTouch()
   }
 
   handleLogoutButton () {
@@ -48,13 +43,11 @@ class GMApp extends Component {
       <div>
         <GMTopMenu
           handleLeftIconTouch={this.handleLeftIconTouch.bind(this)}
-          handleRightIconTouch={this.handleRightIconTouch.bind(this)}
           handleLogoutButton={this.handleLogoutButton.bind(this)}
           style={navPadding}
           visibility={this.getVisibility()}
         />
         <GMLeftMenu open={this.props.leftNavOpen} width={config.ui.navWidth} user={this.props.user} />
-        <GMRightMenu open={this.props.rightNavOpen} width={config.ui.navWidth} />
         <main style={fixedPadding}>
           {childrenWithProps}
         </main>
