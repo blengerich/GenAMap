@@ -267,7 +267,7 @@ bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) 
 		usleep(10);	// TODO: fix this rare race condition (stopping job before the worker thread has started is bad) in a better way? [Issue: https://github.com/blengerich/GenAMap_V2/issues/27]
 		return true;
 	} catch (const exception& ex) {
-		//job->exception = current_exception();	// Must save the exception so that it can be passed between threads - but this is running in main thread?
+		// Must save the exception so that it can be passed between threads - but this is running in main thread?
 		rethrow_exception(current_exception());
 		return false;
 	}
@@ -397,11 +397,7 @@ double Scheduler::checkJobProgress(const int job_id) {
 
 bool Scheduler::cancelJob(const int job_id) {
 	if (ValidJobId(job_id) && getJob(job_id)->algorithm) {
-		getJob(job_id)->algorithm->stop();	// TODO: switch to sending shutdown signal? [Issue: https://github.com/blengerich/GenAMap_V2/issues/21]
-		while(getJob(job_id)->algorithm->getIsRunning()) {
-			// TODO: stopping should be async with callback? [Issue: https://github.com/blengerich/GenAMap_V2/issues/26]
-			usleep(100);
-		}
+		getJob(job_id)->algorithm->stop();
 		return true;
 	}
 	return false;
@@ -409,8 +405,7 @@ bool Scheduler::cancelJob(const int job_id) {
 
 
 bool Scheduler::deleteAlgorithm(const int algorithm_id) {
-	// TODO: Safety checks here - How to ensure that no jobs refer to this algorithm? Reference count in algorithm object? [Issue: https://github.com/blengerich/GenAMap_V2/issues/22]
-	if (getAlgorithm(algorithm_id)) {
+	if (getAlgorithm(algorithm_id) && !getAlgorithm(algorithm_id)->getIsRunning()) {
 		algorithms_map[algorithm_id].reset();
 		algorithms_map.erase(algorithm_id);
 		return true;
@@ -421,8 +416,9 @@ bool Scheduler::deleteAlgorithm(const int algorithm_id) {
 
 
 bool Scheduler::deleteModel(const int model_id) {
-	// TODO: Safety checks - How to ensure that no jobs refer to this algorithm? Reference count in algorithm obejct? [Issue: https://github.com/blengerich/GenAMap_V2/issues/24]
-	if (models_map[model_id]) {
+	// If model gets deleted before algorithm is stopped, bad juju.
+	// Need algorithm (or job?) to lock up the model?
+	if (getModel(model_id)) {
 		models_map[model_id].reset();
 		models_map.erase(model_id);
 		return true;
@@ -433,10 +429,12 @@ bool Scheduler::deleteModel(const int model_id) {
 
 
 bool Scheduler::deleteJob(const int job_id) {
-	// TODO: check that user owns this job [Issue: https://github.com/blengerich/GenAMap_V2/issues/23]
 	if (ValidJobId(job_id) && cancelJob(job_id)) {
-		//jobs_map[job_id].reset();
-		jobs_map.erase(job_id);
+		while(getJob(job_id)->algorithm->getIsRunning()) {
+			usleep(100);
+		}
+		jobs_map[job_id].reset();
+		/*jobs_map.erase(job_id);*/
 		return true;
 	}
 	return false;
