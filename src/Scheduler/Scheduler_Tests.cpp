@@ -336,6 +336,21 @@ TEST_F(SchedulerTest, DeleteJob) {
     ASSERT_LT(progress, 1);
     ASSERT_TRUE(my_scheduler->deleteJob(job_id));   // should be able to safely delete a job while it's running (it gets cancelled)    
     ASSERT_EQ(-1, my_scheduler->checkJobProgress(job_id)); // deleted job has progress = -1
+
+    // Should be able to do it all again.
+    job_id = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
+    ASSERT_TRUE(my_scheduler->setX(job_id, LargeX));
+    ASSERT_TRUE(my_scheduler->setY(job_id, LargeY));
+    ASSERT_EQ(0, my_scheduler->checkJobProgress(job_id));   // job progress == 0 before being run
+    ASSERT_TRUE(my_scheduler->startJob(job_id, NullFunc));
+    while(my_scheduler->checkJobProgress(job_id) == 0) {
+        usleep(1);
+    }
+    progress = my_scheduler->checkJobProgress(job_id);   // 0 < job progress < 1 before end of run
+    ASSERT_GE(progress, 0);
+    ASSERT_LT(progress, 1);
+    ASSERT_TRUE(my_scheduler->deleteJob(job_id));   // should be able to safely delete a job while it's running (it gets cancelled)    
+    ASSERT_EQ(-1, my_scheduler->checkJobProgress(job_id)); // deleted job has progress = -1
 }
 
 
