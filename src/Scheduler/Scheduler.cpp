@@ -416,7 +416,9 @@ bool Scheduler::deleteAlgorithm(const int algorithm_id) {
 
 
 bool Scheduler::deleteModel(const int model_id) {
-	if (models_map[model_id]) {
+	// If model gets deleted before algorithm is stopped, bad juju.
+	// Need algorithm (or job?) to lock up the model?
+	if (getModel(model_id)) {
 		models_map[model_id].reset();
 		models_map.erase(model_id);
 		return true;
@@ -432,7 +434,7 @@ bool Scheduler::deleteJob(const int job_id) {
 			usleep(100);
 		}
 		jobs_map[job_id].reset();
-		jobs_map.erase(job_id);
+		/*jobs_map.erase(job_id);*/
 		return true;
 	}
 	return false;
