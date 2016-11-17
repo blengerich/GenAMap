@@ -154,6 +154,15 @@ class CreateAccount extends Component {
               style={styles.form}
             /><br/>
           </div>
+           <div>
+            <TextField
+              className={'form-control'}
+              hintText={'Organization'}
+              type={'organization'}
+              onChange={this.onChangeOrganization.bind(this)}
+              style={styles.form}
+            /><br/>
+          </div>
           <div>
             <RaisedButton
               label={'Create Account'}
@@ -193,11 +202,16 @@ class CreateAccount extends Component {
     this.setState({ password2: event.target.value })
   }
 
+  onChangeOrganization (event) {
+    this.setState({ organization: event.target.value })
+  }
+
   handleCreateAccountClick (event) {
     const email = (this.state && this.state.email) ? this.state.email : ''
     const password = (this.state && this.state.password) ? this.state.password : ''
     const password2 = (this.state && this.state.password2) ? this.state.password2 : ''
-    const creds = { email, password, password2 }
+    const organization = (this.state && this.state.organization) ? this.state.organization : ''
+    const creds = { email, password, password2, organization }
     this.props.onCreateAccountClick(creds)
   }
 }

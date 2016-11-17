@@ -92,14 +92,12 @@ const GMMatrixVisualization = React.createClass({
             traitLabels={this.state.traitLabels}
             pageParams={this.state.pageParams}
             threshold={this.state.correlationThreshold}
-            zoom={this.state.zoomEnabled}
           />
         </div>
         <GMMatrixToolbar
           left={this.props.minPad}
           right={this.props.minPad}
           slider={{"onThresholdChange": this.onThresholdChange}}
-          subsetSelector={this.subsetSelector}
           pageParams={this.state.pageParams}
           traitLabels={this.state.traitLabels}
         />

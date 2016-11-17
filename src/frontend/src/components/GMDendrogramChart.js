@@ -6,6 +6,7 @@ import FloatingActionButton from 'material-ui/lib/floating-action-button'
 import fetch from './fetch'
 import config from '../../config'
 
+
 var Graph = function(data, markerLabels, traitLabels) {
   d3.select('#dendrogramChart').selectAll('svg').remove()
 
@@ -502,6 +503,10 @@ var Graph = function(data, markerLabels, traitLabels) {
             .attr("transform", "translate(" + 0 + "," + 0 + ")")
 
   var overlay = d3.select("#map-background");
+/*var Graph = function(data, tree1, tree2) {
+  console.log(data)
+  console.log(tree1)
+  console.log(tree2)*/
 }
 
 var GMDendrogramChart = React.createClass({
@@ -521,7 +526,10 @@ var GMDendrogramChart = React.createClass({
     }
   },
   render() {
-    return (
+    return ();
+  }
+	/*render() {
+		return (
       <div>
         <div id="dendrogramChart" style={{ "marginTop": "25px" }}>
         </div>
@@ -552,7 +560,7 @@ var GMDendrogramChart = React.createClass({
         </div>
       </div>
     );
-  }
+  }*/
 });
 
 export default GMDendrogramChart

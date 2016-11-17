@@ -46,7 +46,8 @@ cc_library(
 	srcs = ["Model.cpp"],
 	hdrs = ["Model.hpp"],
 	copts = ["-DBAZEL"],
-	deps = [],
+	deps = ["//JSON:JsonCoder",
+                "//IO:DataBaseCommunicator"],
 )
 
 cc_library(
@@ -88,7 +89,9 @@ cc_test(
     		"ModelOptions",
     		"MultiPopLasso",
     		"TreeLasso",
-    		"//Math:Math"],
+    		"//Math:Math",
+		"//JSON:JsonCoder",
+ 		"//IO:DataBaseCommunicator"],
 	size = "small"
 )
 
@@ -106,5 +109,5 @@ cc_library(
 	srcs = ["TreeLasso.cpp"],
 	hdrs = ["TreeLasso.hpp"],
 	copts = ["-DBAZEL"],
-	deps = ["Model"],
+	deps = ["Model", "//Math:Math"],
 )

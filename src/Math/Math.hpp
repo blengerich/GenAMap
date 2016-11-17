@@ -6,14 +6,51 @@
 #define ALGORITHMS_MATH_HPP
 
 #include <Eigen/Dense>
+#include <vector>
+#include <unordered_map>
 
 using namespace Eigen;
+using namespace std;
+
+struct treeNode{
+    vector<long> trait;
+    vector<treeNode*> children;
+    double s;
+    double weight;
+};
+
+struct minXY{
+    long x;
+    long y;
+};
+
+class Tree{
+private:
+    treeNode* root;
+public:
+    treeNode* getRoot();
+    treeNode* buildParentFromChildren(vector<treeNode*>);
+    treeNode* buildLeafNode(long);
+
+    void setRoot(treeNode*);
+
+    void setWeight();
+
+    Tree();
+    ~Tree();
+};
 
 class Math {
 private:
     Math() {};
     Math(Math const &);  // don't implement
     void operator=(Math const &); // don't implement
+
+    minXY searchMin(MatrixXd);
+    MatrixXd appendColRow(MatrixXd, minXY);
+    void updateMap(unordered_map<long, treeNode*>*, minXY);
+
+
 public:
     static Math &getInstance() {
         static Math instance;
@@ -26,8 +63,13 @@ public:
     double correlation(VectorXd, VectorXd);
     // matrix
     void removeCol(MatrixXd*, long);
+    void removeRow(MatrixXd*, long);
+    void removeColRow(MatrixXd*, minXY);
+
 
     VectorXd L2Thresholding(VectorXd in);
+
+    Tree* hierarchicalClustering(MatrixXd);
 };
 
 

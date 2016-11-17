@@ -29,11 +29,9 @@
 \tableofcontents
 \vspace{1cm}
 
-For further questions / comments / suggestions, please contact \url{genamapsupport@cs.cmu.edu}
+For further questions / comments / suggestions, please contact \url{genamap-team@gmail.com}
 
-
-
-\section{Definitions}
+\section{Notation}
 
 \begin{itemize}
 \item Let $N$ be the number of samples and let $n$, $1 \le n \le N$ be an index over the samples.
@@ -50,76 +48,14 @@ For further questions / comments / suggestions, please contact \url{genamapsuppo
 \item When we distinguish a trait value matrix into gene expression value matrix and phenotype value matrix, we will call the gene expression value matrix $Y$ and the phenotype value matrix $Z$. Indexes $l$ and $m$ range over phenotypes. The corresponding networks are called $\rho^Y$ and $\rho^Z$.
 \end{itemize}
 
-%Algorithm Code
-%Description
-%Reference
-%Formula
-%Inputs
-%Outputs
-%Implementation Details
+\section{Currently Implemented}
 
-\section{Network Algorithms}
 
-Network Algorithms compute a Network Data set (a network over traits) given a single Trait Data set as input. A network is a square edge weight matrix of an undirected graph where vertices correspond to traits and the edges correspond to relatedness between traits. A large positive numerical entry in a network corresponds to two highly related traits, a negative numerical entry with large absolute value corresponds to two highly inversely related traits and a numerical entry close to or equal to zero corresponds to unrelated traits.
-
-\subsection{Correlation}
-
-\begin{itemize}
-\item Algorithm Code: CR1
-\item Description: Computes the pair-wise correlation between traits, considering each pair independently of all other traits.
-\item Formula:
-\begin{equation*}
-\hat{\rho}_{j,k} = \frac{\sum_n (Y_{n,j} - \bar{Y_j})(Y_{n,k} - \bar{Y_k})}{\sqrt{\sum_n (Y_{n,j} - \bar{Y_j})^2 \sum_n (Y_{n,k} - \bar{Y_k})^2}}
-\end{equation*}
-\item Implementation Details: Data is normalized; Absolute values of network entries are thresholded at a small value to achieve a sparse network 
-\end{itemize}
-
-\subsection{Correlation squared}
-
-\begin{itemize}
-\item Algorithm Code: CR2
-\item Description: Computes the square of the pair-wise correlation between traits, considering each pair independently of all other traits.
-\item Formula:
-\begin{equation*}
-\hat{\rho}_{j,k} = \frac{(\sum_n (Y_{n,j} - \bar{Y_j})(Y_{n,k} - \bar{Y_k}))^2}{\sum_n (Y_{n,j} - \bar{Y_j})^2 \sum_n (Y_{n,k} - \bar{Y_k})^2}
-\end{equation*}
-\item Implementation Details: Data is normalized; Absolute values of network entries are thresholded at a small value to achieve a sparse network 
-\end{itemize}
-
-\subsection{Scale-free Network}
-
-\begin{itemize}
-\item Algorithm Code: SFN
-\item Reference: \cite{SFN}
-\item Implementation Details: Data is normalized; Absolute values of network entries are thresholded at a small value to achieve a sparse network   
-\end{itemize}
-
-\subsection{SFN with Topological Overlap Matrix}
-
-\begin{itemize}
-\item Algorithm Code: TOM
-\item Reference: \cite{SFN}.
-\item Implementation Details: Data is normalized; Absolute values of network entries are thresholded at a small value to achieve a sparse network   
-\end{itemize}
-
-\subsection{Graphical Lasso}
-
-\begin{itemize}
-\item Algorithm Code: GLO
-\item Description: Fits a Gaussian graphical model to the trait data by maximizing the log-likelihood penalized the $L1$-norm of the precision matrix (= inverse covariance matrix), except that diagonal elements are set to zero. The network itself is equal to the precision matrix. 
-\item Reference: \cite{GLasso}
-\item Formula:
-\begin{equation*}
-\hat{\rho} = \argmax_{\rho\text{, $\rho$ non-negative definite}} \log \det \rho - tr(Y^TY\rho) - \lambda|\rho|_1
-\end{equation*}
-\item Implementation Details: Data is normalized; Regularization parameter $\lambda$ is chosen via cross-validation
-\end{itemize}
-
-\section{Association Algorithms}
+\subsection{Structured Association Mapping}
 
 Association Algorithms compute an Association Data set, given a Marker Data set and a Trait Data set as input, and possibly side information. An Association Data set corresponds to an association value matrix where each row corresponds to a marker, each column corresponds to a trait and an entry represents the association strength between the corresponding marker and trait. Entries with large absolute values in the association matrix represent strong associations between markers and traits and values close to or equal to zero represent weak or no association.
 
-\subsection{Lasso}
+\subsubsection{Lasso}
 
 \begin{itemize}
 \item Algorithm Code: LAS
@@ -132,16 +68,8 @@ Association Algorithms compute an Association Data set, given a Marker Data set 
 \item Implementation Details: Data is normalized; Regularization parameter $\lambda$ is chosen via cross-validation
 \end{itemize}
 
-\subsection{PLINK}
 
-\begin{itemize}
-\item Algorithm Code: PNK
-\item Description: Performs the Wald test (qualitative traits) or chi-squared test (binary traits) as implemented by the PLINK software
-\item Reference: \cite{PLINK}
-\item Implementation Details: Data is normalized; Absolute values of association values are thresholded at a small value to achieve a sparse set of associations
-\end{itemize}
-
-\subsection{Graph-guided fused Lasso}
+\subsubsection{Graph-guided fused Lasso}
 
 \begin{itemize}
 \item Algorithm Code: GF2
@@ -157,7 +85,7 @@ Association Algorithms compute an Association Data set, given a Marker Data set 
 
 \end{itemize}
 
-\subsection{Graph-constrained fused Lasso}
+\subsubsection{Graph-constrained fused Lasso}
 
 \begin{itemize}
 \item Algorithm Code: GC2
@@ -172,7 +100,7 @@ Association Algorithms compute an Association Data set, given a Marker Data set 
 \item Implementation Details: Data is normalized; Regularization parameters $\lambda, \gamma$ are chosen via cross-validation; Regular Lasso is used for screening prior to running GcLasso to reduce the number of candidate markers; The trait set is partitioned into subsets using graph cuts and each subset is run independently (Network edges between subsets are dropped)
 \end{itemize}
 
-\subsection{Tree Lasso}
+\subsubsection{Tree Lasso}
 
 \begin{itemize}
 \item Algorithm Code: TLS
@@ -187,7 +115,7 @@ Here, $V$ is the set of tree nodes and $B_{i,v}$ is the vector of entries of $B$
 \item Implementation Details: Data is normalized; Regularization parameter $\lambda$ is chosen via cross-validation; Regular Lasso is used for screening prior to running Tree Lasso to reduce the number of candidate markers; The trait set is partitioned into subsets using graph cuts and each subset is run independently (Network edges between subsets are dropped); Tree structure and weights $\omega_v$ are generated automatically from the Network through hierarchical clustering
 \end{itemize}
 
-\subsection{Adaptive Multi-Task Lasso}
+\subsubsection{Adaptive Multi-Task Lasso}
 
 \begin{itemize}
 \item Algorithm Code: ADL
@@ -204,7 +132,7 @@ Here, $h$ ranges over the set of output groups and $B_{i,h}$ is the vector of en
 \item Implementation Details: Data is normalized; Regularization parameters $\lambda, \gamma$ are chosen via cross-validation; Regular Lasso is used for screening prior to running AMTL to reduce the number of candidate markers; Output Groups are generated automatically from the network; Very large output groups are further partitioned by using graph cuts on the trait network
 \end{itemize}
 
-\subsection{Multi-Population Group Lasso}
+\subsubsection{Multi-Population Group Lasso}
 
 \begin{itemize}
 \item Algorithm Code: MPL 
@@ -220,21 +148,7 @@ Here, $B_{i,j}$ is the vector of entries of $B$ in row $i$ and column $j$, exten
 \item Implementation Details: Data is normalized; Optimization problem is decomposed and solved separately for each trait; Regularization parameter $\lambda$ is chosen via cross-validation, independently for each trait; Final results for all populations are averaged to obtain a final association matrix of size $d$ by $t$
 \end{itemize}
 
-\subsection{Population Analysis}
-
-\begin{itemize}
-\item Algorithm Code: PAA
-\item Description: This algorithm is a conglomerate of four different tests. Each test is conducted independently on marker-trait pairs and each population and the resulting association values are then averaged across populations. The four tests are: a cross-validation based test, the Wald Test (continuous trait) / chi-squared test (binary trait) as implemented in PLINK, a likelihood test and a two-sided t-test on the trait distribution by marker value.
-\item References: \cite{PopAnal} \cite{PLINK} \cite{LikelihoodTest}
-\item Additional Inputs: Population Structure
-\item Further explanation: The cross-validation based test is conducted in the following manner. We split each population into training and test set (10-fold). We then regress the trait on the marker using the training set, obtaining a scalar regression coefficient. The prediction error obtained on the test set is our test statistic.
-\item Implementation Details: Data is normalized; Absolute values of association values are thresholded at a small value to achieve a sparse set of associations
-\end{itemize}
-
-
-\section{Other Algorithms}
-
-\subsection{graph-Graph-constrained fused Lasso}
+\subsubsection{graph-Graph-constrained fused Lasso}
 
 \begin{itemize}
 \item Algorithm Code: GTA
@@ -251,7 +165,93 @@ Here, $B_{i,j}$ is the vector of entries of $B$ in row $i$ and column $j$, exten
 \item Implementation Details: Data is normalized; Regularization parameters $\lambda, \gamma_1,\gamma_2$ are chosen via cross-validation; The trait set is partitioned into subsets using graph cuts and subsets are run independently (Network edges between subsets are dropped)
 \end{itemize}
 
-\subsection{Structure}
+
+
+\subsection{Hypothesis Testing}
+
+\subsubsection{Wald/Chi-Squared Test}
+\begin{itemize}
+\item Algorithm Code: PNK
+\item Description: Performs the Wald test (qualitative traits) or chi-squared test (binary traits) as implemented by the PLINK software
+\item Reference: \cite{PLINK}
+\item Implementation Details: Data is normalized; Absolute values of association values are thresholded at a small value to achieve a sparse set of associations
+\end{itemize}
+
+
+
+\section{Implemented in Desktop Version}
+
+\subsection{Network Algorithms}
+
+Network Algorithms compute a Network Data set (a network over traits) given a single Trait Data set as input. A network is a square edge weight matrix of an undirected graph where vertices correspond to traits and the edges correspond to relatedness between traits. A large positive numerical entry in a network corresponds to two highly related traits, a negative numerical entry with large absolute value corresponds to two highly inversely related traits and a numerical entry close to or equal to zero corresponds to unrelated traits.
+
+\subsubsection{Correlation}
+
+\begin{itemize}
+\item Algorithm Code: CR1
+\item Description: Computes the pair-wise correlation between traits, considering each pair independently of all other traits.
+\item Formula:
+\begin{equation*}
+\hat{\rho}_{j,k} = \frac{\sum_n (Y_{n,j} - \bar{Y_j})(Y_{n,k} - \bar{Y_k})}{\sqrt{\sum_n (Y_{n,j} - \bar{Y_j})^2 \sum_n (Y_{n,k} - \bar{Y_k})^2}}
+\end{equation*}
+\item Implementation Details: Data is normalized; Absolute values of network entries are thresholded at a small value to achieve a sparse network 
+\end{itemize}
+
+\subsubsection{Correlation squared}
+
+\begin{itemize}
+\item Algorithm Code: CR2
+\item Description: Computes the square of the pair-wise correlation between traits, considering each pair independently of all other traits.
+\item Formula:
+\begin{equation*}
+\hat{\rho}_{j,k} = \frac{(\sum_n (Y_{n,j} - \bar{Y_j})(Y_{n,k} - \bar{Y_k}))^2}{\sum_n (Y_{n,j} - \bar{Y_j})^2 \sum_n (Y_{n,k} - \bar{Y_k})^2}
+\end{equation*}
+\item Implementation Details: Data is normalized; Absolute values of network entries are thresholded at a small value to achieve a sparse network 
+\end{itemize}
+
+\subsubsection{Scale-free Network}
+
+\begin{itemize}
+\item Algorithm Code: SFN
+\item Reference: \cite{SFN}
+\item Implementation Details: Data is normalized; Absolute values of network entries are thresholded at a small value to achieve a sparse network   
+\end{itemize}
+
+\subsubsection{SFN with Topological Overlap Matrix}
+
+\begin{itemize}
+\item Algorithm Code: TOM
+\item Reference: \cite{SFN}.
+\item Implementation Details: Data is normalized; Absolute values of network entries are thresholded at a small value to achieve a sparse network   
+\end{itemize}
+
+\subsubsection{Graphical Lasso}
+
+\begin{itemize}
+\item Algorithm Code: GLO
+\item Description: Fits a Gaussian graphical model to the trait data by maximizing the log-likelihood penalized the $L1$-norm of the precision matrix (= inverse covariance matrix), except that diagonal elements are set to zero. The network itself is equal to the precision matrix. 
+\item Reference: \cite{GLasso}
+\item Formula:
+\begin{equation*}
+\hat{\rho} = \argmax_{\rho\text{, $\rho$ non-negative definite}} \log \det \rho - tr(Y^TY\rho) - \lambda|\rho|_1
+\end{equation*}
+\item Implementation Details: Data is normalized; Regularization parameter $\lambda$ is chosen via cross-validation
+\end{itemize}
+
+\subsection{Population Analysis}
+
+\subsubsection{Population Analysis}
+\begin{itemize}
+\item Algorithm Code: PAA
+\item Description: This algorithm is a conglomerate of four different tests. Each test is conducted independently on marker-trait pairs and each population and the resulting association values are then averaged across populations. The four tests are: a cross-validation based test, the Wald Test (continuous trait) / chi-squared test (binary trait) as implemented in PLINK, a likelihood test and a two-sided t-test on the trait distribution by marker value.
+\item References: \cite{PopAnal} \cite{PLINK} \cite{LikelihoodTest}
+\item Additional Inputs: Population Structure
+\item Further explanation: The cross-validation based test is conducted in the following manner. We split each population into training and test set (10-fold). We then regress the trait on the marker using the training set, obtaining a scalar regression coefficient. The prediction error obtained on the test set is our test statistic.
+\item Implementation Details: Data is normalized; Absolute values of association values are thresholded at a small value to achieve a sparse set of associations
+\end{itemize}
+
+
+\subsubsection{Structure}
 
 \begin{itemize}
 \item Algorithm Code: STR
@@ -261,7 +261,7 @@ Here, $B_{i,j}$ is the vector of entries of $B$ in row $i$ and column $j$, exten
 \item Output: Population Structure
 \end{itemize}
 
-\subsection{Agglomerate Hierarchical Clustering}
+\subsubsection{Agglomerate Hierarchical Clustering}
 
 \begin{itemize}
 \item Algorithm Code: HCL
@@ -270,7 +270,7 @@ Here, $B_{i,j}$ is the vector of entries of $B$ in row $i$ and column $j$, exten
 \item Output: Clustering
 \end{itemize}
 
-\subsection{Agglomerate Hierarchical Clustering (for trees)}
+\subsubsection{Agglomerate Hierarchical Clustering (for trees)}
 
 \begin{itemize}
 \item Algorithm Code: TRE
@@ -279,7 +279,8 @@ Here, $B_{i,j}$ is the vector of entries of $B$ in row $i$ and column $j$, exten
 \item Output: Tree
 \end{itemize}
 
-\subsection{Module Analysis}
+\subsection{Trait Analysis}
+\subsubsection{Module Analysis}
 
 \begin{itemize}
 \item Algorithm Code: GMD
@@ -290,7 +291,7 @@ Here, $B_{i,j}$ is the vector of entries of $B$ in row $i$ and column $j$, exten
 \item Implementation Details: Modules must have at least size 20.
 \end{itemize}
 
-\subsection{Top $k$ connected traits}
+\subsubsection{Top $k$ connected traits}
 
 \begin{itemize}
 \item Algorithm Code: N / A
@@ -299,7 +300,7 @@ Here, $B_{i,j}$ is the vector of entries of $B$ in row $i$ and column $j$, exten
 \item Output: Subset
 \end{itemize}
 
-\subsection{Top connected trait and top $k$ neighbors}
+\subsubsection{Top connected trait and top $k$ neighbors}
 
 \begin{itemize}
 \item Algorithm Code: N / A
@@ -309,13 +310,6 @@ Here, $B_{i,j}$ is the vector of entries of $B$ in row $i$ and column $j$, exten
 \end{itemize}
 
 \bibliography{Algorithms}
-
-
-
-
-
-
-
 
 
 
