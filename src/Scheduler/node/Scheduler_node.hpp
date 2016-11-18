@@ -105,6 +105,7 @@ void Init(Handle<Object> exports, Handle<Object> module) {
 	NODE_SET_METHOD(exports, "checkJob", checkJob);
 	NODE_SET_METHOD(exports, "cancelJob", cancelJob);
 	NODE_SET_METHOD(exports, "getJobResult", getJobResult);
+	NODE_SET_METHOD(exports, "getClusteringResult", getClusteringResult);
 	NODE_SET_METHOD(exports, "deleteJob", deleteJob);
 }
 
