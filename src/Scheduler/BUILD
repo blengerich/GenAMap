@@ -21,6 +21,7 @@ cc_library(
         "//Algorithms:HypoTestPlaceholder",
         "//Algorithms:IterativeUpdate",
         "//Algorithms:ProximalGradientDescent",
+        "//Models:Model",
         "//Models:AdaMultiLasso",
         "//Models:GFlasso",
         "//Models:lasso",

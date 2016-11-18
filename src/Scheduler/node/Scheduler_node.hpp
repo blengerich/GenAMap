@@ -22,39 +22,44 @@ using namespace v8;
 // Visible from Node
 /////////////////////////////////////////////////////
 
-void setX(const v8::FunctionCallbackInfo<v8::Value>& args);
+void setX(const v8::FunctionCallbackInfo<v8::Value>&);
 // Arguments: job_num, JSON Matrix
 
-void setY(const v8::FunctionCallbackInfo<v8::Value>& args);
+void setY(const v8::FunctionCallbackInfo<v8::Value>&);
 // Arguments: job_num, JSON Matrix
 
-void setModelAttributeMatrix(const v8::FunctionCallbackInfo<v8::Value>& args);
+void setModelAttributeMatrix(const v8::FunctionCallbackInfo<v8::Value>&);
 // Arguments: job_num, attribute name, JSON Matrix
 
-void newJob(const v8::FunctionCallbackInfo<v8::Value>& args);
+void newJob(const v8::FunctionCallbackInfo<v8::Value>&);
 // Arguments: JSON to be converted to JobOptions_t
 
-void startJob(const v8::FunctionCallbackInfo<v8::Value>& args);
+void startJob(const v8::FunctionCallbackInfo<v8::Value>&);
 // trains the algorithm associated
 // Arguments: function callback, int job_id
 // returns True for success, false for failure.
 
-void checkJob(const v8::FunctionCallbackInfo<v8::Value>&args);
+void checkJob(const v8::FunctionCallbackInfo<v8::Value>&);
 // Returns a status code for the given jobNum
 // Arguments: int job_id
 // Returns -1 on error.
 
-void getJobResult(const v8::FunctionCallbackInfo<v8::Value>&args);
+void getJobResult(const v8::FunctionCallbackInfo<v8::Value>&);
 // Returns a Matrix of results for the given jobNum
 // Arguments: int job_id
 // Returns empty matrix on error.
 
-void cancelJob(const v8::FunctionCallbackInfo<v8::Value>& args);
+void getClusteringResult(const v8::FunctionCallbackInfo<v8::Value>&);
+// Returns the bi-clustered result for the given jobNum.
+// Arguments: int job_id
+// Returns empty matrix on error.
+
+void cancelJob(const v8::FunctionCallbackInfo<v8::Value>&);
 // cancels the algorithm associated with the given jobNum
 // Arguments: int job_id
 // Returns True for success, false on failure.
 
-void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args);
+void deleteJob(const v8::FunctionCallbackInfo<v8::Value>&);
 // Arguments: int job_id
 // Returns: boolean for success
 
