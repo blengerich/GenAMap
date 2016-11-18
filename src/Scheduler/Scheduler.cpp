@@ -282,7 +282,6 @@ void trainAlgorithmThread(uv_work_t* req) {
 		return;
 	}
 
-	// TODO: as more algorithm/model types are created, add them here. [Issue: https://github.com/blengerich/GenAMap_V2/issues/25]
 	try {
 		if (!job->algorithm || !job->model) {
 			throw runtime_error("Job must have an algorithm and a model");

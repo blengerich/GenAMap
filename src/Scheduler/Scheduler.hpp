@@ -27,7 +27,7 @@
 #include "../Algorithms/AlgorithmOptions.hpp"
 #include "Job.hpp"
 #include "../Models/ModelOptions.hpp"
-#include "../Model/Model.hpp"
+#include "../Models/Model.hpp"
 #endif
 
 
