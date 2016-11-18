@@ -19,7 +19,7 @@ const styles = {
     marginBottom: '5%'
   },
   background: {
-    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    backgroundImage: 'url(./images/dna.jpg)',
     position: 'absolute',
     width: '100%',
     height: '100%'
@@ -68,7 +68,7 @@ class Login extends Component {
             showMenuIconButton={false}
           >
             <Avatar src={logosrc} style={{alignSelf: 'center', border: 'none', order: 0}} />
-            <h1 style={styles.header}>GenAMap 2.0</h1>
+            <h1 style={styles.header}>GenAMap</h1>
           </AppBar>
           <p style={{ 'fontSize': '1.8em' }}>Sign In to GenAMap</p>
           {emailSuccessHeader}
