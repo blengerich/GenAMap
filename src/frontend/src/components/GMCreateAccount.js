@@ -9,7 +9,6 @@ import TextField from 'material-ui/lib/text-field'
 import config from '../../config'
 
 const logos = ['logo-01.png', 'logo-02.png']
-
 const styles = {
   action: {
     margin: '10px 0',
@@ -20,7 +19,7 @@ const styles = {
     marginBottom: '5%'
   },
   background: {
-    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    backgroundImage: 'url(./images/dna.jpg)',
     position: 'absolute',
     width: '100%',
     height: '100%'
@@ -123,7 +122,7 @@ class CreateAccount extends Component {
             showMenuIconButton={false}
           >
             <Avatar src={logosrc} style={{alignSelf: 'center', border: 'none', order: 0}} />
-            <h1 style={styles.header}>GenAMap 2.0</h1>
+            <h1 style={styles.header}>GenAMap</h1>
           </AppBar>
           <p style={{ 'fontSize': '1.8em' }}>Register for GenAMap</p>
           <div>

@@ -59,7 +59,7 @@ var GMTopMenu = React.createClass({
     this.setState({settingOpen: true})
   },
   handleAboutButton: function(event) {
-    window.open('http://www.sailing.cs.cmu.edu/main/genamap/v2/', '_blank')
+    window.open('http://www.sailing.cs.cmu.edu/main/genamap/', '_blank')
   },
   handleLogoutButton: function (event) {
     this.props.handleLogoutButton()
