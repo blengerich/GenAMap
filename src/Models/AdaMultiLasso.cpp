@@ -45,7 +45,8 @@ void AdaMultiLasso::setAttributeMatrix(const string& str, MatrixXd* Z) {
     } else if (str == "snpsFeatures" || str == "snpsFeature") {
         setSnpsFeatures(*Z);
     } else {
-        throw runtime_error("AdaMultiLasso models have no attribute with name" + str);
+//        throw runtime_error("AdaMultiLasso models have no attribute with name" + str);
+        cerr << "AdaMultiLasso models have no attribute with name " << endl;
     }
 }
 

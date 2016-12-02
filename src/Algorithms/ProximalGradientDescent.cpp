@@ -233,7 +233,6 @@ void ProximalGradientDescent::run(TreeLasso * model) {
 
 
 void ProximalGradientDescent::run(MultiPopLasso * model) {
-    model->initBeta();
     MatrixXd X = model->getX();
     MatrixXd y = model->getY();
     int epoch = 0;
