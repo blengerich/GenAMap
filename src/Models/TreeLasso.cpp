@@ -43,7 +43,7 @@ void TreeLasso::setXY(MatrixXd m, MatrixXd n) {
 }
 
 void TreeLasso::assertReadyToRun() {
-    throw runtime_error("TreeLasso not implemented yet");
+    //throw runtime_error("TreeLasso not implemented yet");
 }
 
 void TreeLasso::initIterativeUpdate(){

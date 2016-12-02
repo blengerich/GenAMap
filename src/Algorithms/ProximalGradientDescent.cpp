@@ -197,6 +197,7 @@ void ProximalGradientDescent::setLearningRate(float lr) {
 
 
 void ProximalGradientDescent::run(TreeLasso * model) {
+    model->initBeta();
     model->hierarchicalClustering();
     learningRate = learningRate*1e5;
     int epoch = 0;
