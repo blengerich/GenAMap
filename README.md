@@ -1,7 +1,7 @@
 ![GenAMap Logo](http://www.cs.cmu.edu/~blengeri/img/genamap_logo.png)
 
 [![Build Status](http://ec2-52-201-224-46.compute-1.amazonaws.com:8080/buildStatus/icon?job=GenAMap_Master)](http://ec2-52-201-224-46.compute-1.amazonaws.com:8080/job/GenAMap_Master/)  [![Website](https://img.shields.io/website-up-down-green-red/http/genamap.github.io.svg)](http://sailing.cs.cmu.edu/main/genamap)
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()[![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/cdnjs/cdnjs.svg)](https://github.com/blengerich/GenAMap/pulls)[![GitHub closed issues](https://img.shields.io/github/issues-closed/badges/shields.svg)](https://github.com/blengerich/GenAMap/issues)
+[![license](https://img.shields.io/github/license/blengerich/genamap.svg)](https://github.com/blengerich/GenAMap/blob/master/License.md) [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/blengerich/genamap.svg)](https://github.com/blengerich/GenAMap/pulls) [![GitHub closed issues](https://img.shields.io/github/issues-closed/blengerich/genamap.svg)](https://github.com/blengerich/GenAMap/issues)
 
 [GenAMap](http://www.sailing.cs.cmu.edu/main/genamap/) is an open-source platform for visual machine learning of genome-phenome associations.
 
