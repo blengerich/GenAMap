@@ -57,7 +57,7 @@ void TreeLasso::setLambda(double d){
 void TreeLasso::initBeta() {
     long c = X.cols();
     long d = y.cols();
-    beta = MatrixXd::Random(c, d);
+    beta = MatrixXd::Zero(c, d);
 }
 
 void TreeLasso::hierarchicalClustering() {

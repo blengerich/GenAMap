@@ -126,6 +126,7 @@ void ProximalGradientDescent::run(Model *model) {
 }
 
 void ProximalGradientDescent::run(Gflasso * model) {
+    model->initBeta();
     learningRate = learningRate*2e6;
     int epoch = 0;
     double residue = model->cost();
@@ -139,30 +140,24 @@ void ProximalGradientDescent::run(Gflasso * model) {
     MatrixXd grad;
     double diff = tolerance*2;
     prev_residue= 9999999;
-    
     while (epoch < maxIteration && diff > tolerance) {
         epoch++;
         progress = float(epoch) / maxIteration;
         theta_new = 2.0/(epoch+3.0);
         grad = model->gradient();
-        
         in = beta - 1/model->getL() * grad;
-        beta_curr = model->proximal_operator(in, learningRate);;
+        beta_curr = model->proximal_operator(in, learningRate);
         beta = beta_curr + (1-theta)/theta * theta_new * (beta_curr-beta_prev);
-        
         beta_prev = beta_curr;
         theta = theta_new;
         model->updateBeta(beta);
         residue = model->cost();
-        
         diff = abs(prev_residue - residue);
         if (residue < prev_residue){
             best_beta = beta;
             prev_residue = residue;
         }
-        
     }
-    cout<<endl;
     model->updateBeta(best_beta);
 }
 
@@ -238,6 +233,7 @@ void ProximalGradientDescent::run(TreeLasso * model) {
 
 
 void ProximalGradientDescent::run(MultiPopLasso * model) {
+    model->initBeta();
     MatrixXd X = model->getX();
     MatrixXd y = model->getY();
     int epoch = 0;
@@ -283,6 +279,7 @@ void ProximalGradientDescent::run(MultiPopLasso * model) {
 
 void ProximalGradientDescent::run(AdaMultiLasso *model) {
     // this is not just proximal gradient descent, also including iteratively updating beta and w, v
+    model->initBeta();
     model->initTraining();
     int epoch = 0;
     double residue = model->cost();

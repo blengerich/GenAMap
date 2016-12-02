@@ -97,7 +97,7 @@ MatrixXd Gflasso::get_X(){
 }
 
 MatrixXd Gflasso::get_Y(){
-    return Y;
+    return y;
 };
 
 MatrixXd Gflasso::get_beta() {
@@ -105,7 +105,7 @@ MatrixXd Gflasso::get_beta() {
 }
 
 void Gflasso::assertReadyToRun() {
-    throw runtime_error("Gflasso not implemented");
+    //throw runtime_error("Gflasso not implemented");
 }
 
 // Training functions : X,Y and other parameters
@@ -116,10 +116,10 @@ void Gflasso::train(){
 void Gflasso::setXY(MatrixXd X,MatrixXd Y){
 //    std::cout << "Training set X and Y is provided !" << std::endl;
     this->X = X;
-    this->Y = Y;
+    this->y = Y;
     long row=0, col=0;
     row = X.cols();
-    col = Y.cols();
+    col = y.cols();
 
     // Initialize beta to zero values
     this->beta = MatrixXd::Random(row,col);
@@ -132,14 +132,14 @@ void Gflasso::setXY(MatrixXd X,MatrixXd Y){
 // Training data provided along with initial beta estimation
 void Gflasso::train(MatrixXd X,MatrixXd Y,MatrixXd Beta){
     this->X = X;
-    this->Y = Y;
+    this->y = Y;
     this->beta = Beta;
 }
 
 // Everything is provided i.e. Training data,traits corr. and regularization params
 void Gflasso::train(MatrixXd X,MatrixXd Y,MatrixXd corr_coeff,double lamdba,double gamma){
     this->X = X;
-    this->Y = Y;
+    this->y = Y;
     this->corr_coff = corr_coff;
     this->lambda_flasso = lamdba;
     this->gamma_flasso = gamma;
@@ -180,7 +180,7 @@ double Gflasso::gflasso_fusion_penalty(){
 double Gflasso::cost(){
 
     return (
-            (Y - X * beta).squaredNorm() +
+            (y - X * beta).squaredNorm() +
             lambda_flasso*(beta.cwiseAbs().sum()) +
             gamma_flasso*(gflasso_fusion_penalty())
     );
@@ -293,17 +293,13 @@ MatrixXd Gflasso::gradient(){
     /* First calculate the Edge vertex and Alpha Matrix */
     update_edge_vertex_matrix();
     update_alpha_matrix();
-
-    return ( (X.transpose())*(X*beta - Y) + (edge_vertex_matrix.transpose()*alpha_matrix) );
+    return ( (X.transpose())*(X*beta - y) + (edge_vertex_matrix.transpose()*alpha_matrix) );
 }
 
 
 /* Lipschitz Constant to be used in the SPG to get the optimal values of beta matrix*/
 float Gflasso::getL() {
-
-    MatrixXd X = this->get_X();
     return ((X.transpose()*X).eigenvalues()).real().maxCoeff() + edge_vertex_matrix.squaredNorm()/mau;
-
 }
 
 MatrixXd Gflasso::proximal_operator(MatrixXd in, float l) {  // todo this needs some extra attention later.
@@ -311,4 +307,14 @@ MatrixXd Gflasso::proximal_operator(MatrixXd in, float l) {  // todo this needs 
     sign += -1.0*((in.array()<0).matrix()).cast<double>();
     in = ((in.array().abs()-l*lambda_flasso/this->getL()).max(0)).matrix();//proximal
     return (in.array()*sign.array()).matrix();//proximal multipled back with sign
+}
+
+void Gflasso::initBeta() {
+    long row=0, col=0;
+    row = X.cols();
+    col = y.cols();
+
+    // Initialize beta to zero values
+    this->beta = MatrixXd::Random(row,col);
+    this->beta.setZero();
 }

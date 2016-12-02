@@ -22,8 +22,6 @@ class Gflasso: public Model{
 private :
 
     // Training data
-    MatrixXd X;
-    MatrixXd Y;
 
     // Correlation graph between Y traits(Input)
     MatrixXd corr_coff;
@@ -33,8 +31,6 @@ private :
     double gamma_flasso;
 
     // Parameter modelling through Beta MatrixXd
-    MatrixXd beta;
-
     //Type of flasso
     int flasso_type;
 
@@ -83,6 +79,7 @@ public :
     MatrixXd get_X();
     MatrixXd get_Y();
     MatrixXd get_beta();
+    void initBeta();
 
     // Cost function and supporting functions
     double cost();
