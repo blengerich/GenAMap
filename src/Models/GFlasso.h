@@ -56,13 +56,13 @@ public :
 
     void assertReadyToRun();
 
-    // interfaces irrelevant to PGD, convenient for debug. 
-    // Methods to set and get various input variables of GFLASSO
-    void train();
-    // Training data provided along with Correlation coff Matrix
-    void train(MatrixXd,MatrixXd,MatrixXd);
-    // Everything is provided i.e. Training data,traits corr. and regularization params
-    void train(MatrixXd,MatrixXd,MatrixXd,double,double);
+//    // interfaces irrelevant to PGD, convenient for debug.
+//    // Methods to set and get various input variables of GFLASSO
+//    void train();
+//    // Training data provided along with Correlation coff Matrix
+//    void train(MatrixXd,MatrixXd,MatrixXd);
+//    // Everything is provided i.e. Training data,traits corr. and regularization params
+//    void train(MatrixXd,MatrixXd,MatrixXd,double,double);
 
     // Only X and Y are given
     void setXY(MatrixXd,MatrixXd);

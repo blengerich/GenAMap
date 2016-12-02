@@ -105,13 +105,17 @@ MatrixXd Gflasso::get_beta() {
 }
 
 void Gflasso::assertReadyToRun() {
-    //throw runtime_error("Gflasso not implemented");
+    if (!((X.rows() > 0) && (X.rows() == y.rows())
+          && (X.cols() > 0) && (y.cols() > 0))) {
+        throw runtime_error("X and Y matrices of size (" + to_string(X.rows()) + "," + to_string(X.cols()) + "), and (" +
+                            to_string(y.rows()) + "," + to_string(y.cols()) + ") are not compatible.");
+    }
 }
 
 // Training functions : X,Y and other parameters
-void Gflasso::train(){
-    std::cout << " Error : No Training Parameters are provided. Cannot perform GFLasso regression !" << std::endl;
-}
+//void Gflasso::train(){
+//    std::cout << " Error : No Training Parameters are provided. Cannot perform GFLasso regression !" << std::endl;
+//}
 
 void Gflasso::setXY(MatrixXd X,MatrixXd Y){
 //    std::cout << "Training set X and Y is provided !" << std::endl;
@@ -130,20 +134,20 @@ void Gflasso::setXY(MatrixXd X,MatrixXd Y){
 }
 
 // Training data provided along with initial beta estimation
-void Gflasso::train(MatrixXd X,MatrixXd Y,MatrixXd Beta){
-    this->X = X;
-    this->y = Y;
-    this->beta = Beta;
-}
-
-// Everything is provided i.e. Training data,traits corr. and regularization params
-void Gflasso::train(MatrixXd X,MatrixXd Y,MatrixXd corr_coeff,double lamdba,double gamma){
-    this->X = X;
-    this->y = Y;
-    this->corr_coff = corr_coff;
-    this->lambda_flasso = lamdba;
-    this->gamma_flasso = gamma;
-}
+//void Gflasso::train(MatrixXd X,MatrixXd Y,MatrixXd Beta){
+//    this->X = X;
+//    this->y = Y;
+//    this->beta = Beta;
+//}
+//
+//// Everything is provided i.e. Training data,traits corr. and regularization params
+//void Gflasso::train(MatrixXd X,MatrixXd Y,MatrixXd corr_coeff,double lamdba,double gamma){
+//    this->X = X;
+//    this->y = Y;
+//    this->corr_coff = corr_coff;
+//    this->lambda_flasso = lamdba;
+//    this->gamma_flasso = gamma;
+//}
 
 // Helper functions to calculate the Cost function
 double Gflasso::gflasso_fusion_penalty(){
