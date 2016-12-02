@@ -46,7 +46,7 @@ void AdaMultiLasso::setAttributeMatrix(const string& str, MatrixXd* Z) {
         setSnpsFeatures(*Z);
     } else {
 //        throw runtime_error("AdaMultiLasso models have no attribute with name" + str);
-        cerr << "AdaMultiLasso models have no attribute with name " << endl;
+        std::clog << "AdaMultiLasso models have no attribute with name " << str << endl;
     }
 }
 

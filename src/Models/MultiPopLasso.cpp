@@ -71,7 +71,7 @@ void MultiPopLasso::setAttributeMatrix(const string& str, MatrixXd* Z) {
         setY(*Z);
     } else {
 //        throw runtime_error("MultiPopLasso models have no attribute with name " + str);
-        cerr << "MultiPopLasso models have no attribute with name " << endl;
+        std::clog << "MultiPopLasso models have no attribute with name " << str << endl;
     }
 }
 
