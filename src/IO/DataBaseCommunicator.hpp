@@ -85,7 +85,7 @@ public:
     vector<data_pack> getDataPathFromJob(int);
     vector<data_pack> getDataPathFromUser(string);
     vector<result_pack> getResultPathFromJob(int);
-    vector<result_pack> getReusltPathFromUser(string);
+    vector<result_pack> getResultPathFromUser(string);
 
     vector<job_pack> getJobFromUser(string);
     organization_info getOrganizationFromUser(string);
