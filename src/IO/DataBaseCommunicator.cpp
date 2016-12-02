@@ -128,10 +128,10 @@ vector<result_pack> DataBaseCommunicator::getResultPathFromJob(int job_pk) {
     return result;
 }
 
-vector<result_pack> DataBaseCommunicator::getReusltPathFromUser(string email) {
+vector<result_pack> DataBaseCommunicator::getResultPathFromUser(string email) {
     vector<result_pack> result, tmp;
     vector<job_pack> jobs = getJobFromUser(email);
-    for (int i = 0; i < jobs.size(); i++) {
+    for (unsigned int i = 0; i < jobs.size(); i++) {
         tmp = getResultPathFromJob(jobs[i].job_id);
         copy(tmp.begin(), tmp.end(), std::back_inserter(result));
     }
@@ -159,7 +159,7 @@ vector<job_pack> DataBaseCommunicator::getJobFromUser(string email) {
 
 organization_info DataBaseCommunicator::getOrganizationFromUser(string email) {
     organization_info oi;
-    oi.name = 'NULL';
+    oi.name = "NULL";
     oi.id = 0;
     sql::Statement *stmt;
     sql::ResultSet *res;
@@ -246,7 +246,7 @@ void DataBaseCommunicator::insertJob2Data(int jobID, vector<int> dataIDs) {
     int id = getIDForInsert("job_data");
     sql::PreparedStatement *prep_stmt;
     prep_stmt = con->prepareStatement("INSERT INTO job_data (id, job_id, data_id) VALUES (?, ?, ?)");
-    for (int i=0; i<dataIDs.size();i++){
+    for (unsigned int i=0; i < dataIDs.size(); i++){
         prep_stmt->setInt(1, id++);
         prep_stmt->setInt(2, jobID);
         prep_stmt->setInt(3, dataIDs[i]);
