@@ -18,6 +18,7 @@
 #include "../../Algorithms/Algorithm.hpp"
 #include "../../Algorithms/AlgorithmOptions.hpp"
 #include "../../Algorithms/HypoTestPlaceHolder.h"
+#include "../../Models/Model.hpp"
 #include "../../Models/ModelOptions.hpp"
 #include "../Job.hpp"
 #include "../Scheduler.hpp"
@@ -169,6 +170,31 @@ void getJobResult(const v8::FunctionCallbackInfo<v8::Value>& args) {
 }
 
 
+// Returns the bi-clustered result for the given jobNum.
+// Synchronous.
+// Arguments: int job_id
+// Returns empty matrix on error.
+void getClusteringResult(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	Isolate* isolate = args.GetIsolate();
+	try {
+		if (!ArgsHaveJobID(args, 0)) {
+			args.GetReturnValue().Set(Boolean::New(isolate, false));
+			return;
+		}
+		int job_id = (int)Local<Number>::Cast(args[0])->Value();
+		const modelResult& result = Scheduler::Instance()->getClusteringResult(job_id);
+		Local<v8::Array> obj = v8::Array::New(isolate);
+		obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result.beta).c_str()));
+		obj->Set(1, v8::String::NewFromUtf8(isolate, result.rowStr.c_str()));
+		obj->Set(2, v8::String::NewFromUtf8(isolate, result.colStr.c_str()));
+		args.GetReturnValue().Set(obj);
+	} catch (const exception& e) {
+		isolate->ThrowException(Exception::Error(
+			String::NewFromUtf8(isolate, e.what())));
+	}
+}
+
+
 // Cancels a potentially running Algorithm.
 // Synchronous.
 // Arguments: int job_id
@@ -224,7 +250,6 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 	try {
 		// Pack up the data to be returned to JS
 		const MatrixXd& result = Scheduler::Instance()->getJobResult(job->job_id);
-		// TODO: Fewer convserions to return a matrix [Issue: https://github.com/blengerich/GenAMap_V2/issues/17]
 		obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
 		
 		if (status < 0) { //libuv error

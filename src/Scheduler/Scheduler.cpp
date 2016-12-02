@@ -282,7 +282,6 @@ void trainAlgorithmThread(uv_work_t* req) {
 		return;
 	}
 
-	// TODO: as more algorithm/model types are created, add them here. [Issue: https://github.com/blengerich/GenAMap_V2/issues/25]
 	try {
 		if (!job->algorithm || !job->model) {
 			throw runtime_error("Job must have an algorithm and a model");
@@ -488,6 +487,38 @@ MatrixXd Scheduler::getJobResult(const int job_id) {
 	    }
 	} else {
 		return MatrixXd();
+	}
+}
+
+
+modelResult Scheduler::getClusteringResult(const int job_id) {
+	if (ValidJobId(job_id)) {
+		Job_t* job = getJob(job_id);
+		if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+	        return model->getClusteringResult();
+	    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
+	        return model->getClusteringResult();
+	    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+	        return model->getClusteringResult();
+	    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
+	        return model->getClusteringResult();
+	    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
+	        return model->getClusteringResult();
+	    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+	        return model->getClusteringResult();
+	    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
+			return model->getClusteringResult();
+		} else if (FisherTest* model = dynamic_cast<FisherTest*>(job->model)) {
+			return model->getClusteringResult();
+		} else if (Chi2Test* model = dynamic_cast<Chi2Test*>(job->model)) {
+			return model->getClusteringResult();
+		} else if (WaldTest* model = dynamic_cast<WaldTest*>(job->model)) {
+			return model->getClusteringResult();
+		} else {
+	    	return model->getClusteringResult();
+	    }
+	} else {
+		return modelResult();
 	}
 }
 
