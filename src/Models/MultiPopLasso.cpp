@@ -70,7 +70,8 @@ void MultiPopLasso::setAttributeMatrix(const string& str, MatrixXd* Z) {
     } else if (str == "Y") {
         setY(*Z);
     } else {
-        throw runtime_error("MultiPopLasso models have no attribute with name" + str);
+//        throw runtime_error("MultiPopLasso models have no attribute with name " + str);
+        std::clog << "MultiPopLasso models have no attribute with name " << str << endl;
     }
 }
 
@@ -170,7 +171,7 @@ void MultiPopLasso::formatData() {
         }
     }
     X = tmpX;
-    beta = MatrixXd::Random(c * popNum, 1);
+    beta = MatrixXd::Zero(c * popNum, 1);
     L = ((X.transpose()*X).eigenvalues()).real().maxCoeff();
 }
 

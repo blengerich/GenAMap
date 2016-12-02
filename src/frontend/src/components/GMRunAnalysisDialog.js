@@ -521,7 +521,7 @@ const GMRunAnalysisDialog = React.createClass({
                     </div>
                   </div>:
                 (this.state.modelValue == 2) ? // Gflasso
-                  <div>Gflasso has not been implemented yet</div>  :
+                  <div></div>  :
                 (this.state.modelValue == 3) ? // Multi-Population Lasso
                   <div id='populationDiv'>
                       <SelectField
@@ -537,7 +537,7 @@ const GMRunAnalysisDialog = React.createClass({
                       </select>
                     </div>  :
                 (this.state.modelValue == 4) ? // Tree Lasso
-                  <div>TreeLasso has not been implemented yet</div>  :
+                  <div></div>  :
                 null}
               </div>
             </div>

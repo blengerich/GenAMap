@@ -22,8 +22,6 @@ class Gflasso: public Model{
 private :
 
     // Training data
-    MatrixXd X;
-    MatrixXd Y;
 
     // Correlation graph between Y traits(Input)
     MatrixXd corr_coff;
@@ -33,8 +31,6 @@ private :
     double gamma_flasso;
 
     // Parameter modelling through Beta MatrixXd
-    MatrixXd beta;
-
     //Type of flasso
     int flasso_type;
 
@@ -60,14 +56,16 @@ public :
 
     void assertReadyToRun();
 
-    // Methods to set and get various input variables of GFLASSO
-    void train();
+//    // interfaces irrelevant to PGD, convenient for debug.
+//    // Methods to set and get various input variables of GFLASSO
+//    void train();
+//    // Training data provided along with Correlation coff Matrix
+//    void train(MatrixXd,MatrixXd,MatrixXd);
+//    // Everything is provided i.e. Training data,traits corr. and regularization params
+//    void train(MatrixXd,MatrixXd,MatrixXd,double,double);
+
     // Only X and Y are given
     void setXY(MatrixXd,MatrixXd);
-    // Training data provided along with Correlation coff Matrix
-    void train(MatrixXd,MatrixXd,MatrixXd);
-    // Everything is provided i.e. Training data,traits corr. and regularization params
-    void train(MatrixXd,MatrixXd,MatrixXd,double,double);
 
     // Methods to set and get various parameters
     void set_params(double, double);
@@ -83,6 +81,7 @@ public :
     MatrixXd get_X();
     MatrixXd get_Y();
     MatrixXd get_beta();
+    void initBeta();
 
     // Cost function and supporting functions
     double cost();

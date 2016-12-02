@@ -43,7 +43,11 @@ void TreeLasso::setXY(MatrixXd m, MatrixXd n) {
 }
 
 void TreeLasso::assertReadyToRun() {
-    throw runtime_error("TreeLasso not implemented yet");
+    if (!((X.rows() > 0) && (X.rows() == y.rows())
+          && (X.cols() > 0) && (y.cols() > 0))) {
+        throw runtime_error("X and Y matrices of size (" + to_string(X.rows()) + "," + to_string(X.cols()) + "), and (" +
+                            to_string(y.rows()) + "," + to_string(y.cols()) + ") are not compatible.");
+    }
 }
 
 void TreeLasso::initIterativeUpdate(){
@@ -57,7 +61,7 @@ void TreeLasso::setLambda(double d){
 void TreeLasso::initBeta() {
     long c = X.cols();
     long d = y.cols();
-    beta = MatrixXd::Random(c, d);
+    beta = MatrixXd::Zero(c, d);
 }
 
 void TreeLasso::hierarchicalClustering() {
