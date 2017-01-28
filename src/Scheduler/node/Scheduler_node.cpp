@@ -34,7 +34,7 @@ void setX(const FunctionCallbackInfo<Value>& args) {
 	bool result = false;
 	Isolate* isolate = args.GetIsolate();
 	if (ArgsHaveJobID(args, 0)) {
-		const int job_id = (int)Local<Number>::Cast(args[0])->Value();
+		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
 		Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
 		MatrixXd* mat = v8toEigen(ar);
 		result = Scheduler::Instance()->setX(job_id, *mat);
@@ -48,7 +48,7 @@ void setY(const FunctionCallbackInfo<Value>& args) {
 	bool result = false;
 	Isolate* isolate = args.GetIsolate();
 	if (ArgsHaveJobID(args, 0)) {
-		const int job_id = (int)Local<Number>::Cast(args[0])->Value();
+		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
 		Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
 		MatrixXd* mat = v8toEigen(ar);
 		result = Scheduler::Instance()->setY(job_id, *mat);
@@ -61,7 +61,7 @@ void setModelAttributeMatrix(const FunctionCallbackInfo<Value>& args) {
 	bool result = false;
 	Isolate* isolate = args.GetIsolate();
 	if (ArgsHaveJobID(args, 0)) {
-		const int job_id = (int)Local<Number>::Cast(args[0])->Value();
+		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
 		const string attribute_name(*v8::String::Utf8Value(args[1]->ToString()));
 		Local<v8::Array> ar = Local<v8::Array>::Cast(args[2]);
 		MatrixXd* mat = v8toEigen(ar);
@@ -78,8 +78,8 @@ void newJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
 	const JobOptions_t& options = JobOptions_t(isolate, options_v8);
 	try {
-		const int id = Scheduler::Instance()->newJob(options);
-		if (id < 0) {
+		const job_id_t id = Scheduler::Instance()->newJob(options);
+		if (id == 0) {
 			isolate->ThrowException(Exception::Error(
 				String::NewFromUtf8(isolate, "Could not add another job")));
 			return;
@@ -97,7 +97,7 @@ void newJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 // Maybe begins the training of an algorithm, given the job number.
 // Asynchronous.
-// Arguments: int job_id, function callback
+// Arguments: job_id_t job_id, function callback
 void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	// Inspect arguments.
@@ -107,7 +107,7 @@ void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 			return;
 		}
 
-		const int job_id = (int)Local<Number>::Cast(args[0])->Value();
+		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
 		Job_t* job = Scheduler::Instance()->getJob(job_id);
 		job->exception = nullptr;
 		job->callback.Reset(isolate, Local<Function>::Cast(args[1]));
@@ -127,7 +127,7 @@ void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 // Checks the status of an algorithm, given the algorithm's job number.
 // Currently synchronous.
-// Arguments: int job_id
+// Arguments: job_id_t job_id
 void checkJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 
@@ -137,7 +137,7 @@ void checkJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 		return;
 	}
 
-	int job_id = (int)Local<Number>::Cast(args[0])->Value();
+	const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
 	const double progress = Scheduler::Instance()->checkJobProgress(job_id);
 	Local<Number> retval = Number::New(isolate, progress);
 	args.GetReturnValue().Set(retval);
@@ -145,7 +145,7 @@ void checkJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 // Gets the results of a job, given the job's id.
 // Synchronous.
-// Arguments: int job_id
+// Arguments: job_id_t job_id
 // Returns: MatrixXd of results, empty on error.
 void getJobResult(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
@@ -156,7 +156,7 @@ void getJobResult(const v8::FunctionCallbackInfo<v8::Value>& args) {
 			return;
 		}
 
-		int job_id = (int)Local<Number>::Cast(args[0])->Value();
+		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
 		const MatrixXd& result = Scheduler::Instance()->getJobResult(job_id);
 		Local<v8::Array> obj = v8::Array::New(isolate);
 		obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
@@ -171,7 +171,7 @@ void getJobResult(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 // Cancels a potentially running Algorithm.
 // Synchronous.
-// Arguments: int job_id
+// Arguments: job_id_t job_id
 // Returns: boolean representing success.
 void cancelJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
@@ -182,7 +182,7 @@ void cancelJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 		return;
 	}
 	try {
-		const int job_id = (int)Local<Integer>::Cast(args[0])->Value();
+		const job_id_t job_id = (unsigned int)Local<Integer>::Cast(args[0])->Value();
 		const bool success = Scheduler::Instance()->cancelJob(job_id);
 		Handle<Boolean> retval = Boolean::New(isolate, success);
 		args.GetReturnValue().Set(retval);
@@ -202,7 +202,7 @@ void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 		return;
 	}
 
-	const int job_id = (int)Local<Integer>::Cast(args[0])->Value();
+	const job_id_t job_id = (unsigned int)Local<Integer>::Cast(args[0])->Value();
 	const bool success = Scheduler::Instance()->deleteJob(job_id);
 	Handle<Boolean> retval = Boolean::New(isolate, success);
 	args.GetReturnValue().Set(retval);
@@ -224,10 +224,10 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 	try {
 		// Pack up the data to be returned to JS
 		const MatrixXd& result = Scheduler::Instance()->getJobResult(job->job_id);
-		// TODO: Fewer convserions to return a matrix [Issue: https://github.com/blengerich/GenAMap_V2/issues/17]
+		// TODO: Fewer convserions to return a matrix
 		obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
 		
-		if (status < 0) { //libuv error
+		if (status < 0) { // libuv error
 			throw runtime_error("Libuv error (check server)");
 		}
 		if (job->exception) {

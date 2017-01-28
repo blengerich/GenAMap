@@ -2,6 +2,8 @@
 #define JOB_HPP
 
 #include <exception>
+#include <mutex>
+#include <thread>
 #include <uv.h>
 #include <v8.h>
 #include <Eigen/Dense>
@@ -21,13 +23,17 @@
 using namespace std;
 using namespace v8;
 
+typedef unsigned int job_id_t;	// job_id = 0 indicates error.
+
 typedef struct Job_t {
-	uv_work_t request;
-	Persistent<Function> callback;
-	int job_id;
 	Algorithm* algorithm;
-	Model* model;
 	exception_ptr exception;
+	job_id_t job_id;
+	Model* model;
+	//mutex mtx;
+	thread::id thread_id;
+	Persistent<Function> callback;
+	uv_work_t request;
 } Job_t;
 
 typedef struct JobOptions_t {

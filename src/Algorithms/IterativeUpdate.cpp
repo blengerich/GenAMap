@@ -18,6 +18,13 @@ IterativeUpdate::IterativeUpdate(const unordered_map<string, string>& options) {
 
 void IterativeUpdate::setTolerance(double t) {tol = t;}
 
+/*void IterativeUpdate::setUpRun() {
+    mtx.lock();
+}
+void IterativeUpdate::finishRun() {
+    mtx.unlock();
+}*/
+
 void IterativeUpdate::assertReadyToRun() {
     throw runtime_error("Iterative Update not implemented yet");
 }
@@ -36,7 +43,8 @@ void IterativeUpdate::run(TreeLasso* tl) {
     double i = 0;
     MatrixXd bestBeta = tl->getBeta();
     tl->initIterativeUpdate();
-    while (i < maxIteration){
+    while (!shouldStop && i < maxIteration){
+        mtx.lock();
         progress = i/maxIteration;
         residue = tl->cost();
         if (residue < prev_residue){
@@ -51,6 +59,7 @@ void IterativeUpdate::run(TreeLasso* tl) {
         tl->updateMD();
         tl->updateBeta();
         i +=1;
+        mtx.unlock();
     }
     tl->updateBeta(bestBeta);
 }

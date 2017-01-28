@@ -36,26 +36,26 @@ void newJob(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 void startJob(const v8::FunctionCallbackInfo<v8::Value>& args);
 // trains the algorithm associated
-// Arguments: function callback, int job_id
+// Arguments: function callback, job_id_t job_id
 // returns True for success, false for failure.
 
 void checkJob(const v8::FunctionCallbackInfo<v8::Value>&args);
 // Returns a status code for the given jobNum
-// Arguments: int job_id
+// Arguments: job_id_t job_id
 // Returns -1 on error.
 
 void getJobResult(const v8::FunctionCallbackInfo<v8::Value>&args);
 // Returns a Matrix of results for the given jobNum
-// Arguments: int job_id
+// Arguments: job_id_t job_id
 // Returns empty matrix on error.
 
 void cancelJob(const v8::FunctionCallbackInfo<v8::Value>& args);
 // cancels the algorithm associated with the given jobNum
-// Arguments: int job_id
+// Arguments: job_id_t job_id
 // Returns True for success, false on failure.
 
 void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args);
-// Arguments: int job_id
+// Arguments: job_id_t job_id
 // Returns: boolean for success
 
 /* Deprecated
@@ -74,7 +74,6 @@ void deleteAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args);
 void deleteModel(const v8::FunctionCallbackInfo<v8::Value>& args);
 // Arguments: int model_id
 // Returns: boolean for success
-
 */
 
 /////////////////////////////////////////////////////
