@@ -157,19 +157,39 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
     hoverTimeout = setTimeout(() => {
       var labelText = "<h2>Trait: " + traitLabels[trait] + "</h2> <h2>Marker: " +
                       markerLabels[marker].split(',')[0] + "</h2> <p> Effect Size: " + correlation + "</p>";
-      var tooltip = d3.select("#matrixChart")
-                      .append("div")
-                      .attr("class", "tooltip")
-                      .html(labelText)
-                      .style("position", "absolute")
-                      .style("left", mousePos.pageX + "px")
-                      .style("top", mousePos.pageY + "px")
+      if (markerLabels[marker].split(',')[0].startsWith("rs")) {
+        var labelText = "<h2>Trait: " + traitLabels[trait] + "</h2> <h2>Marker: " +
+                      "<a href=\"https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=" +
+                      markerLabels[marker].split(',')[0] + "\" target=\"_blank\"> " + markerLabels[marker].split(',')[0] +
+                      "</a></h2> <p> Effect Size: " + correlation + "</p>";
+      }
+      //var tooltip = d3.select("#matrixChart")
+      if (!d.clicked) {
+        console.log("making tooltip")
+        d.tooltip = d3.select("#matrixChart")
+                        .append("div")
+                        .attr("class", "tooltip")
+                        .html(labelText)
+                        .style("position", "absolute")
+                        .style("left", mousePos.pageX + "px")
+                        .style("top", mousePos.pageY + "px")
+        console.log(d.tooltip)
+      }
     }, 500)
   }
 
-  function hoverOutCell() {
+  function hoverOutCell(d) {
+    console.log("d: ");
+    console.log(d);
     clearTimeout(hoverTimeout)
-    d3.select(".tooltip").remove();
+    if (!d.clicked) {
+      /*console.log("trying to remove");
+      console.log(d.tooltip);*/
+      //d.tooltip[0][0].hide();
+      d3.select(".tooltip").remove();
+    } else {
+      console.log("clicked, not removing")
+    }
   }
 
   /* parse correlation data into visualization */
@@ -214,6 +234,16 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
                     .attr("trait", function(d) { return d.Trait })
                     .attr("marker", function(d) { return d.Marker })
                     .attr("value", function(d) { return d.value })
+                    .attr("clicked", false)
+                    .on('click', function(d){
+                      console.log("onclick inner");
+                        if(d.clicked){
+                          d.attr("clicked", false)
+                        }else{
+                          d.attr("clicked", true)
+                        }
+                        return d.clicked;
+                    })
                     .on('mouseover', function(d) {
                       var mousePos = d3.event;
                       var trait = d.Trait;
@@ -223,7 +253,7 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
                       d3.select(d3.event.target).classed("matrixHighlight", true);
                     })
                     .on('mouseout', function(d) {
-                      hoverOutCell();
+                      hoverOutCell(d);
                       d3.select(d3.event.target).classed("matrixHighlight", false);
                     });
     cards.transition().duration(100)
@@ -613,6 +643,7 @@ var GMMatrixChart = React.createClass({
     }
 
     div.onclick = function(event) {
+      console.log(that.state.element);
       if (that.state.element !== null) {
           that.setState({element : null});
       }
@@ -680,9 +711,12 @@ var GMMatrixChart = React.createClass({
       d3.select("#overallMatrix")
         .selectAll('.cell')
         .on("click", function() {
+          console.log('onclick');
           var mouseEvent = window.event;
           // Allocates a new array so uses more memory, but online said it was safer lol
           var subsetCells = that.state.subsetCells.slice();
+          d3.select("#tooltip").attr("clicked", d3.select("#tooltip").clicked ? false : true)
+          console.log(d3.select("#tooltip").clicked)
           // Just adding the name here for display purposes, add the whole cell ('this') if wanted
           subsetCells.push("Trait " + this.getAttribute("trait"));
           subsetCells.push("Marker " + this.getAttribute("marker"));
