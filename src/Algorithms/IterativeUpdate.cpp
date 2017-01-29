@@ -44,7 +44,6 @@ void IterativeUpdate::run(TreeLasso* tl) {
     MatrixXd bestBeta = tl->getBeta();
     tl->initIterativeUpdate();
     while (!shouldStop && i < maxIteration){
-        mtx.lock();
         progress = i/maxIteration;
         residue = tl->cost();
         if (residue < prev_residue){
@@ -59,7 +58,6 @@ void IterativeUpdate::run(TreeLasso* tl) {
         tl->updateMD();
         tl->updateBeta();
         i +=1;
-        mtx.unlock();
     }
     tl->updateBeta(bestBeta);
 }

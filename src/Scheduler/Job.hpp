@@ -30,7 +30,6 @@ typedef struct Job_t {
 	exception_ptr exception;
 	job_id_t job_id;
 	Model* model;
-	//mutex mtx;
 	thread::id thread_id;
 	Persistent<Function> callback;
 	uv_work_t request;

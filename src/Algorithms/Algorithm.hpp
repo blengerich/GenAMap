@@ -29,7 +29,7 @@ public:
     Algorithm();
     Algorithm(const unordered_map<string, string>);
 
-    std::mutex mtx;
+    mutex mtx;
 
     void setMaxIteration(int);
 

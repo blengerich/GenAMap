@@ -268,12 +268,8 @@ bool Scheduler::startJob(const job_id_t job_id, void (*completion)(uv_work_t*, i
 		job->model->assertReadyToRun();
 		job->request.data = job;
 		uv_queue_work(uv_default_loop(), &(job->request), trainAlgorithmThread, completion);
-		//usleep(10);	// TODO: fix this rare race condition (stopping job before the worker thread has started is bad) in a better way? [Issue: https://github.com/blengerich/GenAMap_V2/issues/27]
-		/*job->algorithm->mtx.lock();
-		job->algorithm->mtx.unlock();*/
 		return true;
 	} catch (const exception& ex) {
-		// Must save the exception so that it can be passed between threads - but this is running in main thread?
 		rethrow_exception(current_exception());
 		return false;
 	}
@@ -396,10 +392,7 @@ void trainAlgorithmThread(uv_work_t* req) {
 
 double Scheduler::checkJobProgress(const job_id_t job_id) {
 	if (JobIdUsed(job_id) && getJob(job_id)->algorithm) {
-		//getJob(job_id)->algorithm->mtx.lock();
-		double progress = getJob(job_id)->algorithm->getProgress();
-		//getJob(job_id)->algorithm->mtx.unlock();
-		return progress;
+		return getJob(job_id)->algorithm->getProgress();
 	}
 	return -1;
 }
@@ -416,6 +409,7 @@ bool Scheduler::cancelJob(const job_id_t job_id) {
 
 bool Scheduler::deleteAlgorithm(const algorithm_id_t algorithm_id) {
 	if (getAlgorithm(algorithm_id) && !getAlgorithm(algorithm_id)->getIsRunning()) {
+		getAlgorithm(algorithm_id)->mtx.lock();
 		algorithms_map[algorithm_id].reset();
 		algorithms_map.erase(algorithm_id);
 		return true;
@@ -426,9 +420,8 @@ bool Scheduler::deleteAlgorithm(const algorithm_id_t algorithm_id) {
 
 
 bool Scheduler::deleteModel(const model_id_t model_id) {
-	// If model gets deleted before algorithm is stopped, bad juju.
-	// Need algorithm (or job?) to lock up the model?
 	if (getModel(model_id)) {
+		/*getModel(model_id)->mtx.lock();*/
 		models_map[model_id].reset();
 		models_map.erase(model_id);
 		return true;
@@ -442,7 +435,6 @@ bool Scheduler::deleteJob(const job_id_t job_id) {
 	if (JobIdUsed(job_id) && cancelJob(job_id)) {
 		// Make sure the job is not currently running.
 		getJob(job_id)->algorithm->mtx.lock();
-		getJob(job_id)->algorithm->mtx.unlock();
 		jobs_map[job_id].reset();
 		jobs_map.erase(job_id);
 		return true;
