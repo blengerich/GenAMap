@@ -39,6 +39,8 @@ bool Algorithm::getIsRunning() {
 
 void Algorithm::stop() {
 	shouldStop = true;
+	mtx.lock();	// Wait until the algorithm has actually finished to return.
+	mtx.unlock();
 }
 
 void Algorithm::run(Model* model) {

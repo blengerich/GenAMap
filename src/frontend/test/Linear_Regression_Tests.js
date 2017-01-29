@@ -42,7 +42,7 @@ describe('LinearRegression', function() {
 		var id1 = backend.newJob({'algorithm_options': alg_opts, 'model_options': model_opts});
 		var id2 = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
 		it('should return a non-negative integer for the first job ID', function () {
-			assert.isAtLeast(id1, 0);
+			assert.isAtLeast(id1, 1);
 		});		
 		it('should return a larger integer for the second job ID', function () {
 			assert.isAtLeast(id2, id1);

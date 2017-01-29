@@ -12,6 +12,9 @@ using namespace std;
 #ifndef ALGORITHMS_MODEL_HPP
 #define ALGORITHMS_MODEL_HPP
 
+
+typedef unsigned int model_id_t;
+
 struct modelResult{
     string rowStr;
     string colStr;
