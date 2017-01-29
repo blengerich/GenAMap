@@ -21,8 +21,8 @@ cc_library(
 	srcs = ["ICLasso.cpp"],
 	hdrs = ["ICLasso.hpp"],
 	copts = ["-DBAZEL"],
-	deps = ["//model:Model",
-	        "//model:ModelOptions"],
+	deps = ["Model",
+	        "ModelOptions"],
 )
 
 
