@@ -14,16 +14,24 @@ cc_library(
                 "-lz",
                 "-lm"],
     deps = ["@gtest//:main",
-		"//algorithm:Algorithm",
-        "//algorithm:AlgorithmOptions",
-        #"//algorithm:BrentSearch",
-        #"//algorithm:GridSearch",
-        "//algorithm:IterativeUpdate",
-        "//algorithm:ProximalGradientDescent",
-        "//model:lasso",
-        "//model:Model",
-        "//model:ModelOptions",
-        "//Scheduler:Job"]
+		"//Algorithms:Algorithm",
+        "//Algorithms:AlgorithmOptions",
+        "//Algorithms:BrentSearch",
+        "//Algorithms:GridSearch",
+        "//Algorithms:HypoTestPlaceholder",
+        "//Algorithms:IterativeUpdate",
+        "//Algorithms:ProximalGradientDescent",
+        "//Models:AdaMultiLasso",
+        "//Models:GFlasso",
+        "//Models:lasso",
+        "//Models:LinearRegression",
+        "//Models:Model",
+        "//Models:ModelOptions",
+        "//Models:TreeLasso",
+        "//Scheduler:Job",
+        "//Stats:FisherTest",
+        "//Stats:Chi2Test",
+        "//Stats:WaldTest"]
 )
 
 
@@ -32,8 +40,8 @@ cc_library(
     hdrs = ["Job.hpp"],
     copts = ["-DBAZEL"],
     linkopts = ["-lv8"],
-    deps = ["//algorithm:Algorithm",
-            "//model:Model"]
+    deps = ["//Algorithms:Algorithm",
+            "//Models:Model"]
 )
 
 
@@ -51,5 +59,5 @@ cc_test(
                 "-lz"],
     deps = ["@gtest//:main",
             "//Scheduler:Scheduler",],
-    size = "small"
+    size = "medium"
 )

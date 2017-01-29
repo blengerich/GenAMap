@@ -29,7 +29,7 @@ Because Docker containers mask the ports from the host machine, it can be a litt
         > docker run -ti -p 49160:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap
         > cd /usr/src/genamap/src/Scheduler/node
         > node-gyp rebuild
-        > cd /usr/src/genamap/frontend/genamapApp
+        > cd /usr/src/genamap/src/frontend
         > nodemon -L webapp.js
         
 * Then we can see our app running at localhost:49160
@@ -37,9 +37,12 @@ Because Docker containers mask the ports from the host machine, it can be a litt
 
 If you want to add a dependency
 -----------
+Run the following to commit and push with a new tag:
 
 *       > docker run -ti blengerich/genamap
         > root@[abc123deff]: install $dependency
         > exit
         > docker commit -m 'added $dependency' -a '$my name' $abc123deff blengerich/genamap:$dependency
         > docker push blengerich/genamap:$dependency'
+
+* Then I will move retag it as blengerich/genamap:latest, and we can automatically pull it when we run launch_docker.sh

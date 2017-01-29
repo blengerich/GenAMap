@@ -16,16 +16,16 @@
 #include <vector>
 
 #ifdef BAZEL
-#include "algorithm/Algorithm.hpp"
-#include "algorithm/AlgorithmOptions.hpp"
-#include "model/ModelOptions.hpp"
+#include "Algorithms/Algorithm.hpp"
+#include "Algorithms/AlgorithmOptions.hpp"
+#include "Models/ModelOptions.hpp"
 #include "Scheduler/Job.hpp"
 #include "gtest/gtest_prod.h"
 #else
-#include "../algorithm/Algorithm.hpp"
-#include "../algorithm/AlgorithmOptions.hpp"
+#include "../Algorithms/Algorithm.hpp"
+#include "../Algorithms/AlgorithmOptions.hpp"
 #include "Job.hpp"
-#include "../model/ModelOptions.hpp"
+#include "../Models/ModelOptions.hpp"
 #endif
 
 
@@ -35,44 +35,43 @@ class Scheduler {
 /* Class to run jobs and get information about the currently running jobs.
 */
 
-public:
-	int newAlgorithm(const AlgorithmOptions_t&);
-	// returns the algorithm's assigned ID, -1 for failure.
-
-	int newModel(const ModelOptions_t&);
-	// returns the model's assigned ID, -1 for failure.
-
-	bool setX(const int, const Eigen::MatrixXd&);
-	// returns true on success, false otherwise.
-
-	bool setY(const int, const Eigen::MatrixXd&);
-	// returns true on success, false otherwise.
-	
-
-	int newJob(const JobOptions_t&);
+public:	
+	job_id_t newJob(const JobOptions_t&);
 	// Assumes that algorithm and job have been created by this scheduler.
 	// Simply packages as a job and assigns an ID.
-	// Returns the job's assigned ID, -1 for failure.
+	// Returns the job's assigned ID, 0 for failure.
 	
-	bool startJob(const int, void (*f)(uv_work_t*, int));
+	bool setX(const job_id_t, const Eigen::MatrixXd&);
+	// Sets the X matrix for the job at the given job_id.
+	// returns true on success, false otherwise.
+
+	bool setY(const job_id_t, const Eigen::MatrixXd&);
+	// Sets the Y matrix for the job at the given job_id.
+	// returns true on success, false otherwise.
+
+	bool setModelAttributeMatrix(const job_id_t, const string&, Eigen::MatrixXd*);
+	// Sets a matrix with the given name for the job at the given job_id.
+	// returns true on success, false otherwise.
+
+	bool startJob(const job_id_t, void (*f)(uv_work_t*, int));
+	// Queues the job at the given job_id, with the callback to be called when the job is completed.
 	// Returns true if successfully queued, false otherwise.
 
-	double checkJobProgress(const int);
-	// Returns the progress of the job.
+	double checkJobProgress(const job_id_t);
+	// Returns the progress of the job or -1 on failure.
 
-	bool cancelJob(const int);
+	bool cancelJob(const job_id_t);
 	// Cancels a potentially running job.
+	// Returns True is the job was successfully sent a shutdown signal, false otherwise.
 
-	// TODO: How to know if the user owns the algorithm? [Issue: https://github.com/blengerich/GenAMap_V2/issues/28]
-	bool deleteAlgorithm(const int);
-	bool deleteModel(const int);
-	bool deleteJob(const int);
+	Model* getModel(const model_id_t);
+	Algorithm* getAlgorithm(const algorithm_id_t);
+	Job_t* getJob(const job_id_t);
 
-	Model* getModel(const int);
-	Algorithm* getAlgorithm(const int);
-	Job_t* getJob(const int);
+	MatrixXd getJobResult(const job_id_t);
 
-	MatrixXd getResult(const int);
+	// TODO: How to know if the user owns the algorithm?
+	bool deleteJob(const job_id_t);
 
 	static Scheduler* Instance();
 	// This class follows the singleton pattern.
@@ -84,43 +83,62 @@ protected:
 	Scheduler& operator=(Scheduler const&);
 
 private:
+	algorithm_id_t newAlgorithm(const AlgorithmOptions_t&);
+	// returns the algorithm's assigned ID, 0 for failure.
 
-	// Generates and returns new identifier. Failure is identified with -1.
-	int getNewAlgorithmId();
-	int getNewModelId();
-	int getNewJobId();
+	model_id_t newModel(const ModelOptions_t&);
+	// returns the model's assigned ID, 0 for failure.
+
+	algorithm_id_t getNewAlgorithmId();
+	model_id_t getNewModelId();
+	job_id_t getNewJobId();
+	// Generates and returns new identifier. Failure is identified with 0.
     
+	// Checks whether an ID fits in the range used to index algorithms, models, or job.
+	bool ValidAlgorithmId(const algorithm_id_t);
+	bool ValidModelId(const model_id_t);
+	bool ValidJobId(const job_id_t);
+
 	// Checks whether an Id is currently being used. Returns true for currently in use, false otherwise.
-	bool ValidAlgorithmId(const int);
-	bool ValidModelId(const int);
-	bool ValidJobId(const int);
+	bool AlgorithmIdUsed(const algorithm_id_t);
+	bool ModelIdUsed(const model_id_t);
+	bool JobIdUsed(const job_id_t);
+
+
+	bool deleteAlgorithm(const algorithm_id_t);
+	bool deleteModel(const model_id_t);
 
 
     #ifdef BAZEL
+    FRIEND_TEST(SchedulerTest, newAlgorithm);
+    FRIEND_TEST(SchedulerTest, newModel);
     FRIEND_TEST(SchedulerTest, getNewAlgorithmId);
     FRIEND_TEST(SchedulerTest, getNewModelId);
     FRIEND_TEST(SchedulerTest, getNewJobId);
     FRIEND_TEST(SchedulerTest, ValidAlgorithmId);
     FRIEND_TEST(SchedulerTest, ValidModelId);
     FRIEND_TEST(SchedulerTest, ValidJobId);
+    FRIEND_TEST(SchedulerTest, AlgorithmIdUsed);
+    FRIEND_TEST(SchedulerTest, ModelIdUsed);
+    FRIEND_TEST(SchedulerTest, JobIdUsed);
     #endif
 
     static Scheduler* s_instance;   // Singleton
-    const int kMaxThreads = 5;
+    const unsigned int kMaxThreads = 5;
 
-    const int kMaxAlgorithmId = 100;
-    int next_algorithm_id;
+    const algorithm_id_t kMaxAlgorithmId = 100;
+    algorithm_id_t next_algorithm_id;
 
-    const int kMaxModelId = 100;
-    int next_model_id;
+    const model_id_t kMaxModelId = 100;
+    model_id_t next_model_id;
 
-    const int kMaxJobId = 100;
-    int next_job_id;
+    const job_id_t kMaxJobId = 100;
+    job_id_t next_job_id;
 
-    unordered_map<int, unique_ptr<Algorithm>> algorithms_map;
-    unordered_map<int, unique_ptr<Model>> models_map;
-    unordered_map<int, unique_ptr<Job_t>> jobs_map;
-    // tracks all jobs (running, waiting, and completed). indexed by job_id.  
+    unordered_map<algorithm_id_t, unique_ptr<Algorithm>> algorithms_map;
+    unordered_map<model_id_t, unique_ptr<Model>> models_map;
+    unordered_map<job_id_t, unique_ptr<Job_t>> jobs_map;
+    // Maps to track all jobs (running, waiting, and completed). indexed by job_id.  
 };
 
 void trainAlgorithmThread(uv_work_t* req);

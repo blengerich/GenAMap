@@ -1,3 +1,6 @@
+# Private Authentication
+**/Authentication.*
+
 # Makefile deps
 bazel-*
 CMakeLists.txt
@@ -25,3 +28,10 @@ sampleData/*
 **/genamapApp/activity/*
 **/frontend/build/*
 **/bundle.js
+**/*.start
+**/Scheduler/**/build/*
+
+# TeX Documentation
+**/*.out
+**/*.toc
+**/*.synctex.gz

@@ -1,18 +1,15 @@
-# GenAMap Version 2
+![GenAMap Logo](http://www.cs.cmu.edu/~blengeri/img/genamap_logo.png)
 
-[![Build Status](http://ec2-54-173-86-23.compute-1.amazonaws.com/buildStatus/icon?job=GenAMap_Backend)](http://ec2-54-173-86-23.compute-1.amazonaws.com/job/GenAMap_Backend/) <-- (Must be logged in to view, go [here](http://ec2-54-89-136-156.compute-1.amazonaws.com/) to create an account)
+[![Build Status](http://ec2-52-201-224-46.compute-1.amazonaws.com:8080/buildStatus/icon?job=GenAMap_Master)](http://ec2-52-201-224-46.compute-1.amazonaws.com:8080/job/GenAMap_Master/)  [![Website](https://img.shields.io/website-up-down-green-red/http/genamap.github.io.svg)](http://sailing.cs.cmu.edu/main/genamap)
+[![license](https://img.shields.io/github/license/blengerich/genamap.svg)](https://github.com/blengerich/GenAMap/blob/master/License.md) [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/blengerich/genamap.svg)](https://github.com/blengerich/GenAMap/pulls) [![GitHub closed issues](https://img.shields.io/github/issues-closed/blengerich/genamap.svg)](https://github.com/blengerich/GenAMap/issues)
+
+[GenAMap](http://www.sailing.cs.cmu.edu/main/genamap/) is an open-source platform for visual machine learning of genome-phenome associations.
+
+The proliferation of genomic data has increased the usefulness of complex machine learning algorithms for structured association mapping. These methods effectively relate genetic polymorphisms with phenotypes, but correct use requires algorithmic expertise to run code and domain expertise to analyze results. To overcome these challenges, the GenAMap software platform was developed and released in 2010. Since then, the sizes of available biological data have continued to increase exponentially. To address these challenges, GenAMap is redesigned for scalability and updated with state-of-the-art methods for efficient calculations on human genome-scale data. The user experience is overhauled as an intuitive web application with a focus on simplicity and ease of use. GenAMap is available to use through [sailing.cs.cmu.edu/main/genamap](http://sailing.cs.cmu.edu/main/genamap). It is also easy to set up on your own cluster, with a simple Docker image that contains all dependencies. Please contact us with any questions.
+
 
 ## Documentation:
-See [docs](https://github.com/blengerich/GenAMap_V2/tree/master/Documentation).
+To get started, see the [docs](https://github.com/blengerich/GenAMap/tree/master/Documentation), which include [usage examples](https://github.com/blengerich/GenAMap/tree/master/Documentation/ExampleData) and [development information](https://github.com/blengerich/GenAMap/tree/master/Documentation/Development).
 
-
-## Dependencies:
-For informational purposes only, you don't need to install anything. We are now using [Docker](docker.com) to sync our environments. See docs for more information.
-
-* [Java (JDK) 1.8 or greater](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-* [Eigen C++](http://eigen.tuxfamily.org/index.php?title=Main_Page)
-* [MySQL C++ connector](http://dev.mysql.com/downloads/connector/cpp/)
-* [JsonCPP](https://github.com/open-source-parsers/jsoncpp)
-* [Boost](http://www.boost.org/)
-* [Bazel](https://github.com/bazelbuild/bazel)
-* [Google Testing Framework](https://github.com/google/googletest)
+## Contact:
+Have a question about GenAMap? Email us at genamap.team@gmail.com. To help us to get to know you better, please provide your name and affiliation when requesting support. We also have a [Google group](https://groups.google.com/forum/#!forum/genamap-users) for users.
