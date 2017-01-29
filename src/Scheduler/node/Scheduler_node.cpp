@@ -255,7 +255,7 @@ MatrixXd* v8toEigen(Local<v8::Array>& ar) {
 
 	for (unsigned int i=0; i<rows; i++) {
 		for (unsigned int j=0; j<cols; j++) {
-			(*mat)(i,j) = (double)Local<v8::Object>::Cast(ar->Get(i))->Get(props->Get(j))->NumberValue();
+			(*mat)(i,j) = (float)Local<v8::Object>::Cast(ar->Get(i))->Get(props->Get(j))->NumberValue();
 		}
 	}
 	return mat;
