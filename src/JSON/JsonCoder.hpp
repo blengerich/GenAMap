@@ -55,7 +55,7 @@ public:
     }
 
     string encodeMainMessage(mainMessage);
-    string encodeMatrix(MatrixXd);
+    string encodeMatrix(const MatrixXd&);
     string encodeResultPack(result_pack);
     string encodeProgressPack(progress_pack);
     string encodeTraitTreeEffectsizes(Tree*, MatrixXd);

@@ -15,18 +15,18 @@ string JsonCoder::encodeMainMessage(mainMessage m) {
     return writer.write(root);
 }
 
-string JsonCoder::encodeMatrix(MatrixXd X) {
+string JsonCoder::encodeMatrix(const MatrixXd& X) {
     Json::Value root;
-    double r = X.rows();
-    double c = X.cols();
+    unsigned int r = X.rows();
+    unsigned int c = X.cols();
     root["r"] = r;
     root["c"] = c;
     string v = "";
-    for (int i=0; i<r; i++){
-        for (int j=0; j<c-1;j++){
-            v+=to_string(X(i,j))+",";
+    for (unsigned int i=0; i<r; i++){
+        for (unsigned int j=0; j<c-1;j++){
+            v+=to_string(float(X(i,j)))+",";
         }
-        v+=to_string(X(i,c-1))+";";
+        v+=to_string(float(X(i,c-1)))+";";
     }
     root["v"]=v;
     return writer.write(root);
