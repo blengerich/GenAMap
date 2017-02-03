@@ -20,11 +20,13 @@
 #include "Algorithms/AlgorithmOptions.hpp"
 #include "Models/ModelOptions.hpp"
 #include "Scheduler/Job.hpp"
+#include "Scheduler/JobResult.hpp"
 #include "gtest/gtest_prod.h"
 #else
 #include "../Algorithms/Algorithm.hpp"
 #include "../Algorithms/AlgorithmOptions.hpp"
 #include "Job.hpp"
+#include "JobResult.hpp"
 #include "../Models/ModelOptions.hpp"
 #endif
 
@@ -57,7 +59,7 @@ public:
 	// Queues the job at the given job_id, with the callback to be called when the job is completed.
 	// Returns true if successfully queued, false otherwise.
 
-	double checkJobProgress(const job_id_t);
+	float checkJobProgress(const job_id_t);
 	// Returns the progress of the job or -1 on failure.
 
 	bool cancelJob(const job_id_t);
@@ -68,7 +70,7 @@ public:
 	Algorithm* getAlgorithm(const algorithm_id_t);
 	Job_t* getJob(const job_id_t);
 
-	MatrixXd getJobResult(const job_id_t);
+	JobResult_t* getJobResult(const job_id_t);
 
 	// TODO: How to know if the user owns the algorithm?
 	bool deleteJob(const job_id_t);

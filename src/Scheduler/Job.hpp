@@ -25,16 +25,6 @@ using namespace v8;
 
 typedef unsigned int job_id_t;	// job_id = 0 indicates error.
 
-typedef struct Job_t {
-	Algorithm* algorithm;
-	exception_ptr exception;
-	job_id_t job_id;
-	Model* model;
-	thread::id thread_id;
-	Persistent<Function> callback;
-	uv_work_t request;
-} Job_t;
-
 typedef struct JobOptions_t {
 	AlgorithmOptions_t alg_opts;
 	ModelOptions_t model_opts;
@@ -54,6 +44,25 @@ typedef struct JobOptions_t {
 	: alg_opts(alg)
 	, model_opts(model){};
 
+	JobOptions_t(){};
+
 } JobOptions_t;
+
+typedef struct Job_t {
+	Algorithm* algorithm;
+	exception_ptr exception;
+	job_id_t job_id;
+	JobOptions_t options;
+	Model* model;
+	thread::id thread_id;
+	Persistent<Function> callback;
+	uv_work_t request;
+
+	Job_t() {
+		algorithm = NULL;
+		model = NULL;
+	};
+	
+} Job_t;
 
 #endif // JOB_HPP

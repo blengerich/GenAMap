@@ -50,4 +50,17 @@ typedef struct AlgorithmOptions_t {
 
 } AlgorithmOptions_t;
 
+inline bool operator==(const AlgorithmOptions_t& a1, const AlgorithmOptions_t& a2) {
+	try {
+		for (auto const& entry : a2.options) {
+			if (strcmp(entry.second.c_str(), a2.options.at(entry.first).c_str())) {
+				return false;
+			}
+		}
+	} catch (const exception& e) {
+		return false;
+	}
+	return (a1.type == a2.type);
+}
+
 #endif // ALGORITHM_OPTIONS_HPP

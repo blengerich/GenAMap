@@ -27,8 +27,8 @@ protected:
     MatrixXd beta;
     MatrixXd y;
 public:
-    void setX(const MatrixXd&);
-    void setY(const MatrixXd&);
+    void setX(MatrixXd);
+    void setY(MatrixXd);
     virtual void setAttributeMatrix(const string&, MatrixXd*);
     void initBeta();
     void initBeta(MatrixXd);

@@ -29,6 +29,7 @@ cc_library(
         "//Models:ModelOptions",
         "//Models:TreeLasso",
         "//Scheduler:Job",
+        "//Scheduler:JobResult",
         "//Stats:FisherTest",
         "//Stats:Chi2Test",
         "//Stats:WaldTest"]
@@ -42,6 +43,17 @@ cc_library(
     linkopts = ["-lv8"],
     deps = ["//Algorithms:Algorithm",
             "//Models:Model"]
+)
+
+
+cc_library(
+    name = "JobResult",
+    hdrs = ["JobResult.hpp"],
+    copts = ["-DBAZEL"],
+    linkopts = [],
+    deps = ["//Algorithms:AlgorithmOptions",
+            "//Models:ModelOptions",
+            "//Scheduler:Job"]
 )
 
 

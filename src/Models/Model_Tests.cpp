@@ -162,8 +162,8 @@ TEST(MODEL_BASE, Prediction){
     0.3525;
     MatrixXd p = m.predict();
     TEST_MATRIX_NEAR(p, y, 1e-3);
-    p = m.predict(X);
-    TEST_MATRIX_NEAR(p, y, 1e-3);
+    MatrixXd q = m.predict(X);
+    TEST_MATRIX_NEAR(q, y, 1e-3);
 }
 
 TEST(LINEAR_REGRESSION, CostFunction){

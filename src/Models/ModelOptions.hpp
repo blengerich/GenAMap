@@ -54,4 +54,18 @@ typedef struct ModelOptions_t {
 
 } ModelOptions_t;
 
+
+inline bool operator==(const ModelOptions_t& m1, const ModelOptions_t& m2) {
+	try {
+		for (auto const& entry : m2.options) {
+			if (strcmp(entry.second.c_str(), m2.options.at(entry.first).c_str())) {
+				return false;
+			}
+		}
+	} catch (const exception& e) {
+		return false;
+	}
+	return (m1.type == m2.type);
+}
+
 #endif // MODEL_OPTIONS_HPP

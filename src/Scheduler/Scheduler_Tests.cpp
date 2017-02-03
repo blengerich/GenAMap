@@ -382,9 +382,16 @@ TEST_F(SchedulerTest, GetJobResult) {
     my_scheduler->setY(job_id, y);    
     ASSERT_TRUE(my_scheduler->startJob(job_id, NullFunc));
 
-    MatrixXd results = my_scheduler->getJobResult(job_id);
+    JobResult_t* results = my_scheduler->getJobResult(job_id);
     while (my_scheduler->checkJobProgress(job_id) < 1.0) {
         usleep(1);
     }
     results = my_scheduler->getJobResult(job_id);
+    ASSERT_TRUE(results);
+    EXPECT_FALSE(results->exception);
+    /*EXPECT_EQ(alg_opts, results->options.alg_opts);
+    EXPECT_EQ(model_opts, results->options.model_opts);*/
+    EXPECT_EQ(job_id, results->job_id);
+    /*ASSERT_TRUE(results->beta);*/
+    // TODO: Check description here
 }

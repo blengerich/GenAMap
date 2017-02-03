@@ -43,6 +43,7 @@
 #include "Stats/Chi2Test.h"
 #include "Stats/WaldTest.h"
 #include "Scheduler/Job.hpp"
+#include "Scheduler/JobResult.hpp"
 #else
 #include "../Algorithms/Algorithm.hpp"
 #include "../Algorithms/AlgorithmOptions.hpp"
@@ -65,6 +66,7 @@
 #include "../Stats/Chi2Test.h"
 #include "../Stats/WaldTest.h"
 #include "../Scheduler/Job.hpp"
+#include "../Scheduler/JobResult.hpp"
 #endif
 
 using namespace std;
@@ -220,6 +222,7 @@ job_id_t Scheduler::newJob(const JobOptions_t& options) {
 	Job_t* my_job = new Job_t();
 	const job_id_t job_id = getNewJobId();
 	if (ValidJobId(job_id)) {
+		my_job->options = options;
 		my_job->job_id = job_id;
 		try {
 			algorithm_id_t algorithm_id = newAlgorithm(options.alg_opts);
@@ -390,7 +393,7 @@ void trainAlgorithmThread(uv_work_t* req) {
 }
 
 
-double Scheduler::checkJobProgress(const job_id_t job_id) {
+float Scheduler::checkJobProgress(const job_id_t job_id) {
 	if (JobIdUsed(job_id) && getJob(job_id)->algorithm) {
 		return getJob(job_id)->algorithm->getProgress();
 	}
@@ -470,35 +473,39 @@ Job_t* Scheduler::getJob(const job_id_t job_id) {
 }
 
 
-MatrixXd Scheduler::getJobResult(const job_id_t job_id) {
+JobResult_t* Scheduler::getJobResult(const job_id_t job_id) {
+	JobResult_t* result = new JobResult_t();
 	if (JobIdUsed(job_id)) {
 		Job_t* job = getJob(job_id);
+		result->exception = job->exception;
+		result->options = job->options;
+		result->job_id = job_id;
+		result->description = "Effect Size";
 		if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
-	        return model->getBeta();
+	        result->beta = model->getBeta();
 	    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
-	        return model->getBeta();
+	        result->beta = model->getBeta();
 	    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
-	        return model->getBeta();
+	        result->beta = model->getBeta();
 	    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
-	        return model->getBeta();
+	        result->beta = model->getBeta();
 	    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
-	        return model->getBeta();
+	        result->beta = model->getBeta();
 	    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
-	        return model->getBeta();
+	        result->beta = model->getBeta();
 	    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
-			return model->getBeta();
+			result->beta = model->getBeta();
 		} else if (FisherTest* model = dynamic_cast<FisherTest*>(job->model)) {
-			return model->getBeta();
+			result->beta = model->getBeta();
 		} else if (Chi2Test* model = dynamic_cast<Chi2Test*>(job->model)) {
-			return model->getBeta();
+			result->beta = model->getBeta();
 		} else if (WaldTest* model = dynamic_cast<WaldTest*>(job->model)) {
-			return model->getBeta();
+			result->beta = model->getBeta();
 		} else {
-	    	return model->getBeta();
+	    	result->beta = model->getBeta();
 	    }
-	} else {
-		return MatrixXd();
 	}
+	return result;
 }
 
 ////////////////////////////////////////////////////////
