@@ -178,24 +178,24 @@ describe('Chi2Test', function() {
 	 	});
 	});
   
-  describe('startExtremelyLargeJob', function() {
-    var eLargeX = [];
-    const en_markers = 1000; // size is important
-    for (i = 0; i < n_patients; i++) {
-      var markers = [];
-      for (j = 0; j < en_markers; j++) {
-        markers.push(Math.round(Math.random()));
-      }
-      eLargeX.push(markers);
-    }
-    var job_id = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
-		it('return true for second good job start', function() {
-			assert.isTrue(backend.setX(job_id, eLargeX));
-			assert.isTrue(backend.setY(job_id, largeY));
-			assert.isTrue(backend.startJob(job_id, function(results) {} ));
-			assert.throws(function() { backend.startJob(job_id, function() {} )},
-				'Job is already running.');
-    });
-  });
+  // describe('startExtremelyLargeJob', function() {
+  //   var eLargeX = [];
+  //   const en_markers = 1000; // size is important
+  //   for (i = 0; i < n_patients; i++) {
+  //     var markers = [];
+  //     for (j = 0; j < en_markers; j++) {
+  //       markers.push(Math.round(Math.random()));
+  //     }
+  //     eLargeX.push(markers);
+  //   }
+  //   var job_id = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
+		// it('return true for second good job start', function() {
+			// assert.isTrue(backend.setX(job_id, eLargeX));
+			// assert.isTrue(backend.setY(job_id, largeY));
+			// assert.isTrue(backend.startJob(job_id, function(results) {} ));
+			// assert.throws(function() { backend.startJob(job_id, function() {} )},
+				// 'Job is already running.');
+  //   });
+  // });
 
 });
