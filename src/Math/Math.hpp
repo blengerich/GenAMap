@@ -57,17 +57,17 @@ public:
         return instance;
     }
     // statistics
-    double variance(VectorXd);
-    double std(VectorXd);
-    double covariance(VectorXd, VectorXd);
-    double correlation(VectorXd, VectorXd);
+    double variance(VectorXf);
+    double std(VectorXf);
+    double covariance(VectorXf, VectorXf);
+    double correlation(VectorXf, VectorXf);
     // matrix
     void removeCol(MatrixXf*, long);
     void removeRow(MatrixXf*, long);
     void removeColRow(MatrixXf*, minXY);
 
 
-    VectorXd L2Thresholding(VectorXd in);
+    VectorXf L2Thresholding(VectorXf in);
 
     Tree* hierarchicalClustering(MatrixXf);
 };

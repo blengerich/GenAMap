@@ -27,11 +27,11 @@ private:
     MatrixXf snpsFeatures1;
     MatrixXf snpsFeatures2;
 
-    VectorXd w;
-    VectorXd v;
+    VectorXf w;
+    VectorXf v;
 
-    VectorXd theta;
-    VectorXd rho;
+    VectorXf theta;
+    VectorXf rho;
 
     double penalty_cost();
 
@@ -63,16 +63,16 @@ public:
     void setSnpsFeatures(MatrixXf);
     MatrixXf getSnpsFeatures1();
     MatrixXf getSnpsFeatures2();
-    VectorXd getW();
-    VectorXd getV();
-    void updateW(VectorXd);
-    void updateV(VectorXd);
+    VectorXf getW();
+    VectorXf getV();
+    void updateW(VectorXf);
+    void updateV(VectorXf);
 
     void initTheta();
     void initRho();
 
-    VectorXd getTheta();
-    VectorXd getRho();
+    VectorXf getTheta();
+    VectorXf getRho();
     void updateTheta_Rho();
 
     MatrixXf getBeta();
@@ -87,9 +87,9 @@ public:
     void initTraining();
     MatrixXf proximal_derivative();
     MatrixXf proximal_operator(MatrixXf, float);
-    VectorXd gradient_w();
-    VectorXd gradient_v();
-    VectorXd projection(VectorXd);
+    VectorXf gradient_w();
+    VectorXf gradient_v();
+    VectorXf projection(VectorXf);
     double getL();
 
     double cost();

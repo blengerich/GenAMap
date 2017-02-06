@@ -45,7 +45,7 @@ SparseMatrix<double> LinearRegression::proximal_operator(SparseMatrix<double> in
         return in;
     }
     if (L1_reg != 0 && L2_reg == 0){
-        VectorXd sign = ((in.array()>0).matrix()).cast<double>();//sign
+        VectorXf sign = ((in.array()>0).matrix()).cast<double>();//sign
         sign += -1.0*((in.array()<0).matrix()).cast<double>();
         in = ((in.array().abs()-lr*L1_reg).max(0)).matrix();//proximal
         return (in.array()*sign.array()).matrix();//proximal multipled back with sign
@@ -54,7 +54,7 @@ SparseMatrix<double> LinearRegression::proximal_operator(SparseMatrix<double> in
         return in/(1+2*lr*L2_reg);
     }
     else{
-        VectorXd sign = ((in.array()>0).matrix()).cast<double>();
+        VectorXf sign = ((in.array()>0).matrix()).cast<double>();
         sign += -1.0*((in.array()<0).matrix()).cast<double>();
         in = ((in.array().abs()-lr*L1_reg).max(0)).matrix();
         in = in.array()*sign.array()/(1+2*lr*L2_reg);

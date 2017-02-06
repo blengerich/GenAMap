@@ -144,7 +144,7 @@ void TreeLasso::updateMap(unordered_map<long, treeNode *> *mptr, minXY xy) {
 MatrixXf TreeLasso::appendColRow(MatrixXf mat, minXY xy) {
     long r = mat.rows();
     MatrixXf result = MatrixXf::Zero(r + 1, r + 1);
-    VectorXd col = VectorXd::Zero(r);
+    VectorXf col = VectorXf::Zero(r);
     if (clusteringMethod.compare("average") == 0) {
         col = (mat.col(xy.x) + mat.col(xy.y)) / 2;
     }
@@ -268,7 +268,7 @@ double TreeLasso::penalty_cost() {
     double s = 0;
     long v = gIdx.rows();
     for (long i = 0;i<v;i++){
-        VectorXd tmp = VectorXd::Zero(c);
+        VectorXf tmp = VectorXf::Zero(c);
         for (long j=gIdx(i,0)-1;j<gIdx(i,1);j++){
             tmp += A.row(j).array().square().matrix();
         }
@@ -497,7 +497,7 @@ void TreeLasso::initGradientUpdate() {
             }
         }
 
-        VectorXd tau = VectorXd::Zero(c);
+        VectorXf tau = VectorXf::Zero(c);
         for (long i=0; i<r;i++){
             tau += mT.row(i)*(mTw(i,0)*mTw(i,0));
         }
@@ -529,7 +529,7 @@ MatrixXf TreeLasso::proximal_derivative() {
     MatrixXf R = MatrixXf::Zero(r, c);
     long v = gIdx.rows();
     for (long i = 0;i<v;i++){
-        VectorXd tmp = VectorXd::Zero(c);
+        VectorXf tmp = VectorXf::Zero(c);
         for (long j=gIdx(i,0)-1;j<gIdx(i,1);j++){
             tmp += A.row(j).array().square().matrix();
         }

@@ -12,7 +12,7 @@
 #include "AdaMultiLasso.hpp"
 #include "LinearMixedModel.hpp"
 
-void TEST_VECTOR_NEAR(VectorXd a, VectorXd b, float v) {
+void TEST_VECTOR_NEAR(VectorXf a, VectorXf b, float v) {
     long l = a.size();
     ASSERT_EQ(l, b.size());
     for (long i=0;i<l;i++){
@@ -20,7 +20,7 @@ void TEST_VECTOR_NEAR(VectorXd a, VectorXd b, float v) {
     }
 }
 
-void TEST_VECTOR_DOUBLE_EQ(VectorXd a, VectorXd b) {
+void TEST_VECTOR_DOUBLE_EQ(VectorXf a, VectorXf b) {
     long l = a.size();
     ASSERT_EQ(l, b.size());
     for (long i=0;i<l;i++){
@@ -476,7 +476,7 @@ TEST(MULTI_POP_LASSO, CostFunction){
     MatrixXf beta(2, 2);
     beta << 1.7803,    1.2417,
     -0.6103,   -0.5961;
-    VectorXd Z(10);
+    VectorXf Z(10);
     Z << 0,     0,     1,     1,     0,     0,     1,     0,     0,     0;
     MatrixXf fedInBeta(4, 1);
     fedInBeta << 1.7803, -0.6103, 1.2417, -0.5961;
@@ -520,7 +520,7 @@ TEST(MULTI_POP_LASSO, Prediction){
     MatrixXf beta(2, 2);
     beta << 1.7803,    1.2417,
     -0.6103,   -0.5961;
-    VectorXd Z(10);
+    VectorXf Z(10);
     Z << 0,     0,     1,     1,     0,     0,     1,     0,     0,     0;
     MatrixXf fedInBeta(4, 1);
     fedInBeta << 1.7803, -0.6103, 1.2417, -0.5961;
@@ -561,7 +561,7 @@ TEST(MULTI_POP_LASSO, ProximalDerivative){
     MatrixXf beta(2, 2);
     beta << 1.7803,    1.2417,
     -0.6103,   -0.5961;
-    VectorXd Z(10);
+    VectorXf Z(10);
     Z << 0,     0,     1,     1,     0,     0,     1,     0,     0,     0;
     MatrixXf fedInBeta(4, 1);
     fedInBeta << 1.7803, -0.6103, 1.2417, -0.5961;
@@ -640,11 +640,11 @@ TEST(ADA_MULTI_POP_LASSO, Cost_function){
 
 TEST(ADA_MULTI_POP_LASSO, Projection){
     AdaMultiLasso aml = AdaMultiLasso();
-    VectorXd m = VectorXd::Zero(5);
-    VectorXd r = VectorXd::Zero(5);
+    VectorXf m = VectorXf::Zero(5);
+    VectorXf r = VectorXf::Zero(5);
     m << 0.1, 0.5, 0.8, 0.9, 1.1;
     r << 0, 0, 0.2, 0.3, 0.5;
-    VectorXd n = aml.projection(m);
+    VectorXf n = aml.projection(m);
     TEST_MATRIX_NEAR(r, n, 1e-3);
     m << 1, 1, 3, 0, 1;
     r << 0, 0, 1, 0, 0;

@@ -68,12 +68,12 @@ MatrixXf LinearRegression::proximal_derivative() {
     return -1.0 * X.transpose() * (y - X * beta);
 };
 
-MatrixXf LinearRegression::proximal_operator(VectorXd in, float lr) {
+MatrixXf LinearRegression::proximal_operator(VectorXf in, float lr) {
     if (L1_reg == 0 && L2_reg == 0){
         return in;
     }
     if (L1_reg != 0 && L2_reg == 0){
-        VectorXd sign = ((in.array()>0).matrix()).cast<double>();//sign
+        VectorXf sign = ((in.array()>0).matrix()).cast<double>();//sign
         sign += -1.0*((in.array()<0).matrix()).cast<double>();
         in = ((in.array().abs()-lr*L1_reg).max(0)).matrix();//proximal
         return (in.array()*sign.array()).matrix();//proximal multipled back with sign
@@ -82,7 +82,7 @@ MatrixXf LinearRegression::proximal_operator(VectorXd in, float lr) {
         return in/(1+2*lr*L2_reg);
     }
     else{
-        VectorXd sign = ((in.array()>0).matrix()).cast<double>();
+        VectorXf sign = ((in.array()>0).matrix()).cast<double>();
         sign += -1.0*((in.array()<0).matrix()).cast<double>();
         in = ((in.array().abs()-lr*L1_reg).max(0)).matrix();
         in = in.array()*sign.array()/(1+2*lr*L2_reg);

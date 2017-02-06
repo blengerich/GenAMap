@@ -14,7 +14,7 @@ void FileIO::writeMatrixFile(string fileName, MatrixXf X) {
     file << X <<endl;
 }
 
-void FileIO::writeVectorFile(string fileName, VectorXd Y) {
+void FileIO::writeVectorFile(string fileName, VectorXf Y) {
     ofstream file (fileName);
     file << Y <<endl;
 }
@@ -49,7 +49,7 @@ MatrixXf FileIO::readMatrixFile(string fileName) {
     infile.open(fileName);
     string line;
     unsigned long rowIndex = 0;
-    VectorXd row;
+    VectorXf row;
     while (getline(infile, line)){
         row = decodeLine(line, format, doc.col);
         X.row(rowIndex++) = row;
@@ -96,8 +96,8 @@ unsigned long FileIO::countColumn(string line, string format) {
     }
 }
 
-VectorXd FileIO::decodeLine(string line, string format, unsigned long col) {
-    VectorXd row(col);
+VectorXf FileIO::decodeLine(string line, string format, unsigned long col) {
+    VectorXf row(col);
     if (format.compare("CSV") == 0) {
         vector<string> values = split(line, ",");
         for (int i=0; i<values.size();i++){
@@ -117,7 +117,7 @@ VectorXd FileIO::decodeLine(string line, string format, unsigned long col) {
     }
     else{
         formatError();
-        return VectorXd::Random(col);
+        return VectorXf::Random(col);
     }
 }
 

@@ -26,7 +26,7 @@ private:
     double lambda;
     double mu;
     double gamma;
-    VectorXd population;
+    VectorXf population;
     MatrixXf Z;
     long popNum;
     double L;
@@ -58,7 +58,7 @@ public:
     void reSetFlag();
     void setXY(MatrixXf, MatrixXf);
     void setLambda(double);
-    void setPopulation(VectorXd);
+    void setPopulation(VectorXf);
     void setMu(double);
     void setGamma(double);
     void setAttributeMatrix(const string&, MatrixXf*);
@@ -67,7 +67,7 @@ public:
     double cost();
     MatrixXf predict();
     MatrixXf predict(MatrixXf);
-    MatrixXf predict(MatrixXf, VectorXd);
+    MatrixXf predict(MatrixXf, VectorXf);
     void assertReadyToRun();
     void initTraining();
 

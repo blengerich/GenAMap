@@ -15,28 +15,28 @@ class Lasso {
 private:
     MatrixXf X;
     MatrixXf beta;
-    VectorXd y;
+    VectorXf y;
     float lambda;
     float learningRate;
     float progress;
 public:
     void setX(MatrixXf);
-    void setY(VectorXd);
+    void setY(VectorXf);
     void setLambda(float);
     void setLearningRage(float);
 
     MatrixXf getX(void);
     MatrixXf getBeta(void);
-    VectorXd getY(void);
+    VectorXf getY(void);
     float getLambda(void);
     float getLearningRate(void);
 
     virtual void assertReadyToRun();
     void train();
-    void train(MatrixXf, VectorXd, float, float, float);
+    void train(MatrixXf, VectorXf, float, float, float);
 
-    VectorXd predict();
-    VectorXd predict(MatrixXf);
+    VectorXf predict();
+    VectorXf predict(MatrixXf);
 
     Lasso();
 };

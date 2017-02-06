@@ -79,28 +79,28 @@ MatrixXf AdaMultiLasso::getSnpsFeatures2() {
     return snpsFeatures2;
 }
 
-VectorXd AdaMultiLasso::getW() {
+VectorXf AdaMultiLasso::getW() {
     return w;
 }
 
-VectorXd AdaMultiLasso::getV() {
+VectorXf AdaMultiLasso::getV() {
     return v;
 }
 
 
-void AdaMultiLasso::updateW(VectorXd xd) {
+void AdaMultiLasso::updateW(VectorXf xd) {
     w = xd;
 }
 
-void AdaMultiLasso::updateV(VectorXd xd) {
+void AdaMultiLasso::updateV(VectorXf xd) {
     v = xd;
 }
 
-VectorXd AdaMultiLasso::gradient_w() {
+VectorXf AdaMultiLasso::gradient_w() {
     long c = snpsFeatures1.cols();
     long k = beta.cols();
 //    updateTheta();
-    VectorXd grad = VectorXd::Zero(c);
+    VectorXf grad = VectorXf::Zero(c);
     for (long j=0;j<c;j++){
         grad(j) += (-k*snpsFeatures1.col(j).array()/theta.array()).sum();
         grad(j) += (snpsFeatures1.col(j).transpose()*(beta.array().abs().matrix())).array().sum();
@@ -108,11 +108,11 @@ VectorXd AdaMultiLasso::gradient_w() {
     return grad;
 }
 
-VectorXd AdaMultiLasso::gradient_v() {
+VectorXf AdaMultiLasso::gradient_v() {
     long c = snpsFeatures2.cols();
     long k = beta.cols();
 //    updateRho();
-    VectorXd grad = VectorXd::Zero(c);
+    VectorXf grad = VectorXf::Zero(c);
     for (long j=0;j<c;j++){
         grad(j) += (-k*snpsFeatures1.col(j).array()/theta.array()).sum();
         grad(j) += (snpsFeatures1.col(j).transpose()*(beta.array().abs().matrix())).array().sum();  // double check this shortcut
@@ -122,7 +122,7 @@ VectorXd AdaMultiLasso::gradient_v() {
 
 void AdaMultiLasso::updateTheta() {
     long c = snpsFeatures1.rows();
-    theta = VectorXd::Zero(c);
+    theta = VectorXf::Zero(c);
     for (long j=0; j<c; j++){
         theta(j) = snpsFeatures1.row(j)*w;;
     }
@@ -130,7 +130,7 @@ void AdaMultiLasso::updateTheta() {
 
 void AdaMultiLasso::updateRho() {
     long c = snpsFeatures2.rows();
-    rho = VectorXd::Zero(c);
+    rho = VectorXf::Zero(c);
     for (long j=0; j<c; j++){
         rho(j) = snpsFeatures2.row(j)*v;
     }
@@ -143,28 +143,28 @@ void AdaMultiLasso::updateTheta_Rho() {
 }
 
 void AdaMultiLasso::initTheta() {
-    w = VectorXd::Ones(snpsFeatures1.cols());
+    w = VectorXf::Ones(snpsFeatures1.cols());
     long r = snpsFeatures1.rows();
-    theta = VectorXd::Zero(r);
+    theta = VectorXf::Zero(r);
     for (long j=0; j<r; j++){
         theta(j) = snpsFeatures1.row(j)*w;
     }
 }
 
 void AdaMultiLasso::initRho() {
-    v = VectorXd::Ones(snpsFeatures2.cols());
+    v = VectorXf::Ones(snpsFeatures2.cols());
     long r = snpsFeatures2.rows();
-    rho = VectorXd::Zero(r);
+    rho = VectorXf::Zero(r);
     for (long j=0; j<r; j++){
         rho(j) = snpsFeatures2.row(j)*v;
     }
 }
 
-VectorXd AdaMultiLasso::getTheta() {
+VectorXf AdaMultiLasso::getTheta() {
     return theta;
 }
 
-VectorXd AdaMultiLasso::getRho() {
+VectorXf AdaMultiLasso::getRho() {
     return rho;
 }
 
@@ -212,8 +212,8 @@ double AdaMultiLasso::penalty_cost() {
     MatrixXf rb = getBeta();
     long c = rb.rows();
     double result = 0;
-    VectorXd theta = getTheta()*lambda1;
-    VectorXd rho = getRho()*lambda2;
+    VectorXf theta = getTheta()*lambda1;
+    VectorXf rho = getRho()*lambda2;
     for (long i=0;i<c;i++){
         result += theta(i)*rb.row(i).lpNorm<1>() + rho(i)*rb.row(i).norm();
     }
@@ -250,8 +250,8 @@ void AdaMultiLasso::initTraining() {
         taskNum = y.cols();
         MatrixXf tmpX = MatrixXf::Zero(n*taskNum, c*taskNum);
         MatrixXf tmpY = MatrixXf::Zero(n*taskNum, 1);
-        VectorXd tmpT = VectorXd::Zero(c*taskNum);
-        VectorXd tmpR = VectorXd::Zero(c*taskNum);
+        VectorXf tmpT = VectorXf::Zero(c*taskNum);
+        VectorXf tmpR = VectorXf::Zero(c*taskNum);
         MatrixXf tmpS1 = MatrixXf::Zero(c*taskNum, snpsFeatures1.cols());
         MatrixXf tmpS2 = MatrixXf::Zero(c*taskNum, snpsFeatures2.cols());
         for (long j=0;j<taskNum;j++){
@@ -314,8 +314,8 @@ double AdaMultiLasso::getL() {
     return L;
 }
 
-VectorXd AdaMultiLasso::projection(VectorXd in) {
-    VectorXd a = in;
+VectorXf AdaMultiLasso::projection(VectorXf in) {
+    VectorXf a = in;
     sort(a.data(), a.data()+a.size());
     long l = a.size();
     double I = 0;
@@ -332,6 +332,6 @@ VectorXd AdaMultiLasso::projection(VectorXd in) {
         }
     }
     double t = S/I;
-    VectorXd r = ((in.array() - t).max(0)).matrix();
+    VectorXf r = ((in.array() - t).max(0)).matrix();
     return r;
 }

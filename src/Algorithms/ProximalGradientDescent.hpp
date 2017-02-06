@@ -38,7 +38,7 @@ private:
     long innerStep1;
     long innerStep2;
 
-    bool checkVectorConvergence(VectorXd, VectorXd, double);
+    bool checkVectorConvergence(VectorXf, VectorXf, double);
 
     static constexpr double default_learning_rate = 0.001;
     static constexpr double default_learning_rate2 = 0.001;

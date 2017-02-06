@@ -28,12 +28,12 @@ void Model::setAttributeMatrix(const string& str, MatrixXf* Z) {
 
 void Model::initBeta(void) {
     long c = X.cols();
-    beta = VectorXd::Random(c);
+    beta = VectorXf::Random(c);
 }
 
 void Model::initBeta(MatrixXf m) {
     long c = m.cols();
-    beta = VectorXd::Random(c);
+    beta = VectorXf::Random(c);
 }
 
 void Model::updateBeta(MatrixXf b) { beta = b; }
@@ -52,7 +52,7 @@ double Model::cost() {return 0.5*(y-X*beta).squaredNorm()/y.rows();};
 
 Model::Model() { };
 
-Model::Model(MatrixXf X, VectorXd y) {
+Model::Model(MatrixXf X, VectorXf y) {
     setX(X);
     setY(y);
     initBeta();
@@ -61,15 +61,15 @@ Model::Model(MatrixXf X, VectorXd y) {
 Model::Model(const unordered_map<string, string>& opts) {}
 
 MatrixXf Model::derivative() {
-    return VectorXd::Random(1);
+    return VectorXf::Random(1);
 }
 
 MatrixXf Model::proximal_derivative() {
-    return VectorXd::Random(1);
+    return VectorXf::Random(1);
 }
 
 MatrixXf Model::proximal_operator(MatrixXf xd, float d) {
-    return VectorXd::Random(1);
+    return VectorXf::Random(1);
 }
 
 modelResult Model::getClusteringResult() {

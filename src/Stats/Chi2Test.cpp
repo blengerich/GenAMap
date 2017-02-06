@@ -10,8 +10,8 @@ void Chi2Test::run() {
     long aa = 0, ab = 0, ac = 0, ba = 0, bb = 0, bc = 0;
     float pa = 0;
     double chi = 0;
-    VectorXd e = VectorXd::Zero(4);
-    VectorXd o = VectorXd::Zero(4);
+    VectorXf e = VectorXf::Zero(4);
+    VectorXf o = VectorXf::Zero(4);
     long t = y.cols();
     for (long k = 0; k < t && !shouldStop; k++) {
         for (long j = 0; j < c && !shouldStop; j++) {

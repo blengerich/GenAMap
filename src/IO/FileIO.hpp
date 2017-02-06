@@ -38,7 +38,7 @@ private:
 
     void formatError();
 
-    VectorXd decodeLine(string, string, unsigned long);
+    VectorXf decodeLine(string, string, unsigned long);
 
     string getNextToken(unsigned long, string);
 
@@ -56,7 +56,7 @@ public:
 
     void writeMatrixFile(string, MatrixXf);
 
-    void writeVectorFile(string, VectorXd);
+    void writeVectorFile(string, VectorXf);
 
     void writeTreeFile(string, Tree*);
 };

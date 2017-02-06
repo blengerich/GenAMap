@@ -34,7 +34,7 @@ public:
     virtual double cost();
 
     Model();
-//    Model(SparseMatrix<double> , VectorXd);
+//    Model(SparseMatrix<double> , VectorXf);
 
     virtual ~Model(){};
 };

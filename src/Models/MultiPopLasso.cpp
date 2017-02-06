@@ -25,7 +25,7 @@ void MultiPopLasso::initBeta() {
 
 void MultiPopLasso::setLambda(double l) { lambda = l; }
 
-void MultiPopLasso::setPopulation(VectorXd pop) {
+void MultiPopLasso::setPopulation(VectorXf pop) {
     // population indicator must start from 0
     population = pop;
     popNum = (long)population.maxCoeff() + 1;
@@ -64,7 +64,7 @@ void MultiPopLasso::setAttributeMatrix(const string& str, MatrixXf* Z) {
     if (str == "population") {
         cerr << "setting population" << endl;
         // todo: stop copying data
-        setPopulation(VectorXd(Map<VectorXd>(Z->data(), Z->rows())));
+        setPopulation(VectorXf(Map<VectorXf>(Z->data(), Z->rows())));
     } else if (str == "X") {
         setX(*Z);
     } else if (str == "Y") {
@@ -90,7 +90,7 @@ void MultiPopLasso::reArrangeData() {
     long c = X.cols();
     MatrixXf tmpX = MatrixXf::Zero(r, c);
     MatrixXf tmpY = MatrixXf::Zero(r, 1);
-    VectorXd tmpPop = VectorXd::Zero(r);
+    VectorXf tmpPop = VectorXf::Zero(r);
     vector<long> idx;
     long count = 0;
     for (long i=0; i<popNum; i++){
@@ -143,8 +143,8 @@ void MultiPopLasso::removeColumns() {
 
 MatrixXf MultiPopLasso::normalizeData_col(MatrixXf a) {
     long c = a.cols();
-    VectorXd mean = a.colwise().mean();
-    VectorXd std_inv = VectorXd::Zero(c);
+    VectorXf mean = a.colwise().mean();
+    VectorXf std_inv = VectorXf::Zero(c);
     for (long i = 0; i < c; i++) {
         std_inv(i) = 1.0 / Math::getInstance().std(a.col(i));
     }
@@ -295,7 +295,7 @@ MatrixXf MultiPopLasso::predict(MatrixXf x) {
     return MatrixXf::Random(1,1);
 }
 
-MatrixXf MultiPopLasso::predict(MatrixXf x, VectorXd pop){
+MatrixXf MultiPopLasso::predict(MatrixXf x, VectorXf pop){
     long r= x.rows();
     MatrixXf y(r, 1);
     MatrixXf b = getBetaInside();

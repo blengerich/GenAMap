@@ -50,7 +50,7 @@ public:
 
     Model();
     Model(const unordered_map<string, string>&);
-    Model(MatrixXf, VectorXd);
+    Model(MatrixXf, VectorXf);
 
     virtual ~Model(){};
 };

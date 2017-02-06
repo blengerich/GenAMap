@@ -43,7 +43,7 @@ public:
     // algorithm use methods
     // proximal gradient descent
     MatrixXf proximal_derivative();
-    MatrixXf proximal_operator(VectorXd, float);
+    MatrixXf proximal_operator(VectorXf, float);
 
     void assertReadyToRun();
 

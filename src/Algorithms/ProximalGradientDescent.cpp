@@ -119,8 +119,8 @@ void ProximalGradientDescent::run(Model *model) {
     cerr << "The algorithm for this specific model is not implemented, runs on basic model"<<endl;    
     int epoch = 0;
     double residue = model->cost();
-    VectorXd grad;
-    VectorXd in;
+    VectorXf grad;
+    VectorXf in;
     while (!shouldStop && epoch < maxIteration && residue > tolerance) {
         epoch++;
         progress = float(epoch) / maxIteration;
@@ -179,8 +179,8 @@ void ProximalGradientDescent::run(LinearRegression *model) {
         model->setY(y.col(i));
         model->initBeta();
         double residue = model->cost();
-        VectorXd grad;
-        VectorXd in;
+        VectorXf grad;
+        VectorXf in;
         epoch = 0; 
         while (!shouldStop && epoch < maxIteration && residue > tolerance && !shouldStop) {
             epoch++;
@@ -303,12 +303,12 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
     double lr2 = 0;
     long i1 = 0;
     long i2 = 0;
-    VectorXd w_update = model->getW();
-    VectorXd v_update = model->getV();
-    VectorXd w_prev = model->getW();
-    VectorXd v_prev = model->getV();
-    VectorXd w_grad = model->getW();
-    VectorXd v_grad = model->getV();
+    VectorXf w_update = model->getW();
+    VectorXf v_update = model->getV();
+    VectorXf w_prev = model->getW();
+    VectorXf v_prev = model->getV();
+    VectorXf w_grad = model->getW();
+    VectorXf v_grad = model->getV();
     while (!shouldStop && epoch < maxIteration && diff > tolerance) {
         i1 = 0;
         i2 = 0;
@@ -355,7 +355,7 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
     model->updateBeta(best_beta);
 }
 
-bool ProximalGradientDescent::checkVectorConvergence(VectorXd v1, VectorXd v2, double d) {
+bool ProximalGradientDescent::checkVectorConvergence(VectorXf v1, VectorXf v2, double d) {
     double r = (v1 - v2).squaredNorm();
     return (r < d);
 }
