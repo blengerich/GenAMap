@@ -54,7 +54,7 @@ ProximalGradientDescent::ProximalGradientDescent(const unordered_map<string, str
     } catch(std::out_of_range& oor) {
         innerStep2 = default_inner_step2;
     }
-    prev_residue = numeric_limits<double>::max();
+    prev_residue = numeric_limits<float>::max();
 }
 
 
@@ -62,7 +62,7 @@ ProximalGradientDescent::ProximalGradientDescent() {
     learningRate = default_learning_rate;
     learningRate2 = default_learning_rate2;
     tolerance = default_tolerance;
-    prev_residue = numeric_limits<double>::max();
+    prev_residue = numeric_limits<float>::max();
     innerStep1 = default_inner_step1;
     innerStep2 = default_inner_step2;
 }
@@ -118,9 +118,9 @@ void ProximalGradientDescent::setLearningRate(float lr) {
 void ProximalGradientDescent::run(Model *model) {
     cerr << "The algorithm for this specific model is not implemented, runs on basic model"<<endl;    
     int epoch = 0;
-    double residue = model->cost();
-    VectorXd grad;
-    VectorXd in;
+    float residue = model->cost();
+    VectorXf grad;
+    VectorXf in;
     while (!shouldStop && epoch < maxIteration && residue > tolerance) {
         epoch++;
         progress = float(epoch) / maxIteration;
@@ -135,16 +135,16 @@ void ProximalGradientDescent::run(Gflasso * model) {
     model->initBeta();
     learningRate = learningRate*2e6;
     int epoch = 0;
-    double residue = model->cost();
-    double theta = 1;
-    double theta_new = 0;
-    MatrixXd beta_prev = model->get_beta(); //bx
-    MatrixXd beta_curr = model->get_beta(); //bx_new
-    MatrixXd beta = model->get_beta();  //bw
-    MatrixXd best_beta = model->get_beta();
-    MatrixXd in;
-    MatrixXd grad;
-    double diff = tolerance*2;
+    float residue = model->cost();
+    float theta = 1;
+    float theta_new = 0;
+    MatrixXf beta_prev = model->get_beta(); //bx
+    MatrixXf beta_curr = model->get_beta(); //bx_new
+    MatrixXf beta = model->get_beta();  //bw
+    MatrixXf best_beta = model->get_beta();
+    MatrixXf in;
+    MatrixXf grad;
+    float diff = tolerance*2;
     prev_residue= 9999999;
     while (!shouldStop && epoch < maxIteration && diff > tolerance) {
         epoch++;
@@ -169,7 +169,7 @@ void ProximalGradientDescent::run(Gflasso * model) {
 
 void ProximalGradientDescent::run(LinearRegression *model) {
     int epoch = 0;
-    MatrixXd y = model->getY();
+    MatrixXf y = model->getY();
     model->setL1_reg(model->getL1_reg()*10);
     long s = y.cols();
     for (long i=0; i<s; i++){
@@ -178,9 +178,9 @@ void ProximalGradientDescent::run(LinearRegression *model) {
         }
         model->setY(y.col(i));
         model->initBeta();
-        double residue = model->cost();
-        VectorXd grad;
-        VectorXd in;
+        float residue = model->cost();
+        VectorXf grad;
+        VectorXf in;
         epoch = 0; 
         while (!shouldStop && epoch < maxIteration && residue > tolerance && !shouldStop) {
             epoch++;
@@ -201,17 +201,17 @@ void ProximalGradientDescent::run(TreeLasso * model) {
     model->hierarchicalClustering();
     learningRate = learningRate*1e5;
     int epoch = 0;
-    double residue = model->cost();
-    double theta = 1;
-    double theta_new = 0;
-    MatrixXd beta_prev = model->getBeta(); //bx
-    MatrixXd beta_curr = model->getBeta(); //bx_new
-    MatrixXd beta = model->getBeta();  //bw
-    MatrixXd best_beta = model->getBeta();
-    MatrixXd in;
-    MatrixXd grad;
+    float residue = model->cost();
+    float theta = 1;
+    float theta_new = 0;
+    MatrixXf beta_prev = model->getBeta(); //bx
+    MatrixXf beta_curr = model->getBeta(); //bx_new
+    MatrixXf beta = model->getBeta();  //bw
+    MatrixXf best_beta = model->getBeta();
+    MatrixXf in;
+    MatrixXf grad;
     model->initGradientUpdate();
-    double diff = tolerance*2;
+    float diff = tolerance*2;
     while (!shouldStop && epoch < maxIteration && diff > tolerance) {
         epoch++;
         progress = float(epoch) / maxIteration;
@@ -238,8 +238,8 @@ void ProximalGradientDescent::run(TreeLasso * model) {
 
 
 void ProximalGradientDescent::run(MultiPopLasso * model) {
-    MatrixXd X = model->getX();
-    MatrixXd y = model->getY();
+    MatrixXf X = model->getX();
+    MatrixXf y = model->getY();
     int epoch = 0;
     long s = y.cols();
     for (long i=0; i<y.cols(); i++) {
@@ -250,16 +250,16 @@ void ProximalGradientDescent::run(MultiPopLasso * model) {
         model->setXY(X, y.col(i));
         model->initTraining();
         epoch = 0;
-        double residue = model->cost();
-        double theta = 1;
-        double theta_new = 0;
-        MatrixXd beta_prev = model->getFormattedBeta(); //bx
-        MatrixXd beta_curr = model->getFormattedBeta(); //bx_new
-        MatrixXd beta = model->getFormattedBeta();  //bw
-        MatrixXd best_beta = model->getFormattedBeta();
-        MatrixXd in;
-        MatrixXd grad;
-        double diff = tolerance * 2;
+        float residue = model->cost();
+        float theta = 1;
+        float theta_new = 0;
+        MatrixXf beta_prev = model->getFormattedBeta(); //bx
+        MatrixXf beta_curr = model->getFormattedBeta(); //bx_new
+        MatrixXf beta = model->getFormattedBeta();  //bw
+        MatrixXf best_beta = model->getFormattedBeta();
+        MatrixXf in;
+        MatrixXf grad;
+        float diff = tolerance * 2;
         while (!shouldStop && epoch < maxIteration && diff > tolerance) {
             epoch++;
             progress = (float(epoch) + i*maxIteration ) / (maxIteration*s);
@@ -289,26 +289,26 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
     model->initBeta();
     model->initTraining();
     int epoch = 0;
-    double residue = model->cost();
-    double theta = 1;
-    double theta_new = 0;
-    MatrixXd beta_prev = model->getFormattedBeta(); //bx
-    MatrixXd beta_curr = model->getFormattedBeta(); //bx_new
-    MatrixXd beta = model->getFormattedBeta();  //bw
-    MatrixXd best_beta = model->getFormattedBeta();
-    MatrixXd beta_prev2 = model->getFormattedBeta();
-    MatrixXd in;
-    MatrixXd grad;
-    double diff = tolerance*2;
-    double lr2 = 0;
+    float residue = model->cost();
+    float theta = 1;
+    float theta_new = 0;
+    MatrixXf beta_prev = model->getFormattedBeta(); //bx
+    MatrixXf beta_curr = model->getFormattedBeta(); //bx_new
+    MatrixXf beta = model->getFormattedBeta();  //bw
+    MatrixXf best_beta = model->getFormattedBeta();
+    MatrixXf beta_prev2 = model->getFormattedBeta();
+    MatrixXf in;
+    MatrixXf grad;
+    float diff = tolerance*2;
+    float lr2 = 0;
     long i1 = 0;
     long i2 = 0;
-    VectorXd w_update = model->getW();
-    VectorXd v_update = model->getV();
-    VectorXd w_prev = model->getW();
-    VectorXd v_prev = model->getV();
-    VectorXd w_grad = model->getW();
-    VectorXd v_grad = model->getV();
+    VectorXf w_update = model->getW();
+    VectorXf v_update = model->getV();
+    VectorXf w_prev = model->getW();
+    VectorXf v_prev = model->getV();
+    VectorXf w_grad = model->getW();
+    VectorXf v_grad = model->getV();
     while (!shouldStop && epoch < maxIteration && diff > tolerance) {
         i1 = 0;
         i2 = 0;
@@ -355,8 +355,8 @@ void ProximalGradientDescent::run(AdaMultiLasso *model) {
     model->updateBeta(best_beta);
 }
 
-bool ProximalGradientDescent::checkVectorConvergence(VectorXd v1, VectorXd v2, double d) {
-    double r = (v1 - v2).squaredNorm();
+bool ProximalGradientDescent::checkVectorConvergence(VectorXf v1, VectorXf v2, float d) {
+    float r = (v1 - v2).squaredNorm();
     return (r < d);
 }
 
@@ -364,13 +364,13 @@ void ProximalGradientDescent::run(SparseLMM *model) {
     BrentSearch *brentSearch = new BrentSearch();
     brentSearch->set_delta(0.5);
     brentSearch->run(model);
-    double delta = model->get_lambda();
+    float delta = model->get_lambda();
     model->rotateXY(delta);
     LinearRegression lr = LinearRegression();
     lr.setL1_reg(model->getL1reg());
     lr.setX(model->getRotatedX());
     lr.setY(model->getRoattedY());
     run(&lr);
-    MatrixXd tmp = lr.getBeta();
+    MatrixXf tmp = lr.getBeta();
     model->updateBeta(tmp);
 }

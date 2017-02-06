@@ -82,7 +82,7 @@ void deleteModel(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 void trainAlgorithmComplete(uv_work_t* req, int status);
 
-MatrixXd* v8toEigen(Local<v8::Array>& ar);
+MatrixXf* v8toEigen(Local<v8::Array>& ar);
 
 bool ArgsHaveJobID(const FunctionCallbackInfo<Value>& args, const int position);
 

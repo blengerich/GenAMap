@@ -20,7 +20,7 @@ typedef unsigned int algorithm_id_t;
 
 class Algorithm {
 protected:
-    double progress;
+    float progress;
     int maxIteration;
     bool isRunning;
     bool shouldStop;
@@ -33,7 +33,7 @@ public:
 
     void setMaxIteration(int);
 
-    double getProgress();
+    float getProgress();
     bool getIsRunning();
     int getMaxIteration();
     void stop();
