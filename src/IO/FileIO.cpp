@@ -82,7 +82,7 @@ unsigned long FileIO::countColumn(string line, string format) {
     }
     else if (format.compare("TSV") == 0) {
         unsigned long c = 0;
-        double t;
+        float t;
         stringstream stream(line);
         while (!stream.eof()){
             stream >> t;
@@ -106,7 +106,7 @@ VectorXf FileIO::decodeLine(string line, string format, unsigned long col) {
         return row;
     }
     else if (format.compare("TSV") == 0) {
-        double t;
+        float t;
         int c = 0;
         stringstream stream(line);
         while (!stream.eof()){

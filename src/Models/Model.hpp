@@ -46,7 +46,7 @@ public:
     virtual MatrixXf proximal_derivative();
     virtual MatrixXf proximal_operator(MatrixXf, float);
 
-    virtual double cost();
+    virtual float cost();
 
     Model();
     Model(const unordered_map<string, string>&);

@@ -61,8 +61,8 @@ treeNode *Tree::buildLeafNode(long t) {
 }
 
 void Tree::setWeight() {
-    double n = root->s;
-    double prev_s = 0;
+    float n = root->s;
+    float prev_s = 0;
     queue<treeNode *> nodes;
     nodes.push(root);
     while (nodes.size()>0){
@@ -77,30 +77,30 @@ void Tree::setWeight() {
     }
 }
 
-double Math::variance(VectorXf v) {
-    double mean = v.mean();
+float Math::variance(VectorXf v) {
+    float mean = v.mean();
     v = (v.array() - mean).matrix();
     return v.squaredNorm() / v.size();
 }
 
-double Math::covariance(VectorXf v1, VectorXf v2) {
-    double m1 = v1.mean();
-    double m2 = v2.mean();
+float Math::covariance(VectorXf v1, VectorXf v2) {
+    float m1 = v1.mean();
+    float m2 = v2.mean();
     return ((v1.array() - m1) * (v2.array() - m2)).matrix().mean();
 }
 
-double Math::correlation(VectorXf v1, VectorXf v2) {
-    double cov = covariance(v1, v2);
-    double var1 = std(v1);
-    double var2 = std(v2);
+float Math::correlation(VectorXf v1, VectorXf v2) {
+    float cov = covariance(v1, v2);
+    float var1 = std(v1);
+    float var2 = std(v2);
     if (var1 == 0 or var2 == 0){
         return 0;
     }
     return cov / (var1 * var2);
 }
 
-double Math::std(VectorXf v) {
-    double mean = v.mean();
+float Math::std(VectorXf v) {
+    float mean = v.mean();
     v = (v.array() - mean).matrix();
     return sqrt(v.squaredNorm() / v.size());
 }
@@ -201,7 +201,7 @@ minXY Math::searchMin(MatrixXf m) {
     minXY xy;
     xy.x = 0;
     xy.y = 0;
-    double tmpV = numeric_limits<double>::max();
+    float tmpV = numeric_limits<float>::max();
     for (long i = 0; i < r; i++) {
         for (long j = i + 1; j < r; j++) {
             if (m(i, j) < tmpV) {

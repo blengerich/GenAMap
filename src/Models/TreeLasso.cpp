@@ -54,7 +54,7 @@ void TreeLasso::initIterativeUpdate(){
     XX = X.transpose()*X;
 }
 
-void TreeLasso::setLambda(double d){
+void TreeLasso::setLambda(float d){
     lambda = d;
 }
 
@@ -165,7 +165,7 @@ minXY TreeLasso::searchMin(MatrixXf m) {
     minXY xy;
     xy.x = 0;
     xy.y = 0;
-    double tmpV = numeric_limits<double>::max();
+    float tmpV = numeric_limits<float>::max();
     for (long i = 0; i < r; i++) {
         for (long j = i + 1; j < r; j++) {
             if (m(i, j) < tmpV) {
@@ -182,7 +182,7 @@ void TreeLasso::setClusteringMethod(string str) {
     clusteringMethod = str;
 }
 
-void TreeLasso::setThreshold(double thred) {
+void TreeLasso::setThreshold(float thred) {
     threshold = thred;
 }
 
@@ -236,7 +236,7 @@ Tree *TreeLasso::getTree() {
     return T;
 }
 
-double TreeLasso::cost() {
+float TreeLasso::cost() {
     return 0.5*(y - X * beta).squaredNorm() + penalty_cost();
 }
 
@@ -261,11 +261,11 @@ double TreeLasso::cost() {
 //    return r;
 //}
 
-double TreeLasso::penalty_cost() {
+float TreeLasso::penalty_cost() {
     initGradientUpdate();
     MatrixXf A = C*beta.transpose();
     long c = A.cols();
-    double s = 0;
+    float s = 0;
     long v = gIdx.rows();
     for (long i = 0;i<v;i++){
         VectorXf tmp = VectorXf::Zero(c);
@@ -278,24 +278,24 @@ double TreeLasso::penalty_cost() {
     return s;
 }
 
-double TreeLasso::l1NormIndex(vector<long> traits) {
-    double r = 0;
+float TreeLasso::l1NormIndex(vector<long> traits) {
+    float r = 0;
     for (unsigned long i=0; i<traits.size(); i++){
         r += beta.col(traits[i]).lpNorm<1>();
     }
     return r;
 }
 
-double TreeLasso::l2NormIndex(vector<long> traits) {
-    double r = 0;
+float TreeLasso::l2NormIndex(vector<long> traits) {
+    float r = 0;
     for (unsigned long i=0;i<traits.size();i++){
         r += beta.col(traits[i]).norm();
     }
     return r;
 }
 
-double TreeLasso::l2NormIndexIndex(long j, vector<long> traits) {
-    double r = 0;
+float TreeLasso::l2NormIndexIndex(long j, vector<long> traits) {
+    float r = 0;
     for (unsigned long i=0;i<traits.size();i++){
         r += beta.row(j).col(traits[i]).norm();
     }
@@ -390,7 +390,7 @@ void TreeLasso::updateMD() {
     unsigned long c = X.cols();
     queue<treeNode*> nodes;
     nodes.push(T->getRoot());
-    double denominator = updateMD_denominator();
+    float denominator = updateMD_denominator();
     while (nodes.size()>0){
         treeNode * n = nodes.front();
         for (unsigned long j=0; j<c; j++){
@@ -409,8 +409,8 @@ void TreeLasso::updateMD() {
     }
 }
 
-double TreeLasso::updateMD_denominator() {
-    double r = 0;
+float TreeLasso::updateMD_denominator() {
+    float r = 0;
     queue<treeNode*> nodes;
     nodes.push(T->getRoot());
     while (nodes.size()>0){
@@ -458,7 +458,7 @@ void TreeLasso::initGradientUpdate() {
         gIdx(0,0) = 1;
         long index = r-1;
         queue<treeNode*> nodes;
-        stack<double> Cweights;
+        stack<float> Cweights;
         stack<long> Cindex;
         nodes.push(T->getRoot());
         while (nodes.size()>0){
@@ -504,7 +504,7 @@ void TreeLasso::initGradientUpdate() {
 
         tauNorm = tau.maxCoeff();
 
-        double L1 = ((X.transpose()*X).eigenvalues()).real().maxCoeff();
+        float L1 = ((X.transpose()*X).eigenvalues()).real().maxCoeff();
         L = L1 + lambda*lambda*tauNorm/mu;
 
         XY = X.transpose()*y;
@@ -512,13 +512,13 @@ void TreeLasso::initGradientUpdate() {
 }
 
 MatrixXf TreeLasso::proximal_operator(MatrixXf in, float l) {
-    MatrixXf sign = ((in.array()>0).matrix()).cast<double>();//sign
-    sign += -1.0*((in.array()<0).matrix()).cast<double>();
+    MatrixXf sign = ((in.array()>0).matrix()).cast<float>();//sign
+    sign += -1.0*((in.array()<0).matrix()).cast<float>();
     in = ((in.array().abs()-l*lambda/L).max(0)).matrix();//proximal
     return (in.array()*sign.array()).matrix();//proximal multipled back with sign
 }
 
-double TreeLasso::getL() {
+float TreeLasso::getL() {
     return L;
 }
 
@@ -544,7 +544,7 @@ MatrixXf TreeLasso::proximal_derivative() {
     return X.transpose()*(X*beta)-XY+R.transpose()*C;
 }
 
-void TreeLasso::setMu(double m) {
+void TreeLasso::setMu(float m) {
     mu = m;
 }
 

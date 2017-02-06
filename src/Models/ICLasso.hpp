@@ -24,10 +24,10 @@ class ICLasso : public virtual Model {
 private:
     MatrixXf X; //n * p
     MatrixXf Y; //n * 1
-    double lambda;
-    double lambda1;
-    double lambda2;
-    double gamma;
+    float lambda;
+    float lambda1;
+    float lambda2;
+    float gamma;
     MatrixXf Beta; //p * 1
     MatrixXf Theta;
 
@@ -37,11 +37,11 @@ public:
     void set_X(MatrixXf);
     void set_Y(MatrixXf);
     void set_XY(MatrixXf, MatrixXf);
-    void set_lambda1(double);
-    void set_lambda2(double);
-    void set_gamma(double);
+    void set_lambda1(float);
+    void set_lambda2(float);
+    void set_gamma(float);
     void set_theta(MatrixXf);
-    double cost();
+    float cost();
     void optimize_theta();
 
 };

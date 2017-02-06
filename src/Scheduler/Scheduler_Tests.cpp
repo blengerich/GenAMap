@@ -273,10 +273,10 @@ TEST_F(SchedulerTest, CheckJobProgress) {
     while(my_scheduler->checkJobProgress(job_id) == 0) {
     	usleep(1);
     }
-    double progress = my_scheduler->checkJobProgress(job_id);	// 0 < job progress < 1 before end of run
+    float progress = my_scheduler->checkJobProgress(job_id);	// 0 < job progress < 1 before end of run
     ASSERT_GE(progress, 0);
     ASSERT_LT(progress, 1);
-    double progress_2 = my_scheduler->checkJobProgress(job_id);	// job progress monotonically increasing
+    float progress_2 = my_scheduler->checkJobProgress(job_id);	// job progress monotonically increasing
     ASSERT_GE(progress_2, progress);
     while(my_scheduler->checkJobProgress(job_id) < 1.0) {
         usleep(1);
@@ -333,9 +333,9 @@ TEST_F(SchedulerTest, DeleteJob) {
     my_scheduler->setY(job_id, y);
     ASSERT_TRUE(my_scheduler->startJob(job_id, NullFunc));
 
-    double progress = my_scheduler->checkJobProgress(job_id);
+    float progress = my_scheduler->checkJobProgress(job_id);
     ASSERT_GE(progress, 0);
-    double progress_2 = my_scheduler->checkJobProgress(job_id);
+    float progress_2 = my_scheduler->checkJobProgress(job_id);
     ASSERT_GE(progress_2, progress);
     while(my_scheduler->checkJobProgress(job_id) < 1.0) {
         usleep(1);

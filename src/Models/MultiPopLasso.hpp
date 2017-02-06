@@ -23,13 +23,13 @@ using namespace Eigen;
 class MultiPopLasso : public Model {
 private:
     MatrixXf betaAll;
-    double lambda;
-    double mu;
-    double gamma;
+    float lambda;
+    float mu;
+    float gamma;
     VectorXf population;
     MatrixXf Z;
     long popNum;
-    double L;
+    float L;
     bool initTrainingFlag;
 
     VectorXi removeCols;
@@ -37,7 +37,7 @@ private:
 
     MatrixXf getBetaInside();
 
-    double groupPenalization();
+    float groupPenalization();
     void reArrangeData();
 
     void removeColumns();
@@ -50,21 +50,21 @@ private:
     vector<long> getPopulationIndex(long);
     void initC();
 
-    static constexpr double default_lambda = 0;
-    static constexpr double default_mu = 1;
-    static constexpr double default_gamma = 0;
+    static constexpr float default_lambda = 0;
+    static constexpr float default_mu = 1;
+    static constexpr float default_gamma = 0;
 
 public:
     void reSetFlag();
     void setXY(MatrixXf, MatrixXf);
-    void setLambda(double);
+    void setLambda(float);
     void setPopulation(VectorXf);
-    void setMu(double);
-    void setGamma(double);
+    void setMu(float);
+    void setGamma(float);
     void setAttributeMatrix(const string&, MatrixXf*);
 
     void initBeta();
-    double cost();
+    float cost();
     MatrixXf predict();
     MatrixXf predict(MatrixXf);
     MatrixXf predict(MatrixXf, VectorXf);
@@ -74,7 +74,7 @@ public:
     MatrixXf proximal_derivative();
     MatrixXf proximal_operator(MatrixXf, float);
 
-    double getL();
+    float getL();
     MatrixXf getBeta();
     MatrixXf getFormattedBeta();
 

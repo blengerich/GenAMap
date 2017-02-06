@@ -13,46 +13,46 @@ using namespace std;
 using namespace Eigen;
 
 
-double Stats::ChiSquaredTest(MatrixXf observed, MatrixXf expected) {
+float Stats::ChiSquaredTest(MatrixXf observed, MatrixXf expected) {
     MatrixXf diff = observed - expected;
     MatrixXf x = diff.cwiseProduct(diff).cwiseQuotient(expected);
     return x.sum();
 }
 
 
-double Stats::ChiToPValue(double chisqr_value, int dof) {
+float Stats::ChiToPValue(float chisqr_value, int dof) {
     boost::math::chi_squared dist(dof);
     return 1 - boost::math::cdf(dist, chisqr_value);
 }
 
 
-double Stats::WaldTest(double mle, double var, double candidate) {
+float Stats::WaldTest(float mle, float var, float candidate) {
     return pow(mle - candidate, 2) / var;
 }
 
-double Stats::FisherExactTest(MatrixXf X) {
+float Stats::FisherExactTest(MatrixXf X) {
    int N = X.sum();
-   double NFac = boost::math::factorial<double>(N);
+   float NFac = boost::math::factorial<float>(N);
    MatrixXf rowSums = X.rowwise().sum();
    MatrixXf colSums = X.colwise().sum();
-   MatrixXf comFacs = X.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
-   MatrixXf rFacs = rowSums.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
-   MatrixXf cFacs = colSums.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
-   double rowsFacs = rFacs.prod();
-   double colsFacs = cFacs.prod();
-   double componentFacs = comFacs.prod();
+   MatrixXf comFacs = X.unaryExpr(std::ptr_fun(boost::math::factorial<float>));
+   MatrixXf rFacs = rowSums.unaryExpr(std::ptr_fun(boost::math::factorial<float>));
+   MatrixXf cFacs = colSums.unaryExpr(std::ptr_fun(boost::math::factorial<float>));
+   float rowsFacs = rFacs.prod();
+   float colsFacs = cFacs.prod();
+   float componentFacs = comFacs.prod();
    return rowsFacs*colsFacs/(NFac*componentFacs);
 }
 
-double Stats::BonCorrection(double pVal, int number) {
+float Stats::BonCorrection(float pVal, int number) {
   return pVal/number;
 }
 
-double Stats::get_ts(double beta, double var, double sigma){
+float Stats::get_ts(float beta, float var, float sigma){
   return beta/(sqrt(var * sigma));
 }
 
-double Stats::get_qs(double ts, int N, int q){
+float Stats::get_qs(float ts, int N, int q){
   return 2*Stats::ChiToPValue(abs(ts), N-q);  
 }
 
@@ -118,7 +118,7 @@ void StatsBasic::BonferroniCorrection() {
 
 // algorithm use
 
-double StatsBasic::getProgress() {
+float StatsBasic::getProgress() {
     return progress;
 }
 

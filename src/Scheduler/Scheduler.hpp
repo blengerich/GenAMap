@@ -57,7 +57,7 @@ public:
 	// Queues the job at the given job_id, with the callback to be called when the job is completed.
 	// Returns true if successfully queued, false otherwise.
 
-	double checkJobProgress(const job_id_t);
+	float checkJobProgress(const job_id_t);
 	// Returns the progress of the job or -1 on failure.
 
 	bool cancelJob(const job_id_t);

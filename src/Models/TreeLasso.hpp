@@ -21,11 +21,11 @@ class TreeLasso :public Model {
 private:
     Tree* T;
     string clusteringMethod;
-    double threshold;
+    float threshold;
     MatrixXf mD;
     MatrixXf mD_;
     MatrixXf XX;
-    double lambda;
+    float lambda;
     bool initGradientFlag;
 
     MatrixXf XY;
@@ -33,9 +33,9 @@ private:
     MatrixXf mT;
     MatrixXf C;
     MatrixXi gIdx;
-    double tauNorm;
-    double L;
-    double mu;
+    float tauNorm;
+    float L;
+    float mu;
 
     void removeRow(MatrixXf*, long);
     void removeCol(MatrixXf*, long);
@@ -46,13 +46,13 @@ private:
     void updateMap(unordered_map<long, treeNode*>*, minXY);
 
     void setWeight();
-    double penalty_cost();
+    float penalty_cost();
 
-    double l1NormIndex(vector<long>);
-    double l2NormIndex(vector<long>);
-    double l2NormIndexIndex(long, vector<long>);
+    float l1NormIndex(vector<long>);
+    float l2NormIndex(vector<long>);
+    float l2NormIndexIndex(long, vector<long>);
 
-    double updateMD_denominator();
+    float updateMD_denominator();
 
     void prune();
     void penaltyWeights();
@@ -61,18 +61,18 @@ private:
     long countNodes();
     long countNoneZeroNodes();
 
-    static constexpr double default_lambda = 0;
+    static constexpr float default_lambda = 0;
     static constexpr const char* default_clustering_method = "single";
-    static constexpr double default_threshold = 1;
-    static constexpr double default_mu = 0.01;
+    static constexpr float default_threshold = 1;
+    static constexpr float default_mu = 0.01;
 
 public:
     void setX(MatrixXf);
     void setY(MatrixXf);
     void setXY(MatrixXf, MatrixXf);
     void setTree(Tree*);
-    void setLambda(double);
-    void setMu(double);
+    void setLambda(float);
+    void setMu(float);
     void initBeta();
     void assertReadyToRun();
 
@@ -84,15 +84,15 @@ public:
     void hierarchicalClustering();
 
     void setClusteringMethod(string);
-    void setThreshold(double);
+    void setThreshold(float);
 
-    double cost();
+    float cost();
 
     void updateMD();
     void updateBeta();
     void updateBeta(MatrixXf);
 
-    double getL();
+    float getL();
 
     MatrixXf proximal_derivative();
     MatrixXf proximal_operator(MatrixXf, float);

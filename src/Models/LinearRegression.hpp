@@ -38,7 +38,7 @@ public:
 
     // general use methods
     MatrixXf derivative();
-    double cost();
+    float cost();
 
     // algorithm use methods
     // proximal gradient descent

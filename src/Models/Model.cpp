@@ -48,7 +48,7 @@ MatrixXf Model::predict() { return X * beta; }
 
 MatrixXf Model::predict(MatrixXf X) { return X * beta; };
 
-double Model::cost() {return 0.5*(y-X*beta).squaredNorm()/y.rows();};
+float Model::cost() {return 0.5*(y-X*beta).squaredNorm()/y.rows();};
 
 Model::Model() { };
 

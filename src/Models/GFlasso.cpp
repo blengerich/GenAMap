@@ -17,13 +17,13 @@ Gflasso::Gflasso() {
     flasso_type = GcFlasso;
 }
 
-Gflasso::Gflasso(double lambda,double gamma){
+Gflasso::Gflasso(float lambda,float gamma){
     lambda_flasso = lambda;
     gamma_flasso = gamma;
     flasso_type = GcFlasso;
 }
 
-Gflasso::Gflasso(MatrixXf corr_coff,double lambda,double gamma){
+Gflasso::Gflasso(MatrixXf corr_coff,float lambda,float gamma){
     this->corr_coff = corr_coff;
     gamma_flasso = gamma;
     lambda_flasso = lambda;
@@ -48,31 +48,31 @@ Gflasso::Gflasso(const unordered_map<string, string> &options) {
 }
 
 // Setting and getting various params of GFLasso model
-void Gflasso::set_params(double lambda,double gamma){
+void Gflasso::set_params(float lambda,float gamma){
     lambda_flasso = lambda;
     gamma_flasso = gamma;
 }
 
-vector<double> Gflasso::get_params(){
-    vector<double> params;
+vector<float> Gflasso::get_params(){
+    vector<float> params;
     params.push_back(this->lambda_flasso);
     params.push_back(this->gamma_flasso);
     return params;
 }
 
-void Gflasso::set_lambda(double lambda){
+void Gflasso::set_lambda(float lambda){
     this->lambda_flasso = lambda;
 }
 
-void Gflasso::set_gamma(double gamma){
+void Gflasso::set_gamma(float gamma){
     this->gamma_flasso = gamma;
 }
 
-double Gflasso::get_lambda(){
+float Gflasso::get_lambda(){
     return (this->lambda_flasso);
 }
 
-double Gflasso::get_gamma(){
+float Gflasso::get_gamma(){
     return (this->gamma_flasso);
 }
 
@@ -84,11 +84,11 @@ int Gflasso::get_flasso_type() {
     return flasso_type;
 }
 
-void Gflasso::set_mau(double mau){
+void Gflasso::set_mau(float mau){
      this->mau = mau;
 }
 
-double Gflasso::get_mau() {
+float Gflasso::get_mau() {
     return mau;
 }
 
@@ -150,10 +150,10 @@ void Gflasso::setXY(MatrixXf X,MatrixXf Y){
 //}
 
 // Helper functions to calculate the Cost function
-double Gflasso::gflasso_fusion_penalty(){
+float Gflasso::gflasso_fusion_penalty(){
 
     int num_rows = corr_coff.rows(),num_cols = corr_coff.cols(),sign=1,mul_factor = 1;
-    double total_sum = 0.0;
+    float total_sum = 0.0;
 
     // Go through each edge of the corr_coff matrix(graph)
     for(int start_node=0;start_node<num_rows;start_node++) {
@@ -181,7 +181,7 @@ double Gflasso::gflasso_fusion_penalty(){
 }
 
 // Cost function of GFlasso
-double Gflasso::cost(){
+float Gflasso::cost(){
 
     return (
             (y - X * beta).squaredNorm() +
@@ -307,8 +307,8 @@ float Gflasso::getL() {
 }
 
 MatrixXf Gflasso::proximal_operator(MatrixXf in, float l) {  // todo this needs some extra attention later.
-    MatrixXf sign = ((in.array()>0).matrix()).cast<double>();//sign
-    sign += -1.0*((in.array()<0).matrix()).cast<double>();
+    MatrixXf sign = ((in.array()>0).matrix()).cast<float>();//sign
+    sign += -1.0*((in.array()<0).matrix()).cast<float>();
     in = ((in.array().abs()-l*lambda_flasso/this->getL()).max(0)).matrix();//proximal
     return (in.array()*sign.array()).matrix();//proximal multipled back with sign
 }

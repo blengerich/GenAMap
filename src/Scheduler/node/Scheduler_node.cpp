@@ -138,7 +138,7 @@ void checkJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	}
 
 	const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
-	const double progress = Scheduler::Instance()->checkJobProgress(job_id);
+	const float progress = Scheduler::Instance()->checkJobProgress(job_id);
 	Local<Number> retval = Number::New(isolate, progress);
 	args.GetReturnValue().Set(retval);
 }

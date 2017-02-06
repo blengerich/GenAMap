@@ -9,7 +9,7 @@ void Chi2Test::run() {
     long r = X.rows();
     long aa = 0, ab = 0, ac = 0, ba = 0, bb = 0, bc = 0;
     float pa = 0;
-    double chi = 0;
+    float chi = 0;
     VectorXf e = VectorXf::Zero(4);
     VectorXf o = VectorXf::Zero(4);
     long t = y.cols();

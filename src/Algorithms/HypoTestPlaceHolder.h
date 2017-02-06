@@ -27,7 +27,7 @@ public:
     HypoTestPlaceHolder();
     HypoTestPlaceHolder(const unordered_map<string, string>&);
 
-    double getProgress();
+    float getProgress();
     bool getIsRunning();
     void stop();
 

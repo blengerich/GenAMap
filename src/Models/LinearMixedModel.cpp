@@ -66,11 +66,11 @@ void LinearMixedModel::setUS(MatrixXf U, MatrixXf S) {
     this->S = S;
 }
 
-void LinearMixedModel::set_lambda(double val) {
+void LinearMixedModel::set_lambda(float val) {
     this->lambda_optimized = val;
 }
 
-double LinearMixedModel::get_lambda() {
+float LinearMixedModel::get_lambda() {
     return this->lambda_optimized;
 }
 
@@ -100,7 +100,7 @@ void LinearMixedModel::decomposition() {
 
 
 // This method will give Beta matrix as a function of the Lambda Matrix.
-void LinearMixedModel::calculate_beta(double lambda) {
+void LinearMixedModel::calculate_beta(float lambda) {
     init();
     MatrixXf Id(n, n); // n*n
     Id.setIdentity(n, n);
@@ -122,9 +122,9 @@ void LinearMixedModel::calculate_beta(double lambda) {
 }
 
 // This method will give the value of sigma as a function of beta and lambda.
-void LinearMixedModel::calculate_sigma(double lambda) {
+void LinearMixedModel::calculate_sigma(float lambda) {
     init();
-    double ret_val = 0.0, temp_val = 0.0;
+    float ret_val = 0.0, temp_val = 0.0;
     this->calculate_beta(lambda);
     MatrixXf U_tran_Y = U.transpose() * y; // n*1
     MatrixXf U_tran_X = U.transpose() * X; // n*d
@@ -134,12 +134,12 @@ void LinearMixedModel::calculate_sigma(double lambda) {
 
     for (int i = 0; i < n; i++) {
         temp_val = U_tran_Y(i, 0) - U_tran_X_beta(i, 0);
-        temp_val = temp_val / (double(S(i, i) + lambda));
+        temp_val = temp_val / (float(S(i, i) + lambda));
         temp_val *= temp_val;
         ret_val += temp_val;
     }
 
-    this->sigma = ret_val / double(n);
+    this->sigma = ret_val / float(n);
     return;
 }
 
@@ -147,21 +147,21 @@ void LinearMixedModel::calculate_sigma(double lambda) {
    We have to try different lambda values to check at which the log likelihood
    is maximum or error(cost function) is minimum.
 */
-double LinearMixedModel::get_log_likelihood_value(double lambda) {
+float LinearMixedModel::get_log_likelihood_value(float lambda) {
     init();
-    double first_term = 0.0, second_term = 0.0, third_term = 0.0, ret_val = 0.0;
+    float first_term = 0.0, second_term = 0.0, third_term = 0.0, ret_val = 0.0;
     long n = this->get_num_samples();
 
     first_term = (n) * log(2 * M_PI) + n;
     for (int i = 0; i < n; i++) {
 
         // Check if the term is less then zero or not, if yes skip it as it will be inf.
-        if (double(S(i, i) + lambda) <= 0.0) {
+        if (float(S(i, i) + lambda) <= 0.0) {
 //            std::cout << "LLM Err : Log term is neg.... val = " << double(S(i, i) + lambda) << " for n = " <<
 //            i << std::endl;
             continue;
         }
-        second_term += log(double(S(i, i) + lambda));
+        second_term += log(float(S(i, i) + lambda));
     }
 
     calculate_sigma(lambda);
@@ -188,7 +188,7 @@ double LinearMixedModel::get_log_likelihood_value(double lambda) {
  So, we need to have negative log likelihood function.
  Name is kept to be f for simplicity.
  */
-double LinearMixedModel::f(double lambda) {
+float LinearMixedModel::f(float lambda) {
     init();
     return -1.0 * (this->get_log_likelihood_value(lambda));
 }
@@ -211,6 +211,6 @@ MatrixXf LinearMixedModel::getBeta() {
     return beta;
 }
 
-double LinearMixedModel::getSigma() {
+float LinearMixedModel::getSigma() {
     return sigma;
 }

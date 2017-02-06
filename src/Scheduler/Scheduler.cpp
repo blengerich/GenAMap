@@ -390,7 +390,7 @@ void trainAlgorithmThread(uv_work_t* req) {
 }
 
 
-double Scheduler::checkJobProgress(const job_id_t job_id) {
+float Scheduler::checkJobProgress(const job_id_t job_id) {
 	if (JobIdUsed(job_id) && getJob(job_id)->algorithm) {
 		return getJob(job_id)->algorithm->getProgress();
 	}

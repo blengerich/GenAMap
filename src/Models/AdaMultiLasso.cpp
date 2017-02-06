@@ -50,11 +50,11 @@ void AdaMultiLasso::setAttributeMatrix(const string& str, MatrixXf* Z) {
     }
 }
 
-void AdaMultiLasso::setLambda1(double d) {
+void AdaMultiLasso::setLambda1(float d) {
     lambda1 = d;
 }
 
-void AdaMultiLasso::setLambda2(double d) {
+void AdaMultiLasso::setLambda2(float d) {
     lambda2 = d;
 }
 
@@ -203,15 +203,15 @@ void AdaMultiLasso::initBeta() {
     beta = MatrixXf::Random(c, d);
 }
 
-double AdaMultiLasso::cost() {
+float AdaMultiLasso::cost() {
     initTraining();
     return 0.5*(y - X * beta).squaredNorm() + penalty_cost();
 }
 
-double AdaMultiLasso::penalty_cost() {
+float AdaMultiLasso::penalty_cost() {
     MatrixXf rb = getBeta();
     long c = rb.rows();
-    double result = 0;
+    float result = 0;
     VectorXf theta = getTheta()*lambda1;
     VectorXf rho = getRho()*lambda2;
     for (long i=0;i<c;i++){
@@ -304,13 +304,13 @@ MatrixXf AdaMultiLasso::proximal_derivative() {
 }
 
 MatrixXf AdaMultiLasso::proximal_operator(MatrixXf in, float lr) {
-    MatrixXf sign = ((in.array()>0).matrix()).cast<double>();
-    sign += -1.0*((in.array()<0).matrix()).cast<double>();
+    MatrixXf sign = ((in.array()>0).matrix()).cast<float>();
+    sign += -1.0*((in.array()<0).matrix()).cast<float>();
     in = ((in.array().abs()-lr*lambda1*theta.array()).max(0)).matrix();
     return (in.array()*sign.array()).matrix();
 }
 
-double AdaMultiLasso::getL() {
+float AdaMultiLasso::getL() {
     return L;
 }
 
@@ -318,10 +318,10 @@ VectorXf AdaMultiLasso::projection(VectorXf in) {
     VectorXf a = in;
     sort(a.data(), a.data()+a.size());
     long l = a.size();
-    double I = 0;
-    double S = 0;
+    float I = 0;
+    float S = 0;
     for (long i=0;i<l;i++){
-        double ss = 0;
+        float ss = 0;
         for (long j=i;j<l;j++) {
             ss += a(j);
         }
@@ -331,7 +331,7 @@ VectorXf AdaMultiLasso::projection(VectorXf in) {
             break;
         }
     }
-    double t = S/I;
+    float t = S/I;
     VectorXf r = ((in.array() - t).max(0)).matrix();
     return r;
 }

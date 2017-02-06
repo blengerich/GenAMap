@@ -22,7 +22,7 @@ SparseLMM::SparseLMM(const unordered_map<string, string> &options) {
 }
 
 
-void SparseLMM::rotateXY(double lambda) {
+void SparseLMM::rotateXY(float lambda) {
     MatrixXf Id(n, n); // n*n
     Id.setIdentity(n, n);
     MatrixXf U_trans = U.transpose(); // n*n
@@ -41,10 +41,10 @@ MatrixXf SparseLMM::getRoattedY() {
     return rY;
 }
 
-void SparseLMM::setL1reg(double d) {
+void SparseLMM::setL1reg(float d) {
     l1Reg = d;
 }
 
-double SparseLMM::getL1reg() {
+float SparseLMM::getL1reg() {
     return l1Reg;
 }

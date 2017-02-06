@@ -15,8 +15,8 @@ using namespace std;
 struct treeNode{
     vector<long> trait;
     vector<treeNode*> children;
-    double s;
-    double weight;
+    float s;
+    float weight;
 };
 
 struct minXY{
@@ -57,10 +57,10 @@ public:
         return instance;
     }
     // statistics
-    double variance(VectorXf);
-    double std(VectorXf);
-    double covariance(VectorXf, VectorXf);
-    double correlation(VectorXf, VectorXf);
+    float variance(VectorXf);
+    float std(VectorXf);
+    float covariance(VectorXf, VectorXf);
+    float correlation(VectorXf, VectorXf);
     // matrix
     void removeCol(MatrixXf*, long);
     void removeRow(MatrixXf*, long);

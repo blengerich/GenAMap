@@ -22,8 +22,8 @@ using namespace std;
 
 class AdaMultiLasso : public Model{
 private:
-    double lambda1;
-    double lambda2;
+    float lambda1;
+    float lambda2;
     MatrixXf snpsFeatures1;
     MatrixXf snpsFeatures2;
 
@@ -33,13 +33,13 @@ private:
     VectorXf theta;
     VectorXf rho;
 
-    double penalty_cost();
+    float penalty_cost();
 
     bool initTrainingFlag;
     long taskNum;
 
-    double L;
-    double mu;
+    float L;
+    float mu;
     MatrixXf C;
 
     void initC();
@@ -47,15 +47,15 @@ private:
     void updateTheta();
     void updateRho();
 
-    static constexpr double default_lambda1 = 0;
-    static constexpr double default_lambda2 = 0;
-    static constexpr double default_mu = 1e-3;
+    static constexpr float default_lambda1 = 0;
+    static constexpr float default_lambda2 = 0;
+    static constexpr float default_mu = 1e-3;
 
 public:
     AdaMultiLasso();
     AdaMultiLasso(const unordered_map<string, string>&);
-    void setLambda1(double);
-    void setLambda2(double);
+    void setLambda1(float);
+    void setLambda2(float);
 
     void setAttributeMatrix(const string&, MatrixXf*);
     void setSnpsFeatures1(MatrixXf); // TODO: switch to handling scoped pointers
@@ -90,9 +90,9 @@ public:
     VectorXf gradient_w();
     VectorXf gradient_v();
     VectorXf projection(VectorXf);
-    double getL();
+    float getL();
 
-    double cost();
+    float cost();
 };
 
 

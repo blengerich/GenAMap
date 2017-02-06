@@ -27,8 +27,8 @@ private :
     MatrixXf corr_coff;
 
     // Regularization parameters (Input)
-    double lambda_flasso;
-    double gamma_flasso;
+    float lambda_flasso;
+    float gamma_flasso;
 
     // Parameter modelling through Beta MatrixXf
     //Type of flasso
@@ -36,11 +36,11 @@ private :
 
     //Smoothing Proximal Gradient Method
     MatrixXf edge_vertex_matrix; // Dimension: Edge_size*Col(x)
-    double mau; // Smootheness parameter  //todo: what is this?
+    float mau; // Smootheness parameter  //todo: what is this?
     MatrixXf alpha_matrix;
 
-    static constexpr double default_lambda_flasso = 0.0;
-    static constexpr double default_gamma_flasso = 0.0;
+    static constexpr float default_lambda_flasso = 0.0;
+    static constexpr float default_gamma_flasso = 0.0;
     static constexpr int default_flasso_type = GcFlasso;
 
 public :
@@ -49,9 +49,9 @@ public :
     Gflasso();
 
     // Only regularization params are given
-    Gflasso(double,double);
+    Gflasso(float,float);
     // Regularization params along with corr coff. graph
-    Gflasso(MatrixXf,double,double);
+    Gflasso(MatrixXf,float,float);
     Gflasso(const unordered_map<string, string>&);
 
     void assertReadyToRun();
@@ -68,24 +68,24 @@ public :
     void setXY(MatrixXf,MatrixXf);
 
     // Methods to set and get various parameters
-    void set_params(double, double);
-    vector<double> get_params();
-    void set_lambda(double);
-    void set_gamma(double);
-    double get_lambda();
-    double get_gamma();
+    void set_params(float, float);
+    vector<float> get_params();
+    void set_lambda(float);
+    void set_gamma(float);
+    float get_lambda();
+    float get_gamma();
     void set_flasso_type(int);
     int get_flasso_type();
-    void set_mau(double);
-    double get_mau();
+    void set_mau(float);
+    float get_mau();
     MatrixXf get_X();
     MatrixXf get_Y();
     MatrixXf get_beta();
     void initBeta();
 
     // Cost function and supporting functions
-    double cost();
-    double gflasso_fusion_penalty();
+    float cost();
+    float gflasso_fusion_penalty();
 
     // Smoothing proximal Gradient descent functions
 
