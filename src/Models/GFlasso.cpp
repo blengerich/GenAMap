@@ -23,7 +23,7 @@ Gflasso::Gflasso(double lambda,double gamma){
     flasso_type = GcFlasso;
 }
 
-Gflasso::Gflasso(MatrixXd corr_coff,double lambda,double gamma){
+Gflasso::Gflasso(MatrixXf corr_coff,double lambda,double gamma){
     this->corr_coff = corr_coff;
     gamma_flasso = gamma;
     lambda_flasso = lambda;
@@ -92,15 +92,15 @@ double Gflasso::get_mau() {
     return mau;
 }
 
-MatrixXd Gflasso::get_X(){
+MatrixXf Gflasso::get_X(){
     return X;
 }
 
-MatrixXd Gflasso::get_Y(){
+MatrixXf Gflasso::get_Y(){
     return y;
 };
 
-MatrixXd Gflasso::get_beta() {
+MatrixXf Gflasso::get_beta() {
     return beta;
 }
 
@@ -117,7 +117,7 @@ void Gflasso::assertReadyToRun() {
 //    std::cout << " Error : No Training Parameters are provided. Cannot perform GFLasso regression !" << std::endl;
 //}
 
-void Gflasso::setXY(MatrixXd X,MatrixXd Y){
+void Gflasso::setXY(MatrixXf X,MatrixXf Y){
 //    std::cout << "Training set X and Y is provided !" << std::endl;
     this->X = X;
     this->y = Y;
@@ -126,7 +126,7 @@ void Gflasso::setXY(MatrixXd X,MatrixXd Y){
     col = y.cols();
 
     // Initialize beta to zero values
-    this->beta = MatrixXd::Random(row,col);
+    this->beta = MatrixXf::Random(row,col);
     this->beta.setZero();
 //    std::cout << "Initializing the beta matrix. Dimen : rows " << this->beta.rows() << " col " << this->beta.cols() <<
 //            std::endl;
@@ -134,14 +134,14 @@ void Gflasso::setXY(MatrixXd X,MatrixXd Y){
 }
 
 // Training data provided along with initial beta estimation
-//void Gflasso::train(MatrixXd X,MatrixXd Y,MatrixXd Beta){
+//void Gflasso::train(MatrixXf X,MatrixXf Y,MatrixXf Beta){
 //    this->X = X;
 //    this->y = Y;
 //    this->beta = Beta;
 //}
 //
 //// Everything is provided i.e. Training data,traits corr. and regularization params
-//void Gflasso::train(MatrixXd X,MatrixXd Y,MatrixXd corr_coeff,double lamdba,double gamma){
+//void Gflasso::train(MatrixXf X,MatrixXf Y,MatrixXf corr_coeff,double lamdba,double gamma){
 //    this->X = X;
 //    this->y = Y;
 //    this->corr_coff = corr_coff;
@@ -226,7 +226,7 @@ int Gflasso::get_num_edges(){
 void Gflasso::update_edge_vertex_matrix(){
 
     // Initialize the matrix size based on the input parameters
-    this->edge_vertex_matrix = MatrixXd::Random(get_num_edges(),beta.rows());
+    this->edge_vertex_matrix = MatrixXf::Random(get_num_edges(),beta.rows());
     edge_vertex_matrix.setZero();
 
     // For each edge, just fill only two values i.e the column corresponding to edge
@@ -264,7 +264,7 @@ void Gflasso::update_alpha_matrix(){
 
      // Alpha Matrix is S(CB/mau), where C is a edge_vertex matrix and B is the beta matrix
      // Mau is the smoothing parameter
-    alpha_matrix = MatrixXd::Random(get_num_edges(),beta.cols());
+    alpha_matrix = MatrixXf::Random(get_num_edges(),beta.cols());
     alpha_matrix.setZero();
 
     alpha_matrix = edge_vertex_matrix*beta;
@@ -292,7 +292,7 @@ void Gflasso::update_alpha_matrix(){
  * M is the number of features in the input variable
  * J is the number of features on the output variable.
  */
-MatrixXd Gflasso::gradient(){
+MatrixXf Gflasso::gradient(){
 
     /* First calculate the Edge vertex and Alpha Matrix */
     update_edge_vertex_matrix();
@@ -306,8 +306,8 @@ float Gflasso::getL() {
     return ((X.transpose()*X).eigenvalues()).real().maxCoeff() + edge_vertex_matrix.squaredNorm()/mau;
 }
 
-MatrixXd Gflasso::proximal_operator(MatrixXd in, float l) {  // todo this needs some extra attention later.
-    MatrixXd sign = ((in.array()>0).matrix()).cast<double>();//sign
+MatrixXf Gflasso::proximal_operator(MatrixXf in, float l) {  // todo this needs some extra attention later.
+    MatrixXf sign = ((in.array()>0).matrix()).cast<double>();//sign
     sign += -1.0*((in.array()<0).matrix()).cast<double>();
     in = ((in.array().abs()-l*lambda_flasso/this->getL()).max(0)).matrix();//proximal
     return (in.array()*sign.array()).matrix();//proximal multipled back with sign
@@ -319,6 +319,6 @@ void Gflasso::initBeta() {
     col = y.cols();
 
     // Initialize beta to zero values
-    this->beta = MatrixXd::Random(row,col);
+    this->beta = MatrixXf::Random(row,col);
     this->beta.setZero();
 }

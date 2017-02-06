@@ -15,7 +15,7 @@ string JsonCoder::encodeMainMessage(mainMessage m) {
     return writer.write(root);
 }
 
-string JsonCoder::encodeMatrix(const MatrixXd& X) {
+string JsonCoder::encodeMatrix(const MatrixXf& X) {
     Json::Value root;
     unsigned int r = X.rows();
     unsigned int c = X.cols();
@@ -126,7 +126,7 @@ organization_info JsonCoder::decodeOrganizationInfo(string str) {
     return oi;
 }
 
-string JsonCoder::encodeTraitTreeEffectsizes(Tree *tree, MatrixXd matrix) {
+string JsonCoder::encodeTraitTreeEffectsizes(Tree *tree, MatrixXf matrix) {
     Json::Value root;
     treeNode * rt = tree->getRoot();
     int count = 0;
@@ -144,7 +144,7 @@ string JsonCoder::long2string(long i1) {
     return number;
 }
 
-Json::Value JsonCoder::node2json(vector<treeNode *> children, int count, MatrixXd matrix) {
+Json::Value JsonCoder::node2json(vector<treeNode *> children, int count, MatrixXf matrix) {
     Json::Value root;
     string tmp = "child ";
     string tmp2 = "node ";
@@ -163,7 +163,7 @@ Json::Value JsonCoder::node2json(vector<treeNode *> children, int count, MatrixX
     return root;
 }
 
-Json::Value JsonCoder::encodeVector(MatrixXd X) {
+Json::Value JsonCoder::encodeVector(MatrixXf X) {
     Json::Value root;
     double r = X.rows();
     string v = "";

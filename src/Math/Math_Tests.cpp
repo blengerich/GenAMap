@@ -24,7 +24,7 @@ void TEST_VECTOR_DOUBLE_EQ(VectorXd a, VectorXd b) {
     }
 }
 
-void TEST_MATRIX_NEAR(MatrixXd m, MatrixXd n, float v) {
+void TEST_MATRIX_NEAR(MatrixXf m, MatrixXf n, float v) {
     long r = m.rows();
     long c = m.cols();
     ASSERT_EQ(r, n.rows());
@@ -34,7 +34,7 @@ void TEST_MATRIX_NEAR(MatrixXd m, MatrixXd n, float v) {
     }
 }
 
-void TEST_MATRIX_DOUBLE_EQ(MatrixXd m, MatrixXd n) {
+void TEST_MATRIX_DOUBLE_EQ(MatrixXf m, MatrixXf n) {
     long r = m.rows();
     long c = m.cols();
     ASSERT_EQ(r, n.rows());

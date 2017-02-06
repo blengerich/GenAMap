@@ -13,9 +13,9 @@ using namespace std;
 using namespace Eigen;
 
 
-double Stats::ChiSquaredTest(MatrixXd observed, MatrixXd expected) {
-    MatrixXd diff = observed - expected;
-    MatrixXd x = diff.cwiseProduct(diff).cwiseQuotient(expected);
+double Stats::ChiSquaredTest(MatrixXf observed, MatrixXf expected) {
+    MatrixXf diff = observed - expected;
+    MatrixXf x = diff.cwiseProduct(diff).cwiseQuotient(expected);
     return x.sum();
 }
 
@@ -30,14 +30,14 @@ double Stats::WaldTest(double mle, double var, double candidate) {
     return pow(mle - candidate, 2) / var;
 }
 
-double Stats::FisherExactTest(MatrixXd X) {
+double Stats::FisherExactTest(MatrixXf X) {
    int N = X.sum();
    double NFac = boost::math::factorial<double>(N);
-   MatrixXd rowSums = X.rowwise().sum();
-   MatrixXd colSums = X.colwise().sum();
-   MatrixXd comFacs = X.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
-   MatrixXd rFacs = rowSums.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
-   MatrixXd cFacs = colSums.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
+   MatrixXf rowSums = X.rowwise().sum();
+   MatrixXf colSums = X.colwise().sum();
+   MatrixXf comFacs = X.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
+   MatrixXf rFacs = rowSums.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
+   MatrixXf cFacs = colSums.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
    double rowsFacs = rFacs.prod();
    double colsFacs = cFacs.prod();
    double componentFacs = comFacs.prod();
@@ -56,7 +56,7 @@ double Stats::get_qs(double ts, int N, int q){
   return 2*Stats::ChiToPValue(abs(ts), N-q);  
 }
 
-void StatsBasic::setAttributeMatrix(const string &string1, MatrixXd *xd) {
+void StatsBasic::setAttributeMatrix(const string &string1, MatrixXf *xd) {
 
 }
 
@@ -103,7 +103,7 @@ void StatsBasic::checkGenoType() {
 
 
 void StatsBasic::assertReadyToRun() {
-    beta = MatrixXd::Zero(X.cols(), y.cols());
+    beta = MatrixXf::Zero(X.cols(), y.cols());
     checkGenoType();
 }
 
@@ -111,7 +111,7 @@ void StatsBasic::assertReadyToRun() {
 void StatsBasic::BonferroniCorrection() {
     if (shouldCorrect){
         beta = beta*X.rows();
-        MatrixXd m = MatrixXd::Ones(beta.rows(), beta.cols());
+        MatrixXf m = MatrixXf::Ones(beta.rows(), beta.cols());
         beta = beta.cwiseMin(m);
     }
 }
@@ -142,8 +142,8 @@ void StatsBasic::finishRun() {
     progress = 1.0;
 }
 
-MatrixXd StatsBasic::getBeta() {
-    MatrixXd tmp = MatrixXd::Zero(beta.rows(), beta.cols());
+MatrixXf StatsBasic::getBeta() {
+    MatrixXf tmp = MatrixXf::Zero(beta.rows(), beta.cols());
     for (long i = 0; i<beta.rows(); i++){
         for (long j=0; j<beta.cols(); j++){
             if (beta(i,j)>0){

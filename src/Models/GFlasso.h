@@ -24,20 +24,20 @@ private :
     // Training data
 
     // Correlation graph between Y traits(Input)
-    MatrixXd corr_coff;
+    MatrixXf corr_coff;
 
     // Regularization parameters (Input)
     double lambda_flasso;
     double gamma_flasso;
 
-    // Parameter modelling through Beta MatrixXd
+    // Parameter modelling through Beta MatrixXf
     //Type of flasso
     int flasso_type;
 
     //Smoothing Proximal Gradient Method
-    MatrixXd edge_vertex_matrix; // Dimension: Edge_size*Col(x)
+    MatrixXf edge_vertex_matrix; // Dimension: Edge_size*Col(x)
     double mau; // Smootheness parameter  //todo: what is this?
-    MatrixXd alpha_matrix;
+    MatrixXf alpha_matrix;
 
     static constexpr double default_lambda_flasso = 0.0;
     static constexpr double default_gamma_flasso = 0.0;
@@ -51,7 +51,7 @@ public :
     // Only regularization params are given
     Gflasso(double,double);
     // Regularization params along with corr coff. graph
-    Gflasso(MatrixXd,double,double);
+    Gflasso(MatrixXf,double,double);
     Gflasso(const unordered_map<string, string>&);
 
     void assertReadyToRun();
@@ -60,12 +60,12 @@ public :
 //    // Methods to set and get various input variables of GFLASSO
 //    void train();
 //    // Training data provided along with Correlation coff Matrix
-//    void train(MatrixXd,MatrixXd,MatrixXd);
+//    void train(MatrixXf,MatrixXf,MatrixXf);
 //    // Everything is provided i.e. Training data,traits corr. and regularization params
-//    void train(MatrixXd,MatrixXd,MatrixXd,double,double);
+//    void train(MatrixXf,MatrixXf,MatrixXf,double,double);
 
     // Only X and Y are given
-    void setXY(MatrixXd,MatrixXd);
+    void setXY(MatrixXf,MatrixXf);
 
     // Methods to set and get various parameters
     void set_params(double, double);
@@ -78,9 +78,9 @@ public :
     int get_flasso_type();
     void set_mau(double);
     double get_mau();
-    MatrixXd get_X();
-    MatrixXd get_Y();
-    MatrixXd get_beta();
+    MatrixXf get_X();
+    MatrixXf get_Y();
+    MatrixXf get_beta();
     void initBeta();
 
     // Cost function and supporting functions
@@ -100,9 +100,9 @@ public :
 
     // Calculate the gradient descent using the alpha and Edge vertex matrix
     // along with other input parameters i.e. X, Y and Beta.
-    MatrixXd gradient();
+    MatrixXf gradient();
 
-    MatrixXd proximal_operator(MatrixXd, float);
+    MatrixXf proximal_operator(MatrixXf, float);
 
     // Lipschitz Constant
     float getL();

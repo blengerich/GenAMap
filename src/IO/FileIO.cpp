@@ -9,7 +9,7 @@
 #include <queue>
 
 
-void FileIO::writeMatrixFile(string fileName, MatrixXd X) {
+void FileIO::writeMatrixFile(string fileName, MatrixXf X) {
     ofstream file (fileName);
     file << X <<endl;
 }
@@ -41,10 +41,10 @@ string FileIO::checkFileFormat(string fileName) {
     return r;
 }
 
-MatrixXd FileIO::readMatrixFile(string fileName) {
+MatrixXf FileIO::readMatrixFile(string fileName) {
     string format = checkFileFormat(fileName);
     docInfo doc = countRowCol(fileName, format);
-    MatrixXd X(doc.row, doc.col);
+    MatrixXf X(doc.row, doc.col);
     ifstream infile;
     infile.open(fileName);
     string line;

@@ -22,27 +22,27 @@ private:
     Tree* T;
     string clusteringMethod;
     double threshold;
-    MatrixXd mD;
-    MatrixXd mD_;
-    MatrixXd XX;
+    MatrixXf mD;
+    MatrixXf mD_;
+    MatrixXf XX;
     double lambda;
     bool initGradientFlag;
 
-    MatrixXd XY;
-    MatrixXd mTw;
-    MatrixXd mT;
-    MatrixXd C;
+    MatrixXf XY;
+    MatrixXf mTw;
+    MatrixXf mT;
+    MatrixXf C;
     MatrixXi gIdx;
     double tauNorm;
     double L;
     double mu;
 
-    void removeRow(MatrixXd*, long);
-    void removeCol(MatrixXd*, long);
-    minXY searchMin(MatrixXd);
+    void removeRow(MatrixXf*, long);
+    void removeCol(MatrixXf*, long);
+    minXY searchMin(MatrixXf);
 
-    MatrixXd appendColRow(MatrixXd, minXY);
-    void removeColRow(MatrixXd*, minXY);
+    MatrixXf appendColRow(MatrixXf, minXY);
+    void removeColRow(MatrixXf*, minXY);
     void updateMap(unordered_map<long, treeNode*>*, minXY);
 
     void setWeight();
@@ -67,9 +67,9 @@ private:
     static constexpr double default_mu = 0.01;
 
 public:
-    void setX(MatrixXd);
-    void setY(MatrixXd);
-    void setXY(MatrixXd, MatrixXd);
+    void setX(MatrixXf);
+    void setY(MatrixXf);
+    void setXY(MatrixXf, MatrixXf);
     void setTree(Tree*);
     void setLambda(double);
     void setMu(double);
@@ -90,12 +90,12 @@ public:
 
     void updateMD();
     void updateBeta();
-    void updateBeta(MatrixXd);
+    void updateBeta(MatrixXf);
 
     double getL();
 
-    MatrixXd proximal_derivative();
-    MatrixXd proximal_operator(MatrixXd, float);
+    MatrixXf proximal_derivative();
+    MatrixXf proximal_operator(MatrixXf, float);
 
     TreeLasso();
     TreeLasso(const unordered_map<string, string>&);

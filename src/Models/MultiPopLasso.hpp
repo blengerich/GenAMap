@@ -22,30 +22,30 @@ using namespace Eigen;
 
 class MultiPopLasso : public Model {
 private:
-    MatrixXd betaAll;
+    MatrixXf betaAll;
     double lambda;
     double mu;
     double gamma;
     VectorXd population;
-    MatrixXd Z;
+    MatrixXf Z;
     long popNum;
     double L;
     bool initTrainingFlag;
 
     VectorXi removeCols;
-    MatrixXd C;
+    MatrixXf C;
 
-    MatrixXd getBetaInside();
+    MatrixXf getBetaInside();
 
     double groupPenalization();
     void reArrangeData();
 
     void removeColumns();
-    MatrixXd normalizeData_col(MatrixXd);
+    MatrixXf normalizeData_col(MatrixXf);
     void formatData();
 
-//    MatrixXd deriveMatrixA(double, long, double);
-//    MatrixXd project(MatrixXd);
+//    MatrixXf deriveMatrixA(double, long, double);
+//    MatrixXf project(MatrixXf);
 
     vector<long> getPopulationIndex(long);
     void initC();
@@ -56,30 +56,30 @@ private:
 
 public:
     void reSetFlag();
-    void setXY(MatrixXd, MatrixXd);
+    void setXY(MatrixXf, MatrixXf);
     void setLambda(double);
     void setPopulation(VectorXd);
     void setMu(double);
     void setGamma(double);
-    void setAttributeMatrix(const string&, MatrixXd*);
+    void setAttributeMatrix(const string&, MatrixXf*);
 
     void initBeta();
     double cost();
-    MatrixXd predict();
-    MatrixXd predict(MatrixXd);
-    MatrixXd predict(MatrixXd, VectorXd);
+    MatrixXf predict();
+    MatrixXf predict(MatrixXf);
+    MatrixXf predict(MatrixXf, VectorXd);
     void assertReadyToRun();
     void initTraining();
 
-    MatrixXd proximal_derivative();
-    MatrixXd proximal_operator(MatrixXd, float);
+    MatrixXf proximal_derivative();
+    MatrixXf proximal_operator(MatrixXf, float);
 
     double getL();
-    MatrixXd getBeta();
-    MatrixXd getFormattedBeta();
+    MatrixXf getBeta();
+    MatrixXf getFormattedBeta();
 
     void updateBetaAll();
-    MatrixXd getBetaAll();
+    MatrixXf getBetaAll();
 
     MultiPopLasso();
     MultiPopLasso(const unordered_map<string, string>& options);

@@ -23,7 +23,7 @@ class LinearRegression : public virtual Model {
 private:
     float L1_reg;
     float L2_reg;
-    MatrixXd betaAll;
+    MatrixXf betaAll;
 
     static constexpr float default_L1_reg = 0;
     static constexpr float default_L2_reg = 0;
@@ -37,18 +37,18 @@ public:
     float getL2_reg();
 
     // general use methods
-    MatrixXd derivative();
+    MatrixXf derivative();
     double cost();
 
     // algorithm use methods
     // proximal gradient descent
-    MatrixXd proximal_derivative();
-    MatrixXd proximal_operator(VectorXd, float);
+    MatrixXf proximal_derivative();
+    MatrixXf proximal_operator(VectorXd, float);
 
     void assertReadyToRun();
 
-    void updateBetaAll(MatrixXd);
-    MatrixXd getBetaAll();
+    void updateBetaAll(MatrixXf);
+    MatrixXf getBetaAll();
 };
 
 

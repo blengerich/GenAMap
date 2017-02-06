@@ -28,7 +28,7 @@ void TEST_VECTOR_DOUBLE_EQ(VectorXd a, VectorXd b) {
     }
 }
 
-void TEST_MATRIX_NEAR(MatrixXd m, MatrixXd n, float v) {
+void TEST_MATRIX_NEAR(MatrixXf m, MatrixXf n, float v) {
     long r = m.rows();
     long c = m.cols();
     ASSERT_EQ(r, n.rows());
@@ -38,7 +38,7 @@ void TEST_MATRIX_NEAR(MatrixXd m, MatrixXd n, float v) {
     }
 }
 
-void TEST_MATRIX_DOUBLE_EQ(MatrixXd m, MatrixXd n) {
+void TEST_MATRIX_DOUBLE_EQ(MatrixXf m, MatrixXf n) {
     long r = m.rows();
     long c = m.cols();
     ASSERT_EQ(r, n.rows());
@@ -92,7 +92,7 @@ void TEST_TREE_NEAR(Tree * m, Tree * n, float v){
 
 
 TEST(MODEL_BASE, CostFunction){
-    MatrixXd X(10, 5);
+    MatrixXf X(10, 5);
     X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
     0.9058,    0.9706,    0.0357,    0.0318,    0.3816,
     0.1270,    0.9572,    0.8491,    0.2769,    0.7655,
@@ -103,7 +103,7 @@ TEST(MODEL_BASE, CostFunction){
     0.5469,    0.9157,    0.3922,    0.3171,    0.6463,
     0.9575,    0.7922,    0.6555,    0.9502,    0.7094,
     0.9649,    0.9595,    0.1712,    0.0344,    0.7547;
-    MatrixXd y(10, 1);
+    MatrixXf y(10, 1);
     y << 0.4173,
     0.0497,
     0.9027,
@@ -117,7 +117,7 @@ TEST(MODEL_BASE, CostFunction){
     Model m = Model();
     m.setX(X);
     m.setY(y);
-    MatrixXd beta(5, 1);
+    MatrixXf beta(5, 1);
     beta << -0.2106,
     0.0919,
     0.7380,
@@ -129,7 +129,7 @@ TEST(MODEL_BASE, CostFunction){
 }
 
 TEST(MODEL_BASE, Prediction){
-    MatrixXd X(10, 5);
+    MatrixXf X(10, 5);
     X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
     0.9058,    0.9706,    0.0357,    0.0318,    0.3816,
     0.1270,    0.9572,    0.8491,    0.2769,    0.7655,
@@ -142,14 +142,14 @@ TEST(MODEL_BASE, Prediction){
     0.9649,    0.9595,    0.1712,    0.0344,    0.7547;
     Model m = Model();
     m.setX(X);
-    MatrixXd beta(5, 1);
+    MatrixXf beta(5, 1);
     beta << -0.2106,
     0.0919,
     0.7380,
     -0.3055,
     0.4659;
     m.updateBeta(beta);
-    MatrixXd y(10, 1);
+    MatrixXf y(10, 1);
     y << 0.3156,
     0.0929,
     0.9600,
@@ -160,14 +160,14 @@ TEST(MODEL_BASE, Prediction){
     0.4627,
     0.3952,
     0.3525;
-    MatrixXd p = m.predict();
+    MatrixXf p = m.predict();
     TEST_MATRIX_NEAR(p, y, 1e-3);
     p = m.predict(X);
     TEST_MATRIX_NEAR(p, y, 1e-3);
 }
 
 TEST(LINEAR_REGRESSION, CostFunction){
-    MatrixXd X(10, 5);
+    MatrixXf X(10, 5);
     X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
     0.9058,    0.9706,    0.0357,    0.0318,    0.3816,
     0.1270,    0.9572,    0.8491,    0.2769,    0.7655,
@@ -178,7 +178,7 @@ TEST(LINEAR_REGRESSION, CostFunction){
     0.5469,    0.9157,    0.3922,    0.3171,    0.6463,
     0.9575,    0.7922,    0.6555,    0.9502,    0.7094,
     0.9649,    0.9595,    0.1712,    0.0344,    0.7547;
-    MatrixXd y(10, 1);
+    MatrixXf y(10, 1);
     y << 0.4173,
     0.0497,
     0.9027,
@@ -192,7 +192,7 @@ TEST(LINEAR_REGRESSION, CostFunction){
     LinearRegression lr = LinearRegression();
     lr.setX(X);
     lr.setY(y);
-    MatrixXd beta(5, 1);
+    MatrixXf beta(5, 1);
     beta << -0.2106,
     0.0919,
     0.7380,
@@ -216,21 +216,21 @@ TEST(LINEAR_REGRESSION, CostFunction){
 }
 
 TEST(LINEAR_REGRESSION, ProximalDerivative){
-    MatrixXd X(4, 3);
+    MatrixXf X(4, 3);
     X << 0.7803,    0.0965,    0.5752,
     0.3897,    0.1320,    0.0598,
     0.2417,    0.9421,    0.2348,
     0.4039,    0.9561,    0.3532;
-    MatrixXd y(4, 1);
+    MatrixXf y(4, 1);
     y << 0.8212,
     0.0154,
     0.0430,
     0.1690;
-    MatrixXd beta(3,1);
+    MatrixXf beta(3,1);
     beta << 0.6491,
     0.7317,
     0.6477;
-    MatrixXd pd(3, 1);
+    MatrixXf pd(3, 1);
     pd << 0.8890,
     1.9383,
     0.6812;
@@ -238,22 +238,22 @@ TEST(LINEAR_REGRESSION, ProximalDerivative){
     lr.setX(X);
     lr.setY(y);
     lr.updateBeta(beta);
-    MatrixXd r = lr.proximal_derivative();
+    MatrixXf r = lr.proximal_derivative();
     TEST_MATRIX_NEAR(r, pd, 1e-3);
 }
 
 TEST(LINEAR_REGRESSION, ProximalOperator){
-    MatrixXd beta(3,1);
+    MatrixXf beta(3,1);
     beta << -0.7491,
     0.7317,
     0.6477;
-    MatrixXd pd(3, 1);
+    MatrixXf pd(3, 1);
     pd << -0.0491,
     0.0317,
     0.0;
     LinearRegression lr = LinearRegression();
     lr.updateBeta(beta);
-    MatrixXd a = lr.proximal_operator(beta, 1);
+    MatrixXf a = lr.proximal_operator(beta, 1);
     TEST_MATRIX_NEAR(a, beta, 1e-3);
     lr.setL1_reg(7);
     a = lr.proximal_operator(beta, 0.1);
@@ -261,12 +261,12 @@ TEST(LINEAR_REGRESSION, ProximalOperator){
 }
 
 TEST(TREE_LASSO, CostFunction){
-    MatrixXd X(4, 6);
+    MatrixXf X(4, 6);
     X << 0.4509,    0.1890,    0.6256,    0.7757,    0.3063,    0.7948,
     0.5470,    0.6868,    0.7802,    0.4868,    0.5085,    0.6443,
     0.2963,    0.1835,    0.0811,    0.4359,    0.5108,    0.3786,
     0.7447,    0.3685,    0.9294,    0.4468,    0.8176,    0.8116;
-    MatrixXd y(4, 5);
+    MatrixXf y(4, 5);
     y << -1.3302,   -0.8198,    0.9233,    0.8666,    2.3260,
     -1.0999,   -0.8959,    2.2639,    2.0579,   -0.2151,
     -0.0032,    0.3647,    0.7551,    0.7000,   -0.6198,
@@ -274,7 +274,7 @@ TEST(TREE_LASSO, CostFunction){
 
     // clustering relationship of y is (((2,3),4),(0,1))
 
-    MatrixXd beta(6, 5);
+    MatrixXf beta(6, 5);
     beta << 0,         0,    1.0000,    1.0000,         0,
     0,         0,    2.5000,    2.2000,   -4.0000,
     -1.5000,   -1.8000,         0,         0,    3.0000,
@@ -328,12 +328,12 @@ TEST(TREE_LASSO, CostFunction){
 }
 
 TEST(TREE_LASSO, HierarchicalClustering){
-    MatrixXd X(4, 6);
+    MatrixXf X(4, 6);
     X << 0.4509,    0.1890,    0.6256,    0.7757,    0.3063,    0.7948,
     0.5470,    0.6868,    0.7802,    0.4868,    0.5085,    0.6443,
     0.2963,    0.1835,    0.0811,    0.4359,    0.5108,    0.3786,
     0.7447,    0.3685,    0.9294,    0.4468,    0.8176,    0.8116;
-    MatrixXd y(4, 5);
+    MatrixXf y(4, 5);
     y << -1.3302,   -0.8198,    0.9233,    0.8666,    2.3260,
     -1.0999,   -0.8959,    2.2639,    2.0579,   -0.2151,
     -0.0032,    0.3647,    0.7551,    0.7000,   -0.6198,
@@ -341,7 +341,7 @@ TEST(TREE_LASSO, HierarchicalClustering){
 
     // clustering relationship of y is (((2,3),4),(0,1))
 
-    MatrixXd beta(6, 5);
+    MatrixXf beta(6, 5);
     beta << 0,         0,    1.0000,    1.0000,         0,
     0,         0,    2.5000,    2.2000,   -4.0000,
     -1.5000,   -1.8000,         0,         0,    3.0000,
@@ -409,12 +409,12 @@ TEST(TREE_LASSO, ProximalDerivative){
     treeNode * root = tr->buildParentFromChildren(ch6);
     tr->setRoot(root);
 
-    MatrixXd X(4, 6);
+    MatrixXf X(4, 6);
     X << 0.4509,    0.1890,    0.6256,    0.7757,    0.3063,    0.7948,
     0.5470,    0.6868,    0.7802,    0.4868,    0.5085,    0.6443,
     0.2963,    0.1835,    0.0811,    0.4359,    0.5108,    0.3786,
     0.7447,    0.3685,    0.9294,    0.4468,    0.8176,    0.8116;
-    MatrixXd y(4, 5);
+    MatrixXf y(4, 5);
     y << -1.3302,   -0.8198,    0.9233,    0.8666,    2.3260,
     -1.0999,   -0.8959,    2.2639,    2.0579,   -0.2151,
     -0.0032,    0.3647,    0.7551,    0.7000,   -0.6198,
@@ -422,7 +422,7 @@ TEST(TREE_LASSO, ProximalDerivative){
 
     // clustering relationship of y is (((2,3),4),(0,1))
 
-    MatrixXd beta(6, 5);
+    MatrixXf beta(6, 5);
     beta << 0,         0,    1.0000,    1.0000,         0,
     0,         0,    2.5000,    2.2000,   -4.0000,
     -1.5000,   -1.8000,         0,         0,    3.0000,
@@ -438,7 +438,7 @@ TEST(TREE_LASSO, ProximalDerivative){
     tl.setTree(tr);
     tl.initGradientUpdate();
 
-    MatrixXd grad(6,5);
+    MatrixXf grad(6,5);
     grad << -0.0000,    0.0001,    0.4421,    0.4420,   -0.0001,
     -0.0000,    0.0000,    0.4017,    0.3535,   -0.1922,
     -0.1601,   -0.1920,    0.0002,    0.0001,    0.2499,
@@ -446,12 +446,12 @@ TEST(TREE_LASSO, ProximalDerivative){
     0.1768,    0.1768,    0.0001,   0.0001,   -0.2501,
     -0.0000,    0.0001,    0.0002,    0.0001,    0.2498;
 
-    MatrixXd r = tl.proximal_derivative();
+    MatrixXf r = tl.proximal_derivative();
     TEST_MATRIX_NEAR(r, grad, 1e-3);
 }
 
 TEST(MULTI_POP_LASSO, CostFunction){
-    MatrixXd X (10, 2);
+    MatrixXf X (10, 2);
     X << 0.8530,    0.4173,
     0.6221,    0.0497,
     0.3510,    0.9027,
@@ -462,7 +462,7 @@ TEST(MULTI_POP_LASSO, CostFunction){
     0.1233,    0.9001,
     0.1839,    0.3692,
     0.2400,    0.1112;
-    MatrixXd y(10, 1);
+    MatrixXf y(10, 1);
     y << 2.0367,
     1.1691,
     -0.7523,
@@ -473,12 +473,12 @@ TEST(MULTI_POP_LASSO, CostFunction){
     1.3371,
     0.7859,
     0.5653;
-    MatrixXd beta(2, 2);
+    MatrixXf beta(2, 2);
     beta << 1.7803,    1.2417,
     -0.6103,   -0.5961;
     VectorXd Z(10);
     Z << 0,     0,     1,     1,     0,     0,     1,     0,     0,     0;
-    MatrixXd fedInBeta(4, 1);
+    MatrixXf fedInBeta(4, 1);
     fedInBeta << 1.7803, -0.6103, 1.2417, -0.5961;
     MultiPopLasso mpl = MultiPopLasso();
     mpl.setXY(X, y);
@@ -495,7 +495,7 @@ TEST(MULTI_POP_LASSO, CostFunction){
 }
 
 TEST(MULTI_POP_LASSO, Prediction){
-    MatrixXd X (10, 2);
+    MatrixXf X (10, 2);
     X << 0.8530,    0.4173,
     0.6221,    0.0497,
     0.3510,    0.9027,
@@ -506,7 +506,7 @@ TEST(MULTI_POP_LASSO, Prediction){
     0.1233,    0.9001,
     0.1839,    0.3692,
     0.2400,    0.1112;
-    MatrixXd y(10, 1);
+    MatrixXf y(10, 1);
     y << 2.0367,
     1.1691,
     -0.7523,
@@ -517,12 +517,12 @@ TEST(MULTI_POP_LASSO, Prediction){
     1.3371,
     0.7859,
     0.5653;
-    MatrixXd beta(2, 2);
+    MatrixXf beta(2, 2);
     beta << 1.7803,    1.2417,
     -0.6103,   -0.5961;
     VectorXd Z(10);
     Z << 0,     0,     1,     1,     0,     0,     1,     0,     0,     0;
-    MatrixXd fedInBeta(4, 1);
+    MatrixXf fedInBeta(4, 1);
     fedInBeta << 1.7803, -0.6103, 1.2417, -0.5961;
     MultiPopLasso mpl = MultiPopLasso();
     mpl.setXY(X, y);
@@ -531,12 +531,12 @@ TEST(MULTI_POP_LASSO, Prediction){
     mpl.setLambda(0);
     mpl.initTraining();
     mpl.updateBeta(fedInBeta);
-    MatrixXd r = mpl.predict(X, Z);
+    MatrixXf r = mpl.predict(X, Z);
     TEST_MATRIX_NEAR(r, y, 1e-3);
 }
 
 TEST(MULTI_POP_LASSO, ProximalDerivative){
-    MatrixXd X (10, 2);
+    MatrixXf X (10, 2);
     X << 0.8530,    0.4173,
     0.6221,    0.0497,
     0.3510,    0.9027,
@@ -547,7 +547,7 @@ TEST(MULTI_POP_LASSO, ProximalDerivative){
     0.1233,    0.9001,
     0.1839,    0.3692,
     0.2400,    0.1112;
-    MatrixXd y(10, 1);
+    MatrixXf y(10, 1);
     y << 2.0367,
     1.1691,
     -0.7523,
@@ -558,12 +558,12 @@ TEST(MULTI_POP_LASSO, ProximalDerivative){
     1.3371,
     0.7859,
     0.5653;
-    MatrixXd beta(2, 2);
+    MatrixXf beta(2, 2);
     beta << 1.7803,    1.2417,
     -0.6103,   -0.5961;
     VectorXd Z(10);
     Z << 0,     0,     1,     1,     0,     0,     1,     0,     0,     0;
-    MatrixXd fedInBeta(4, 1);
+    MatrixXf fedInBeta(4, 1);
     fedInBeta << 1.7803, -0.6103, 1.2417, -0.5961;
     MultiPopLasso mpl = MultiPopLasso();
     mpl.setXY(X, y);
@@ -572,9 +572,9 @@ TEST(MULTI_POP_LASSO, ProximalDerivative){
     mpl.setLambda(0);
     mpl.initTraining();
     mpl.updateBeta(fedInBeta);
-    MatrixXd r = mpl.proximal_derivative();
+    MatrixXf r = mpl.proximal_derivative();
 
-    MatrixXd t(4, 1);
+    MatrixXf t(4, 1);
     t <<  0.000184461,
     -9.16484e-06,
     0.000188402,
@@ -583,18 +583,18 @@ TEST(MULTI_POP_LASSO, ProximalDerivative){
 }
 
 TEST(ADA_MULTI_POP_LASSO, Cost_function){
-    MatrixXd X(4, 6);
+    MatrixXf X(4, 6);
     X << -0.0168,   -0.0169,   -0.0146,    0.0192,   -0.0124,   -0.0092,
     -0.0052,    0.0243,    0.0010,   -0.0105,    0.0167,    0.0155,
     0.0106,   0.0004,   -0.0138,    0.0228,   -0.0112,    0.0017,
     -0.0139,   -0.0212,    0.0112,   -0.0040,   -0.0067,    0.0211;
-    MatrixXd y(4, 2);
+    MatrixXf y(4, 2);
     y << -0.0302,   -0.0165,
     -0.0349,   -0.0138,
     -0.0061,   -0.0078,
     -0.0403,   -0.0011;
 
-    MatrixXd F(6, 3);
+    MatrixXf F(6, 3);
     F << 0.1379,    0.3861,    0.1493,
     0.6021,    0.5081,    0.0918,
     0.1245,    0.7462,    0.0504,
@@ -602,7 +602,7 @@ TEST(ADA_MULTI_POP_LASSO, Cost_function){
     0.3099,    0.1689,    0.4061,
     0.1875,    0.4087,    0.2685;
 
-    MatrixXd beta(12, 1);
+    MatrixXf beta(12, 1);
     beta <<0.5781,
     0.0879,
     0,
@@ -659,7 +659,7 @@ TEST(ADA_MULTI_POP_LASSO, Projection){
 
 TEST(LinearMixedModel, Objective){
 LinearMixedModel lmm = LinearMixedModel();
-MatrixXd X(10, 5);
+MatrixXf X(10, 5);
 X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
 0.9058,    0.9706,    0.0357,    0.0318,    0.3816,
 0.1270,    0.9572,    0.8491,    0.2769,    0.7655,
@@ -670,7 +670,7 @@ X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
 0.5469,    0.9157,    0.3922,    0.3171,    0.6463,
 0.9575,    0.7922,    0.6555,    0.9502,    0.7094,
 0.9649,    0.9595,    0.1712,    0.0344,    0.7547;
-MatrixXd y(10, 1);
+MatrixXf y(10, 1);
 y << 0.4173,
 0.0497,
 0.9027,
@@ -681,7 +681,7 @@ y << 0.4173,
 0.9001,
 0.3692,
 0.1112;
-MatrixXd beta(5, 1);
+MatrixXf beta(5, 1);
 beta << -0.2106,
 0.0919,
 0.7380,
@@ -700,7 +700,7 @@ EXPECT_NEAR(r, 262.619, 0.001);
 
 TEST(LinearMixedModel, Beta){
 LinearMixedModel lmm = LinearMixedModel();
-MatrixXd X(10, 5);
+MatrixXf X(10, 5);
 X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
 0.9058,    0.9706,    0.0357,    0.0318,    0.3816,
 0.1270,    0.9572,    0.8491,    0.2769,    0.7655,
@@ -711,7 +711,7 @@ X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
 0.5469,    0.9157,    0.3922,    0.3171,    0.6463,
 0.9575,    0.7922,    0.6555,    0.9502,    0.7094,
 0.9649,    0.9595,    0.1712,    0.0344,    0.7547;
-MatrixXd y(10, 1);
+MatrixXf y(10, 1);
 y << 0.4173,
 0.0497,
 0.9027,
@@ -722,7 +722,7 @@ y << 0.4173,
 0.9001,
 0.3692,
 0.1112;
-MatrixXd beta(5, 1);
+MatrixXf beta(5, 1);
 beta << -0.2106,
 0.0919,
 0.7380,
@@ -732,13 +732,13 @@ lmm.setXY(X, y);
 //    lmm.updateBeta(beta);
 double lambda = 0.0001;
 lmm.calculate_beta(lambda);
-MatrixXd r = lmm.getBeta();
+MatrixXf r = lmm.getBeta();
 TEST_MATRIX_NEAR(r, beta, 0.001);
 }
 
 TEST(LinearMixedModel, Sigma){
 LinearMixedModel lmm = LinearMixedModel();
-MatrixXd X(10, 5);
+MatrixXf X(10, 5);
 X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
 0.9058,    0.9706,    0.0357,    0.0318,    0.3816,
 0.1270,    0.9572,    0.8491,    0.2769,    0.7655,
@@ -749,7 +749,7 @@ X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
 0.5469,    0.9157,    0.3922,    0.3171,    0.6463,
 0.9575,    0.7922,    0.6555,    0.9502,    0.7094,
 0.9649,    0.9595,    0.1712,    0.0344,    0.7547;
-MatrixXd y(10, 1);
+MatrixXf y(10, 1);
 y << 0.4173,
 0.0497,
 0.9027,
@@ -760,7 +760,7 @@ y << 0.4173,
 0.9001,
 0.3692,
 0.1112;
-MatrixXd beta(5, 1);
+MatrixXf beta(5, 1);
 beta << -0.2106,
 0.0919,
 0.7380,

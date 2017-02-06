@@ -46,8 +46,8 @@ private:
     Math(Math const &);  // don't implement
     void operator=(Math const &); // don't implement
 
-    minXY searchMin(MatrixXd);
-    MatrixXd appendColRow(MatrixXd, minXY);
+    minXY searchMin(MatrixXf);
+    MatrixXf appendColRow(MatrixXf, minXY);
     void updateMap(unordered_map<long, treeNode*>*, minXY);
 
 
@@ -62,14 +62,14 @@ public:
     double covariance(VectorXd, VectorXd);
     double correlation(VectorXd, VectorXd);
     // matrix
-    void removeCol(MatrixXd*, long);
-    void removeRow(MatrixXd*, long);
-    void removeColRow(MatrixXd*, minXY);
+    void removeCol(MatrixXf*, long);
+    void removeRow(MatrixXf*, long);
+    void removeColRow(MatrixXf*, minXY);
 
 
     VectorXd L2Thresholding(VectorXd in);
 
-    Tree* hierarchicalClustering(MatrixXd);
+    Tree* hierarchicalClustering(MatrixXf);
 };
 
 

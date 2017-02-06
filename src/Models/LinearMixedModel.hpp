@@ -31,21 +31,21 @@ class LinearMixedModel : public Model {
 protected:
 
     // Training data
-//    MatrixXd X;
-//    MatrixXd Y;
+//    MatrixXf X;
+//    MatrixXf Y;
 
     // Dimensions of the data
     long n; // Number of samples
     long d; // Number of input features
 
     //Similary matrix and SVD
-    MatrixXd K;
-    MatrixXd S;
-    MatrixXd U;
+    MatrixXf K;
+    MatrixXf S;
+    MatrixXf U;
     void decomposition();
 
-//    MatrixXd beta; // d*1
-    MatrixXd mau;  // Coeff matrix of similarity matrix.
+//    MatrixXf beta; // d*1
+    MatrixXf mau;  // Coeff matrix of similarity matrix.
     double lambda_optimized; // Value at which log likelihood is max
     double sigma;
     bool initFlag;
@@ -62,12 +62,12 @@ public:
     double get_lambda();
     double getSigma();
     void set_lambda(double);
-    void set_S(MatrixXd);
-    void set_U(MatrixXd);
-    void setXY(MatrixXd, MatrixXd);
-    void setXYK(MatrixXd, MatrixXd, MatrixXd);
-    void setUS(MatrixXd, MatrixXd);
-    MatrixXd getBeta();
+    void set_S(MatrixXf);
+    void set_U(MatrixXf);
+    void setXY(MatrixXf, MatrixXf);
+    void setXYK(MatrixXf, MatrixXf, MatrixXf);
+    void setUS(MatrixXf, MatrixXf);
+    MatrixXf getBeta();
     //Supporting functions
     // Final Objective of the LLM : Obtain beta matrix.
     void calculate_beta(double);

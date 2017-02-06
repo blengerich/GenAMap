@@ -22,7 +22,7 @@ using namespace std;
 LinearRegression::LinearRegression() {
     L1_reg = default_L1_reg;
     L2_reg = default_L2_reg;
-    betaAll = MatrixXd::Ones(1,1);
+    betaAll = MatrixXf::Ones(1,1);
 };
 
 
@@ -37,7 +37,7 @@ LinearRegression::LinearRegression(const unordered_map<string, string>& options)
     } catch (std::out_of_range& oor) {
         L2_reg = default_L2_reg;
     }
-    betaAll = MatrixXd::Ones(1,1);
+    betaAll = MatrixXf::Ones(1,1);
 };
 
 void LinearRegression::assertReadyToRun() {
@@ -59,16 +59,16 @@ double LinearRegression::cost() {
     return 0.5 * (y - X * beta).squaredNorm()/X.rows() + L1_reg * beta.lpNorm<1>() + L2_reg * beta.squaredNorm();
 };
 
-MatrixXd LinearRegression::derivative() {
+MatrixXf LinearRegression::derivative() {
     return ((-1.0 * X.transpose() * (y - X * beta)).array() + L1_reg * (beta.array() / beta.cwiseAbs().array()).sum() +
            L2_reg * beta.sum()).matrix();
 };
 
-MatrixXd LinearRegression::proximal_derivative() {
+MatrixXf LinearRegression::proximal_derivative() {
     return -1.0 * X.transpose() * (y - X * beta);
 };
 
-MatrixXd LinearRegression::proximal_operator(VectorXd in, float lr) {
+MatrixXf LinearRegression::proximal_operator(VectorXd in, float lr) {
     if (L1_reg == 0 && L2_reg == 0){
         return in;
     }
@@ -90,7 +90,7 @@ MatrixXd LinearRegression::proximal_operator(VectorXd in, float lr) {
     }
 }
 
-void LinearRegression::updateBetaAll(MatrixXd b) {
+void LinearRegression::updateBetaAll(MatrixXf b) {
     if (betaAll.rows() == 1){
         betaAll = b;
     }
@@ -100,7 +100,7 @@ void LinearRegression::updateBetaAll(MatrixXd b) {
     }
 }
 
-MatrixXd LinearRegression::getBetaAll() {
+MatrixXf LinearRegression::getBetaAll() {
     return betaAll;
 }
 

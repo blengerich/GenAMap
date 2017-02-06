@@ -41,15 +41,15 @@ public:
 	// Simply packages as a job and assigns an ID.
 	// Returns the job's assigned ID, 0 for failure.
 	
-	bool setX(const job_id_t, const Eigen::MatrixXd&);
+	bool setX(const job_id_t, const Eigen::MatrixXf&);
 	// Sets the X matrix for the job at the given job_id.
 	// returns true on success, false otherwise.
 
-	bool setY(const job_id_t, const Eigen::MatrixXd&);
+	bool setY(const job_id_t, const Eigen::MatrixXf&);
 	// Sets the Y matrix for the job at the given job_id.
 	// returns true on success, false otherwise.
 
-	bool setModelAttributeMatrix(const job_id_t, const string&, Eigen::MatrixXd*);
+	bool setModelAttributeMatrix(const job_id_t, const string&, Eigen::MatrixXf*);
 	// Sets a matrix with the given name for the job at the given job_id.
 	// returns true on success, false otherwise.
 
@@ -68,7 +68,7 @@ public:
 	Algorithm* getAlgorithm(const algorithm_id_t);
 	Job_t* getJob(const job_id_t);
 
-	MatrixXd getJobResult(const job_id_t);
+	MatrixXf getJobResult(const job_id_t);
 
 	// TODO: How to know if the user owns the algorithm?
 	bool deleteJob(const job_id_t);

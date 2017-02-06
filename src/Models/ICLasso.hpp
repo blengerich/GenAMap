@@ -22,25 +22,25 @@ using namespace Eigen;
 
 class ICLasso : public virtual Model {
 private:
-    MatrixXd X; //n * p
-    MatrixXd Y; //n * 1
+    MatrixXf X; //n * p
+    MatrixXf Y; //n * 1
     double lambda;
     double lambda1;
     double lambda2;
     double gamma;
-    MatrixXd Beta; //p * 1
-    MatrixXd Theta;
+    MatrixXf Beta; //p * 1
+    MatrixXf Theta;
 
 public:
     //constructor
     ICLasso();
-    void set_X(MatrixXd);
-    void set_Y(MatrixXd);
-    void set_XY(MatrixXd, MatrixXd);
+    void set_X(MatrixXf);
+    void set_Y(MatrixXf);
+    void set_XY(MatrixXf, MatrixXf);
     void set_lambda1(double);
     void set_lambda2(double);
     void set_gamma(double);
-    void set_theta(MatrixXd);
+    void set_theta(MatrixXf);
     double cost();
     void optimize_theta();
 

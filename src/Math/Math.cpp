@@ -105,7 +105,7 @@ double Math::std(VectorXd v) {
     return sqrt(v.squaredNorm() / v.size());
 }
 
-void Math::removeCol(MatrixXd *mptr, long y) {
+void Math::removeCol(MatrixXf *mptr, long y) {
     long numRows = mptr->rows();
     long numCols = mptr->cols() - 1;
 
@@ -124,10 +124,10 @@ VectorXd Math::L2Thresholding(VectorXd in) {
     }
 }
 
-Tree *Math::hierarchicalClustering(MatrixXd X) {
+Tree *Math::hierarchicalClustering(MatrixXf X) {
     Tree * T;
     long n = X.cols();
-    MatrixXd weights = MatrixXd::Zero(n, n);
+    MatrixXf weights = MatrixXf::Zero(n, n);
     T = new Tree();
     unordered_map<long, treeNode *> maps;
     for (long i = 0; i < n; i++) {
@@ -154,7 +154,7 @@ Tree *Math::hierarchicalClustering(MatrixXd X) {
     return T;
 }
 
-void Math::removeRow(MatrixXd *mptr, long x) {
+void Math::removeRow(MatrixXf *mptr, long x) {
     long numRows = mptr->rows() - 1;
     long numCols = mptr->cols();
 
@@ -185,9 +185,9 @@ void Math::updateMap(unordered_map<long, treeNode *> *mptr, minXY xy) {
     }
 }
 
-MatrixXd Math::appendColRow(MatrixXd mat, minXY xy) {
+MatrixXf Math::appendColRow(MatrixXf mat, minXY xy) {
     long r = mat.rows();
-    MatrixXd result = MatrixXd::Zero(r + 1, r + 1);
+    MatrixXf result = MatrixXf::Zero(r + 1, r + 1);
     VectorXd col = VectorXd::Zero(r);
     col = ((mat.col(xy.x).array()).max(mat.col(xy.y).array())).matrix();
     result.block(0, 0, r, r) = mat;
@@ -196,7 +196,7 @@ MatrixXd Math::appendColRow(MatrixXd mat, minXY xy) {
     return result;
 }
 
-minXY Math::searchMin(MatrixXd m) {
+minXY Math::searchMin(MatrixXf m) {
     long r = m.rows();
     minXY xy;
     xy.x = 0;
@@ -214,7 +214,7 @@ minXY Math::searchMin(MatrixXd m) {
     return xy;
 }
 
-void Math::removeColRow(MatrixXd *mptr, minXY xy) {
+void Math::removeColRow(MatrixXf *mptr, minXY xy) {
     removeRow(mptr, xy.y);
     removeRow(mptr, xy.x);
     removeCol(mptr, xy.y);

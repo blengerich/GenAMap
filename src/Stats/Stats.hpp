@@ -17,10 +17,10 @@ using namespace std;
 
 namespace Stats {
 //public:
-    double ChiSquaredTest(MatrixXd, MatrixXd);
+    double ChiSquaredTest(MatrixXf, MatrixXf);
     double ChiToPValue(double, int);
     double WaldTest(double mle, double var, double candidate);
-    double FisherExactTest(MatrixXd);
+    double FisherExactTest(MatrixXf);
     double BonCorrection(double, int);
     double get_ts(double beta, double var, double sigma);
     double get_qs(double ts, int N, int q);
@@ -38,11 +38,11 @@ protected:
 
     void checkGenoType();
 public:
-    virtual void setAttributeMatrix(const string&, MatrixXd*);
+    virtual void setAttributeMatrix(const string&, MatrixXf*);
 
     void BonferroniCorrection();
 
-    MatrixXd getBeta();
+    MatrixXf getBeta();
 
     virtual void assertReadyToRun();
     virtual void run() {};

@@ -184,7 +184,7 @@ model_id_t Scheduler::newModel(const ModelOptions_t& options) {
 }
 
 
-bool Scheduler::setX(const job_id_t job_id, const Eigen::MatrixXd& X) {
+bool Scheduler::setX(const job_id_t job_id, const Eigen::MatrixXf& X) {
 	if (JobIdUsed(job_id) && getJob(job_id)->model) {
 		getJob(job_id)->model->setX(X);
 		return true;
@@ -193,7 +193,7 @@ bool Scheduler::setX(const job_id_t job_id, const Eigen::MatrixXd& X) {
 }
 
 
-bool Scheduler::setY(const job_id_t job_id, const Eigen::MatrixXd& Y) {
+bool Scheduler::setY(const job_id_t job_id, const Eigen::MatrixXf& Y) {
 	if (JobIdUsed(job_id) && getJob(job_id)->model) {
 		getJob(job_id)->model->setY(Y);
 		return true;
@@ -202,7 +202,7 @@ bool Scheduler::setY(const job_id_t job_id, const Eigen::MatrixXd& Y) {
 }
 
 // TODO: merge setX and setY into this function?
-bool Scheduler::setModelAttributeMatrix(const job_id_t job_id, const string& str, Eigen::MatrixXd* Z) {
+bool Scheduler::setModelAttributeMatrix(const job_id_t job_id, const string& str, Eigen::MatrixXf* Z) {
 	try {
 		if (JobIdUsed(job_id) && getJob(job_id)->model) {
 			getJob(job_id)->model->setAttributeMatrix(str, Z);
@@ -470,7 +470,7 @@ Job_t* Scheduler::getJob(const job_id_t job_id) {
 }
 
 
-MatrixXd Scheduler::getJobResult(const job_id_t job_id) {
+MatrixXf Scheduler::getJobResult(const job_id_t job_id) {
 	if (JobIdUsed(job_id)) {
 		Job_t* job = getJob(job_id);
 		if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
@@ -497,7 +497,7 @@ MatrixXd Scheduler::getJobResult(const job_id_t job_id) {
 	    	return model->getBeta();
 	    }
 	} else {
-		return MatrixXd();
+		return MatrixXf();
 	}
 }
 

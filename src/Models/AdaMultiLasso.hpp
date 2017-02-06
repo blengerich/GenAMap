@@ -24,8 +24,8 @@ class AdaMultiLasso : public Model{
 private:
     double lambda1;
     double lambda2;
-    MatrixXd snpsFeatures1;
-    MatrixXd snpsFeatures2;
+    MatrixXf snpsFeatures1;
+    MatrixXf snpsFeatures2;
 
     VectorXd w;
     VectorXd v;
@@ -40,7 +40,7 @@ private:
 
     double L;
     double mu;
-    MatrixXd C;
+    MatrixXf C;
 
     void initC();
 
@@ -57,12 +57,12 @@ public:
     void setLambda1(double);
     void setLambda2(double);
 
-    void setAttributeMatrix(const string&, MatrixXd*);
-    void setSnpsFeatures1(MatrixXd); // TODO: switch to handling scoped pointers
-    void setSnpsFeatures2(MatrixXd);
-    void setSnpsFeatures(MatrixXd);
-    MatrixXd getSnpsFeatures1();
-    MatrixXd getSnpsFeatures2();
+    void setAttributeMatrix(const string&, MatrixXf*);
+    void setSnpsFeatures1(MatrixXf); // TODO: switch to handling scoped pointers
+    void setSnpsFeatures2(MatrixXf);
+    void setSnpsFeatures(MatrixXf);
+    MatrixXf getSnpsFeatures1();
+    MatrixXf getSnpsFeatures2();
     VectorXd getW();
     VectorXd getV();
     void updateW(VectorXd);
@@ -75,18 +75,18 @@ public:
     VectorXd getRho();
     void updateTheta_Rho();
 
-    MatrixXd getBeta();
-    MatrixXd getFormattedBeta();
+    MatrixXf getBeta();
+    MatrixXf getFormattedBeta();
 
-    void setX(MatrixXd);
-    void setY(MatrixXd);
-    void setXY(MatrixXd, MatrixXd);
+    void setX(MatrixXf);
+    void setY(MatrixXf);
+    void setXY(MatrixXf, MatrixXf);
     void initBeta();
 
     void assertReadyToRun();
     void initTraining();
-    MatrixXd proximal_derivative();
-    MatrixXd proximal_operator(MatrixXd, float);
+    MatrixXf proximal_derivative();
+    MatrixXf proximal_operator(MatrixXf, float);
     VectorXd gradient_w();
     VectorXd gradient_v();
     VectorXd projection(VectorXd);

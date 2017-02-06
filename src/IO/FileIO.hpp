@@ -50,11 +50,11 @@ public:
         return instance;
     }
 
-    MatrixXd readMatrixFile(string);
+    MatrixXf readMatrixFile(string);
 
     Tree* readTreeFile(string);
 
-    void writeMatrixFile(string, MatrixXd);
+    void writeMatrixFile(string, MatrixXf);
 
     void writeVectorFile(string, VectorXd);
 

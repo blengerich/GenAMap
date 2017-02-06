@@ -12,24 +12,24 @@ using namespace std;
 using namespace Eigen;
 
 LinearMixedModel::LinearMixedModel() {
-    K = MatrixXd::Zero(1,1);
-    S = MatrixXd::Zero(1,1);
+    K = MatrixXf::Zero(1,1);
+    S = MatrixXf::Zero(1,1);
     initFlag = false;
 }
 
 LinearMixedModel::LinearMixedModel(const unordered_map<string, string> &options) {
-    K = MatrixXd::Zero(1,1);
-    S = MatrixXd::Zero(1,1);
+    K = MatrixXf::Zero(1,1);
+    S = MatrixXf::Zero(1,1);
     initFlag = false;
 }
 
 // Methods to set the training data
-void LinearMixedModel::setXY(MatrixXd X, MatrixXd Y) {
+void LinearMixedModel::setXY(MatrixXf X, MatrixXf Y) {
 //    cout << "LMM: Training set X and Y are provided !" << endl;
     this->X = X; // Input
     this->y = Y; // Output
 
-    this->beta = MatrixXd::Random(X.cols(), Y.rows());
+    this->beta = MatrixXf::Random(X.cols(), Y.rows());
     this->K = X*X.transpose();
     this->n = get_num_samples();
     this->d = X.cols();
@@ -37,7 +37,7 @@ void LinearMixedModel::setXY(MatrixXd X, MatrixXd Y) {
 //    K.setZero();
 }
 
-void LinearMixedModel::setXYK(MatrixXd X, MatrixXd Y, MatrixXd K) {
+void LinearMixedModel::setXYK(MatrixXf X, MatrixXf Y, MatrixXf K) {
 //    cout << "LMM: Training set X,Y and K are provided !" << endl;
     this->X = X;
     this->y = Y;
@@ -46,22 +46,22 @@ void LinearMixedModel::setXYK(MatrixXd X, MatrixXd Y, MatrixXd K) {
     this->d = X.cols();
 
     // Initialize beta and mau to some random values
-    this->beta = MatrixXd::Random(X.cols(), Y.rows());
-    this->mau = MatrixXd(n, 1);
+    this->beta = MatrixXf::Random(X.cols(), Y.rows());
+    this->mau = MatrixXf(n, 1);
 }
 
 // Other getters and setter methods
 // K = U*S*transpose(U)
-void LinearMixedModel::set_U(MatrixXd U) {
+void LinearMixedModel::set_U(MatrixXf U) {
     this->U = U;
 }
 
-void LinearMixedModel::set_S(MatrixXd S) {
+void LinearMixedModel::set_S(MatrixXf S) {
     this->S = S;
 }
 
 
-void LinearMixedModel::setUS(MatrixXd U, MatrixXd S) {
+void LinearMixedModel::setUS(MatrixXf U, MatrixXf S) {
     this->U = U;
     this->S = S;
 }
@@ -89,10 +89,10 @@ void LinearMixedModel::assertReadyToRun() {
 // Decomposition of Similarity Matrix ->
 // K = U*S*transpose(U)
 void LinearMixedModel::decomposition() {
-    JacobiSVD<MatrixXd> svd(this->K, ComputeThinU | ComputeThinV);
-    MatrixXd tmpS = svd.singularValues();
+    JacobiSVD<MatrixXf> svd(this->K, ComputeThinU | ComputeThinV);
+    MatrixXf tmpS = svd.singularValues();
     U = svd.matrixU();
-    S = MatrixXd::Zero(tmpS.rows(), tmpS.rows());
+    S = MatrixXf::Zero(tmpS.rows(), tmpS.rows());
     for (long i = 0; i<tmpS.rows(); i++){
         S(i, i) = tmpS(i, 0);
     }
@@ -102,19 +102,19 @@ void LinearMixedModel::decomposition() {
 // This method will give Beta matrix as a function of the Lambda Matrix.
 void LinearMixedModel::calculate_beta(double lambda) {
     init();
-    MatrixXd Id(n, n); // n*n
+    MatrixXf Id(n, n); // n*n
     Id.setIdentity(n, n);
-    MatrixXd U_trans = U.transpose(); // n*n
-    MatrixXd U_trans_X = U_trans * X; // n*d
-    MatrixXd U_trans_Y = U_trans * y; // n*1
-    MatrixXd U_X_trans = (U_trans_X).transpose(); // d*n
-    MatrixXd S_lambda_inv = (S + lambda * Id).inverse(); // n*n
+    MatrixXf U_trans = U.transpose(); // n*n
+    MatrixXf U_trans_X = U_trans * X; // n*d
+    MatrixXf U_trans_Y = U_trans * y; // n*1
+    MatrixXf U_X_trans = (U_trans_X).transpose(); // d*n
+    MatrixXf S_lambda_inv = (S + lambda * Id).inverse(); // n*n
 
-//    MatrixXd first_term = MatrixXd::Random(d, d); // d*d
-//    MatrixXd second_term = MatrixXd::Random(d, 1); // d*1
+//    MatrixXf first_term = MatrixXf::Random(d, d); // d*d
+//    MatrixXf second_term = MatrixXf::Random(d, 1); // d*1
 
-    MatrixXd first_term = ((U_X_trans * S_lambda_inv) * U_trans_X).inverse();
-    MatrixXd second_term = (U_X_trans * S_lambda_inv) * U_trans_Y;
+    MatrixXf first_term = ((U_X_trans * S_lambda_inv) * U_trans_X).inverse();
+    MatrixXf second_term = (U_X_trans * S_lambda_inv) * U_trans_Y;
 
     beta = first_term * second_term;
 
@@ -126,9 +126,9 @@ void LinearMixedModel::calculate_sigma(double lambda) {
     init();
     double ret_val = 0.0, temp_val = 0.0;
     this->calculate_beta(lambda);
-    MatrixXd U_tran_Y = U.transpose() * y; // n*1
-    MatrixXd U_tran_X = U.transpose() * X; // n*d
-    MatrixXd U_tran_X_beta = U_tran_X * beta;
+    MatrixXf U_tran_Y = U.transpose() * y; // n*1
+    MatrixXf U_tran_X = U.transpose() * X; // n*d
+    MatrixXf U_tran_X_beta = U_tran_X * beta;
 
     long n = U_tran_X.rows();
 
@@ -194,7 +194,7 @@ double LinearMixedModel::f(double lambda) {
 }
 
 void LinearMixedModel::init() {
-    MatrixXd tmp = MatrixXd::Zero(1,1);
+    MatrixXf tmp = MatrixXf::Zero(1,1);
     if (!initFlag){
         if (K.rows() == 1){
             K = X*X.transpose();
@@ -207,7 +207,7 @@ void LinearMixedModel::init() {
     }
 }
 
-MatrixXd LinearMixedModel::getBeta() {
+MatrixXf LinearMixedModel::getBeta() {
     return beta;
 }
 

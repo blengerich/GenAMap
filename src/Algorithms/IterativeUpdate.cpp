@@ -41,7 +41,7 @@ void IterativeUpdate::run(Model* model) {
 
 void IterativeUpdate::run(TreeLasso* tl) {
     double i = 0;
-    MatrixXd bestBeta = tl->getBeta();
+    MatrixXf bestBeta = tl->getBeta();
     tl->initIterativeUpdate();
     while (!shouldStop && i < maxIteration){
         progress = i/maxIteration;

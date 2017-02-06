@@ -32,7 +32,7 @@ protected:
 			linear_regression,
 			{{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
 
-        X = MatrixXd(10, 5);
+        X = MatrixXf(10, 5);
         X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
         0.9058,    0.9706,    0.0357,    0.0318,    0.3816,
         0.1270,    0.9572,    0.8491,    0.2769,    0.7655,
@@ -43,7 +43,7 @@ protected:
         0.5469,    0.9157,    0.3922,    0.3171,    0.6463,
         0.9575,    0.7922,    0.6555,    0.9502,    0.7094,
         0.9649,    0.9595,    0.1712,    0.0344,    0.7547;
-    	y = MatrixXd(10, 1);        
+    	y = MatrixXf(10, 1);
         y << 0.4173,
         0.0497,
         0.9027,
@@ -55,13 +55,13 @@ protected:
         0.3692,
         0.1112;
 
-		LargeX = MatrixXd(n_patients, n_markers);
+		LargeX = MatrixXf(n_patients, n_markers);
         for (int i = 0; i < n_patients; i++) {
             for (int j = 0; j < n_markers; j++) {
                 LargeX(i,j) = rand();
             }
         }
-    	LargeY = MatrixXd(n_patients, n_traits);        
+    	LargeY = MatrixXf(n_patients, n_traits);
         for (int i = 0; i < n_patients; i++) {
             for (int j = 0; j < n_traits; j++) {
                 LargeY(i,j) = rand();
@@ -75,10 +75,10 @@ protected:
     const int n_markers = 1000;
     const int n_traits = 1;
 	AlgorithmOptions_t alg_opts;
-    MatrixXd X;
-    MatrixXd y;
-    MatrixXd LargeX;
-    MatrixXd LargeY;
+    MatrixXf X;
+    MatrixXf y;
+    MatrixXf LargeX;
+    MatrixXf LargeY;
 	ModelOptions_t model_opts;
 	Scheduler* my_scheduler;
 };
@@ -155,7 +155,7 @@ TEST_F(SchedulerTest, newModel) {
 
 TEST_F(SchedulerTest, SetX) {
 	job_id_t job_id = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
-	Eigen::MatrixXd m(2,3);
+	Eigen::MatrixXf m(2,3);
 	m << 1, 2,
 		 3, 4,
 		 5, 6;
@@ -165,7 +165,7 @@ TEST_F(SchedulerTest, SetX) {
 
 TEST_F(SchedulerTest, SetY) {
 	job_id_t job_id = my_scheduler->newJob(JobOptions_t(alg_opts, model_opts));
-	Eigen::MatrixXd m(2,3);
+	Eigen::MatrixXf m(2,3);
 	m << 1, 2,
 		 3, 4,
 		 5, 6;
@@ -382,7 +382,7 @@ TEST_F(SchedulerTest, GetJobResult) {
     my_scheduler->setY(job_id, y);    
     ASSERT_TRUE(my_scheduler->startJob(job_id, NullFunc));
 
-    MatrixXd results = my_scheduler->getJobResult(job_id);
+    MatrixXf results = my_scheduler->getJobResult(job_id);
     while (my_scheduler->checkJobProgress(job_id) < 1.0) {
         usleep(1);
     }

@@ -14,16 +14,16 @@ using namespace std;
 using namespace Eigen;
 
 TEST(ChiSquaredTest, BasicTest) {
-    MatrixXd observed = MatrixXd::Constant(1,1,1);
-    MatrixXd expected = MatrixXd::Constant(1,1,1);
+    MatrixXf observed = MatrixXf::Constant(1,1,1);
+    MatrixXf expected = MatrixXf::Constant(1,1,1);
     EXPECT_EQ(0, Stats::ChiSquaredTest(observed, expected));
 
-    observed = MatrixXd::Constant(1,1,2);
-    expected = MatrixXd::Constant(1,1,1);
+    observed = MatrixXf::Constant(1,1,2);
+    expected = MatrixXf::Constant(1,1,1);
     EXPECT_EQ(1, Stats::ChiSquaredTest(observed, expected));
 
-    observed = MatrixXd::Constant(2,2,2);
-    expected = MatrixXd::Constant(2,2,1);
+    observed = MatrixXf::Constant(2,2,2);
+    expected = MatrixXf::Constant(2,2,1);
     EXPECT_EQ(4, Stats::ChiSquaredTest(observed, expected));
 }
 
@@ -37,30 +37,30 @@ TEST(ChiToPValue, BasicTest) {
 }
 
 TEST(ChiSquared, IntegrationTest) {
-    MatrixXd observed = MatrixXd::Constant(2,2,2);
-    MatrixXd expected = MatrixXd::Constant(2,2,1);
+    MatrixXf observed = MatrixXf::Constant(2,2,2);
+    MatrixXf expected = MatrixXf::Constant(2,2,1);
     EXPECT_GE(0.0455+1e-5, Stats::ChiToPValue(Stats::ChiSquaredTest(observed, expected), 1));
     EXPECT_LE(0.0445-1e-5, Stats::ChiToPValue(Stats::ChiSquaredTest(observed, expected), 1));
 }
 
 TEST(FisherExactTest, BasicTest) {
-    MatrixXd X = MatrixXd::Constant(1,1,1);
+    MatrixXf X = MatrixXf::Constant(1,1,1);
     EXPECT_EQ(1, Stats::FisherExactTest(X));
-    MatrixXd m(2, 2);
+    MatrixXf m(2, 2);
     m(0, 0) = 1;
     m(0, 1) = 1;
     m(1, 0) = 1;
     m(1, 1) = 1;
     EXPECT_LE(0.66, Stats::FisherExactTest(m));
     EXPECT_GE(0.67, Stats::FisherExactTest(m));
-    MatrixXd m1(2, 2);
+    MatrixXf m1(2, 2);
     m1(0, 0) = 1.2;
     m1(0, 1) = 1.3;
     m1(1, 0) = 1.1;
     m1(1, 1) = 1.1;
     EXPECT_LE(0.66, Stats::FisherExactTest(m1));
     EXPECT_GE(0.67, Stats::FisherExactTest(m1));
-    MatrixXd m2(2, 2);
+    MatrixXf m2(2, 2);
     m2(0, 0) = 1.2;
     m2(0, 1) = 1.3;
     m2(1, 0) = 1.7;
