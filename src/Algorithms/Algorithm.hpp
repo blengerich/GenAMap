@@ -18,6 +18,12 @@ using namespace std;
 
 typedef unsigned int algorithm_id_t;
 
+class FAKEMUTEX {
+public:
+    void lock(){};
+    void unlock(){};
+};
+
 class Algorithm {
 protected:
     double progress;
@@ -30,6 +36,7 @@ public:
     Algorithm(const unordered_map<string, string>);
 
     mutex mtx;
+//    FAKEMUTEX mtx;
 
     void setMaxIteration(int);
 
