@@ -17,13 +17,13 @@ using namespace std;
 
 namespace Stats {
 //public:
-    double ChiSquaredTest(MatrixXd, MatrixXd);
-    double ChiToPValue(double, int);
-    double WaldTest(double mle, double var, double candidate);
-    double FisherExactTest(MatrixXd);
-    double BonCorrection(double, int);
-    double get_ts(double beta, double var, double sigma);
-    double get_qs(double ts, int N, int q);
+    float ChiSquaredTest(MatrixXf, MatrixXf);
+    float ChiToPValue(float, int);
+    float WaldTest(float mle, float var, float candidate);
+    float FisherExactTest(MatrixXf);
+    float BonCorrection(float, int);
+    float get_ts(float beta, float var, float sigma);
+    float get_qs(float ts, int N, int q);
 };
 
 class StatsBasic : public Model{
@@ -32,17 +32,17 @@ protected:
     int genoType;
 
     // algorithm use
-    double progress;
+    float progress;
     bool isRunning;
     bool shouldStop;
 
     void checkGenoType();
 public:
-    virtual void setAttributeMatrix(const string&, MatrixXd*);
+    virtual void setAttributeMatrix(const string&, MatrixXf*);
 
     void BonferroniCorrection();
 
-    MatrixXd getBeta();
+    MatrixXf getBeta();
 
     virtual void assertReadyToRun();
     virtual void run() {};
@@ -53,7 +53,7 @@ public:
     StatsBasic(const unordered_map<string, string>&);
 
     // algorithm replacement
-    double getProgress();
+    float getProgress();
     bool getIsRunning();
     void stop();
 

@@ -38,7 +38,7 @@ void setX(const FunctionCallbackInfo<Value>& args) {
 	if (ArgsHaveJobID(args, 0)) {
 		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
 		Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
-		MatrixXd* mat = v8toEigen(ar);
+		MatrixXf* mat = v8toEigen(ar);
 		result = Scheduler::Instance()->setX(job_id, *mat);
 	}
 	args.GetReturnValue().Set(Boolean::New(isolate, result));
@@ -53,7 +53,7 @@ void setY(const FunctionCallbackInfo<Value>& args) {
 	if (ArgsHaveJobID(args, 0)) {
 		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
 		Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
-		MatrixXd* mat = v8toEigen(ar);
+		MatrixXf* mat = v8toEigen(ar);
 		result = Scheduler::Instance()->setY(job_id, *mat);
 	}
 	args.GetReturnValue().Set(Boolean::New(isolate, result));
@@ -68,7 +68,7 @@ void setModelAttributeMatrix(const FunctionCallbackInfo<Value>& args) {
 		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
 		const string attribute_name(*v8::String::Utf8Value(args[1]->ToString()));
 		Local<v8::Array> ar = Local<v8::Array>::Cast(args[2]);
-		MatrixXd* mat = v8toEigen(ar);
+		MatrixXf* mat = v8toEigen(ar);
 		result = Scheduler::Instance()->setModelAttributeMatrix(job_id, attribute_name, mat);
 	}
 	args.GetReturnValue().Set(Boolean::New(isolate, result));	
@@ -250,11 +250,11 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 }
 
 
-MatrixXd* v8toEigen(Local<v8::Array>& ar) {
+MatrixXf* v8toEigen(Local<v8::Array>& ar) {
 	const unsigned int rows = ar->Length();
 	Local<v8::Array> props = Local<v8::Object>::Cast(ar->Get(0))->GetPropertyNames();
 	const unsigned int cols = props->Length();
-	Eigen::MatrixXd* mat = new Eigen::MatrixXd(rows, cols);
+	Eigen::MatrixXf* mat = new Eigen::MatrixXf(rows, cols);
 
 	for (unsigned int i=0; i<rows; i++) {
 		for (unsigned int j=0; j<cols; j++) {

@@ -14,7 +14,7 @@
 using namespace std;
 using namespace Eigen;
 
-void MultiPopLasso::setXY(MatrixXd m, MatrixXd n) {
+void MultiPopLasso::setXY(MatrixXf m, MatrixXf n) {
     X = m;
     y = n;
 }
@@ -23,22 +23,22 @@ void MultiPopLasso::initBeta() {
     cout << "Multipop lasso does not suppor init beta explicitly here, beta will be initialized when formating data" << endl;
 }
 
-void MultiPopLasso::setLambda(double l) { lambda = l; }
+void MultiPopLasso::setLambda(float l) { lambda = l; }
 
-void MultiPopLasso::setPopulation(VectorXd pop) {
+void MultiPopLasso::setPopulation(VectorXf pop) {
     // population indicator must start from 0
     population = pop;
     popNum = (long)population.maxCoeff() + 1;
 }
 
-double MultiPopLasso::cost() {
+float MultiPopLasso::cost() {
     initTraining();
     return 0.5 * (y - X * beta).squaredNorm() + lambda * groupPenalization();
 }
 
-double MultiPopLasso::groupPenalization() {
-    double r = 0;
-    MatrixXd tmp = getBetaInside();
+float MultiPopLasso::groupPenalization() {
+    float r = 0;
+    MatrixXf tmp = getBetaInside();
     for (long i = 0; i < tmp.rows(); i++) {
         r += tmp.row(i).squaredNorm();
     }
@@ -60,11 +60,11 @@ void MultiPopLasso::assertReadyToRun() {
     cerr << "assertReadyToRun passed" << endl;
 }
 
-void MultiPopLasso::setAttributeMatrix(const string& str, MatrixXd* Z) {
+void MultiPopLasso::setAttributeMatrix(const string& str, MatrixXf* Z) {
     if (str == "population") {
         cerr << "setting population" << endl;
         // todo: stop copying data
-        setPopulation(VectorXd(Map<VectorXd>(Z->data(), Z->rows())));
+        setPopulation(VectorXf(Map<VectorXf>(Z->data(), Z->rows())));
     } else if (str == "X") {
         setX(*Z);
     } else if (str == "Y") {
@@ -88,9 +88,9 @@ void MultiPopLasso::reArrangeData() {
     // arrange data according to its population
     long r = X.rows();
     long c = X.cols();
-    MatrixXd tmpX = MatrixXd::Zero(r, c);
-    MatrixXd tmpY = MatrixXd::Zero(r, 1);
-    VectorXd tmpPop = VectorXd::Zero(r);
+    MatrixXf tmpX = MatrixXf::Zero(r, c);
+    MatrixXf tmpY = MatrixXf::Zero(r, 1);
+    VectorXf tmpPop = VectorXf::Zero(r);
     vector<long> idx;
     long count = 0;
     for (long i=0; i<popNum; i++){
@@ -110,16 +110,16 @@ void MultiPopLasso::removeColumns() {
     long c = X.cols();
     removeCols = VectorXi::Zero(c);
     for (long i = 0; i < c; i++) {
-        double var = Math::getInstance().variance(X.col(i));
+        float var = Math::getInstance().variance(X.col(i));
         if (var < 1e-3) {
             removeCols(i) = 1;
         }
     }
     long r = X.rows();
     long b = r / popNum;
-    MatrixXd tmp;
-    double cor;
-    double std;
+    MatrixXf tmp;
+    float cor;
+    float std;
     for (long i = 0; i < r; i += b) {
         tmp = X.block(i, 0, b, c);
         for (long j = 0; j < c; j++) {
@@ -141,10 +141,10 @@ void MultiPopLasso::removeColumns() {
     }
 }
 
-MatrixXd MultiPopLasso::normalizeData_col(MatrixXd a) {
+MatrixXf MultiPopLasso::normalizeData_col(MatrixXf a) {
     long c = a.cols();
-    VectorXd mean = a.colwise().mean();
-    VectorXd std_inv = VectorXd::Zero(c);
+    VectorXf mean = a.colwise().mean();
+    VectorXf std_inv = VectorXf::Zero(c);
     for (long i = 0; i < c; i++) {
         std_inv(i) = 1.0 / Math::getInstance().std(a.col(i));
     }
@@ -162,8 +162,8 @@ void MultiPopLasso::formatData() {
 //    }
     long c = X.cols();
     long r = X.rows();
-    MatrixXd tmpX = MatrixXd::Zero(r, c * popNum);
-    double pIdx = 0;
+    MatrixXf tmpX = MatrixXf::Zero(r, c * popNum);
+    float pIdx = 0;
     for (long i=0;i<r;i++){
         pIdx = population(i);
         for (long j=0;j<c;j++){
@@ -171,13 +171,13 @@ void MultiPopLasso::formatData() {
         }
     }
     X = tmpX;
-    beta = MatrixXd::Zero(c * popNum, 1);
+    beta = MatrixXf::Zero(c * popNum, 1);
     L = ((X.transpose()*X).eigenvalues()).real().maxCoeff();
 }
 
 void MultiPopLasso::initC() {
     long c = X.cols();
-    C = MatrixXd::Zero(c * popNum, c);
+    C = MatrixXf::Zero(c * popNum, c);
     for (long i = 0; i < c; i++) {
         for (long j = 0; j < popNum; j++) {
             C(i*j+j, i) = gamma;
@@ -185,29 +185,29 @@ void MultiPopLasso::initC() {
     }
 }
 
-MatrixXd MultiPopLasso::proximal_derivative() {
+MatrixXf MultiPopLasso::proximal_derivative() {
     long r = beta.rows();
     long c = beta.cols();
-    MatrixXd A = MatrixXd::Zero(r*popNum, c);
-    MatrixXd tmp = C*beta;
+    MatrixXf A = MatrixXf::Zero(r*popNum, c);
+    MatrixXf tmp = C*beta;
     for (long i=0;i<r*popNum;i++){
         A.row(i) = Math::getInstance().L2Thresholding(tmp.row(i)/mu);
     }
     return X.transpose()*(X*beta-y) + C.transpose()*A;
 }
 
-MatrixXd MultiPopLasso::proximal_operator(MatrixXd in, float lr) {
-    MatrixXd sign = ((in.array()>0).matrix()).cast<double>();
-    sign += -1.0*((in.array()<0).matrix()).cast<double>();
+MatrixXf MultiPopLasso::proximal_operator(MatrixXf in, float lr) {
+    MatrixXf sign = ((in.array()>0).matrix()).cast<float>();
+    sign += -1.0*((in.array()<0).matrix()).cast<float>();
     in = ((in.array().abs()-lr*lambda).max(0)).matrix();
     return (in.array()*sign.array()).matrix();
 }
 
-//MatrixXd MultiPopLasso::deriveMatrixA(double lr, long loops, double tol) {
+//MatrixXf MultiPopLasso::deriveMatrixA(double lr, long loops, double tol) {
 //    long r = beta.rows();
 //    long c = C.rows();
-//    MatrixXd A = MatrixXd::Zero(r, c);
-//    MatrixXd bct = beta*C.transpose();
+//    MatrixXf A = MatrixXf::Zero(r, c);
+//    MatrixXf bct = beta*C.transpose();
 //    double prev_residue = numeric_limits<double>::max();
 //    double curr_residue;
 //    for (long i=0;i<loops;i++){
@@ -224,7 +224,7 @@ MatrixXd MultiPopLasso::proximal_operator(MatrixXd in, float lr) {
 //    return A;
 //}
 //
-//MatrixXd MultiPopLasso::project(MatrixXd A) {
+//MatrixXf MultiPopLasso::project(MatrixXf A) {
 //    if (A.norm() <= 1){
 //        return A;
 //    }
@@ -233,8 +233,8 @@ MatrixXd MultiPopLasso::proximal_operator(MatrixXd in, float lr) {
 //    }
 //}
 //
-double MultiPopLasso::getL(){
-    double c = C.norm()/mu;
+float MultiPopLasso::getL(){
+    float c = C.norm()/mu;
     return c + L;
 }
 
@@ -248,9 +248,9 @@ vector<long> MultiPopLasso::getPopulationIndex(long pi) {
     return idx;
 }
 
-MatrixXd MultiPopLasso::getBetaInside() {
+MatrixXf MultiPopLasso::getBetaInside() {
     long c = X.cols()/popNum;
-    MatrixXd r = MatrixXd::Zero(popNum, c);
+    MatrixXf r = MatrixXf::Zero(popNum, c);
     for (long i=0;i<popNum;i++){
         for (long j=0;j<c;j++){
             r(i, j) = beta(j*popNum+i,i/popNum);
@@ -260,9 +260,9 @@ MatrixXd MultiPopLasso::getBetaInside() {
 }
 
 
-MatrixXd MultiPopLasso::getBeta() {
+MatrixXf MultiPopLasso::getBeta() {
     long c = X.cols()/popNum;
-    MatrixXd r = MatrixXd::Zero(popNum*betaAll.cols(), c);
+    MatrixXf r = MatrixXf::Zero(popNum*betaAll.cols(), c);
     for (long k=0;k<betaAll.cols();k++){
         for (long i=0;i<popNum;i++){
             for (long j=0;j<c;j++){
@@ -273,32 +273,32 @@ MatrixXd MultiPopLasso::getBeta() {
     return r.transpose()*100;
 }
 
-void MultiPopLasso::setMu(double m) {
+void MultiPopLasso::setMu(float m) {
     mu = m;
 }
 
-void MultiPopLasso::setGamma(double g) {
+void MultiPopLasso::setGamma(float g) {
     gamma = g;
 }
 
-MatrixXd MultiPopLasso::getFormattedBeta() {
+MatrixXf MultiPopLasso::getFormattedBeta() {
     return beta;
 }
 
-MatrixXd MultiPopLasso::predict() {
+MatrixXf MultiPopLasso::predict() {
     cout << "does not allow prediction with original X, please use predict(X, population) method instead"<<endl;
-    return MatrixXd::Random(1,1);
+    return MatrixXf::Random(1,1);
 }
 
-MatrixXd MultiPopLasso::predict(MatrixXd x) {
+MatrixXf MultiPopLasso::predict(MatrixXf x) {
     cout << "does not allow prediction without population information"<<endl;
-    return MatrixXd::Random(1,1);
+    return MatrixXf::Random(1,1);
 }
 
-MatrixXd MultiPopLasso::predict(MatrixXd x, VectorXd pop){
+MatrixXf MultiPopLasso::predict(MatrixXf x, VectorXf pop){
     long r= x.rows();
-    MatrixXd y(r, 1);
-    MatrixXd b = getBetaInside();
+    MatrixXf y(r, 1);
+    MatrixXf b = getBetaInside();
     for (long i=0;i<r;i++){
         y.row(i) = x.row(i)*(b.row(long(pop(i))).transpose());
     }
@@ -310,7 +310,7 @@ MultiPopLasso::MultiPopLasso() {
     lambda = default_lambda;
     mu = default_mu;
     gamma = default_gamma;
-    betaAll = MatrixXd::Ones(1,1);
+    betaAll = MatrixXf::Ones(1,1);
 }
 
 MultiPopLasso::MultiPopLasso(const unordered_map<string, string> &options) {
@@ -330,7 +330,7 @@ MultiPopLasso::MultiPopLasso(const unordered_map<string, string> &options) {
     } catch (std::out_of_range& oor) {
         gamma = default_gamma;
     }
-    betaAll = MatrixXd::Ones(1,1);
+    betaAll = MatrixXf::Ones(1,1);
 }
 
 void MultiPopLasso::updateBetaAll() {
@@ -343,7 +343,7 @@ void MultiPopLasso::updateBetaAll() {
     }
 }
 
-MatrixXd MultiPopLasso::getBetaAll() {
+MatrixXf MultiPopLasso::getBetaAll() {
     return betaAll;
 }
 

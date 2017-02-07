@@ -25,7 +25,7 @@ int Algorithm::getMaxIteration() {
 	return maxIteration;
 }
 
-double Algorithm::getProgress() {
+float Algorithm::getProgress() {
 	return progress;
 }
 

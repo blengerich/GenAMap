@@ -22,64 +22,64 @@ using namespace Eigen;
 
 class MultiPopLasso : public Model {
 private:
-    MatrixXd betaAll;
-    double lambda;
-    double mu;
-    double gamma;
-    VectorXd population;
-    MatrixXd Z;
+    MatrixXf betaAll;
+    float lambda;
+    float mu;
+    float gamma;
+    VectorXf population;
+    MatrixXf Z;
     long popNum;
-    double L;
+    float L;
     bool initTrainingFlag;
 
     VectorXi removeCols;
-    MatrixXd C;
+    MatrixXf C;
 
-    MatrixXd getBetaInside();
+    MatrixXf getBetaInside();
 
-    double groupPenalization();
+    float groupPenalization();
     void reArrangeData();
 
     void removeColumns();
-    MatrixXd normalizeData_col(MatrixXd);
+    MatrixXf normalizeData_col(MatrixXf);
     void formatData();
 
-//    MatrixXd deriveMatrixA(double, long, double);
-//    MatrixXd project(MatrixXd);
+//    MatrixXf deriveMatrixA(double, long, double);
+//    MatrixXf project(MatrixXf);
 
     vector<long> getPopulationIndex(long);
     void initC();
 
-    static constexpr double default_lambda = 0;
-    static constexpr double default_mu = 1;
-    static constexpr double default_gamma = 0;
+    static constexpr float default_lambda = 0;
+    static constexpr float default_mu = 1;
+    static constexpr float default_gamma = 0;
 
 public:
     void reSetFlag();
-    void setXY(MatrixXd, MatrixXd);
-    void setLambda(double);
-    void setPopulation(VectorXd);
-    void setMu(double);
-    void setGamma(double);
-    void setAttributeMatrix(const string&, MatrixXd*);
+    void setXY(MatrixXf, MatrixXf);
+    void setLambda(float);
+    void setPopulation(VectorXf);
+    void setMu(float);
+    void setGamma(float);
+    void setAttributeMatrix(const string&, MatrixXf*);
 
     void initBeta();
-    double cost();
-    MatrixXd predict();
-    MatrixXd predict(MatrixXd);
-    MatrixXd predict(MatrixXd, VectorXd);
+    float cost();
+    MatrixXf predict();
+    MatrixXf predict(MatrixXf);
+    MatrixXf predict(MatrixXf, VectorXf);
     void assertReadyToRun();
     void initTraining();
 
-    MatrixXd proximal_derivative();
-    MatrixXd proximal_operator(MatrixXd, float);
+    MatrixXf proximal_derivative();
+    MatrixXf proximal_operator(MatrixXf, float);
 
-    double getL();
-    MatrixXd getBeta();
-    MatrixXd getFormattedBeta();
+    float getL();
+    MatrixXf getBeta();
+    MatrixXf getFormattedBeta();
 
     void updateBetaAll();
-    MatrixXd getBetaAll();
+    MatrixXf getBetaAll();
 
     MultiPopLasso();
     MultiPopLasso(const unordered_map<string, string>& options);

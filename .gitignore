@@ -35,3 +35,6 @@ sampleData/*
 **/*.out
 **/*.toc
 **/*.synctex.gz
+
+# main.cpp for testing backend
+src/main.cpp
