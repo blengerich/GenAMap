@@ -10,21 +10,21 @@
 
 class SparseLMM : public LinearMixedModel{
 private:
-    double l1Reg;
-    MatrixXd rX;
-    MatrixXd rY;
+    float l1Reg;
+    MatrixXf rX;
+    MatrixXf rY;
 
-    static constexpr double default_l1Reg = 0.0;
+    static constexpr float default_l1Reg = 0.0;
 public:
     SparseLMM();
     SparseLMM(const unordered_map<string, string>& options);
 
-    void rotateXY(double);
-    MatrixXd getRotatedX();
-    MatrixXd getRoattedY();
+    void rotateXY(float);
+    MatrixXf getRotatedX();
+    MatrixXf getRoattedY();
 
-    void setL1reg(double);
-    double getL1reg();
+    void setL1reg(float);
+    float getL1reg();
 };
 
 

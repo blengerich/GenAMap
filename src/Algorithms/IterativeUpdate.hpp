@@ -14,17 +14,17 @@ using namespace std;
 
 class IterativeUpdate : public Algorithm{
 private:
-    double residue;
-    double prev_residue;
-    double tol;
+    float residue;
+    float prev_residue;
+    float tol;
 
-    static constexpr double default_tolerance = 1e-5;
+    static constexpr float default_tolerance = 1e-5;
 
 public:
     IterativeUpdate();
     IterativeUpdate(const unordered_map<string, string>&);
 
-    void setTolerance(double);
+    void setTolerance(float);
     void assertReadyToRun();
     void run(Model*);
     void run(TreeLasso*);
