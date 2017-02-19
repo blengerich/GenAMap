@@ -48,6 +48,7 @@ void TreeLasso::assertReadyToRun() {
         throw runtime_error("X and Y matrices of size (" + to_string(X.rows()) + "," + to_string(X.cols()) + "), and (" +
                             to_string(y.rows()) + "," + to_string(y.cols()) + ") are not compatible.");
     }
+    checkLogisticRegression();
 }
 
 void TreeLasso::initIterativeUpdate(){
@@ -193,6 +194,7 @@ TreeLasso::TreeLasso() {
     mu = default_mu;
     T = 0;
     initGradientFlag = false;
+    logisticFlag = false;
 }
 
 TreeLasso::TreeLasso(const unordered_map<string, string> &options) {
@@ -219,6 +221,7 @@ TreeLasso::TreeLasso(const unordered_map<string, string> &options) {
     }
     T = 0;
     initGradientFlag = false;
+    logisticFlag = false;
 }
 
 TreeLasso::~TreeLasso() {
@@ -237,7 +240,12 @@ Tree *TreeLasso::getTree() {
 }
 
 double TreeLasso::cost() {
-    return 0.5*(y - X * beta).squaredNorm() + penalty_cost();
+    if (logisticFlag){
+        return 0.5*(y - (X * beta).unaryExpr(&sigmoid)).squaredNorm() + penalty_cost();
+    }
+    else{
+        return 0.5*(y - X * beta).squaredNorm() + penalty_cost();
+    }
 }
 
 //double TreeLasso::penalty_cost(){
@@ -541,7 +549,12 @@ MatrixXd TreeLasso::proximal_derivative() {
             R.row(j) = (A.row(j).array()/(tmp.transpose()).array()).matrix();
         }
     }
-    return X.transpose()*(X*beta)-XY+R.transpose()*C;
+    if (logisticFlag){
+        return X.transpose()*(X*beta).unaryExpr(&sigmoid)-XY+R.transpose()*C;
+    }
+    else{
+        return X.transpose()*(X*beta)-XY+R.transpose()*C;
+    }
 }
 
 void TreeLasso::setMu(double m) {
