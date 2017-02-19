@@ -18,14 +18,14 @@ Gflasso::Gflasso() {
     logisticFlag = false;
 }
 
-Gflasso::Gflasso(double lambda,double gamma){
+Gflasso::Gflasso(float lambda,float gamma){
     lambda_flasso = lambda;
     gamma_flasso = gamma;
     flasso_type = GcFlasso;
     logisticFlag = false;
 }
 
-Gflasso::Gflasso(MatrixXd corr_coff,double lambda,double gamma){
+Gflasso::Gflasso(MatrixXf corr_coff,float lambda,float gamma){
     this->corr_coff = corr_coff;
     gamma_flasso = gamma;
     lambda_flasso = lambda;
@@ -52,31 +52,31 @@ Gflasso::Gflasso(const unordered_map<string, string> &options) {
 }
 
 // Setting and getting various params of GFLasso model
-void Gflasso::set_params(double lambda,double gamma){
+void Gflasso::set_params(float lambda,float gamma){
     lambda_flasso = lambda;
     gamma_flasso = gamma;
 }
 
-vector<double> Gflasso::get_params(){
-    vector<double> params;
+vector<float> Gflasso::get_params(){
+    vector<float> params;
     params.push_back(this->lambda_flasso);
     params.push_back(this->gamma_flasso);
     return params;
 }
 
-void Gflasso::set_lambda(double lambda){
+void Gflasso::set_lambda(float lambda){
     this->lambda_flasso = lambda;
 }
 
-void Gflasso::set_gamma(double gamma){
+void Gflasso::set_gamma(float gamma){
     this->gamma_flasso = gamma;
 }
 
-double Gflasso::get_lambda(){
+float Gflasso::get_lambda(){
     return (this->lambda_flasso);
 }
 
-double Gflasso::get_gamma(){
+float Gflasso::get_gamma(){
     return (this->gamma_flasso);
 }
 
@@ -88,23 +88,23 @@ int Gflasso::get_flasso_type() {
     return flasso_type;
 }
 
-void Gflasso::set_mau(double mau){
+void Gflasso::set_mau(float mau){
      this->mau = mau;
 }
 
-double Gflasso::get_mau() {
+float Gflasso::get_mau() {
     return mau;
 }
 
-MatrixXd Gflasso::get_X(){
+MatrixXf Gflasso::get_X(){
     return X;
 }
 
-MatrixXd Gflasso::get_Y(){
+MatrixXf Gflasso::get_Y(){
     return y;
 };
 
-MatrixXd Gflasso::get_beta() {
+MatrixXf Gflasso::get_beta() {
     return beta;
 }
 
@@ -122,7 +122,7 @@ void Gflasso::assertReadyToRun() {
 //    std::cout << " Error : No Training Parameters are provided. Cannot perform GFLasso regression !" << std::endl;
 //}
 
-void Gflasso::setXY(MatrixXd X,MatrixXd Y){
+void Gflasso::setXY(MatrixXf X,MatrixXf Y){
 //    std::cout << "Training set X and Y is provided !" << std::endl;
     this->X = X;
     this->y = Y;
@@ -131,7 +131,7 @@ void Gflasso::setXY(MatrixXd X,MatrixXd Y){
     col = y.cols();
 
     // Initialize beta to zero values
-    this->beta = MatrixXd::Random(row,col);
+    this->beta = MatrixXf::Random(row,col);
     this->beta.setZero();
 //    std::cout << "Initializing the beta matrix. Dimen : rows " << this->beta.rows() << " col " << this->beta.cols() <<
 //            std::endl;
@@ -139,14 +139,14 @@ void Gflasso::setXY(MatrixXd X,MatrixXd Y){
 }
 
 // Training data provided along with initial beta estimation
-//void Gflasso::train(MatrixXd X,MatrixXd Y,MatrixXd Beta){
+//void Gflasso::train(MatrixXf X,MatrixXf Y,MatrixXf Beta){
 //    this->X = X;
 //    this->y = Y;
 //    this->beta = Beta;
 //}
 //
 //// Everything is provided i.e. Training data,traits corr. and regularization params
-//void Gflasso::train(MatrixXd X,MatrixXd Y,MatrixXd corr_coeff,double lamdba,double gamma){
+//void Gflasso::train(MatrixXf X,MatrixXf Y,MatrixXf corr_coeff,double lamdba,double gamma){
 //    this->X = X;
 //    this->y = Y;
 //    this->corr_coff = corr_coff;
@@ -155,10 +155,10 @@ void Gflasso::setXY(MatrixXd X,MatrixXd Y){
 //}
 
 // Helper functions to calculate the Cost function
-double Gflasso::gflasso_fusion_penalty(){
+float Gflasso::gflasso_fusion_penalty(){
 
     int num_rows = corr_coff.rows(),num_cols = corr_coff.cols(),sign=1,mul_factor = 1;
-    double total_sum = 0.0;
+    float total_sum = 0.0;
 
     // Go through each edge of the corr_coff matrix(graph)
     for(int start_node=0;start_node<num_rows;start_node++) {
@@ -186,6 +186,7 @@ double Gflasso::gflasso_fusion_penalty(){
 }
 
 // Cost function of GFlasso
+
 double Gflasso::cost(){
     if (logisticFlag){
         return (
@@ -201,6 +202,7 @@ double Gflasso::cost(){
                 gamma_flasso*(gflasso_fusion_penalty())
         );
     }
+
 }
 
 // Support for Smoothing Proximal Gradient Method
@@ -239,7 +241,7 @@ int Gflasso::get_num_edges(){
 void Gflasso::update_edge_vertex_matrix(){
 
     // Initialize the matrix size based on the input parameters
-    this->edge_vertex_matrix = MatrixXd::Random(get_num_edges(),beta.rows());
+    this->edge_vertex_matrix = MatrixXf::Random(get_num_edges(),beta.rows());
     edge_vertex_matrix.setZero();
 
     // For each edge, just fill only two values i.e the column corresponding to edge
@@ -277,7 +279,7 @@ void Gflasso::update_alpha_matrix(){
 
      // Alpha Matrix is S(CB/mau), where C is a edge_vertex matrix and B is the beta matrix
      // Mau is the smoothing parameter
-    alpha_matrix = MatrixXd::Random(get_num_edges(),beta.cols());
+    alpha_matrix = MatrixXf::Random(get_num_edges(),beta.cols());
     alpha_matrix.setZero();
 
     alpha_matrix = edge_vertex_matrix*beta;
@@ -305,7 +307,7 @@ void Gflasso::update_alpha_matrix(){
  * M is the number of features in the input variable
  * J is the number of features on the output variable.
  */
-MatrixXd Gflasso::gradient(){
+MatrixXf Gflasso::gradient(){
 
     /* First calculate the Edge vertex and Alpha Matrix */
     update_edge_vertex_matrix();
@@ -324,9 +326,9 @@ float Gflasso::getL() {
     return ((X.transpose()*X).eigenvalues()).real().maxCoeff() + edge_vertex_matrix.squaredNorm()/mau;
 }
 
-MatrixXd Gflasso::proximal_operator(MatrixXd in, float l) {  // todo this needs some extra attention later.
-    MatrixXd sign = ((in.array()>0).matrix()).cast<double>();//sign
-    sign += -1.0*((in.array()<0).matrix()).cast<double>();
+MatrixXf Gflasso::proximal_operator(MatrixXf in, float l) {  // todo this needs some extra attention later.
+    MatrixXf sign = ((in.array()>0).matrix()).cast<float>();//sign
+    sign += -1.0*((in.array()<0).matrix()).cast<float>();
     in = ((in.array().abs()-l*lambda_flasso/this->getL()).max(0)).matrix();//proximal
     return (in.array()*sign.array()).matrix();//proximal multipled back with sign
 }
@@ -337,6 +339,6 @@ void Gflasso::initBeta() {
     col = y.cols();
 
     // Initialize beta to zero values
-    this->beta = MatrixXd::Random(row,col);
+    this->beta = MatrixXf::Random(row,col);
     this->beta.setZero();
 }

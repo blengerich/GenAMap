@@ -25,49 +25,49 @@ ICLasso::ICLasso() {
     gamma = 1;
 };
 
-void ICLasso::set_X(MatrixXd new_X){
+void ICLasso::set_X(MatrixXf new_X){
     X = new_X;
 };
 
-void ICLasso::set_Y(MatrixXd new_Y){
+void ICLasso::set_Y(MatrixXf new_Y){
     Y = new_Y;
 };
 
-void ICLasso::set_XY(MatrixXd new_X, MatrixXd new_Y){
+void ICLasso::set_XY(MatrixXf new_X, MatrixXf new_Y){
     X = new_X;
     Y = new_Y;
     //initialize Beta here
-    Beta = MatrixXd::Random(X.cols(),Y.rows());
+    Beta = MatrixXf::Random(X.cols(),Y.rows());
 };
 
-void ICLasso::set_lambda1(double new_l){
+void ICLasso::set_lambda1(float new_l){
     lambda1 = new_l;
 };
 
-void ICLasso::set_lambda2(double new_l){
+void ICLasso::set_lambda2(float new_l){
     lambda2 = new_l;
 };
 
-void ICLasso::set_gamma(double new_g){
+void ICLasso::set_gamma(float new_g){
     gamma = new_g;
 };
 
-void ICLasso::set_theta(MatrixXd new_t){
+void ICLasso::set_theta(MatrixXf new_t){
     Theta = new_t;
 };
 
 /* helpers for cost */
-double square(double a){
+float square(float a){
     return a*a;
 };
 
-MatrixXd cov(MatrixXd X){
-  MatrixXd centered = X.rowwise() - X.colwise().mean();
-  MatrixXd result = (centered.adjoint() * centered) / double(X.rows() - 1);
+MatrixXf cov(MatrixXf X){
+  MatrixXf centered = X.rowwise() - X.colwise().mean();
+  MatrixXf result = (centered.adjoint() * centered) / float(X.rows() - 1);
   return result;
 };
 
-double sign(double x){
+float sign(float x){
     if (x > 0) return 1;
     if (x < 0) return -1;
     return 0;
@@ -75,16 +75,16 @@ double sign(double x){
 
 /* end helpers for cost */
 
-double ICLasso::cost() {
+float ICLasso::cost() {
     int n = X.cols();
-    MatrixXd YXBeta = Y-X*Beta;
-    MatrixXd squared = YXBeta.unaryExpr(std::ptr_fun(square));
-    double loss1 = squared.sum()/n;
-    double loss2 = (cov(Y)*Theta).trace() - log(Theta.determinant());
-    double pen1 = Beta.cwiseAbs().sum();
-    double pen2 = Theta.cwiseAbs().sum();
-    double pen3 = 0;
-    double incr;
+    MatrixXf YXBeta = Y-X*Beta;
+    MatrixXf squared = YXBeta.unaryExpr(std::ptr_fun(square));
+    float loss1 = squared.sum()/n;
+    float loss2 = (cov(Y)*Theta).trace() - log(Theta.determinant());
+    float pen1 = Beta.cwiseAbs().sum();
+    float pen2 = Theta.cwiseAbs().sum();
+    float pen3 = 0;
+    float incr;
     int size_T = Theta.rows();
     for (int i = 0; i < size_T; i++){
         for (int j = i+1; j < size_T; j++){
@@ -96,12 +96,12 @@ double ICLasso::cost() {
 };
 
 /* Helpers for optimize_theta */
-double cost_theta(MatrixXd S, MatrixXd Beta, MatrixXd Theta, double lambda, double gamma) {
-    double loss = (S*Theta).trace()-log(Theta.determinant());
-    double pen2 = Theta.cwiseAbs().sum();
-    double pen3 = 0;
+float cost_theta(MatrixXf S, MatrixXf Beta, MatrixXf Theta, float lambda, float gamma) {
+    float loss = (S*Theta).trace()-log(Theta.determinant());
+    float pen2 = Theta.cwiseAbs().sum();
+    float pen3 = 0;
     int size_T = Theta.rows();
-    double incr;
+    float incr;
     for (int i = 0; i < size_T; i++){
         for (int j = i+1; j < size_T; j++){
             incr = ((Beta.col(i) + sign(Theta(i,j))*Beta.col(j)).cwiseAbs().sum());
@@ -112,25 +112,25 @@ double cost_theta(MatrixXd S, MatrixXd Beta, MatrixXd Theta, double lambda, doub
 };
 
 
-MatrixXd remove_row(MatrixXd X, int j){
+MatrixXf remove_row(MatrixXf X, int j){
     int numRows = X.rows()-1;
     int numCols = X.cols();
-    MatrixXd result = MatrixXd::Zero(numRows, numCols);
+    MatrixXf result = MatrixXf::Zero(numRows, numCols);
     result.block(0, 0, j, numCols) = X.block(0, 0, j, numCols);
     result.block(j, 0, numRows-j, numCols) = X.block(j+1, 0, numRows-j, numCols);
     return result;
 };
 
-MatrixXd remove_col(MatrixXd X, int j){
+MatrixXf remove_col(MatrixXf X, int j){
     int numRows = X.rows();
     int numCols = X.cols() - 1;
-    MatrixXd result = MatrixXd::Zero(numRows, numCols);
+    MatrixXf result = MatrixXf::Zero(numRows, numCols);
     result.block(0, 0, numRows, j) = X.block(0, 0, numRows, j);
     result.block(0, j, numRows, numCols - j) = X.block(0, j+1, numRows, numCols-j);
     return result;
 };
 
-void change_theta(MatrixXd C, MatrixXd Theta, int j){
+void change_theta(MatrixXf C, MatrixXf Theta, int j){
     for (int i = 0; i < Theta.cols(); i++){
         if (i != j){
             Theta(i, j) = Theta(j, j) * C(i, j);
@@ -138,7 +138,7 @@ void change_theta(MatrixXd C, MatrixXd Theta, int j){
     }
 };
 
-void symmetrize(MatrixXd Theta, int j){
+void symmetrize(MatrixXf Theta, int j){
     for (int i = 0; i < Theta.cols(); i++){
         if (i != j){
             Theta(j, i) = Theta(i, j);
@@ -146,7 +146,7 @@ void symmetrize(MatrixXd Theta, int j){
     }
 };
 
-MatrixXd bound_below(MatrixXd X){
+MatrixXf bound_below(MatrixXf X){
     for (int i = 0; i < X.rows(); i++){
         for (int j = 0; j < X.cols(); j++){
             if (X(i, j) < 0){
@@ -157,15 +157,15 @@ MatrixXd bound_below(MatrixXd X){
     return X;
 }
 
-MatrixXd update_beta_mex(MatrixXd X, MatrixXd S, MatrixXd a, 
-                     MatrixXd b, double lambda, double gamma, MatrixXd Beta){
+MatrixXf update_beta_mex(MatrixXf X, MatrixXf S, MatrixXf a,
+                     MatrixXf b, float lambda, float gamma, MatrixXf Beta){
     int p = X.cols();
-    MatrixXd beta_new = MatrixXd::Zero(p, 1);
+    MatrixXf beta_new = MatrixXf::Zero(p, 1);
     int k, j;
     for (k = 0; k < p; k++) {
         beta_new(k,0) = Beta(k, 0);
     }
-    double beta_k, upper_k, lower_k;
+    float beta_k, upper_k, lower_k;
     for (k = 0; k < p; k++) {
         beta_k = S(k, 0);
         for (j = 0; j < p; j++) {
@@ -186,12 +186,12 @@ MatrixXd update_beta_mex(MatrixXd X, MatrixXd S, MatrixXd a,
     return beta_new;
 }
 
-MatrixXd optimize_block_coord_sigma(MatrixXd X,
-       MatrixXd S, int maxiter, MatrixXd a, MatrixXd b, double lambda, 
-       double gamma){
+MatrixXf optimize_block_coord_sigma(MatrixXf X,
+       MatrixXf S, int maxiter, MatrixXf a, MatrixXf b, float lambda,
+       float gamma){
     int p = X.cols();
-    MatrixXd Beta = MatrixXd::Zero(p, 1);
-    MatrixXd oldBeta;
+    MatrixXf Beta = MatrixXf::Zero(p, 1);
+    MatrixXf oldBeta;
     for (int i = 0; i < maxiter; i++){
         oldBeta = Beta;
         Beta = update_beta_mex(X,S,a,b,lambda,gamma,Beta);
@@ -200,11 +200,11 @@ MatrixXd optimize_block_coord_sigma(MatrixXd X,
     return -X*(bound_below(Beta)-bound_below(-Beta));
 }
 
-MatrixXd optimize_block_coord_beta(MatrixXd X, 
-    MatrixXd S, int maxiter, MatrixXd a, MatrixXd b, double lambda, double gamma){
+MatrixXf optimize_block_coord_beta(MatrixXf X,
+    MatrixXf S, int maxiter, MatrixXf a, MatrixXf b, float lambda, float gamma){
     int p = X.cols();
-    MatrixXd Beta = MatrixXd::Zero(p, 1);
-    MatrixXd oldBeta;
+    MatrixXf Beta = MatrixXf::Zero(p, 1);
+    MatrixXf oldBeta;
     for (int i = 0; i < maxiter; i++){
         oldBeta = Beta;
         Beta = update_beta_mex(X,S,a,b,lambda,gamma,Beta);
@@ -213,11 +213,11 @@ MatrixXd optimize_block_coord_beta(MatrixXd X,
     return Beta;
 }
 
-MatrixXd fused_prox_vector(MatrixXd beta, MatrixXd u, MatrixXd l){
+MatrixXf fused_prox_vector(MatrixXf beta, MatrixXf u, MatrixXf l){
     int len = beta.rows();
-    MatrixXd w = MatrixXd::Zero(len, 1);
+    MatrixXf w = MatrixXf::Zero(len, 1);
     for (int i = 0; i < len; i++){
-        double beta_c = beta(i, 0);
+        float beta_c = beta(i, 0);
         if (beta_c > u(i, 0)){
             beta(i, 0) = beta_c - u(i, 0);
         } else if (beta_c < l(i, 0)){
@@ -229,7 +229,7 @@ MatrixXd fused_prox_vector(MatrixXd beta, MatrixXd u, MatrixXd l){
 }
 
 
-double fused_prox_scalar(double beta, double u, double l){
+float fused_prox_scalar(float beta, float u, float l){
     if (beta > u){
         return beta - u;
     } else if (beta < l){
@@ -240,7 +240,7 @@ double fused_prox_scalar(double beta, double u, double l){
 }
 
 
-MatrixXd cwiseAdd(MatrixXd X, double p){
+MatrixXf cwiseAdd(MatrixXf X, float p){
     for (int i = 0; i < X.rows(); i++){
         for (int j = 0; j < X.cols(); j++){
             X(i, j) = X(i, j) + p;
@@ -251,22 +251,22 @@ MatrixXd cwiseAdd(MatrixXd X, double p){
 
 /* type issues with Q and h_beta */
 
-MatrixXd optimize_block_prox(MatrixXd X, 
-     MatrixXd s, int maxiter, MatrixXd a, MatrixXd b, double lambda, double gamma){
+MatrixXf optimize_block_prox(MatrixXf X,
+     MatrixXf s, int maxiter, MatrixXf a, MatrixXf b, float lambda, float gamma){
 
     //get dimension
     int n = X.rows();
 
     //initialize variables
-    MatrixXd Beta = MatrixXd::Zero(n, 1);
-    MatrixXd w = Beta;
-    double theta = 1;
-    double L = 10;
-    MatrixXd objVals = MatrixXd::Zero(maxiter, 1);
+    MatrixXf Beta = MatrixXf::Zero(n, 1);
+    MatrixXf w = Beta;
+    float theta = 1;
+    float L = 10;
+    MatrixXf objVals = MatrixXf::Zero(maxiter, 1);
 
-    MatrixXd h_w, grad, z, beta_new, upper, lower;
-    double h_beta, Q;
-    double theta_new;
+    MatrixXf h_w, grad, z, beta_new, upper, lower;
+    float h_beta, Q;
+    float theta_new;
 
     //optimize Beta
     for (int iter = 0; iter < maxiter; iter++){
@@ -305,7 +305,7 @@ MatrixXd optimize_block_prox(MatrixXd X,
     }
 
     //calculate sigma
-    MatrixXd sigma = -X*(bound_below(beta_new)-bound_below(-beta_new));
+    MatrixXf sigma = -X*(bound_below(beta_new)-bound_below(-beta_new));
     return sigma;
 
 
@@ -321,9 +321,9 @@ void ICLasso::optimize_theta(){
     int q = Y.rows();
 
     //precompute sample covariance & penalty matrices
-    MatrixXd S = cov(Y);
-    MatrixXd A = MatrixXd::Zero(q, q);
-    MatrixXd B = MatrixXd::Zero(q, q);
+    MatrixXf S = cov(Y);
+    MatrixXf A = MatrixXf::Zero(q, q);
+    MatrixXf B = MatrixXf::Zero(q, q);
     for (int j = 0; j < q; j++){
         for (int k = 0; k < q; k++){
             A(j, k) = (Beta.col(j) + Beta.col(k)).cwiseAbs().sum()/2;
@@ -333,27 +333,27 @@ void ICLasso::optimize_theta(){
         B(j, j) = 0;
     }
     int maxiter = 10000;
-    double tol = 1e-4;
-    MatrixXd C, s, a, b;
+    float tol = 1e-4;
+    MatrixXf C, s, a, b;
 
     //store objective values and run times
-    MatrixXd objVals = MatrixXd::Zero(maxiter, 1);
+    MatrixXf objVals = MatrixXf::Zero(maxiter, 1);
 
     //initialize values;
-    MatrixXd Sigma = S + lambda * MatrixXd::Identity(q, q);
+    MatrixXf Sigma = S + lambda * MatrixXf::Identity(q, q);
 
     int i = 0;
     //run optimization to obtain estimate of covariance
     for (int iter = 0; iter < maxiter; iter++){
         //iterate through each block
-        C = MatrixXd::Zero(q, q);
+        C = MatrixXf::Zero(q, q);
         for (int j = 0; j < q; j++){
             X = remove_col(remove_row(Sigma, j), j);
             s = remove_row(S, j);
             a = remove_row(A, j);
             b = remove_row(B, j);
 
-            MatrixXd sigma_j, beta;
+            MatrixXf sigma_j, beta;
             sigma_j = optimize_block_coord_sigma(X, s, maxiter, a, b, lambda, gamma);
             beta = optimize_block_coord_beta(X, s, maxiter, a, b, lambda, gamma);
             for (i = 0; i < S.rows(); i++){
@@ -380,10 +380,10 @@ void ICLasso::optimize_theta(){
 
 
     //calculate inverse covariance
-    Theta = MatrixXd::Zero(q, q);
+    Theta = MatrixXf::Zero(q, q);
     for (int j = 0; j < q; j++){
-        MatrixXd removed_Sigma = remove_row(Sigma, j);
-        MatrixXd removed_C = remove_row(C, j);
+        MatrixXf removed_Sigma = remove_row(Sigma, j);
+        MatrixXf removed_C = remove_row(C, j);
         Theta(j, j) = 1/(Sigma(j, j) + 
                (removed_Sigma.col(j).transpose() * removed_C.col(j))(0, 0));
         change_theta(C, Theta, j);

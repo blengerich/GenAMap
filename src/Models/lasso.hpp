@@ -13,30 +13,30 @@ using namespace std;
 
 class Lasso {
 private:
-    MatrixXd X;
-    MatrixXd beta;
-    VectorXd y;
+    MatrixXf X;
+    MatrixXf beta;
+    VectorXf y;
     float lambda;
     float learningRate;
     float progress;
 public:
-    void setX(MatrixXd);
-    void setY(VectorXd);
+    void setX(MatrixXf);
+    void setY(VectorXf);
     void setLambda(float);
     void setLearningRage(float);
 
-    MatrixXd getX(void);
-    MatrixXd getBeta(void);
-    VectorXd getY(void);
+    MatrixXf getX(void);
+    MatrixXf getBeta(void);
+    VectorXf getY(void);
     float getLambda(void);
     float getLearningRate(void);
 
     virtual void assertReadyToRun();
     void train();
-    void train(MatrixXd, VectorXd, float, float, float);
+    void train(MatrixXf, VectorXf, float, float, float);
 
-    VectorXd predict();
-    VectorXd predict(MatrixXd);
+    VectorXf predict();
+    VectorXf predict(MatrixXf);
 
     Lasso();
 };

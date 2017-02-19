@@ -9,12 +9,12 @@
 #include <queue>
 
 
-void FileIO::writeMatrixFile(string fileName, MatrixXd X) {
+void FileIO::writeMatrixFile(string fileName, MatrixXf X) {
     ofstream file (fileName);
     file << X <<endl;
 }
 
-void FileIO::writeVectorFile(string fileName, VectorXd Y) {
+void FileIO::writeVectorFile(string fileName, VectorXf Y) {
     ofstream file (fileName);
     file << Y <<endl;
 }
@@ -41,15 +41,15 @@ string FileIO::checkFileFormat(string fileName) {
     return r;
 }
 
-MatrixXd FileIO::readMatrixFile(string fileName) {
+MatrixXf FileIO::readMatrixFile(string fileName) {
     string format = checkFileFormat(fileName);
     docInfo doc = countRowCol(fileName, format);
-    MatrixXd X(doc.row, doc.col);
+    MatrixXf X(doc.row, doc.col);
     ifstream infile;
     infile.open(fileName);
     string line;
     unsigned long rowIndex = 0;
-    VectorXd row;
+    VectorXf row;
     while (getline(infile, line)){
         row = decodeLine(line, format, doc.col);
         X.row(rowIndex++) = row;
@@ -82,7 +82,7 @@ unsigned long FileIO::countColumn(string line, string format) {
     }
     else if (format.compare("TSV") == 0) {
         unsigned long c = 0;
-        double t;
+        float t;
         stringstream stream(line);
         while (!stream.eof()){
             stream >> t;
@@ -96,8 +96,8 @@ unsigned long FileIO::countColumn(string line, string format) {
     }
 }
 
-VectorXd FileIO::decodeLine(string line, string format, unsigned long col) {
-    VectorXd row(col);
+VectorXf FileIO::decodeLine(string line, string format, unsigned long col) {
+    VectorXf row(col);
     if (format.compare("CSV") == 0) {
         vector<string> values = split(line, ",");
         for (int i=0; i<values.size();i++){
@@ -106,7 +106,7 @@ VectorXd FileIO::decodeLine(string line, string format, unsigned long col) {
         return row;
     }
     else if (format.compare("TSV") == 0) {
-        double t;
+        float t;
         int c = 0;
         stringstream stream(line);
         while (!stream.eof()){
@@ -117,7 +117,7 @@ VectorXd FileIO::decodeLine(string line, string format, unsigned long col) {
     }
     else{
         formatError();
-        return VectorXd::Random(col);
+        return VectorXf::Random(col);
     }
 }
 

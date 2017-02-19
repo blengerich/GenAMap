@@ -42,7 +42,7 @@ struct result_pack{
 
 struct progress_pack{
     int job_id;
-    double progress;
+    float progress;
 };
 
 struct user_info{

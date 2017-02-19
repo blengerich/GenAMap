@@ -18,41 +18,41 @@
 using namespace Eigen;
 using namespace std;
 
-void Model::setX(const MatrixXd& m) { X = m; }
+void Model::setX(const MatrixXf& m) { X = m; }
 
-void Model::setY(const MatrixXd& n) { y = n; };
+void Model::setY(const MatrixXf& n) { y = n; };
 
-void Model::setAttributeMatrix(const string& str, MatrixXd* Z) {
+void Model::setAttributeMatrix(const string& str, MatrixXf* Z) {
     //throw runtime_error("This type of model has no attribute matrix with name " + str);
 }
 
 void Model::initBeta(void) {
     long c = X.cols();
-    beta = VectorXd::Random(c);
+    beta = VectorXf::Random(c);
 }
 
-void Model::initBeta(MatrixXd m) {
+void Model::initBeta(MatrixXf m) {
     long c = m.cols();
-    beta = VectorXd::Random(c);
+    beta = VectorXf::Random(c);
 }
 
-void Model::updateBeta(MatrixXd b) { beta = b; }
+void Model::updateBeta(MatrixXf b) { beta = b; }
 
-MatrixXd Model::getX(void) { return X; };
+MatrixXf Model::getX(void) { return X; };
 
-MatrixXd Model::getBeta(void) { return beta; };
+MatrixXf Model::getBeta(void) { return beta; };
 
-MatrixXd Model::getY(void) { return y; };
+MatrixXf Model::getY(void) { return y; };
 
-MatrixXd Model::predict() { return X * beta; }
+MatrixXf Model::predict() { return X * beta; }
 
-MatrixXd Model::predict(MatrixXd X) { return X * beta; };
+MatrixXf Model::predict(MatrixXf X) { return X * beta; };
 
-double Model::cost() {return 0.5*(y-X*beta).squaredNorm()/y.rows();};
+float Model::cost() {return 0.5*(y-X*beta).squaredNorm()/y.rows();};
 
 Model::Model() { };
 
-Model::Model(MatrixXd X, VectorXd y) {
+Model::Model(MatrixXf X, VectorXf y) {
     setX(X);
     setY(y);
     initBeta();
@@ -60,23 +60,23 @@ Model::Model(MatrixXd X, VectorXd y) {
 
 Model::Model(const unordered_map<string, string>& opts) {}
 
-MatrixXd Model::derivative() {
-    return VectorXd::Random(1);
+MatrixXf Model::derivative() {
+    return VectorXf::Random(1);
 }
 
-MatrixXd Model::proximal_derivative() {
-    return VectorXd::Random(1);
+MatrixXf Model::proximal_derivative() {
+    return VectorXf::Random(1);
 }
 
-MatrixXd Model::proximal_operator(MatrixXd xd, float d) {
-    return VectorXd::Random(1);
+MatrixXf Model::proximal_operator(MatrixXf xd, float d) {
+    return VectorXf::Random(1);
 }
 
 modelResult Model::getClusteringResult() {
-    MatrixXd B = this->getBeta();
+    MatrixXf B = this->getBeta();
     Tree * t1 = Math::getInstance().hierarchicalClustering(B);
     Tree * t2 = Math::getInstance().hierarchicalClustering(B.transpose());
-    MatrixXd tmp = MatrixXd::Zero(B.rows(), B.cols());
+    MatrixXf tmp = MatrixXf::Zero(B.rows(), B.cols());
     queue<treeNode*> nodes;
     long count = -1;
     nodes.push(t1->getRoot());

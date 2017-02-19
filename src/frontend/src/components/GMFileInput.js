@@ -45,6 +45,8 @@ class GMFileInput extends Component {
           hintText = {this.props.hintText}
           value={this.props.fileLabel}
           disabled={true}
+          floatingLabelFixed={true}
+          floatingLabelText="Recommended cell size: 5000"
         />
       </div>
     )

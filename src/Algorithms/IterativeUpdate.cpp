@@ -16,7 +16,7 @@ IterativeUpdate::IterativeUpdate(const unordered_map<string, string>& options) {
     }
 }
 
-void IterativeUpdate::setTolerance(double t) {tol = t;}
+void IterativeUpdate::setTolerance(float t) {tol = t;}
 
 /*void IterativeUpdate::setUpRun() {
     mtx.lock();
@@ -40,8 +40,8 @@ void IterativeUpdate::run(Model* model) {
 }
 
 void IterativeUpdate::run(TreeLasso* tl) {
-    double i = 0;
-    MatrixXd bestBeta = tl->getBeta();
+    float i = 0;
+    MatrixXf bestBeta = tl->getBeta();
     tl->initIterativeUpdate();
     while (!shouldStop && i < maxIteration){
         progress = i/maxIteration;
@@ -64,5 +64,5 @@ void IterativeUpdate::run(TreeLasso* tl) {
 
 IterativeUpdate::IterativeUpdate() {
     tol = 1e-5;
-    prev_residue = numeric_limits<double>::max();
+    prev_residue = numeric_limits<float>::max();
 }

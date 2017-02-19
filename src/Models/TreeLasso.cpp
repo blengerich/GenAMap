@@ -13,7 +13,7 @@ using namespace std;
 using namespace Eigen;
 
 
-void TreeLasso::setX(MatrixXd x) {
+void TreeLasso::setX(MatrixXf x) {
     try {
         throw 20;
     }
@@ -22,7 +22,7 @@ void TreeLasso::setX(MatrixXd x) {
     }
 }
 
-void TreeLasso::setY(MatrixXd x) {
+void TreeLasso::setY(MatrixXf x) {
     try {
         throw 20;
     }
@@ -36,7 +36,7 @@ void TreeLasso::setTree(Tree *tree) {
     setWeight();
 }
 
-void TreeLasso::setXY(MatrixXd m, MatrixXd n) {
+void TreeLasso::setXY(MatrixXf m, MatrixXf n) {
     X = m;
     y = n;
     initBeta();
@@ -55,19 +55,19 @@ void TreeLasso::initIterativeUpdate(){
     XX = X.transpose()*X;
 }
 
-void TreeLasso::setLambda(double d){
+void TreeLasso::setLambda(float d){
     lambda = d;
 }
 
 void TreeLasso::initBeta() {
     long c = X.cols();
     long d = y.cols();
-    beta = MatrixXd::Zero(c, d);
+    beta = MatrixXf::Zero(c, d);
 }
 
 void TreeLasso::hierarchicalClustering() {
     long n = y.cols();
-    MatrixXd weights = MatrixXd::Zero(n, n);
+    MatrixXf weights = MatrixXf::Zero(n, n);
     T = new Tree();
     unordered_map<long, treeNode *> maps;
     for (long i = 0; i < n; i++) {
@@ -94,14 +94,14 @@ void TreeLasso::hierarchicalClustering() {
     setWeight();
 }
 
-void TreeLasso::removeColRow(MatrixXd *mptr, minXY xy) {
+void TreeLasso::removeColRow(MatrixXf *mptr, minXY xy) {
     removeRow(mptr, xy.y);
     removeRow(mptr, xy.x);
     removeCol(mptr, xy.y);
     removeCol(mptr, xy.x);
 }
 
-void TreeLasso::removeRow(MatrixXd *mptr, long x) {
+void TreeLasso::removeRow(MatrixXf *mptr, long x) {
     long numRows = mptr->rows() - 1;
     long numCols = mptr->cols();
 
@@ -111,7 +111,7 @@ void TreeLasso::removeRow(MatrixXd *mptr, long x) {
     mptr->conservativeResize(numRows, numCols);
 }
 
-void TreeLasso::removeCol(MatrixXd *mptr, long y) {
+void TreeLasso::removeCol(MatrixXf *mptr, long y) {
     long numRows = mptr->rows();
     long numCols = mptr->cols() - 1;
 
@@ -142,10 +142,10 @@ void TreeLasso::updateMap(unordered_map<long, treeNode *> *mptr, minXY xy) {
     }
 }
 
-MatrixXd TreeLasso::appendColRow(MatrixXd mat, minXY xy) {
+MatrixXf TreeLasso::appendColRow(MatrixXf mat, minXY xy) {
     long r = mat.rows();
-    MatrixXd result = MatrixXd::Zero(r + 1, r + 1);
-    VectorXd col = VectorXd::Zero(r);
+    MatrixXf result = MatrixXf::Zero(r + 1, r + 1);
+    VectorXf col = VectorXf::Zero(r);
     if (clusteringMethod.compare("average") == 0) {
         col = (mat.col(xy.x) + mat.col(xy.y)) / 2;
     }
@@ -161,12 +161,12 @@ MatrixXd TreeLasso::appendColRow(MatrixXd mat, minXY xy) {
     return result;
 }
 
-minXY TreeLasso::searchMin(MatrixXd m) {
+minXY TreeLasso::searchMin(MatrixXf m) {
     long r = m.rows();
     minXY xy;
     xy.x = 0;
     xy.y = 0;
-    double tmpV = numeric_limits<double>::max();
+    float tmpV = numeric_limits<float>::max();
     for (long i = 0; i < r; i++) {
         for (long j = i + 1; j < r; j++) {
             if (m(i, j) < tmpV) {
@@ -183,7 +183,7 @@ void TreeLasso::setClusteringMethod(string str) {
     clusteringMethod = str;
 }
 
-void TreeLasso::setThreshold(double thred) {
+void TreeLasso::setThreshold(float thred) {
     threshold = thred;
 }
 
@@ -269,14 +269,14 @@ double TreeLasso::cost() {
 //    return r;
 //}
 
-double TreeLasso::penalty_cost() {
+float TreeLasso::penalty_cost() {
     initGradientUpdate();
-    MatrixXd A = C*beta.transpose();
+    MatrixXf A = C*beta.transpose();
     long c = A.cols();
-    double s = 0;
+    float s = 0;
     long v = gIdx.rows();
     for (long i = 0;i<v;i++){
-        VectorXd tmp = VectorXd::Zero(c);
+        VectorXf tmp = VectorXf::Zero(c);
         for (long j=gIdx(i,0)-1;j<gIdx(i,1);j++){
             tmp += A.row(j).array().square().matrix();
         }
@@ -286,24 +286,24 @@ double TreeLasso::penalty_cost() {
     return s;
 }
 
-double TreeLasso::l1NormIndex(vector<long> traits) {
-    double r = 0;
+float TreeLasso::l1NormIndex(vector<long> traits) {
+    float r = 0;
     for (unsigned long i=0; i<traits.size(); i++){
         r += beta.col(traits[i]).lpNorm<1>();
     }
     return r;
 }
 
-double TreeLasso::l2NormIndex(vector<long> traits) {
-    double r = 0;
+float TreeLasso::l2NormIndex(vector<long> traits) {
+    float r = 0;
     for (unsigned long i=0;i<traits.size();i++){
         r += beta.col(traits[i]).norm();
     }
     return r;
 }
 
-double TreeLasso::l2NormIndexIndex(long j, vector<long> traits) {
-    double r = 0;
+float TreeLasso::l2NormIndexIndex(long j, vector<long> traits) {
+    float r = 0;
     for (unsigned long i=0;i<traits.size();i++){
         r += beta.row(j).col(traits[i]).norm();
     }
@@ -389,8 +389,8 @@ long TreeLasso::countNoneZeroNodes() {
 void TreeLasso::initMatrixD() {
     long c = X.cols();
     long d = countNodes();
-    mD = MatrixXd::Zero(c, d);
-    mD_ = MatrixXd::Zero(c, d);
+    mD = MatrixXf::Zero(c, d);
+    mD_ = MatrixXf::Zero(c, d);
 }
 
 void TreeLasso::updateMD() {
@@ -398,7 +398,7 @@ void TreeLasso::updateMD() {
     unsigned long c = X.cols();
     queue<treeNode*> nodes;
     nodes.push(T->getRoot());
-    double denominator = updateMD_denominator();
+    float denominator = updateMD_denominator();
     while (nodes.size()>0){
         treeNode * n = nodes.front();
         for (unsigned long j=0; j<c; j++){
@@ -417,8 +417,8 @@ void TreeLasso::updateMD() {
     }
 }
 
-double TreeLasso::updateMD_denominator() {
-    double r = 0;
+float TreeLasso::updateMD_denominator() {
+    float r = 0;
     queue<treeNode*> nodes;
     nodes.push(T->getRoot());
     while (nodes.size()>0){
@@ -440,17 +440,17 @@ double TreeLasso::updateMD_denominator() {
 void TreeLasso::updateBeta() {
     unsigned long k = beta.cols();
     unsigned long n = XX.rows();
-    MatrixXd D = MatrixXd::Zero(n, n);
+    MatrixXf D = MatrixXf::Zero(n, n);
     for (unsigned long i=0; i<n; i++){
         D(i,i) = mD_.row(i).sum();
     }
-    MatrixXd xxdx = ((XX+lambda * D).inverse())*X.transpose();
+    MatrixXf xxdx = ((XX+lambda * D).inverse())*X.transpose();
     for (unsigned long j=0; j<k; j++){
         beta.col(j) = xxdx*y.col(j);
     }
 }
 
-void TreeLasso::updateBeta(MatrixXd b) {
+void TreeLasso::updateBeta(MatrixXf b) {
     beta = b;
 }
 
@@ -460,13 +460,13 @@ void TreeLasso::initGradientUpdate() {
         long nodeNum = countNoneZeroNodes();
         long c = T->getRoot()->trait.size();
         long r = nodeNum - c;
-        mT = MatrixXd::Zero(r, c);
-        mTw = MatrixXd::Zero(r, 1);
+        mT = MatrixXf::Zero(r, c);
+        mTw = MatrixXf::Zero(r, 1);
         gIdx = MatrixXi::Zero(r, 3);
         gIdx(0,0) = 1;
         long index = r-1;
         queue<treeNode*> nodes;
-        stack<double> Cweights;
+        stack<float> Cweights;
         stack<long> Cindex;
         nodes.push(T->getRoot());
         while (nodes.size()>0){
@@ -488,7 +488,7 @@ void TreeLasso::initGradientUpdate() {
             nodes.pop();
         }
 
-        C = MatrixXd::Zero(Cweights.size(), c);
+        C = MatrixXf::Zero(Cweights.size(), c);
         long tmpIndex = 0;
         while (Cindex.size()!=0){
             C(tmpIndex, Cindex.top()) = Cweights.top();
@@ -505,39 +505,39 @@ void TreeLasso::initGradientUpdate() {
             }
         }
 
-        VectorXd tau = VectorXd::Zero(c);
+        VectorXf tau = VectorXf::Zero(c);
         for (long i=0; i<r;i++){
             tau += mT.row(i)*(mTw(i,0)*mTw(i,0));
         }
 
         tauNorm = tau.maxCoeff();
 
-        double L1 = ((X.transpose()*X).eigenvalues()).real().maxCoeff();
+        float L1 = ((X.transpose()*X).eigenvalues()).real().maxCoeff();
         L = L1 + lambda*lambda*tauNorm/mu;
 
         XY = X.transpose()*y;
     }
 }
 
-MatrixXd TreeLasso::proximal_operator(MatrixXd in, float l) {
-    MatrixXd sign = ((in.array()>0).matrix()).cast<double>();//sign
-    sign += -1.0*((in.array()<0).matrix()).cast<double>();
+MatrixXf TreeLasso::proximal_operator(MatrixXf in, float l) {
+    MatrixXf sign = ((in.array()>0).matrix()).cast<float>();//sign
+    sign += -1.0*((in.array()<0).matrix()).cast<float>();
     in = ((in.array().abs()-l*lambda/L).max(0)).matrix();//proximal
     return (in.array()*sign.array()).matrix();//proximal multipled back with sign
 }
 
-double TreeLasso::getL() {
+float TreeLasso::getL() {
     return L;
 }
 
-MatrixXd TreeLasso::proximal_derivative() {
-    MatrixXd A = C*beta.transpose()/mu;
+MatrixXf TreeLasso::proximal_derivative() {
+    MatrixXf A = C*beta.transpose()/mu;
     long r = A.rows();
     long c = A.cols();
-    MatrixXd R = MatrixXd::Zero(r, c);
+    MatrixXf R = MatrixXf::Zero(r, c);
     long v = gIdx.rows();
     for (long i = 0;i<v;i++){
-        VectorXd tmp = VectorXd::Zero(c);
+        VectorXf tmp = VectorXf::Zero(c);
         for (long j=gIdx(i,0)-1;j<gIdx(i,1);j++){
             tmp += A.row(j).array().square().matrix();
         }
@@ -557,7 +557,7 @@ MatrixXd TreeLasso::proximal_derivative() {
     }
 }
 
-void TreeLasso::setMu(double m) {
+void TreeLasso::setMu(float m) {
     mu = m;
 }
 

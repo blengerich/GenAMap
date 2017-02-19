@@ -12,7 +12,7 @@ HypoTestPlaceHolder::HypoTestPlaceHolder(const unordered_map<string, string>& op
     model = NULL;
 }
 
-double HypoTestPlaceHolder::getProgress() {
+float HypoTestPlaceHolder::getProgress() {
     if (model == NULL){
         return 0;
     }

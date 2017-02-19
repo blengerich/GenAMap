@@ -11,30 +11,30 @@ using namespace Eigen;
 
 class Model {
 protected:
-    SparseMatrix<double>  X;
-    SparseMatrix<double>  beta;
-    SparseMatrix<double>  y;
+    SparseMatrix<float>  X;
+    SparseMatrix<float>  beta;
+    SparseMatrix<float>  y;
 public:
-    void setX(SparseMatrix<double> );
-    void setY(SparseMatrix<double> );
+    void setX(SparseMatrix<float> );
+    void setY(SparseMatrix<float> );
     void initBeta();
-    void initBeta(SparseMatrix<double> );
-    void updateBeta(SparseMatrix<double> );
-    SparseMatrix<double>  getX();
-    SparseMatrix<double>  getBeta();
-    SparseMatrix<double>  getY();
+    void initBeta(SparseMatrix<float> );
+    void updateBeta(SparseMatrix<float> );
+    SparseMatrix<float>  getX();
+    SparseMatrix<float>  getBeta();
+    SparseMatrix<float>  getY();
 
-    SparseMatrix<double>  predict();
-    SparseMatrix<double>  predict(SparseMatrix<double> );
+    SparseMatrix<float>  predict();
+    SparseMatrix<float>  predict(SparseMatrix<float> );
 
-    virtual SparseMatrix<double>  derivative();
-    virtual SparseMatrix<double>  proximal_derivative();
-    virtual SparseMatrix<double>  proximal_operator(SparseMatrix<double> , float);
+    virtual SparseMatrix<float>  derivative();
+    virtual SparseMatrix<float>  proximal_derivative();
+    virtual SparseMatrix<float>  proximal_operator(SparseMatrix<float> , float);
 
-    virtual double cost();
+    virtual float cost();
 
     Model();
-//    Model(SparseMatrix<double> , VectorXd);
+//    Model(SparseMatrix<double> , VectorXf);
 
     virtual ~Model(){};
 };

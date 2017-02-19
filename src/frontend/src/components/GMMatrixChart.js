@@ -356,8 +356,8 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
 	var windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 	var windowHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
-	var leftMargin = 0.1 * windowWidth;
-	var rightMargin = 0.1 * windowWidth;
+	var leftMargin = 0.3 * windowWidth;
+	var rightMargin = 0.3 * windowWidth;
 	var cellWidth = 10;
 	var cellHeight = 10;
 
@@ -727,17 +727,23 @@ var GMMatrixChart = React.createClass({
 	        <img src={loadGIFsrc} style={{"marginTop": "20%", "width": "100px", "height": "100px"}} />
           <p style={{"marginTop":"25px", "fontFamily":"Roboto, sans-serif"}}>Loading Visualization</p>
         </div>
-        <div style={{height: 500, display: "flex", flexDirection: 'column', justifyContent: 'flex-end'}}>
-          <div id="matrixChart" style={{"marginTop": "25px", overflow: 'scroll', maxWidth: 'calc(100vw - 40px)'}}>
+        <div style={{height: 200, display: "flex", flexDirection: 'column', justifyContent: 'flex-end'}}>
+          <div id="matrixChart" style={{"margin": '0px auto', overflow: 'scroll', 
+          maxWidth: 'calc(80vw - 40px)', "borderStyle": 'solid', "padding": '30px 40px 0px 40px'}}>
           </div>
           <div style={{fontFamily: 'Helvetica', fontWeight: 'bold', fontSize: 20, textAlign: 'center', width: '100%'}}>Markers</div>
         </div>
         
-        <div id="matrixBottomPanel">
+        <div id="matrixBottomPanel" style={{
+          maxWidth: 'calc(80vw + 40px)',
+          margin: '50px auto',
+          borderStyle: 'solid',
+          padding: '50px 0px 20px 0px'
+        }}>
           <div style={{
             position: 'relative',
             margin: '30px auto 0 auto',
-            maxWidth: 'calc(100vw - 500px)',
+            maxWidth: 'calc(80vw - 500px)',
             height: '130px',
             overflow: 'scroll',
             border: '1px solid black'

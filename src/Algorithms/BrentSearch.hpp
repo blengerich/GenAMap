@@ -21,51 +21,51 @@ using namespace std;
 class BrentSearch:public Algorithm{
 
 private :
-    double a; // start of the search
-    double b; // End point of the search
-    double c; // Prior value/estimate of least value
-    double m; // Positive tolerance
-    double e; // Positive tolerance error
-    double t;
-    double min_val; // Minimum value of the objective function
-    double min_val_param; // Search parameter at which the value is minimum
-    double delta; // 2*Delta window will be set based on the optimal Grid Search result.
+    float a; // start of the search
+    float b; // End point of the search
+    float c; // Prior value/estimate of least value
+    float m; // Positive tolerance
+    float e; // Positive tolerance error
+    float t;
+    float min_val; // Minimum value of the objective function
+    float min_val_param; // Search parameter at which the value is minimum
+    float delta; // 2*Delta window will be set based on the optimal Grid Search result.
 
-    static constexpr double default_a = 0.0;
-    static constexpr double default_b = 0.0;
-    static constexpr double default_c = 0.0;
-    static constexpr double default_m = 0.0;
-    static constexpr double default_e = 0.0;
-    static constexpr double default_t = 0.0;
-    static constexpr double default_delta = 0.5; // Default window size = 1
+    static constexpr float default_a = 0.0;
+    static constexpr float default_b = 0.0;
+    static constexpr float default_c = 0.0;
+    static constexpr float default_m = 0.0;
+    static constexpr float default_e = 0.0;
+    static constexpr float default_t = 0.0;
+    static constexpr float default_delta = 0.5; // Default window size = 1
 
 public :
     BrentSearch();
     BrentSearch(const unordered_map<string, string>&);
 
     // Setters and Getters
-    void set_a(double);
-    void set_b(double);
-    void set_c(double);
-    void set_m(double);
-    void set_e(double);
-    void set_t(double);
-    void set_delta(double);
-    void set_min_cost_val(double);
-    void set_best_param_val(double);
+    void set_a(float);
+    void set_b(float);
+    void set_c(float);
+    void set_m(float);
+    void set_e(float);
+    void set_t(float);
+    void set_delta(float);
+    void set_min_cost_val(float);
+    void set_best_param_val(float);
 
-    double get_a();
-    double get_b();
-    double get_c();
-    double get_m();
-    double get_e();
-    double get_t();
-    double get_delta();
-    double get_min_cost_val();
-    double get_best_param_val();
+    float get_a();
+    float get_b();
+    float get_c();
+    float get_m();
+    float get_e();
+    float get_t();
+    float get_delta();
+    float get_min_cost_val();
+    float get_best_param_val();
 
     // Extract Brent search parameters from vector
-    vector<double> get_brent_params();
+    vector<float> get_brent_params();
 
     void run(Model* model);
     // Run LLM model object pointer
