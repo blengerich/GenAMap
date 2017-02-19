@@ -26,6 +26,9 @@ protected:
     MatrixXd X;
     MatrixXd beta;
     MatrixXd y;
+    bool logisticFlag;
+    static double sigmoid(double x){return 1.0 / (1.0 + exp(-x));}
+    void checkLogisticRegression();
 public:
     void setX(const MatrixXd&);
     void setY(const MatrixXd&);
