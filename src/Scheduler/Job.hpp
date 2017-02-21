@@ -49,19 +49,27 @@ typedef struct JobOptions_t {
 } JobOptions_t;
 
 typedef struct Job_t {
-	Algorithm* algorithm;
+	Algorithm* algorithm;	// owned by Algorithm's algorithm_map
+	algorithm_id_t algorithm_id;
 	exception_ptr exception;
 	job_id_t job_id;
 	JobOptions_t options;
-	Model* model;
+	Model* model; // owned by Scheduler's models_map
+	model_id_t model_id;
+	mutex* mtx; // owned by Scheduler's jobs_mutex_map
 	thread::id thread_id;
 	Persistent<Function> callback;
-	uv_work_t request;
+	uv_work_t* request;	// Owned by this job
 
 	Job_t() {
 		algorithm = NULL;
 		model = NULL;
+		request = new uv_work_t();
 	};
+
+	~Job_t() {
+		delete request;
+	}
 	
 } Job_t;
 

@@ -21,11 +21,11 @@ typedef struct JobResult_t {
 	exception_ptr exception;
 	JobOptions_t options;
 	job_id_t job_id;
-	MatrixXd beta; 
+	MatrixXf beta; 
 	string description;
 
 	JobResult_t() {
-		beta = MatrixXd();
+		beta = MatrixXf();
 		description = "";
 	};
 

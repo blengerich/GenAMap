@@ -70,7 +70,7 @@ public:
 	Algorithm* getAlgorithm(const algorithm_id_t);
 	Job_t* getJob(const job_id_t);
 
-	JobResult_t* getJobResult(const job_id_t);
+	unique_ptr<JobResult_t> getJobResult(const job_id_t);
 
 	// TODO: How to know if the user owns the algorithm?
 	bool deleteJob(const job_id_t);
@@ -140,6 +140,7 @@ private:
     unordered_map<algorithm_id_t, unique_ptr<Algorithm>> algorithms_map;
     unordered_map<model_id_t, unique_ptr<Model>> models_map;
     unordered_map<job_id_t, unique_ptr<Job_t>> jobs_map;
+    unordered_map<job_id_t, unique_ptr<mutex>> jobs_mutex_map;
     // Maps to track all jobs (running, waiting, and completed). indexed by job_id.  
 };
 

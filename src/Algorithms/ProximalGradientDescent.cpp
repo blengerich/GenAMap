@@ -173,6 +173,8 @@ void ProximalGradientDescent::run(LinearRegression *model) {
     model->setL1_reg(model->getL1_reg()*10);
     long s = y.cols();
     for (long i=0; i<s; i++){
+        mtx.unlock();
+        mtx.lock();
         if (shouldStop) {
             break;
         }

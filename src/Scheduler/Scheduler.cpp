@@ -83,9 +83,10 @@ Scheduler::Scheduler()
 : next_algorithm_id(1)
 , next_model_id(1)
 , next_job_id(1) {
-	algorithms_map = std::unordered_map<algorithm_id_t, unique_ptr<Algorithm>>();
-	models_map = std::unordered_map<model_id_t, unique_ptr<Model>>();
-	jobs_map = std::unordered_map<job_id_t, unique_ptr<Job_t>>();
+	algorithms_map = unordered_map<algorithm_id_t, unique_ptr<Algorithm>>();
+	models_map = unordered_map<model_id_t, unique_ptr<Model>>();
+	jobs_map = unordered_map<job_id_t, unique_ptr<Job_t>>();
+	jobs_mutex_map = unordered_map<job_id_t, unique_ptr<mutex>>();
 }
 
 Scheduler& Scheduler::operator=(Scheduler const& s) {
@@ -219,32 +220,40 @@ bool Scheduler::setModelAttributeMatrix(const job_id_t job_id, const string& str
 
 
 job_id_t Scheduler::newJob(const JobOptions_t& options) {
-	Job_t* my_job = new Job_t();
 	const job_id_t job_id = getNewJobId();
-	if (ValidJobId(job_id)) {
+	if (ValidJobId(job_id) && !JobIdUsed(job_id)) {
+		jobs_mutex_map[job_id] = std::move(unique_ptr<mutex>(new mutex()));
+		jobs_mutex_map[job_id]->lock();
+		unique_ptr<Job_t> my_job = unique_ptr<Job_t>(new Job_t());
+		my_job->mtx = jobs_mutex_map[job_id].get();	// TODO: shared pointer, unique_lock?
 		my_job->options = options;
 		my_job->job_id = job_id;
 		try {
 			algorithm_id_t algorithm_id = newAlgorithm(options.alg_opts);
 			my_job->algorithm = getAlgorithm(algorithm_id);
+			my_job->algorithm_id = algorithm_id;
 		} catch (const exception& e) {
+			/*my_job->mtx.unlock();*/
+			jobs_mutex_map.erase(job_id);
 			throw runtime_error("Error creating algorithm");
 			return 0;
 		}
 		try {
-			model_id_t model_id = newModel(options.model_opts);
-			my_job->model = getModel(model_id);
-			jobs_map[my_job->job_id] = unique_ptr<Job_t>(my_job);
+			my_job->model_id = newModel(options.model_opts);
+			my_job->model = getModel(my_job->model_id);
+			/*my_job->mtx.unlock();*/
+			jobs_map[job_id] = std::move(my_job);
+			jobs_mutex_map[job_id]->unlock();
 			return job_id;
 		} catch (const exception& e) {
+			/*my_job->mtx.unlock();*/
+			// delete stuff here?
 			throw runtime_error("Error creating model");
-			return 0;
 		} 
 	} else {
 		throw runtime_error("could not get a new job id (queue may be full)");
 	}
-
-	delete my_job;
+	jobs_mutex_map[job_id]->unlock();
 	return 0;
 }
 
@@ -255,24 +264,29 @@ bool Scheduler::startJob(const job_id_t job_id, void (*completion)(uv_work_t*, i
 		return false;
 	}
 	Job_t* job = getJob(job_id);
-
-	if (!job) {
-		throw runtime_error("Job must not be null.");
-		return false;
-	} else if (!job->algorithm || !job->model) {
-		throw runtime_error("Job must have an algorithm and a model.");
-		return false;
-	} else if (job->algorithm->getIsRunning()) {
-		throw runtime_error("Job is already running.");
-		return false;
-	}
 	try {
+		if (!job) {
+			throw runtime_error("Job must not be null.");
+			return false;
+		}
+		jobs_mutex_map[job_id]->lock();
+		if (!job->algorithm || !job->model) {
+			throw runtime_error("Job must have an algorithm and a model.");
+			return false;
+		} else if (job->algorithm->getIsRunning()) {
+			throw runtime_error("Job is already running.");
+			return false;
+		}
 		job->algorithm->assertReadyToRun();
 		job->model->assertReadyToRun();
-		job->request.data = job;
-		uv_queue_work(uv_default_loop(), &(job->request), trainAlgorithmThread, completion);
+		job->request->data = job;
+		uv_queue_work(uv_default_loop(), job->request, trainAlgorithmThread, completion);
+		usleep(1);
+		/*job->mtx.unlock();*/
+		jobs_mutex_map[job_id]->unlock();
 		return true;
 	} catch (const exception& ex) {
+		/*job->mtx.unlock();*/
 		rethrow_exception(current_exception());
 		return false;
 	}
@@ -286,10 +300,10 @@ void trainAlgorithmThread(uv_work_t* req) {
 		throw runtime_error("Job must not be null");
 		return;
 	}
-
-	job->thread_id = std::this_thread::get_id();
 	// TODO: as more algorithm/model types are created, add them here.
 	try {
+		job->mtx->lock();
+		job->thread_id = std::this_thread::get_id();
 		if (!job->algorithm || !job->model) {
 			throw runtime_error("Job must have an algorithm and a model");
 		}
@@ -298,6 +312,7 @@ void trainAlgorithmThread(uv_work_t* req) {
 		// Object slicing makes this annoying
 		if (BrentSearch* alg = dynamic_cast<BrentSearch*>(job->algorithm)) {
 			alg->setUpRun();
+			/*job->mtx->unlock();*/
 			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
 		        alg->run(model);
 		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
@@ -318,6 +333,7 @@ void trainAlgorithmThread(uv_work_t* req) {
 		    alg->finishRun();
 		} else if (GridSearch* alg = dynamic_cast<GridSearch*>(job->algorithm)) {
 			alg->setUpRun();
+			/*job->mtx->unlock();*/
 			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
 		        alg->run(model);
 		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
@@ -338,6 +354,7 @@ void trainAlgorithmThread(uv_work_t* req) {
 		    alg->finishRun();
 		} else if (IterativeUpdate* alg = dynamic_cast<IterativeUpdate*>(job->algorithm)) {
 			alg->setUpRun();
+			/*job->mtx.unlock();*/
 			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
 		        alg->run(model);
 		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
@@ -356,6 +373,7 @@ void trainAlgorithmThread(uv_work_t* req) {
 		    alg->finishRun();
 		} else if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
 			alg->setUpRun();
+			/*job->mtx.unlock();*/
 			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
 		        alg->run(model);
 		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
@@ -374,6 +392,7 @@ void trainAlgorithmThread(uv_work_t* req) {
 		    alg->finishRun();
 		} else if (HypoTestPlaceHolder* alg = dynamic_cast<HypoTestPlaceHolder*>(job->algorithm)){
 			alg->setUpRun();
+			/*job->mtx.unlock();*/
 			if (FisherTest* model = dynamic_cast<FisherTest*>(job->model)) {
 				alg->run(model);
 			} else if (Chi2Test* model = dynamic_cast<Chi2Test*>(job->model)) {
@@ -388,8 +407,11 @@ void trainAlgorithmThread(uv_work_t* req) {
 			throw runtime_error("Requested algorithm type not implemented");
 		}
 	} catch (const exception& ex) {
+		job->mtx->lock();
 		job->exception = current_exception();	// Must save the exception so that it can be passed between threads.
+		job->mtx->unlock();
 	}
+	job->mtx->unlock();
 }
 
 
@@ -402,18 +424,26 @@ float Scheduler::checkJobProgress(const job_id_t job_id) {
 
 
 bool Scheduler::cancelJob(const job_id_t job_id) {
-	if (JobIdUsed(job_id) && getJob(job_id)->algorithm) {
-		getJob(job_id)->algorithm->stop();
-		return true;
+	if (JobIdUsed(job_id)) {
+		jobs_mutex_map[job_id]->lock();
+		Job_t* my_job = getJob(job_id);
+		if (my_job->algorithm) {
+			my_job->algorithm->stop();
+			my_job->algorithm->mtx.lock();
+			my_job->algorithm->mtx.unlock();
+			jobs_mutex_map[job_id]->unlock();
+			return true;
+		}
+		jobs_mutex_map[job_id]->unlock();
 	}
 	return false;
 }
 
 
 bool Scheduler::deleteAlgorithm(const algorithm_id_t algorithm_id) {
-	if (getAlgorithm(algorithm_id) && !getAlgorithm(algorithm_id)->getIsRunning()) {
+	if (getAlgorithm(algorithm_id)) {// && !getAlgorithm(algorithm_id)->getIsRunning()) {
 		getAlgorithm(algorithm_id)->mtx.lock();
-		algorithms_map[algorithm_id].reset();
+		//algorithms_map[algorithm_id].reset();
 		algorithms_map.erase(algorithm_id);
 		return true;
 	} else {
@@ -425,7 +455,7 @@ bool Scheduler::deleteAlgorithm(const algorithm_id_t algorithm_id) {
 bool Scheduler::deleteModel(const model_id_t model_id) {
 	if (getModel(model_id)) {
 		/*getModel(model_id)->mtx.lock();*/
-		models_map[model_id].reset();
+		//models_map[model_id].reset();
 		models_map.erase(model_id);
 		return true;
 	} else {
@@ -437,10 +467,13 @@ bool Scheduler::deleteModel(const model_id_t model_id) {
 bool Scheduler::deleteJob(const job_id_t job_id) {
 	if (JobIdUsed(job_id) && cancelJob(job_id)) {
 		// Make sure the job is not currently running.
-		getJob(job_id)->algorithm->mtx.lock();
-		jobs_map[job_id].reset();
-		jobs_map.erase(job_id);
-		return true;
+		jobs_mutex_map[job_id]->lock();
+		if (deleteAlgorithm(getJob(job_id)->algorithm_id) && 
+			deleteModel(getJob(job_id)->model_id)) {
+			jobs_map.erase(job_id);
+			jobs_mutex_map.erase(job_id);
+			return true;
+		}
 	}
 	return false;
 }
@@ -473,8 +506,8 @@ Job_t* Scheduler::getJob(const job_id_t job_id) {
 }
 
 
-JobResult_t* Scheduler::getJobResult(const job_id_t job_id) {
-	JobResult_t* result = new JobResult_t();
+unique_ptr<JobResult_t> Scheduler::getJobResult(const job_id_t job_id) {
+	unique_ptr<JobResult_t> result(new JobResult_t());
 	if (JobIdUsed(job_id)) {
 		Job_t* job = getJob(job_id);
 		result->exception = job->exception;
@@ -529,7 +562,7 @@ model_id_t Scheduler::getNewModelId() {
 algorithm_id_t Scheduler::getNewAlgorithmId() {
 	algorithm_id_t candidate_algorithm_id = next_algorithm_id;
 	for (unsigned int i = 1; i < kMaxAlgorithmId; i++) {
-		candidate_algorithm_id = (candidate_algorithm_id + 1) % kMaxAlgorithmId + 1;
+		candidate_algorithm_id = ((candidate_algorithm_id + 1) % kMaxAlgorithmId) + 1;
 		if (!AlgorithmIdUsed(candidate_algorithm_id)) {
 			algorithm_id_t retval = next_algorithm_id;
 			next_algorithm_id = candidate_algorithm_id;
