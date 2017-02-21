@@ -14,7 +14,7 @@ import GMManhattanDialog from './GMManhattanDialog'
 
 const styles = {
   slider: {
-    width: '500px'
+    width: '300px'
   },
   sliderValue: {
     position: 'relative',
@@ -91,7 +91,11 @@ const GMMatrixToolbar = React.createClass({
         <GMToolbar
           open={this.state.open}
           height={60}
-          style={{overflow: 'hidden'}}
+          style={{
+            overflow: 'hidden',
+            margin: '0 auto',
+            width: 'calc(80vw + 40px)'
+        }}
           left={this.props.left}
           right={this.props.right}
         >

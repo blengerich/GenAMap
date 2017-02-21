@@ -22,29 +22,25 @@ class Gflasso: public Model{
 private :
 
     // Training data
-    MatrixXd X;
-    MatrixXd Y;
 
     // Correlation graph between Y traits(Input)
-    MatrixXd corr_coff;
+    MatrixXf corr_coff;
 
     // Regularization parameters (Input)
-    double lambda_flasso;
-    double gamma_flasso;
+    float lambda_flasso;
+    float gamma_flasso;
 
-    // Parameter modelling through Beta MatrixXd
-    MatrixXd beta;
-
+    // Parameter modelling through Beta MatrixXf
     //Type of flasso
     int flasso_type;
 
     //Smoothing Proximal Gradient Method
-    MatrixXd edge_vertex_matrix; // Dimension: Edge_size*Col(x)
-    double mau; // Smootheness parameter  //todo: what is this?
-    MatrixXd alpha_matrix;
+    MatrixXf edge_vertex_matrix; // Dimension: Edge_size*Col(x)
+    float mau; // Smootheness parameter  //todo: what is this?
+    MatrixXf alpha_matrix;
 
-    static constexpr double default_lambda_flasso = 0.0;
-    static constexpr double default_gamma_flasso = 0.0;
+    static constexpr float default_lambda_flasso = 0.0;
+    static constexpr float default_gamma_flasso = 0.0;
     static constexpr int default_flasso_type = GcFlasso;
 
 public :
@@ -53,40 +49,43 @@ public :
     Gflasso();
 
     // Only regularization params are given
-    Gflasso(double,double);
+    Gflasso(float,float);
     // Regularization params along with corr coff. graph
-    Gflasso(MatrixXd,double,double);
+    Gflasso(MatrixXf,float,float);
     Gflasso(const unordered_map<string, string>&);
 
     void assertReadyToRun();
 
-    // Methods to set and get various input variables of GFLASSO
-    void train();
+//    // interfaces irrelevant to PGD, convenient for debug.
+//    // Methods to set and get various input variables of GFLASSO
+//    void train();
+//    // Training data provided along with Correlation coff Matrix
+//    void train(MatrixXf,MatrixXf,MatrixXf);
+//    // Everything is provided i.e. Training data,traits corr. and regularization params
+//    void train(MatrixXf,MatrixXf,MatrixXf,double,double);
+
     // Only X and Y are given
-    void setXY(MatrixXd,MatrixXd);
-    // Training data provided along with Correlation coff Matrix
-    void train(MatrixXd,MatrixXd,MatrixXd);
-    // Everything is provided i.e. Training data,traits corr. and regularization params
-    void train(MatrixXd,MatrixXd,MatrixXd,double,double);
+    void setXY(MatrixXf,MatrixXf);
 
     // Methods to set and get various parameters
-    void set_params(double, double);
-    vector<double> get_params();
-    void set_lambda(double);
-    void set_gamma(double);
-    double get_lambda();
-    double get_gamma();
+    void set_params(float, float);
+    vector<float> get_params();
+    void set_lambda(float);
+    void set_gamma(float);
+    float get_lambda();
+    float get_gamma();
     void set_flasso_type(int);
     int get_flasso_type();
-    void set_mau(double);
-    double get_mau();
-    MatrixXd get_X();
-    MatrixXd get_Y();
-    MatrixXd get_beta();
+    void set_mau(float);
+    float get_mau();
+    MatrixXf get_X();
+    MatrixXf get_Y();
+    MatrixXf get_beta();
+    void initBeta();
 
     // Cost function and supporting functions
-    double cost();
-    double gflasso_fusion_penalty();
+    float cost();
+    float gflasso_fusion_penalty();
 
     // Smoothing proximal Gradient descent functions
 
@@ -101,9 +100,9 @@ public :
 
     // Calculate the gradient descent using the alpha and Edge vertex matrix
     // along with other input parameters i.e. X, Y and Beta.
-    MatrixXd gradient();
+    MatrixXf gradient();
 
-    MatrixXd proximal_operator(MatrixXd, float);
+    MatrixXf proximal_operator(MatrixXf, float);
 
     // Lipschitz Constant
     float getL();

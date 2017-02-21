@@ -61,8 +61,8 @@ treeNode *Tree::buildLeafNode(long t) {
 }
 
 void Tree::setWeight() {
-    double n = root->s;
-    double prev_s = 0;
+    float n = root->s;
+    float prev_s = 0;
     queue<treeNode *> nodes;
     nodes.push(root);
     while (nodes.size()>0){
@@ -77,35 +77,35 @@ void Tree::setWeight() {
     }
 }
 
-double Math::variance(VectorXd v) {
-    double mean = v.mean();
+float Math::variance(VectorXf v) {
+    float mean = v.mean();
     v = (v.array() - mean).matrix();
     return v.squaredNorm() / v.size();
 }
 
-double Math::covariance(VectorXd v1, VectorXd v2) {
-    double m1 = v1.mean();
-    double m2 = v2.mean();
+float Math::covariance(VectorXf v1, VectorXf v2) {
+    float m1 = v1.mean();
+    float m2 = v2.mean();
     return ((v1.array() - m1) * (v2.array() - m2)).matrix().mean();
 }
 
-double Math::correlation(VectorXd v1, VectorXd v2) {
-    double cov = covariance(v1, v2);
-    double var1 = std(v1);
-    double var2 = std(v2);
+float Math::correlation(VectorXf v1, VectorXf v2) {
+    float cov = covariance(v1, v2);
+    float var1 = std(v1);
+    float var2 = std(v2);
     if (var1 == 0 or var2 == 0){
         return 0;
     }
     return cov / (var1 * var2);
 }
 
-double Math::std(VectorXd v) {
-    double mean = v.mean();
+float Math::std(VectorXf v) {
+    float mean = v.mean();
     v = (v.array() - mean).matrix();
     return sqrt(v.squaredNorm() / v.size());
 }
 
-void Math::removeCol(MatrixXd *mptr, long y) {
+void Math::removeCol(MatrixXf *mptr, long y) {
     long numRows = mptr->rows();
     long numCols = mptr->cols() - 1;
 
@@ -115,7 +115,7 @@ void Math::removeCol(MatrixXd *mptr, long y) {
     mptr->conservativeResize(numRows, numCols);
 }
 
-VectorXd Math::L2Thresholding(VectorXd in) {
+VectorXf Math::L2Thresholding(VectorXf in) {
     if (in.norm()>1){
         return in/in.norm();
     }
@@ -124,10 +124,10 @@ VectorXd Math::L2Thresholding(VectorXd in) {
     }
 }
 
-Tree *Math::hierarchicalClustering(MatrixXd X) {
+Tree *Math::hierarchicalClustering(MatrixXf X) {
     Tree * T;
     long n = X.cols();
-    MatrixXd weights = MatrixXd::Zero(n, n);
+    MatrixXf weights = MatrixXf::Zero(n, n);
     T = new Tree();
     unordered_map<long, treeNode *> maps;
     for (long i = 0; i < n; i++) {
@@ -154,7 +154,7 @@ Tree *Math::hierarchicalClustering(MatrixXd X) {
     return T;
 }
 
-void Math::removeRow(MatrixXd *mptr, long x) {
+void Math::removeRow(MatrixXf *mptr, long x) {
     long numRows = mptr->rows() - 1;
     long numCols = mptr->cols();
 
@@ -185,10 +185,10 @@ void Math::updateMap(unordered_map<long, treeNode *> *mptr, minXY xy) {
     }
 }
 
-MatrixXd Math::appendColRow(MatrixXd mat, minXY xy) {
+MatrixXf Math::appendColRow(MatrixXf mat, minXY xy) {
     long r = mat.rows();
-    MatrixXd result = MatrixXd::Zero(r + 1, r + 1);
-    VectorXd col = VectorXd::Zero(r);
+    MatrixXf result = MatrixXf::Zero(r + 1, r + 1);
+    VectorXf col = VectorXf::Zero(r);
     col = ((mat.col(xy.x).array()).max(mat.col(xy.y).array())).matrix();
     result.block(0, 0, r, r) = mat;
     result.block(0, r, r, 1) = col;
@@ -196,12 +196,12 @@ MatrixXd Math::appendColRow(MatrixXd mat, minXY xy) {
     return result;
 }
 
-minXY Math::searchMin(MatrixXd m) {
+minXY Math::searchMin(MatrixXf m) {
     long r = m.rows();
     minXY xy;
     xy.x = 0;
     xy.y = 0;
-    double tmpV = numeric_limits<double>::max();
+    float tmpV = numeric_limits<float>::max();
     for (long i = 0; i < r; i++) {
         for (long j = i + 1; j < r; j++) {
             if (m(i, j) < tmpV) {
@@ -214,7 +214,7 @@ minXY Math::searchMin(MatrixXd m) {
     return xy;
 }
 
-void Math::removeColRow(MatrixXd *mptr, minXY xy) {
+void Math::removeColRow(MatrixXf *mptr, minXY xy) {
     removeRow(mptr, xy.y);
     removeRow(mptr, xy.x);
     removeCol(mptr, xy.y);

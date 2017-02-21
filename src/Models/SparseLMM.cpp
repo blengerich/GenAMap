@@ -5,14 +5,14 @@
 #include "SparseLMM.h"
 
 SparseLMM::SparseLMM() {
-    K = MatrixXd::Zero(1,1);
-    S = MatrixXd::Zero(1,1);
+    K = MatrixXf::Zero(1,1);
+    S = MatrixXf::Zero(1,1);
     initFlag = false;
 }
 
 SparseLMM::SparseLMM(const unordered_map<string, string> &options) {
-    K = MatrixXd::Zero(1,1);
-    S = MatrixXd::Zero(1,1);
+    K = MatrixXf::Zero(1,1);
+    S = MatrixXf::Zero(1,1);
     initFlag = false;
     try {
         l1Reg = stof(options.at("lambda"));
@@ -22,29 +22,29 @@ SparseLMM::SparseLMM(const unordered_map<string, string> &options) {
 }
 
 
-void SparseLMM::rotateXY(double lambda) {
-    MatrixXd Id(n, n); // n*n
+void SparseLMM::rotateXY(float lambda) {
+    MatrixXf Id(n, n); // n*n
     Id.setIdentity(n, n);
-    MatrixXd U_trans = U.transpose(); // n*n
-    MatrixXd U_trans_X = U_trans * X; // n*d
-    MatrixXd U_trans_Y = U_trans * y; // n*1
-    MatrixXd S_lambda = (S + lambda * Id);
+    MatrixXf U_trans = U.transpose(); // n*n
+    MatrixXf U_trans_X = U_trans * X; // n*d
+    MatrixXf U_trans_Y = U_trans * y; // n*1
+    MatrixXf S_lambda = (S + lambda * Id);
     rX = S_lambda * U_trans_X;
     rY = S_lambda * U_trans_Y;
 }
 
-MatrixXd SparseLMM::getRotatedX() {
+MatrixXf SparseLMM::getRotatedX() {
     return rX;
 }
 
-MatrixXd SparseLMM::getRoattedY() {
+MatrixXf SparseLMM::getRoattedY() {
     return rY;
 }
 
-void SparseLMM::setL1reg(double d) {
+void SparseLMM::setL1reg(float d) {
     l1Reg = d;
 }
 
-double SparseLMM::getL1reg() {
+float SparseLMM::getL1reg() {
     return l1Reg;
 }

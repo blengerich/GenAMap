@@ -12,8 +12,10 @@
 #include <stdexcept>
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <node.h>
 #include <stdio.h>
+#include <thread>
 #include <typeinfo>
 #include <unistd.h>
 #include <unordered_map>
@@ -76,12 +78,12 @@ Scheduler* Scheduler::s_instance;
 //////////////////////////////////////////
 
 Scheduler::Scheduler()
-: next_algorithm_id(0)
-, next_model_id(0)
-, next_job_id(0) {
-	algorithms_map = std::unordered_map<int, unique_ptr<Algorithm>>();
-	models_map = std::unordered_map<int, unique_ptr<Model>>();
-	jobs_map = std::unordered_map<int, unique_ptr<Job_t>>();
+: next_algorithm_id(1)
+, next_model_id(1)
+, next_job_id(1) {
+	algorithms_map = std::unordered_map<algorithm_id_t, unique_ptr<Algorithm>>();
+	models_map = std::unordered_map<model_id_t, unique_ptr<Model>>();
+	jobs_map = std::unordered_map<job_id_t, unique_ptr<Job_t>>();
 }
 
 Scheduler& Scheduler::operator=(Scheduler const& s) {
@@ -99,10 +101,10 @@ Scheduler* Scheduler::Instance() {
 // Public Functions
 /////////////////////////////////////////////////////////
 
-int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
-	int id = getNewAlgorithmId();
+algorithm_id_t Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
+	const algorithm_id_t id = getNewAlgorithmId();
 	// Determine the type of algorithm to create.
-	if (id >= 0) {
+	if (ValidAlgorithmId(id)) {
 		switch(options.type) {
 			case algorithm_type::brent_search:
 				algorithms_map[id] = unique_ptr<BrentSearch>(new BrentSearch(options.options));
@@ -122,16 +124,16 @@ int Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 				break;
 			}
 			default:
-				return -1;
+				return 0;
 		}
 	}
 
 	return id;
 }
 
-int Scheduler::newModel(const ModelOptions_t& options) {
-	int id = getNewModelId();
-	if (id >= 0) {
+model_id_t Scheduler::newModel(const ModelOptions_t& options) {
+	const model_id_t id = getNewModelId();
+	if (ValidModelId(id)) {
 		switch(options.type) {
 			case ada_multi_lasso: {
 				models_map[id] = unique_ptr<AdaMultiLasso>(new AdaMultiLasso(options.options));
@@ -174,7 +176,7 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 				break;
 			}
 			default:
-				return -1;
+				return 0;
 		}
 	}
 
@@ -182,8 +184,8 @@ int Scheduler::newModel(const ModelOptions_t& options) {
 }
 
 
-bool Scheduler::setX(const int job_id, const Eigen::MatrixXd& X) {
-	if (ValidJobId(job_id) && getJob(job_id)->model) {
+bool Scheduler::setX(const job_id_t job_id, const Eigen::MatrixXf& X) {
+	if (JobIdUsed(job_id) && getJob(job_id)->model) {
 		getJob(job_id)->model->setX(X);
 		return true;
 	}
@@ -191,8 +193,8 @@ bool Scheduler::setX(const int job_id, const Eigen::MatrixXd& X) {
 }
 
 
-bool Scheduler::setY(const int job_id, const Eigen::MatrixXd& Y) {
-	if (ValidJobId(job_id) && getJob(job_id)->model) {
+bool Scheduler::setY(const job_id_t job_id, const Eigen::MatrixXf& Y) {
+	if (JobIdUsed(job_id) && getJob(job_id)->model) {
 		getJob(job_id)->model->setY(Y);
 		return true;
 	}
@@ -200,9 +202,9 @@ bool Scheduler::setY(const int job_id, const Eigen::MatrixXd& Y) {
 }
 
 // TODO: merge setX and setY into this function?
-bool Scheduler::setModelAttributeMatrix(const int job_id, const string& str, Eigen::MatrixXd* Z) {
+bool Scheduler::setModelAttributeMatrix(const job_id_t job_id, const string& str, Eigen::MatrixXf* Z) {
 	try {
-		if (ValidJobId(job_id) && getJob(job_id)->model) {
+		if (JobIdUsed(job_id) && getJob(job_id)->model) {
 			getJob(job_id)->model->setAttributeMatrix(str, Z);
 			return true;
 		}
@@ -214,35 +216,37 @@ bool Scheduler::setModelAttributeMatrix(const int job_id, const string& str, Eig
 }
 
 
-int Scheduler::newJob(const JobOptions_t& options) {
+job_id_t Scheduler::newJob(const JobOptions_t& options) {
 	Job_t* my_job = new Job_t();
-	const int job_id = getNewJobId();
-	if (job_id >= 0) {
+	const job_id_t job_id = getNewJobId();
+	if (ValidJobId(job_id)) {
 		my_job->job_id = job_id;
-		int algorithm_id = newAlgorithm(options.alg_opts);
-		if (getAlgorithm(algorithm_id)) {
+		try {
+			algorithm_id_t algorithm_id = newAlgorithm(options.alg_opts);
 			my_job->algorithm = getAlgorithm(algorithm_id);
-			int model_id = newModel(options.model_opts);
-			if (getModel(model_id)) {
-				my_job->model = getModel(model_id);
-				jobs_map[my_job->job_id] = unique_ptr<Job_t>(my_job);
-				return job_id;
-			} else {
-				throw runtime_error("Error creating model");
-			}
-		} else {
+		} catch (const exception& e) {
 			throw runtime_error("Error creating algorithm");
+			return 0;
 		}
+		try {
+			model_id_t model_id = newModel(options.model_opts);
+			my_job->model = getModel(model_id);
+			jobs_map[my_job->job_id] = unique_ptr<Job_t>(my_job);
+			return job_id;
+		} catch (const exception& e) {
+			throw runtime_error("Error creating model");
+			return 0;
+		} 
 	} else {
 		throw runtime_error("could not get a new job id (queue may be full)");
 	}
 
 	delete my_job;
-	return -1;
+	return 0;
 }
 
 
-bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) {
+bool Scheduler::startJob(const job_id_t job_id, void (*completion)(uv_work_t*, int)) {
 	if (!ValidJobId(job_id)) {
 		throw runtime_error("Job id must correspond to a job that has been created.");
 		return false;
@@ -264,10 +268,8 @@ bool Scheduler::startJob(const int job_id, void (*completion)(uv_work_t*, int)) 
 		job->model->assertReadyToRun();
 		job->request.data = job;
 		uv_queue_work(uv_default_loop(), &(job->request), trainAlgorithmThread, completion);
-		usleep(10);	// TODO: fix this rare race condition (stopping job before the worker thread has started is bad) in a better way? [Issue: https://github.com/blengerich/GenAMap_V2/issues/27]
 		return true;
 	} catch (const exception& ex) {
-		// Must save the exception so that it can be passed between threads - but this is running in main thread?
 		rethrow_exception(current_exception());
 		return false;
 	}
@@ -282,6 +284,8 @@ void trainAlgorithmThread(uv_work_t* req) {
 		return;
 	}
 
+	job->thread_id = std::this_thread::get_id();
+	// TODO: as more algorithm/model types are created, add them here.
 	try {
 		if (!job->algorithm || !job->model) {
 			throw runtime_error("Job must have an algorithm and a model");
@@ -386,16 +390,16 @@ void trainAlgorithmThread(uv_work_t* req) {
 }
 
 
-double Scheduler::checkJobProgress(const int job_id) {
-	if (ValidJobId(job_id) && getJob(job_id)->algorithm) {
+float Scheduler::checkJobProgress(const job_id_t job_id) {
+	if (JobIdUsed(job_id) && getJob(job_id)->algorithm) {
 		return getJob(job_id)->algorithm->getProgress();
 	}
 	return -1;
 }
 
 
-bool Scheduler::cancelJob(const int job_id) {
-	if (ValidJobId(job_id) && getJob(job_id)->algorithm) {
+bool Scheduler::cancelJob(const job_id_t job_id) {
+	if (JobIdUsed(job_id) && getJob(job_id)->algorithm) {
 		getJob(job_id)->algorithm->stop();
 		return true;
 	}
@@ -403,8 +407,9 @@ bool Scheduler::cancelJob(const int job_id) {
 }
 
 
-bool Scheduler::deleteAlgorithm(const int algorithm_id) {
+bool Scheduler::deleteAlgorithm(const algorithm_id_t algorithm_id) {
 	if (getAlgorithm(algorithm_id) && !getAlgorithm(algorithm_id)->getIsRunning()) {
+		getAlgorithm(algorithm_id)->mtx.lock();
 		algorithms_map[algorithm_id].reset();
 		algorithms_map.erase(algorithm_id);
 		return true;
@@ -414,10 +419,9 @@ bool Scheduler::deleteAlgorithm(const int algorithm_id) {
 }
 
 
-bool Scheduler::deleteModel(const int model_id) {
-	// If model gets deleted before algorithm is stopped, bad juju.
-	// Need algorithm (or job?) to lock up the model?
+bool Scheduler::deleteModel(const model_id_t model_id) {
 	if (getModel(model_id)) {
+		/*getModel(model_id)->mtx.lock();*/
 		models_map[model_id].reset();
 		models_map.erase(model_id);
 		return true;
@@ -427,31 +431,38 @@ bool Scheduler::deleteModel(const int model_id) {
 }
 
 
-bool Scheduler::deleteJob(const int job_id) {
-	if (ValidJobId(job_id) && cancelJob(job_id)) {
-		while(getJob(job_id)->algorithm->getIsRunning()) {
-			usleep(100);
-		}
+bool Scheduler::deleteJob(const job_id_t job_id) {
+	if (JobIdUsed(job_id) && cancelJob(job_id)) {
+		// Make sure the job is not currently running.
+		getJob(job_id)->algorithm->mtx.lock();
 		jobs_map[job_id].reset();
-		/*jobs_map.erase(job_id);*/
+		jobs_map.erase(job_id);
 		return true;
 	}
 	return false;
 }
 
 
-Algorithm* Scheduler::getAlgorithm(const int algorithm_id) {
-	return ValidAlgorithmId(algorithm_id) ? algorithms_map[algorithm_id].get() : NULL;
+Algorithm* Scheduler::getAlgorithm(const algorithm_id_t algorithm_id) {
+	if (AlgorithmIdUsed(algorithm_id)) {
+		return algorithms_map[algorithm_id].get();
+	} 
+	throw runtime_error("Algorithm ID does not match any algorithms.");
+	return NULL;
 }
 
 
-Model* Scheduler::getModel(const int model_id) {
-	return ValidModelId(model_id) ? models_map[model_id].get() : NULL;
+Model* Scheduler::getModel(const model_id_t model_id) {
+	if (ModelIdUsed(model_id)) {
+		return models_map[model_id].get();
+	} 
+	throw runtime_error("Model ID does not match any models.");
+	return NULL;
 }
 
 
-Job_t* Scheduler::getJob(const int job_id) {
-	if (ValidJobId(job_id)) {
+Job_t* Scheduler::getJob(const job_id_t job_id) {
+	if (JobIdUsed(job_id)) {
 		return jobs_map[job_id].get();
 	}
 	throw runtime_error("Job ID does not match any jobs.");
@@ -459,8 +470,8 @@ Job_t* Scheduler::getJob(const int job_id) {
 }
 
 
-MatrixXd Scheduler::getJobResult(const int job_id) {
-	if (ValidJobId(job_id)) {
+MatrixXf Scheduler::getJobResult(const job_id_t job_id) {
+	if (JobIdUsed(job_id)) {
 		Job_t* job = getJob(job_id);
 		if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
 	        return model->getBeta();
@@ -486,7 +497,7 @@ MatrixXd Scheduler::getJobResult(const int job_id) {
 	    	return model->getBeta();
 	    }
 	} else {
-		return MatrixXd();
+		return MatrixXf();
 	}
 }
 
@@ -526,53 +537,68 @@ modelResult Scheduler::getClusteringResult(const int job_id) {
 // Private Functions
 ////////////////////////////////////////////////////////
 
-int Scheduler::getNewModelId() {
-	int retval = next_model_id;
-	for (int i = 1; i < kMaxModelId; i++) {
-		int candidate_model_id = (next_model_id + i) % kMaxModelId;
-		if (!ValidModelId(candidate_model_id)) {
+model_id_t Scheduler::getNewModelId() {
+	model_id_t candidate_model_id = next_model_id;
+	for (unsigned int i = 1; i < kMaxModelId; i++) {
+		candidate_model_id = (candidate_model_id + 1) % kMaxModelId + 1;
+		if (!ModelIdUsed(candidate_model_id)) {
+			model_id_t retval = next_model_id;
 			next_model_id = candidate_model_id;
 			return retval;
 		}
 	}
-	return -1;
+	return 0;
 }
 
 
-int Scheduler::getNewAlgorithmId() {
-	int retval = next_algorithm_id;
-	for (int i = 1; i < kMaxAlgorithmId; i++) {
-		int candidate_algorithm_id = (next_algorithm_id + i) % kMaxAlgorithmId;
-		if (!ValidAlgorithmId(candidate_algorithm_id)) {
+algorithm_id_t Scheduler::getNewAlgorithmId() {
+	algorithm_id_t candidate_algorithm_id = next_algorithm_id;
+	for (unsigned int i = 1; i < kMaxAlgorithmId; i++) {
+		candidate_algorithm_id = (candidate_algorithm_id + 1) % kMaxAlgorithmId + 1;
+		if (!AlgorithmIdUsed(candidate_algorithm_id)) {
+			algorithm_id_t retval = next_algorithm_id;
 			next_algorithm_id = candidate_algorithm_id;
 			return retval;
 		}
 	}
-	return -1;
+	return 0;
 }
 
 
-int Scheduler::getNewJobId() {
-	int retval = next_job_id;
-	for (int i = 1; i < kMaxJobId; i++) {
-		int candidate_job_id = (next_job_id + i) % kMaxJobId;
-		if (!ValidJobId(candidate_job_id)) {
+job_id_t Scheduler::getNewJobId() {
+	job_id_t candidate_job_id = next_job_id;
+	for (unsigned int i = 1; i < kMaxJobId; i++) {
+		candidate_job_id = (candidate_job_id + i) % kMaxJobId + 1;
+		if (!JobIdUsed(candidate_job_id)) {
+			job_id_t retval = next_job_id;
 			next_job_id = candidate_job_id;
 			return retval;
 		}
 	}
-	return -1;
+	return 0;
 }
 
 
-bool Scheduler::ValidAlgorithmId(const int id) {
-	return (id >= 0 && id < kMaxAlgorithmId && algorithms_map[id] && algorithms_map[id].get());
+bool Scheduler::ValidAlgorithmId(const algorithm_id_t id) {
+	return (id > 0 && id <= kMaxAlgorithmId);
 }
 
-bool Scheduler::ValidModelId(const int id) {
-	return (id >= 0 && id < kMaxModelId && models_map[id] && models_map[id].get());
+bool Scheduler::ValidModelId(const model_id_t id) {
+	return (id > 0 && id <= kMaxModelId);
 }
 
-bool Scheduler::ValidJobId(const int id) {
-	return (id >= 0 && id < kMaxJobId && jobs_map[id] && jobs_map[id].get());
+bool Scheduler::ValidJobId(const job_id_t id) {
+	return (id > 0 && id <= kMaxJobId);
+}
+
+bool Scheduler::AlgorithmIdUsed(const algorithm_id_t id) {
+	return (ValidAlgorithmId(id) && algorithms_map[id] && algorithms_map[id].get());
+}
+
+bool Scheduler::ModelIdUsed(const model_id_t id) {
+	return (ValidModelId(id) && models_map[id] && models_map[id].get());
+}
+
+bool Scheduler::JobIdUsed(const job_id_t id) {
+	return (ValidJobId(id) && jobs_map[id] && jobs_map[id].get());
 }

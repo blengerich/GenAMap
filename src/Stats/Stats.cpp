@@ -13,50 +13,50 @@ using namespace std;
 using namespace Eigen;
 
 
-double Stats::ChiSquaredTest(MatrixXd observed, MatrixXd expected) {
-    MatrixXd diff = observed - expected;
-    MatrixXd x = diff.cwiseProduct(diff).cwiseQuotient(expected);
+float Stats::ChiSquaredTest(MatrixXf observed, MatrixXf expected) {
+    MatrixXf diff = observed - expected;
+    MatrixXf x = diff.cwiseProduct(diff).cwiseQuotient(expected);
     return x.sum();
 }
 
 
-double Stats::ChiToPValue(double chisqr_value, int dof) {
+float Stats::ChiToPValue(float chisqr_value, int dof) {
     boost::math::chi_squared dist(dof);
     return 1 - boost::math::cdf(dist, chisqr_value);
 }
 
 
-double Stats::WaldTest(double mle, double var, double candidate) {
+float Stats::WaldTest(float mle, float var, float candidate) {
     return pow(mle - candidate, 2) / var;
 }
 
-double Stats::FisherExactTest(MatrixXd X) {
+float Stats::FisherExactTest(MatrixXf X) {
    int N = X.sum();
-   double NFac = boost::math::factorial<double>(N);
-   MatrixXd rowSums = X.rowwise().sum();
-   MatrixXd colSums = X.colwise().sum();
-   MatrixXd comFacs = X.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
-   MatrixXd rFacs = rowSums.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
-   MatrixXd cFacs = colSums.unaryExpr(std::ptr_fun(boost::math::factorial<double>));
-   double rowsFacs = rFacs.prod();
-   double colsFacs = cFacs.prod();
-   double componentFacs = comFacs.prod();
+   float NFac = boost::math::factorial<float>(N);
+   MatrixXf rowSums = X.rowwise().sum();
+   MatrixXf colSums = X.colwise().sum();
+   MatrixXf comFacs = X.unaryExpr(std::ptr_fun(boost::math::factorial<float>));
+   MatrixXf rFacs = rowSums.unaryExpr(std::ptr_fun(boost::math::factorial<float>));
+   MatrixXf cFacs = colSums.unaryExpr(std::ptr_fun(boost::math::factorial<float>));
+   float rowsFacs = rFacs.prod();
+   float colsFacs = cFacs.prod();
+   float componentFacs = comFacs.prod();
    return rowsFacs*colsFacs/(NFac*componentFacs);
 }
 
-double Stats::BonCorrection(double pVal, int number) {
+float Stats::BonCorrection(float pVal, int number) {
   return pVal/number;
 }
 
-double Stats::get_ts(double beta, double var, double sigma){
+float Stats::get_ts(float beta, float var, float sigma){
   return beta/(sqrt(var * sigma));
 }
 
-double Stats::get_qs(double ts, int N, int q){
+float Stats::get_qs(float ts, int N, int q){
   return 2*Stats::ChiToPValue(abs(ts), N-q);  
 }
 
-void StatsBasic::setAttributeMatrix(const string &string1, MatrixXd *xd) {
+void StatsBasic::setAttributeMatrix(const string &string1, MatrixXf *xd) {
 
 }
 
@@ -103,7 +103,7 @@ void StatsBasic::checkGenoType() {
 
 
 void StatsBasic::assertReadyToRun() {
-    beta = MatrixXd::Zero(X.cols(), y.cols());
+    beta = MatrixXf::Zero(X.cols(), y.cols());
     checkGenoType();
 }
 
@@ -111,14 +111,14 @@ void StatsBasic::assertReadyToRun() {
 void StatsBasic::BonferroniCorrection() {
     if (shouldCorrect){
         beta = beta*X.rows();
-        MatrixXd m = MatrixXd::Ones(beta.rows(), beta.cols());
+        MatrixXf m = MatrixXf::Ones(beta.rows(), beta.cols());
         beta = beta.cwiseMin(m);
     }
 }
 
 // algorithm use
 
-double StatsBasic::getProgress() {
+float StatsBasic::getProgress() {
     return progress;
 }
 
@@ -142,8 +142,8 @@ void StatsBasic::finishRun() {
     progress = 1.0;
 }
 
-MatrixXd StatsBasic::getBeta() {
-    MatrixXd tmp = MatrixXd::Zero(beta.rows(), beta.cols());
+MatrixXf StatsBasic::getBeta() {
+    MatrixXf tmp = MatrixXf::Zero(beta.rows(), beta.cols());
     for (long i = 0; i<beta.rows(); i++){
         for (long j=0; j<beta.cols(); j++){
             if (beta(i,j)>0){

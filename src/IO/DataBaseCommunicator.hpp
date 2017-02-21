@@ -42,7 +42,7 @@ struct result_pack{
 
 struct progress_pack{
     int job_id;
-    double progress;
+    float progress;
 };
 
 struct user_info{
@@ -85,7 +85,7 @@ public:
     vector<data_pack> getDataPathFromJob(int);
     vector<data_pack> getDataPathFromUser(string);
     vector<result_pack> getResultPathFromJob(int);
-    vector<result_pack> getReusltPathFromUser(string);
+    vector<result_pack> getResultPathFromUser(string);
 
     vector<job_pack> getJobFromUser(string);
     organization_info getOrganizationFromUser(string);

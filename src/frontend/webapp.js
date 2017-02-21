@@ -852,7 +852,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           if (err) console.log('Error getting trait for analysis: ', err)
           // Create job
           const jobId = Scheduler.newJob({'algorithm_options': req.body.algorithmOptions, 'model_options': req.body.modelOptions})
-          if (jobId === -1) {
+          if (jobId === 0) {
             return res.json({msg: 'error creating job'});
           }
           Scheduler.setX(jobId, markerData);

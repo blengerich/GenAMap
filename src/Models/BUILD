@@ -17,6 +17,16 @@ cc_library(
 
 
 cc_library(
+	name = "ICLasso",
+	srcs = ["ICLasso.cpp"],
+	hdrs = ["ICLasso.hpp"],
+	copts = ["-DBAZEL"],
+	deps = ["Model",
+	        "ModelOptions"],
+)
+
+
+cc_library(
 	name = "lasso",
 	hdrs = ["lasso.hpp"],
 	copts = ["-DBAZEL"]
