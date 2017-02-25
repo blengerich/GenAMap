@@ -45,7 +45,7 @@ private:
 
     Json::Value decodeStr(string);
     string long2string(long);
-    Json::Value node2json(vector<treeNode*>, int, MatrixXd);
+    Json::Value node2json(vector<treeNode*>, int, MatrixXf);
     Json::Value node2json(vector<treeNode*>, int);
 
 public:
@@ -55,12 +55,12 @@ public:
     }
 
     string encodeMainMessage(mainMessage);
-    string encodeMatrix(const MatrixXd&);
+    string encodeMatrix(const MatrixXf&);
     string encodeResultPack(result_pack);
     string encodeProgressPack(progress_pack);
-    string encodeTraitTreeEffectsizes(Tree*, MatrixXd);
+    string encodeTraitTreeEffectsizes(Tree*, MatrixXf);
     string encodeTraitTree(Tree*);
-    Json::Value encodeVector(MatrixXd);
+    Json::Value encodeVector(MatrixXf);
 
     mainMessage decodeMainMessage(string);
     jobOrder decodeJobOrder(string);

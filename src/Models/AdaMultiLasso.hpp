@@ -22,77 +22,77 @@ using namespace std;
 
 class AdaMultiLasso : public Model{
 private:
-    double lambda1;
-    double lambda2;
-    MatrixXd snpsFeatures1;
-    MatrixXd snpsFeatures2;
+    float lambda1;
+    float lambda2;
+    MatrixXf snpsFeatures1;
+    MatrixXf snpsFeatures2;
 
-    VectorXd w;
-    VectorXd v;
+    VectorXf w;
+    VectorXf v;
 
-    VectorXd theta;
-    VectorXd rho;
+    VectorXf theta;
+    VectorXf rho;
 
-    double penalty_cost();
+    float penalty_cost();
 
     bool initTrainingFlag;
     long taskNum;
 
-    double L;
-    double mu;
-    MatrixXd C;
+    float L;
+    float mu;
+    MatrixXf C;
 
     void initC();
 
     void updateTheta();
     void updateRho();
 
-    static constexpr double default_lambda1 = 0;
-    static constexpr double default_lambda2 = 0;
-    static constexpr double default_mu = 1e-3;
+    static constexpr float default_lambda1 = 0;
+    static constexpr float default_lambda2 = 0;
+    static constexpr float default_mu = 1e-3;
 
 public:
     AdaMultiLasso();
     AdaMultiLasso(const unordered_map<string, string>&);
-    void setLambda1(double);
-    void setLambda2(double);
+    void setLambda1(float);
+    void setLambda2(float);
 
-    void setAttributeMatrix(const string&, MatrixXd*);
-    void setSnpsFeatures1(MatrixXd); // TODO: switch to handling scoped pointers
-    void setSnpsFeatures2(MatrixXd);
-    void setSnpsFeatures(MatrixXd);
-    MatrixXd getSnpsFeatures1();
-    MatrixXd getSnpsFeatures2();
-    VectorXd getW();
-    VectorXd getV();
-    void updateW(VectorXd);
-    void updateV(VectorXd);
+    void setAttributeMatrix(const string&, MatrixXf*);
+    void setSnpsFeatures1(MatrixXf); // TODO: switch to handling scoped pointers
+    void setSnpsFeatures2(MatrixXf);
+    void setSnpsFeatures(MatrixXf);
+    MatrixXf getSnpsFeatures1();
+    MatrixXf getSnpsFeatures2();
+    VectorXf getW();
+    VectorXf getV();
+    void updateW(VectorXf);
+    void updateV(VectorXf);
 
     void initTheta();
     void initRho();
 
-    VectorXd getTheta();
-    VectorXd getRho();
+    VectorXf getTheta();
+    VectorXf getRho();
     void updateTheta_Rho();
 
-    MatrixXd getBeta();
-    MatrixXd getFormattedBeta();
+    MatrixXf getBeta();
+    MatrixXf getFormattedBeta();
 
-    void setX(MatrixXd);
-    void setY(MatrixXd);
-    void setXY(MatrixXd, MatrixXd);
+    void setX(MatrixXf);
+    void setY(MatrixXf);
+    void setXY(MatrixXf, MatrixXf);
     void initBeta();
 
     void assertReadyToRun();
     void initTraining();
-    MatrixXd proximal_derivative();
-    MatrixXd proximal_operator(MatrixXd, float);
-    VectorXd gradient_w();
-    VectorXd gradient_v();
-    VectorXd projection(VectorXd);
-    double getL();
+    MatrixXf proximal_derivative();
+    MatrixXf proximal_operator(MatrixXf, float);
+    VectorXf gradient_w();
+    VectorXf gradient_v();
+    VectorXf projection(VectorXf);
+    float getL();
 
-    double cost();
+    float cost();
 };
 
 

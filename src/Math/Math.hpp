@@ -15,8 +15,8 @@ using namespace std;
 struct treeNode{
     vector<long> trait;
     vector<treeNode*> children;
-    double s;
-    double weight;
+    float s;
+    float weight;
 };
 
 struct minXY{
@@ -46,8 +46,8 @@ private:
     Math(Math const &);  // don't implement
     void operator=(Math const &); // don't implement
 
-    minXY searchMin(MatrixXd);
-    MatrixXd appendColRow(MatrixXd, minXY);
+    minXY searchMin(MatrixXf);
+    MatrixXf appendColRow(MatrixXf, minXY);
     void updateMap(unordered_map<long, treeNode*>*, minXY);
 
 
@@ -57,19 +57,19 @@ public:
         return instance;
     }
     // statistics
-    double variance(VectorXd);
-    double std(VectorXd);
-    double covariance(VectorXd, VectorXd);
-    double correlation(VectorXd, VectorXd);
+    float variance(VectorXf);
+    float std(VectorXf);
+    float covariance(VectorXf, VectorXf);
+    float correlation(VectorXf, VectorXf);
     // matrix
-    void removeCol(MatrixXd*, long);
-    void removeRow(MatrixXd*, long);
-    void removeColRow(MatrixXd*, minXY);
+    void removeCol(MatrixXf*, long);
+    void removeRow(MatrixXf*, long);
+    void removeColRow(MatrixXf*, minXY);
 
 
-    VectorXd L2Thresholding(VectorXd in);
+    VectorXf L2Thresholding(VectorXf in);
 
-    Tree* hierarchicalClustering(MatrixXd);
+    Tree* hierarchicalClustering(MatrixXf);
 };
 
 

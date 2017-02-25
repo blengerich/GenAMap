@@ -22,15 +22,15 @@ public:
     void setL2_reg(float);
 
     // general use methods
-    SparseMatrix<double> derivative();
+    SparseMatrix<float> derivative();
 
-    double cost();
+    float cost();
 
     // algorithm use methods
     // proximal gradient descent
-    SparseMatrix<double> proximal_derivative();
+    SparseMatrix<float> proximal_derivative();
 
-    SparseMatrix<double> proximal_operator(SparseMatrix<double>, float);
+    SparseMatrix<float> proximal_operator(SparseMatrix<float>, float);
 
     LinearRegression();
 
