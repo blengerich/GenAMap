@@ -197,9 +197,9 @@ void ProximalGradientDescent::run(LinearRegression *model) {
 
 void ProximalGradientDescent::run(NeighborSelection *model) {
     int epoch = 0;
-    MatrixXd X_origin = model->getX();
-    MatrixXd X = model->getX();
-    MatrixXd y = model->getX();
+    MatrixXf X_origin = model->getX();
+    MatrixXf X = model->getX();
+    MatrixXf y = model->getX();
     model->setL1_reg(model->getL1_reg()*10);
     long s = y.cols();
     for (long i=0; i<s; i++){
@@ -212,9 +212,9 @@ void ProximalGradientDescent::run(NeighborSelection *model) {
         model->setY(y.col(i));
         model->initBeta();
         model->zeroBetaAt(i);
-        double residue = model->cost();
-        VectorXd grad;
-        VectorXd in;
+        float residue = model->cost();
+        VectorXf grad;
+        VectorXf in;
         epoch = 0; 
         while (!shouldStop && epoch < maxIteration && residue > tolerance && !shouldStop) {
             epoch++;

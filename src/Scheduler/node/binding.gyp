@@ -23,7 +23,7 @@
 			'-fext-numeric-literals'],
 		'cflags!' : ['-fno-exceptions'],
 		'cflags_cc!': ['-fno-rtti', '-fno-exceptions'],
-		"include_dirs": ["../../Algorithms", "../../Models"],
+		"include_dirs": ["../../Algorithms", "../../Models", "../../Graph"],
 		"libraries": [],
 	}
 	]
