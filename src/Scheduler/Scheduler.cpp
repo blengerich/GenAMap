@@ -42,6 +42,7 @@
 #include "Stats/FisherTest.h"
 #include "Stats/Chi2Test.h"
 #include "Stats/WaldTest.h"
+#include "Graph/NeighborSelection.hpp"
 #include "Scheduler/Job.hpp"
 #else
 #include "../Algorithms/Algorithm.hpp"
@@ -64,6 +65,7 @@
 #include "../Stats/FisherTest.h"
 #include "../Stats/Chi2Test.h"
 #include "../Stats/WaldTest.h"
+#include "../Graph/NeighborSelection.hpp"
 #include "../Scheduler/Job.hpp"
 #endif
 
@@ -175,6 +177,10 @@ model_id_t Scheduler::newModel(const ModelOptions_t& options) {
 				models_map[id] = unique_ptr<SparseLMM>(new SparseLMM(options.options));
 				break;
 			}
+      case neighbor_selection: {
+        models_map[id] = unique_ptr<NeighborSelection>(new NeighborSelection(options.options));
+        break;
+      } 
 			default:
 				return 0;
 		}
@@ -365,7 +371,9 @@ void trainAlgorithmThread(uv_work_t* req) {
 		        alg->run(model);
 		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 		        alg->run(model);
-		    } else {
+		    } else if (NeighborSelection* model = dynamic_cast<NeighborSelection*>(job->model)){
+            alg->run(model);
+        } else {
 		        throw runtime_error("Requested model type not implemented for the requested algorithm");
 		    }
 		    alg->finishRun();
@@ -493,7 +501,9 @@ MatrixXd Scheduler::getJobResult(const job_id_t job_id) {
 			return model->getBeta();
 		} else if (WaldTest* model = dynamic_cast<WaldTest*>(job->model)) {
 			return model->getBeta();
-		} else {
+		} else if (NeighborSelection* model = dynamic_cast<NeighborSelection*>(job->model)){
+      return model->getBeta();
+    } else {
 	    	return model->getBeta();
 	    }
 	} else {

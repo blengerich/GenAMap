@@ -195,6 +195,39 @@ void ProximalGradientDescent::run(LinearRegression *model) {
     model->updateBeta(model->getBetaAll());
 }
 
+void ProximalGradientDescent::run(NeighborSelection *model) {
+    int epoch = 0;
+    MatrixXd X_origin = model->getX();
+    MatrixXd X = model->getX();
+    MatrixXd y = model->getX();
+    model->setL1_reg(model->getL1_reg()*10);
+    long s = y.cols();
+    for (long i=0; i<s; i++){
+        if (shouldStop) {
+            break;
+        }
+        X.col(i).setZero();
+        model->setX(X);
+        X.col(i) = X_origin.col(i);
+        model->setY(y.col(i));
+        model->initBeta();
+        model->zeroBetaAt(i);
+        double residue = model->cost();
+        VectorXd grad;
+        VectorXd in;
+        epoch = 0; 
+        while (!shouldStop && epoch < maxIteration && residue > tolerance && !shouldStop) {
+            epoch++;
+            progress = (float(epoch) + i*maxIteration )/(maxIteration*s);
+            grad = model->proximal_derivative();
+            in = model->getBeta() - learningRate * grad;
+            model->updateBeta(model->proximal_operator(in, learningRate));
+            residue = model->cost();
+        }
+        model->updateBetaAll(model->getBeta());
+    }
+    model->updateBeta(model->getBetaAll());
+}
 
 void ProximalGradientDescent::run(TreeLasso * model) {
     model->initBeta();
