@@ -125,6 +125,10 @@ algorithm_id_t Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 				algorithms_map[id] = unique_ptr<HypoTestPlaceHolder>(new HypoTestPlaceHolder(options.options));
 				break;
 			}
+            case algorithm_type::neighbor_selection: {
+                algorithms_map[id] = unique_ptr<NeighborSelection>(new NeighborSelection(options.options));
+                break;
+            }
 			default:
 				return 0;
 		}
@@ -177,10 +181,6 @@ model_id_t Scheduler::newModel(const ModelOptions_t& options) {
 				models_map[id] = unique_ptr<SparseLMM>(new SparseLMM(options.options));
 				break;
 			}
-      case neighbor_selection: {
-        models_map[id] = unique_ptr<NeighborSelection>(new NeighborSelection(options.options));
-        break;
-      } 
 			default:
 				return 0;
 		}
@@ -371,9 +371,7 @@ void trainAlgorithmThread(uv_work_t* req) {
 		        alg->run(model);
 		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
 		        alg->run(model);
-		    } else if (NeighborSelection* model = dynamic_cast<NeighborSelection*>(job->model)){
-            alg->run(model);
-        } else {
+		    } else {
 		        throw runtime_error("Requested model type not implemented for the requested algorithm");
 		    }
 		    alg->finishRun();
@@ -389,7 +387,15 @@ void trainAlgorithmThread(uv_work_t* req) {
 				throw runtime_error("Requested model type not implemented for the requested algorithm");
 			}
 			alg->finishRun();
-		} else {
+		} else if (NeighborSelection* alg = dynamic_cast<NeighborSelection*>(job->algorithm)) {
+            alg->setUpRun();
+            if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+		        alg->run(model);
+		    } else {
+		        throw runtime_error("Requested model type not implemented for the requested algorithm");
+		    }
+            alg->finishRun();
+        } else {
 			throw runtime_error("Requested algorithm type not implemented");
 		}
 	} catch (const exception& ex) {
@@ -501,9 +507,7 @@ MatrixXf Scheduler::getJobResult(const job_id_t job_id) {
 			return model->getBeta();
 		} else if (WaldTest* model = dynamic_cast<WaldTest*>(job->model)) {
 			return model->getBeta();
-		} else if (NeighborSelection* model = dynamic_cast<NeighborSelection*>(job->model)){
-      return model->getBeta();
-    } else {
+		} else {
 	    	return model->getBeta();
 	    }
 	} else {

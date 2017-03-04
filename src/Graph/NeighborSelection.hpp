@@ -1,56 +1,59 @@
 //
-// Created by weifang on 2/19/17.
+// Created by wei on 3/3/17.
 //
 
-#ifndef GRAPH_NEIGHBORSELECTION_HPP
-#define GRAPH_NEIGHBORSELECTION_HPP
+#ifndef NEIGHBOR_SELECTION_HPP
+#define NEIGHBOR_SELECTION_HPP
 
-
-#include "../Models/Model.hpp"
-
-#include <Eigen/Dense>
-#include <unordered_map>
+#include <map>
 
 #ifdef BAZEL
-#include "Models/ModelOptions.hpp"
+#include "Algorithms/Algorithm.hpp"
+#include "Models/LinearRegression.hpp"
 #else
-#include "../Models/ModelOptions.hpp"
+#include "../Algorithms/Algorithm.hpp"
+#include "../Algorithms/AlgorithmOptions.hpp"
+#include "../Models/LinearRegression.hpp"
 #endif
 
-using namespace Eigen;
+using namespace std;
 
-class NeighborSelection : public virtual Model {
+class NeighborSelection : public Algorithm {
 private:
-    float L1_reg;
-    float L2_reg;
-    MatrixXf betaAll;
+    float tolerance;
+    float learningRate;
+    float learningRate2;
+    float prev_residue;
+    long innerStep1;
+    long innerStep2;
 
-    static constexpr float default_L1_reg = 0;
-    static constexpr float default_L2_reg = 0;
+    bool checkVectorConvergence(VectorXf, VectorXf, float);
+
+    static constexpr float default_learning_rate = 0.001;
+    static constexpr float default_learning_rate2 = 0.001;
+    static constexpr float default_tolerance = 0.000001;
+    static constexpr long default_inner_step1 = 10;
+    static constexpr long default_inner_step2 = 10;
+
 public:
     NeighborSelection();
-    NeighborSelection(const unordered_map<string, string>& options);
+    NeighborSelection(const unordered_map<string, string>&);
 
-    void setL1_reg(float);
-    float getL1_reg();
-    void setL2_reg(float);
-    float getL2_reg();
+    void setUpRun();
+    void finishRun();
 
-    void zeroBetaAt(int);
+    void run(Model*);
+    void run(LinearRegression*);
 
-    // general use methods
-    MatrixXf derivative();
-    float cost();
-
-    // algorithm use methods
-    // proximal gradient descent
-    MatrixXf proximal_derivative();
-    MatrixXf proximal_operator(VectorXf, float);
-
+    void setLearningRate(float);
+    void setTolerance(float);
+    void setLearningRate2(float);
+    void setPrevResidule(float);
+    void setInnerStep1(long);
+    void setInnerStep2(long);
     void assertReadyToRun();
 
-    void updateBetaAll(MatrixXf);
-    MatrixXf getBetaAll();
+    /*void stop();*/
 };
 
 

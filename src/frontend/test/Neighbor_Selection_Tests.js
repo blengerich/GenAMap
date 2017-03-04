@@ -3,11 +3,11 @@ var expect = require('chai').expect;
 var backend = require('../../Scheduler/node/build/Release/scheduler.node');
 
 // Model Options
-var model_opts = {'type': '10',	// Linear Regression
+var model_opts = {'type': '0',	// Linear Regression
 			'options': {'lambda': 0.5, 'L1_lambda': 1}};
 
 // Algorithm Options
-var alg_opts = {'type': 1, 	// ProximalGradientDescent
+var alg_opts = {'type': 5, 	// ProximalGradientDescent
 			'options': {'tolerance': 0.01, 'learning_rate': 0.001}};
 
 // Fake Data

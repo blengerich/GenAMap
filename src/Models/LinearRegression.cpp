@@ -46,9 +46,9 @@ void LinearRegression::assertReadyToRun() {
                      && (X.cols() > 0) && (y.cols() > 0));
     const string err_str = "X and Y matrices of size (" + to_string(X.rows()) + "," + to_string(X.cols()) + "), and ("
             + to_string(y.rows()) + "," + to_string(y.cols()) + ") are not compatible.";
-    if (!ready) {
-        throw runtime_error(err_str);
-    }
+    //if (!ready) {
+    //    throw runtime_error(err_str);
+    //}
 }
 
 void LinearRegression::setL1_reg(float l1) { L1_reg = l1; };

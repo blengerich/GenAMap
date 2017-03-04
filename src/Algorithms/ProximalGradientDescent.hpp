@@ -15,7 +15,6 @@
 #include "Models/MultiPopLasso.hpp"
 #include "Models/GFlasso.h"
 #include "Models/SparseLMM.h"
-#include "Graph/NeighborSelection.hpp"
 #else
 #include "Algorithm.hpp"
 #include "AlgorithmOptions.hpp"
@@ -25,7 +24,6 @@
 #include "../Models/AdaMultiLasso.hpp"
 #include "../Models/GFlasso.h"
 #include "../Models/SparseLMM.h"
-#include "../Graph/NeighborSelection.hpp"
 #endif
 
 
@@ -62,8 +60,6 @@ public:
     void run(AdaMultiLasso*);
     void run(Gflasso*);
     void run(SparseLMM*);
-
-    void run(NeighborSelection*);
 
     void setLearningRate(float);
     void setTolerance(float);
