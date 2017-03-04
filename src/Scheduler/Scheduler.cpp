@@ -125,10 +125,10 @@ algorithm_id_t Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 				algorithms_map[id] = unique_ptr<HypoTestPlaceHolder>(new HypoTestPlaceHolder(options.options));
 				break;
 			}
-            case algorithm_type::neighbor_selection: {
-                algorithms_map[id] = unique_ptr<NeighborSelection>(new NeighborSelection(options.options));
-                break;
-            }
+			case algorithm_type::neighbor_selection: {
+				algorithms_map[id] = unique_ptr<NeighborSelection>(new NeighborSelection(options.options));
+				break;
+			}
 			default:
 				return 0;
 		}
@@ -321,7 +321,7 @@ void trainAlgorithmThread(uv_work_t* req) {
 		    alg->finishRun();
 		} else if (GridSearch* alg = dynamic_cast<GridSearch*>(job->algorithm)) {
 			alg->setUpRun();
-			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+		    if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
 		        alg->run(model);
 		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
 		        alg->run(model);
@@ -388,14 +388,14 @@ void trainAlgorithmThread(uv_work_t* req) {
 			}
 			alg->finishRun();
 		} else if (NeighborSelection* alg = dynamic_cast<NeighborSelection*>(job->algorithm)) {
-            alg->setUpRun();
-            if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
-		        alg->run(model);
-		    } else {
-		        throw runtime_error("Requested model type not implemented for the requested algorithm");
-		    }
-            alg->finishRun();
-        } else {
+			alg->setUpRun();
+			if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+				alg->run(model);
+			} else {
+				throw runtime_error("Requested model type not implemented for the requested algorithm");
+			}
+			alg->finishRun();
+		} else {
 			throw runtime_error("Requested algorithm type not implemented");
 		}
 	} catch (const exception& ex) {
