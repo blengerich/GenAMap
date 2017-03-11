@@ -30,32 +30,14 @@ NeighborSelection::NeighborSelection(const unordered_map<string, string>& opts) 
     } catch(std::out_of_range& oor) {
         learningRate = default_learning_rate;
     }
-    try {
-        learningRate2 = stod(opts.at("learning_rate2"));
-    } catch(std::out_of_range& oor) {
-        learningRate2 = default_learning_rate2;
-    }
-    try {
-        innerStep1 = stoi(opts.at("innerStep1"));
-    } catch(std::out_of_range& oor) {
-        innerStep1 = default_inner_step1;
-    }
-    try {
-        innerStep2 = stoi(opts.at("innerStep2"));
-    } catch(std::out_of_range& oor) {
-        innerStep2 = default_inner_step2;
-    }
     prev_residue = numeric_limits<float>::max();
 }
 
 
 NeighborSelection::NeighborSelection() {
     learningRate = default_learning_rate;
-    learningRate2 = default_learning_rate2;
     tolerance = default_tolerance;
     prev_residue = numeric_limits<float>::max();
-    innerStep1 = default_inner_step1;
-    innerStep2 = default_inner_step2;
 }
 
 
@@ -67,21 +49,8 @@ void NeighborSelection::setTolerance(float tol) {
     tolerance = tol;
 }
 
-
-void NeighborSelection::setLearningRate2(float d) {
-    learningRate2 = d;
-}
-
 void NeighborSelection::setPrevResidule(float d) {
     prev_residue = d;
-}
-
-void NeighborSelection::setInnerStep1(long d) {
-    innerStep1 = d;
-}
-
-void NeighborSelection::setInnerStep2(long d) {
-    innerStep2 =d;
 }
 
 void NeighborSelection::assertReadyToRun() {
