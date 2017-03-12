@@ -30,14 +30,12 @@ NeighborSelection::NeighborSelection(const unordered_map<string, string>& opts) 
     } catch(std::out_of_range& oor) {
         learningRate = default_learning_rate;
     }
-    prev_residue = numeric_limits<float>::max();
 }
 
 
 NeighborSelection::NeighborSelection() {
     learningRate = default_learning_rate;
     tolerance = default_tolerance;
-    prev_residue = numeric_limits<float>::max();
 }
 
 
@@ -47,10 +45,6 @@ NeighborSelection::NeighborSelection() {
 
 void NeighborSelection::setTolerance(float tol) {
     tolerance = tol;
-}
-
-void NeighborSelection::setPrevResidule(float d) {
-    prev_residue = d;
 }
 
 void NeighborSelection::assertReadyToRun() {
@@ -129,9 +123,4 @@ void NeighborSelection::run(LinearRegression *model) {
         }
     }
     model->updateBeta(result);
-}
-
-bool NeighborSelection::checkVectorConvergence(VectorXf v1, VectorXf v2, float d) {
-    float r = (v1 - v2).squaredNorm();
-    return (r < d);
 }

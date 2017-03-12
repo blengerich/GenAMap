@@ -22,9 +22,6 @@ class NeighborSelection : public Algorithm {
 private:
     float tolerance;
     float learningRate;
-    float prev_residue;
-
-    bool checkVectorConvergence(VectorXf, VectorXf, float);
 
     static constexpr float default_learning_rate = 0.001;
     static constexpr float default_tolerance = 0.000001;
@@ -41,7 +38,6 @@ public:
 
     void setLearningRate(float);
     void setTolerance(float);
-    void setPrevResidule(float);
     void assertReadyToRun();
 
     /*void stop();*/
