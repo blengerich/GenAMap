@@ -15,7 +15,8 @@
 			"../../Models/SparseLMM.cpp", "../../Models/TreeLasso.cpp",
 			"../../Stats/Stats.cpp", "../../Stats/Chi2Test.cpp", "../../Stats/FisherTest.cpp", "../../Stats/WaldTest.cpp",
 			"../../Models/LinearMixedModel.cpp",
- 			"../../Graph/NeighborSelection.cpp"],
+ 			"../../Graph/NeighborSelection.cpp",
+			"../../Graph/GraphicalLasso.cpp"],
 		'cflags': [
 			'-Wall',
 			'-std=c++11',

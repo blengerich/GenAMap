@@ -66,6 +66,7 @@
 #include "../Stats/Chi2Test.h"
 #include "../Stats/WaldTest.h"
 #include "../Graph/NeighborSelection.hpp"
+#include "../Graph/GraphicalLasso.hpp"
 #include "../Scheduler/Job.hpp"
 #endif
 
@@ -127,6 +128,10 @@ algorithm_id_t Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 			}
 			case algorithm_type::neighbor_selection: {
 				algorithms_map[id] = unique_ptr<NeighborSelection>(new NeighborSelection(options.options));
+				break;
+			}
+			case algorithm_type::graphical_lasso: {
+				algorithms_map[id] = unique_ptr<GraphicalLasso>(new GraphicalLasso(options.options));
 				break;
 			}
 			default:
@@ -395,7 +400,15 @@ void trainAlgorithmThread(uv_work_t* req) {
 				throw runtime_error("Requested model type not implemented for the requested algorithm");
 			}
 			alg->finishRun();
-		} else {
+		}  else if (GraphicalLasso* alg = dynamic_cast<GraphicalLasso*>(job->algorithm)) {
+			alg->setUpRun();
+			if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+				alg->run(model);
+			} else {
+				throw runtime_error("Requested model type not implemented for the requested algorithm");
+			}
+			alg->finishRun();
+		}else {
 			throw runtime_error("Requested algorithm type not implemented");
 		}
 	} catch (const exception& ex) {
