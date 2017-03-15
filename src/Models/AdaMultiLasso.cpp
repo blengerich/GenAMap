@@ -117,7 +117,7 @@ VectorXf AdaMultiLasso::gradient_v() {
     VectorXf grad = VectorXf::Zero(c);
     for (long j=0;j<c;j++){
         grad(j) += (-k*snpsFeatures1.col(j).array()/theta.array()).sum();
-        grad(j) += (snpsFeatures1.col(j).transpose()*(beta.array().abs().matrix())).array().sum();  // double check this shortcut
+        grad(j) += (snpsFeatures1.col(j).transpose()*(beta.array().abs().matrix())).array().sum();  // float check this shortcut
     }
     return grad;
 }

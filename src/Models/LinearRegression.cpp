@@ -22,7 +22,7 @@ using namespace std;
 LinearRegression::LinearRegression() {
     L1_reg = default_L1_reg;
     L2_reg = default_L2_reg;
-    betaAll = MatrixXd::Ones(1,1);
+    betaAll = MatrixXf::Ones(1,1);
     logisticFlag = false;
 };
 
@@ -38,7 +38,7 @@ LinearRegression::LinearRegression(const unordered_map<string, string>& options)
     } catch (std::out_of_range& oor) {
         L2_reg = default_L2_reg;
     }
-    betaAll = MatrixXd::Ones(1,1);
+    betaAll = MatrixXf::Ones(1,1);
     logisticFlag = false;
 };
 
@@ -58,7 +58,7 @@ void LinearRegression::setL1_reg(float l1) { L1_reg = l1; };
 
 void LinearRegression::setL2_reg(float l2) { L2_reg = l2; };
 
-double LinearRegression::cost() {
+float LinearRegression::cost() {
     if (logisticFlag){
         return 0.5 * (y - (X * beta).unaryExpr(&sigmoid)).squaredNorm()/X.rows() + L1_reg * beta.lpNorm<1>() + L2_reg * beta.squaredNorm();
     }
@@ -72,7 +72,7 @@ MatrixXf LinearRegression::derivative() {
            L2_reg * beta.sum()).matrix();
 };
 
-MatrixXd LinearRegression::proximal_derivative() {
+MatrixXf LinearRegression::proximal_derivative() {
     if (logisticFlag){
         return -1.0 * X.transpose() * (y - (X * beta).unaryExpr(&sigmoid));
     }

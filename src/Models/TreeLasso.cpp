@@ -239,7 +239,7 @@ Tree *TreeLasso::getTree() {
     return T;
 }
 
-double TreeLasso::cost() {
+float TreeLasso::cost() {
     if (logisticFlag){
         return 0.5*(y - (X * beta).unaryExpr(&sigmoid)).squaredNorm() + penalty_cost();
     }
@@ -248,11 +248,11 @@ double TreeLasso::cost() {
     }
 }
 
-//double TreeLasso::penalty_cost(){
+//float TreeLasso::penalty_cost(){
 //    queue<treeNode*> nodes;
 //    treeNode * root = T->getRoot();
 //    nodes.push(root);
-//    double r = 0.0;
+//    float r = 0.0;
 //    while (nodes.size()>0){
 //        treeNode* n = nodes.front();
 //        if (n->children.size()==0){

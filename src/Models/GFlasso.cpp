@@ -146,7 +146,7 @@ void Gflasso::setXY(MatrixXf X,MatrixXf Y){
 //}
 //
 //// Everything is provided i.e. Training data,traits corr. and regularization params
-//void Gflasso::train(MatrixXf X,MatrixXf Y,MatrixXf corr_coeff,double lamdba,double gamma){
+//void Gflasso::train(MatrixXf X,MatrixXf Y,MatrixXf corr_coeff,float lamdba,float gamma){
 //    this->X = X;
 //    this->y = Y;
 //    this->corr_coff = corr_coff;
@@ -187,7 +187,7 @@ float Gflasso::gflasso_fusion_penalty(){
 
 // Cost function of GFlasso
 
-double Gflasso::cost(){
+float Gflasso::cost(){
     if (logisticFlag){
         return (
                 (y - (X * beta).unaryExpr(&sigmoid)).squaredNorm() +

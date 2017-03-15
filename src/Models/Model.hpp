@@ -23,11 +23,11 @@ struct modelResult{
 
 class Model {
 protected:
-    MatrixXd X;
-    MatrixXd beta;
-    MatrixXd y;
+    MatrixXf X;
+    MatrixXf beta;
+    MatrixXf y;
     bool logisticFlag;
-    static double sigmoid(double x){return 1.0 / (1.0 + exp(-x));}
+    static float sigmoid(float x){return 1.0 / (1.0 + exp(-x));}
     void checkLogisticRegression();
 public:
     void setX(const MatrixXf&);
