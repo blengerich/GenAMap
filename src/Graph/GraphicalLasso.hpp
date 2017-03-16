@@ -15,6 +15,7 @@
 #include "../Algorithms/Algorithm.hpp"
 #include "../Algorithms/AlgorithmOptions.hpp"
 #include "../Models/LinearRegression.hpp"
+#include "../Math/Math.hpp"
 #endif
 
 using namespace std;
@@ -32,7 +33,6 @@ private:
     vector<MatrixXf> partitionBlocks(MatrixXf&);
     MatrixXf composeBlocks(MatrixXf& m_11, MatrixXf& m_12, float m_22);
     MatrixXf matrixRaiseToHalf(MatrixXf&);
-    MatrixXf pseudoInverse(MatrixXf& matrix);
 
 public:
     GraphicalLasso();

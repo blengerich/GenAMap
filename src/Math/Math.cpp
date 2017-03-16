@@ -124,6 +124,16 @@ VectorXf Math::L2Thresholding(VectorXf in) {
     }
 }
 
+MatrixXf Math::pseudoInverse(MatrixXf& matrix) {
+    float epsilon = numeric_limits<float>::epsilon();
+    JacobiSVD<MatrixXf> svd(matrix, ComputeThinU | ComputeThinV);
+    float tolerance = epsilon * max(matrix.cols(), matrix.rows()) * 
+                      svd.singularValues().array().abs()(0);
+    return svd.matrixV() * (svd.singularValues().array().abs() > tolerance)
+      .select(svd.singularValues().array().inverse(), 0)
+      .matrix().asDiagonal() * svd.matrixU().adjoint();
+}
+
 Tree *Math::hierarchicalClustering(MatrixXf X) {
     Tree * T;
     long n = X.cols();

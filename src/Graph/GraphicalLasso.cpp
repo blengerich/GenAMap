@@ -82,15 +82,7 @@ MatrixXf GraphicalLasso::matrixRaiseToHalf(MatrixXf& matrix) {
     return U * D * U.transpose();
 }
 
-MatrixXf GraphicalLasso::pseudoInverse(MatrixXf& matrix) {
-    float epsilon = numeric_limits<float>::epsilon();
-    JacobiSVD<MatrixXf> svd(matrix, ComputeThinU | ComputeThinV);
-    float tolerance = epsilon * max(matrix.cols(), matrix.rows()) * 
-                      svd.singularValues().array().abs()(0);
-    return svd.matrixV() * (svd.singularValues().array().abs() > tolerance)
-      .select(svd.singularValues().array().inverse(), 0)
-      .matrix().asDiagonal() * svd.matrixU().adjoint();
-}
+
 
 void GraphicalLasso::run(LinearRegression *model) {
     MatrixXf X = model->getX();
@@ -99,7 +91,7 @@ void GraphicalLasso::run(LinearRegression *model) {
     stdNormalize(X);
     MatrixXf S = X.transpose() * X / num_samples;
     MatrixXf W = S;
-    MatrixXf W_inv = pseudoInverse(W);
+    MatrixXf W_inv = Math::getInstance().pseudoInverse(W);
     MatrixXf W_inv_old = W_inv;
     float regularizer = model->getL1_reg();
 
@@ -113,7 +105,7 @@ void GraphicalLasso::run(LinearRegression *model) {
             
             // find W_11 ^ (1/2)
             MatrixXf W_11_half = matrixRaiseToHalf(W_11); 
-            MatrixXf b = pseudoInverse(W_11_half) * S_blocks[1];
+            MatrixXf b = Math::getInstance().pseudoInverse(W_11_half) * S_blocks[1];
             
             // run linear regression with lasso
             MatrixXf beta = fit(model, W_11_half, b);
@@ -165,7 +157,6 @@ MatrixXf GraphicalLasso::fit(LinearRegression* model, MatrixXf& X, MatrixXf& Y) 
 
 void GraphicalLasso::stdNormalize(MatrixXf& matrix) {
     RowVectorXf mean = matrix.colwise().mean();
-    // unbiased estimation
     RowVectorXf std = ((matrix.rowwise() - mean).array().square().colwise().sum() / 
                        (matrix.rows())).sqrt();
     matrix = (matrix.rowwise() - mean).array().rowwise() / std.array();
