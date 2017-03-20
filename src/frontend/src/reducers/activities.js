@@ -11,7 +11,7 @@ const activity = (state, action) => {
         completed: false,
         progress: 0.0,
         projectId: action.projectId,
-        resultsPath: action.resultsPath,
+        resultsPaths: action.resultsPaths,
         status: 'running'
       }
     case RECEIVE_UPDATE_ACTIVITY:
@@ -22,7 +22,7 @@ const activity = (state, action) => {
           completed: true,
           progress: 1.0,
           projectId: action.projectId,
-          resultsPath: action.resultsPath,
+          resultsPaths: action.resultsPaths,
           status: 'completed'
         }
       } else {
@@ -32,7 +32,7 @@ const activity = (state, action) => {
           completed: false,
           progress: action.progress,
           projectId: action.projectId,
-          resultsPath: action.resultsPath,
+          resultsPaths: action.resultsPaths,
           status: 'running'
         }
       }

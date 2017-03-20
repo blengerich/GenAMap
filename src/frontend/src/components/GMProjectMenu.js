@@ -15,10 +15,17 @@ import GMGDCDialog from './GMGDCDialog'
 const GMProjectContent = React.createClass({
   getDataUrl: function() {
     const file = this.props.data
+    console.log(file)
     if (file.filetype === 'resultFile' && file.info.resultType === 'matrix') {
       const markerLabelId = file.info.labels.marker
       const traitLabelId = file.info.labels.trait
       return '/visualization/matrix/' + markerLabelId + '/' + traitLabelId + '/' + file.id
+    } else if (file.filetype === 'resultFile' && file.info.resultType === 'dendrogram') {
+      const markerLabelId = file.info.labels.marker
+      const traitLabelId = file.info.labels.trait
+      const tree1Id = file.info.clusterings.tree1
+      const tree2Id = file.info.clusterings.tree2
+      return '/visualization/dendrogram/' + markerLabelId + '/' + traitLabelId + '/' + file.id + '/' + tree1Id + '/' + tree2Id
     } else {
       return '/data/' + file.id
     }
@@ -94,6 +101,7 @@ const GMProjectContent = React.createClass({
     return
   },
   render: function () {
+    console.log(this.props.data.name)
     return (
       <ListItem
         className='gm-project__file'
@@ -179,6 +187,7 @@ var GMProjectList = React.createClass({
 
 class GMProjectMenu extends Component {
   render () {
+    console.log(this.props.projects)
     return (
       <List>
         <GMProjectList projects={this.props.projects} actions={this.props.projectActions} />

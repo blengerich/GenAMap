@@ -81,6 +81,7 @@ const project = (state = initialProject, action) => {
       
       return Object.assign({}, state, { files: updatedFiles })
     case RECEIVE_ANALYSIS_RESULTS:
+      console.log(action.data)
       const filesWithResults = state.files.concat(action.data.files)
       const itemsWithResults = addFilesToItems(state.items, action.data.files)
       return Object.assign({}, state, { files: filesWithResults, items: itemsWithResults })

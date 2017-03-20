@@ -131,7 +131,7 @@ export function runAnalysis (data) {
         id: json.jobId,
         name: data.jobName,
         projectId: data.project,
-        resultsPath: json.resultsPath
+        resultsPaths: json.resultsPaths
       }
       dispatch(addActivity(activity))
     }).catch(err => console.log('Error: ', err))
@@ -217,7 +217,7 @@ export function addActivity (activity) {
     id: activity.id,
     name: activity.name,
     projectId: activity.projectId,
-    resultsPath: activity.resultsPath
+    resultsPaths: activity.resultsPaths
   }
 }
 
@@ -265,7 +265,7 @@ export function receiveUpdateActivity (activity, response) {
     name: activity.name,
     progress: response.progress,
     projectId: activity.projectId,
-    resultsPath: activity.resultsPath
+    resultsPaths: activity.resultsPaths
   }
 }
 
@@ -300,7 +300,7 @@ function requestAnalysisResults(activity) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         projectId: activity.projectId,
-        resultsPath: activity.resultsPath
+        resultsPaths: activity.resultsPaths
       })
     }
 

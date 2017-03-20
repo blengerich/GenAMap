@@ -525,10 +525,10 @@ var GMDendrogramChart = React.createClass({
       points: []
     }
   },
-  render() {
+  /*render() {
     return ();
-  }
-	/*render() {
+  }*/
+	render() {
 		return (
       <div>
         <div id="dendrogramChart" style={{ "marginTop": "25px" }}>
@@ -560,7 +560,7 @@ var GMDendrogramChart = React.createClass({
         </div>
       </div>
     );
-  }*/
+  }
 });
 
 export default GMDendrogramChart
