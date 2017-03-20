@@ -33,7 +33,12 @@ void MultiPopLasso::setPopulation(VectorXf pop) {
 
 float MultiPopLasso::cost() {
     initTraining();
-    return 0.5 * (y - X * beta).squaredNorm() + lambda * groupPenalization();
+    if (logisticFlag){
+        return 0.5 * (y - (X * beta).unaryExpr(&sigmoid)).squaredNorm() + lambda * groupPenalization();
+    }
+    else{
+        return 0.5 * (y - X * beta).squaredNorm() + lambda * groupPenalization();
+    }
 }
 
 float MultiPopLasso::groupPenalization() {
@@ -57,6 +62,7 @@ void MultiPopLasso::assertReadyToRun() {
         throw runtime_error("Population labels of length " + to_string(population.rows()) + 
             " are the wrong size for X with " + to_string(X.rows()) + " samples.");
     }
+    checkLogisticRegression();
     cerr << "assertReadyToRun passed" << endl;
 }
 
@@ -193,7 +199,12 @@ MatrixXf MultiPopLasso::proximal_derivative() {
     for (long i=0;i<r*popNum;i++){
         A.row(i) = Math::getInstance().L2Thresholding(tmp.row(i)/mu);
     }
-    return X.transpose()*(X*beta-y) + C.transpose()*A;
+    if (logisticFlag){
+        return X.transpose()*((X*beta).unaryExpr(&sigmoid)-y) + C.transpose()*A;
+    }
+    else{
+        return X.transpose()*(X*beta-y) + C.transpose()*A;
+    }
 }
 
 MatrixXf MultiPopLasso::proximal_operator(MatrixXf in, float lr) {
@@ -203,13 +214,13 @@ MatrixXf MultiPopLasso::proximal_operator(MatrixXf in, float lr) {
     return (in.array()*sign.array()).matrix();
 }
 
-//MatrixXf MultiPopLasso::deriveMatrixA(double lr, long loops, double tol) {
+//MatrixXf MultiPopLasso::deriveMatrixA(float lr, long loops, float tol) {
 //    long r = beta.rows();
 //    long c = C.rows();
 //    MatrixXf A = MatrixXf::Zero(r, c);
 //    MatrixXf bct = beta*C.transpose();
-//    double prev_residue = numeric_limits<double>::max();
-//    double curr_residue;
+//    float prev_residue = numeric_limits<float>::max();
+//    float curr_residue;
 //    for (long i=0;i<loops;i++){
 //        A = A - lr*(bct - A);
 //        A = project(A);
@@ -311,6 +322,7 @@ MultiPopLasso::MultiPopLasso() {
     mu = default_mu;
     gamma = default_gamma;
     betaAll = MatrixXf::Ones(1,1);
+    logisticFlag = false;
 }
 
 MultiPopLasso::MultiPopLasso(const unordered_map<string, string> &options) {
@@ -331,6 +343,7 @@ MultiPopLasso::MultiPopLasso(const unordered_map<string, string> &options) {
         gamma = default_gamma;
     }
     betaAll = MatrixXf::Ones(1,1);
+    logisticFlag = false;
 }
 
 void MultiPopLasso::updateBetaAll() {
