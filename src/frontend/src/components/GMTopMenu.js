@@ -61,6 +61,9 @@ var GMTopMenu = React.createClass({
   handleAboutButton: function(event) {
     window.open('http://www.sailing.cs.cmu.edu/main/genamap/', '_blank')
   },
+  handleHelpButton: function(event) {
+    window.open('../instructions.pdf', '_blank')
+  },
   handleLogoutButton: function (event) {
     this.props.handleLogoutButton()
   },
@@ -96,6 +99,7 @@ var GMTopMenu = React.createClass({
           <FlatButton style={styles.appBarLink} label='Activity' onClick={this.handleActivityButton} />
           <FlatButton style={styles.appBarLink} label='Account' onClick={this.handleSettingsButton} />
           <FlatButton style={styles.appBarLink} label='About' onClick={this.handleAboutButton} />
+          <FlatButton style={styles.appBarLink} label='Tutorial' onClick={this.handleHelpButton} />
           <FlatButton style={styles.appBarLink} label='Logout' onClick={this.handleLogoutButton} />
         </AppBar>
         <GMRunAnalysisDialogContainer
