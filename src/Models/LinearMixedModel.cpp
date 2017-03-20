@@ -157,7 +157,7 @@ float LinearMixedModel::get_log_likelihood_value(float lambda) {
 
         // Check if the term is less then zero or not, if yes skip it as it will be inf.
         if (float(S(i, i) + lambda) <= 0.0) {
-//            std::cout << "LLM Err : Log term is neg.... val = " << double(S(i, i) + lambda) << " for n = " <<
+//            std::cout << "LLM Err : Log term is neg.... val = " << float(S(i, i) + lambda) << " for n = " <<
 //            i << std::endl;
             continue;
         }
