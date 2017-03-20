@@ -31,7 +31,9 @@ const styles = {
     left: '35%',
     top: '20%',
     width: '30%',
-    height: '60%',
+    height: '50%',
+    minWidth: '450px',
+    minHeight: '500px',
     textAlign: 'center'
   },
   form: {
@@ -94,6 +96,7 @@ var GMConfirmAccount = React.createClass({
             onClick={this.submitConfirm}
           />
         </div>
+
       </Dialog>
     )
   },
@@ -112,7 +115,6 @@ class CreateAccount extends Component {
   render () {
     const { errorMessage } = this.props
     const logosrc = 'images/' + logos[0]
-
     return (
       <div style={styles.background}>
         <div style={styles.body}>
@@ -212,12 +214,15 @@ class CreateAccount extends Component {
     const organization = (this.state && this.state.organization) ? this.state.organization : ''
     const creds = { email, password, password2, organization }
     this.props.onCreateAccountClick(creds)
+    const { errorMessage } = this.props
+    this.setState({open: true})
   }
 }
 
 CreateAccount.propTypes = {
   onCreateAccountClick: PropTypes.func.isRequired,
-  errorMessage: PropTypes.string
+  errorMessage: PropTypes.string,
+  
 }
 
 export default CreateAccount
