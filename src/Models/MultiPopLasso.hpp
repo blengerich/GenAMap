@@ -44,7 +44,7 @@ private:
     MatrixXf normalizeData_col(MatrixXf);
     void formatData();
 
-//    MatrixXf deriveMatrixA(double, long, double);
+//    MatrixXf deriveMatrixA(float, long, float);
 //    MatrixXf project(MatrixXf);
 
     vector<long> getPopulationIndex(long);

@@ -114,3 +114,18 @@ modelResult Model::getClusteringResult() {
     cr.beta = B;
     return cr;
 }
+
+void Model::checkLogisticRegression() {
+    logisticFlag = true;
+    long n = y.rows();
+    long k = y.cols();
+    for (long i=0;i<n&&logisticFlag;i++){
+        for (long j=0;j<k&&logisticFlag;j++){
+            if (y(i,j)!=0 and y(i,j)!=1){
+                logisticFlag = false;
+            }
+        }
+    }
+// logisticFlag = (y-y.cwiseProduct(y)).sum() == 0;
+// a potential faster way of calculating logisticFlag, depends on how often we met logistic regression data
+}

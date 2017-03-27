@@ -20,8 +20,8 @@ var smallY = [[1,2], [3,4]];
 
 var largeX = [];
 var largeY = [];
-const n_patients = 3;
-const n_markers = 100;
+const n_patients = 500;
+const n_markers = 500;
 const n_traits = 1;
 for (i = 0; i < n_patients; i++) {
 	var markers = [];
