@@ -15,18 +15,21 @@ Gflasso::Gflasso() {
     lambda_flasso = 0.0;
     gamma_flasso = 0.0;
     flasso_type = GcFlasso;
+    logisticFlag = false;
 }
 
 Gflasso::Gflasso(float lambda,float gamma){
     lambda_flasso = lambda;
     gamma_flasso = gamma;
     flasso_type = GcFlasso;
+    logisticFlag = false;
 }
 
 Gflasso::Gflasso(MatrixXf corr_coff,float lambda,float gamma){
     this->corr_coff = corr_coff;
     gamma_flasso = gamma;
     lambda_flasso = lambda;
+    logisticFlag = false;
 }
 
 Gflasso::Gflasso(const unordered_map<string, string> &options) {
@@ -45,6 +48,7 @@ Gflasso::Gflasso(const unordered_map<string, string> &options) {
     } catch (std::out_of_range& oor) {
         flasso_type = default_flasso_type;    
     }
+    logisticFlag = false;
 }
 
 // Setting and getting various params of GFLasso model
@@ -110,6 +114,7 @@ void Gflasso::assertReadyToRun() {
         throw runtime_error("X and Y matrices of size (" + to_string(X.rows()) + "," + to_string(X.cols()) + "), and (" +
                             to_string(y.rows()) + "," + to_string(y.cols()) + ") are not compatible.");
     }
+    checkLogisticRegression();
 }
 
 // Training functions : X,Y and other parameters
@@ -141,7 +146,7 @@ void Gflasso::setXY(MatrixXf X,MatrixXf Y){
 //}
 //
 //// Everything is provided i.e. Training data,traits corr. and regularization params
-//void Gflasso::train(MatrixXf X,MatrixXf Y,MatrixXf corr_coeff,double lamdba,double gamma){
+//void Gflasso::train(MatrixXf X,MatrixXf Y,MatrixXf corr_coeff,float lamdba,float gamma){
 //    this->X = X;
 //    this->y = Y;
 //    this->corr_coff = corr_coff;
@@ -181,13 +186,23 @@ float Gflasso::gflasso_fusion_penalty(){
 }
 
 // Cost function of GFlasso
-float Gflasso::cost(){
 
-    return (
-            (y - X * beta).squaredNorm() +
-            lambda_flasso*(beta.cwiseAbs().sum()) +
-            gamma_flasso*(gflasso_fusion_penalty())
-    );
+float Gflasso::cost(){
+    if (logisticFlag){
+        return (
+                (y - (X * beta).unaryExpr(&sigmoid)).squaredNorm() +
+                lambda_flasso*(beta.cwiseAbs().sum()) +
+                gamma_flasso*(gflasso_fusion_penalty())
+        );
+    }
+    else{
+        return (
+                (y - X * beta).squaredNorm() +
+                lambda_flasso*(beta.cwiseAbs().sum()) +
+                gamma_flasso*(gflasso_fusion_penalty())
+        );
+    }
+
 }
 
 // Support for Smoothing Proximal Gradient Method
@@ -297,7 +312,12 @@ MatrixXf Gflasso::gradient(){
     /* First calculate the Edge vertex and Alpha Matrix */
     update_edge_vertex_matrix();
     update_alpha_matrix();
-    return ( (X.transpose())*(X*beta - y) + (edge_vertex_matrix.transpose()*alpha_matrix) );
+    if (logisticFlag){
+        return ( (X.transpose())*((X*beta).unaryExpr(&sigmoid) - y) + (edge_vertex_matrix.transpose()*alpha_matrix) );
+    }
+    else{
+        return ( (X.transpose())*(X*beta - y) + (edge_vertex_matrix.transpose()*alpha_matrix) );
+    }
 }
 
 

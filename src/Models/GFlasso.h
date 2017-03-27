@@ -62,7 +62,7 @@ public :
 //    // Training data provided along with Correlation coff Matrix
 //    void train(MatrixXf,MatrixXf,MatrixXf);
 //    // Everything is provided i.e. Training data,traits corr. and regularization params
-//    void train(MatrixXf,MatrixXf,MatrixXf,double,double);
+//    void train(MatrixXf,MatrixXf,MatrixXf,float,float);
 
     // Only X and Y are given
     void setXY(MatrixXf,MatrixXf);
