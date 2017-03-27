@@ -2,33 +2,35 @@ package(default_visibility = ["//visibility:public"])
 
 cc_binary(
 	name = "main",
-	srcs = ["main.cpp"],
-	deps = ["//model:LinearRegression",
-	        "//model:Model",
-	        "//model:MultiPopLasso",
-	        "//model:TreeLasso",
-            "//algorithm:ProximalGradientDescent",
-            "//algorithm:Algorithm",
-            "//algorihtm:IterativeUpdate",
-            "//:FileIO",
-            "//:Math",
-            "//json:JsonCoder",
-            "//:DataBaseCommunication",
-		],
+	srcs = [], #["main.cpp"],
+	deps = ["//Models:LinearRegression",
+	        "//Models:Model",
+	        "//Models:MultiPopLasso",
+	        "//Models:TreeLasso",
+                "//Algorithms:ProximalGradientDescent",
+                "//Algorithms:Algorithm",
+                "//Algorithms:IterativeUpdate",
+                "//Graph:NeighborSelection",
+                "//Graph:GraphicalLasso",
+                #"//:FileIO",
+                "//Math:Math",
+                "//JSON:JsonCoder",
+                #"//:DataBaseCommunication",
+	],
 )
 
-cc_library(
-	name = "FileIO",
-	srcs = ["FileIO.cpp"],
-	hdrs = ["FileIO.hpp"],
-	deps = ["//model:TreeLasso",],
-)
+#cc_library(
+#	name = "FileIO",
+#	srcs = ["FileIO.cpp"],
+#	hdrs = ["FileIO.hpp"],
+#	deps = ["//Models:TreeLasso",],
+#)
 
-cc_library(
-	name = "DataBaseCommunicator",
-	srcs = ["DataBaseCommunicator.cpp"],
-	hdrs = ["DataBaseCommunicator.hpp"],
-)
+#cc_library(
+#	name = "DataBaseCommunicator",
+#	srcs = ["DataBaseCommunicator.cpp"],
+#	hdrs = ["DataBaseCommunicator.hpp"],
+#)
 
 cc_test(
 	name = "my_test",
@@ -47,18 +49,18 @@ cc_test(
 	size = "small",
 )
 
-cc_library(
-	name = "Math",
-	srcs = ["Math.cpp"],
-	hdrs = ["Math.hpp"],
-	deps = ["@gtest//:main"]
-)
+#cc_library(
+#	name = "Math",
+#	srcs = ["Math.cpp"],
+#	hdrs = ["Math.hpp"],
+#	deps = ["@gtest//:main"]
+#)
 
-cc_test(
-    name = "Math_Tests",
-    srcs = ["Math_Tests.cpp"],
-    copts = ["-Iexternal/gtest/include"],
-    deps = ["@gtest//:main",
-    "Math"],
-    size = "small"
-)
+#cc_test(
+#    name = "Math_Tests",
+#    srcs = ["Math_Tests.cpp"],
+#    copts = ["-Iexternal/gtest/include"],
+#    deps = ["@gtest//:main",
+#    "Math"],
+#    size = "small"
+#)

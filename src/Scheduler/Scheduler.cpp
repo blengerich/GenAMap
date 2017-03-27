@@ -43,6 +43,7 @@
 #include "Stats/Chi2Test.h"
 #include "Stats/WaldTest.h"
 #include "Graph/NeighborSelection.hpp"
+#include "Graph/GraphicalLasso.hpp"
 #include "Scheduler/Job.hpp"
 #else
 #include "../Algorithms/Algorithm.hpp"

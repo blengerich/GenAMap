@@ -34,9 +34,9 @@ describe('GraphicalLasso', function() {
 		it('return filled results matrix for good job run', function(done) {
 			assert.isTrue(backend.setX(job_id, smallX));
 			assert.isTrue(backend.startJob(job_id, function(results) {
-        console.log(backend.getJobResult(job_id))
 				assert.deepEqual(backend.getJobResult(job_id), results);
-				done();}));
+				done();
+            }));
 		});
 	});
 	
@@ -46,9 +46,9 @@ describe('GraphicalLasso', function() {
 		it('return filled results matrix for good job run', function(done) {
 			assert.isTrue(backend.setX(job_id, largeX));
 			assert.isTrue(backend.startJob(job_id, function(results) {
-        console.log(backend.getJobResult(job_id))
 				assert.deepEqual(backend.getJobResult(job_id), results);
-				done();}));
+				done();
+            }));
 		});
 	});
 });

@@ -11,6 +11,7 @@
 #ifdef BAZEL
 #include "Algorithms/Algorithm.hpp"
 #include "Models/LinearRegression.hpp"
+#include "Math/Math.hpp"
 #else
 #include "../Algorithms/Algorithm.hpp"
 #include "../Algorithms/AlgorithmOptions.hpp"

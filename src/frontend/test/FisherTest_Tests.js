@@ -97,20 +97,6 @@ describe('FisherTest', function() {
 			assert.isTrue(backend.startJob(job_id, function(results) {} ));
 		});
 
-		var job_id2 = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
-		it('return true for second good job start', function() {
-			assert.isTrue(backend.setX(job_id2, largeX));
-			assert.isTrue(backend.setY(job_id2, largeY));
-			assert.isTrue(backend.startJob(job_id2, function(results) {} ));
-			assert.throws(function() { backend.startJob(job_id2, function() {} )},
-				'Job is already running.');
-    });
-
-		it('throw error for trying to start already running job', function() {
-			assert.throws(function() { backend.startJob(job_id2, function() {} )},
-				'Job is already running.');
-		});
-
 		it('throw error for second bad options', function () {
 			assert.throws(function() {backend.startJob(-1, function() {})},
 				Error, 'Job ID does not match any jobs.');
