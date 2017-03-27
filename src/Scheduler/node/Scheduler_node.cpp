@@ -20,6 +20,7 @@
 #include "../../Algorithms/HypoTestPlaceHolder.h"
 #include "../../Models/ModelOptions.hpp"
 #include "../Job.hpp"
+#include "../JobResult.hpp"
 #include "../Scheduler.hpp"
 #include "../../JSON/JsonCoder.hpp"
 
@@ -30,6 +31,7 @@ using namespace v8;
 
 // Sets the X matrix of a given model.
 // Arguments: job_id, JSON matrix
+// Returns: Boolean value representing whether the X matrix was set successfully.
 void setX(const FunctionCallbackInfo<Value>& args) {
 	bool result = false;
 	Isolate* isolate = args.GetIsolate();
@@ -44,6 +46,7 @@ void setX(const FunctionCallbackInfo<Value>& args) {
 
 // Sets the Y matrix of a given model.
 // Arguments: job_id, JSON matrix
+// Returns: Boolean value representing whether the Y matrix was set successfully.
 void setY(const FunctionCallbackInfo<Value>& args) {
 	bool result = false;
 	Isolate* isolate = args.GetIsolate();
@@ -57,6 +60,7 @@ void setY(const FunctionCallbackInfo<Value>& args) {
 }
 
 // Arguments: job_id, string of attribute name, matrix to use
+// Returns: Boolean value representing whether the matrix was set successfully.
 void setModelAttributeMatrix(const FunctionCallbackInfo<Value>& args) {
 	bool result = false;
 	Isolate* isolate = args.GetIsolate();
@@ -73,6 +77,7 @@ void setModelAttributeMatrix(const FunctionCallbackInfo<Value>& args) {
 
 // Creates a new job, but does not run it. Synchronous.
 // Arguments: JSON to be converted to JobOptions_t
+// Returns: job_id, 0 for error.
 void newJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
@@ -98,6 +103,7 @@ void newJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 // Maybe begins the training of an algorithm, given the job number.
 // Asynchronous.
 // Arguments: job_id_t job_id, function callback
+// Returns: Boolean value representing whether the job was started successfully.
 void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	// Inspect arguments.
@@ -128,6 +134,7 @@ void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 // Checks the status of an algorithm, given the algorithm's job number.
 // Currently synchronous.
 // Arguments: job_id_t job_id
+// Returns: float value to represent progress, range [0, 1] is currently running job, -1 is error.
 void checkJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 
@@ -146,7 +153,7 @@ void checkJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 // Gets the results of a job, given the job's id.
 // Synchronous.
 // Arguments: job_id_t job_id
-// Returns: MatrixXf of results, empty on error.
+// Returns: JobResult_t
 void getJobResult(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	try {
@@ -157,10 +164,8 @@ void getJobResult(const v8::FunctionCallbackInfo<v8::Value>& args) {
 		}
 
 		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
-		const MatrixXf& result = Scheduler::Instance()->getJobResult(job_id);
-		Local<v8::Array> obj = v8::Array::New(isolate);
-		obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
-		args.GetReturnValue().Set(obj);
+		JobResult_t* result = Scheduler::Instance()->getJobResult(job_id);
+		args.GetReturnValue().Set(packJobResult(result));
 	}
 	catch (const exception& e) {
 		isolate->ThrowException(Exception::Error(
@@ -214,6 +219,8 @@ void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 
 // Handles packaging of algorithm results to return to the frontend.
 // Called by libuv in event loop when async training completes.
+// Returns an array of:
+// [string exception, dict of job options, job_id_t job id, matrix beta, string description]
 void trainAlgorithmComplete(uv_work_t* req, int status) {
 	// Runs in event loop when algorithm completes.
 	Isolate* isolate = Isolate::GetCurrent();
@@ -223,10 +230,8 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 
 	try {
 		// Pack up the data to be returned to JS
-		const MatrixXf& result = Scheduler::Instance()->getJobResult(job->job_id);
-		// TODO: Fewer convserions to return a matrix
-		obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
-		
+		JobResult_t* result = Scheduler::Instance()->getJobResult(job->job_id);
+		obj = packJobResult(job_result);
 		if (status < 0) { // libuv error
 			throw runtime_error("Libuv error (check server)");
 		}
@@ -234,9 +239,7 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 			rethrow_exception(job->exception); 
 		}
 	} catch(const exception& e) {
-		// If the job failed, the second entry in the array is the exception text.
-		// Is this really a good way to return data? It is different than the result from getJobResult()
-		obj->Set(1, v8::String::NewFromUtf8(isolate, e.what()));	
+		obj->Set(0, v8::String::NewFromUtf8(isolate, e.what()));	
 	}
 	
 	Handle<Value> argv[] = { obj };
@@ -260,6 +263,20 @@ MatrixXf* v8toEigen(Local<v8::Array>& ar) {
 	}
 	return mat;
 }
+
+// Packs a JobResult_t into a v8 Array for return.
+// Array contains:
+// [string exception, dict of job options, job_id_t job id, matrix beta, string description]
+Local<v8::Array> packJobResult(JobResult_t* job_result) {
+	Local<v8::Array> obj = v8::Array::New(isolate);
+	obj->Set(0, v8::String::NewFromUtf8(isolate, job_result->exception.what().c_str()));
+	obj->Set(1, v8::String::NewFromUtf8(isolate, "job options, not implemented yet".c_str()));
+	obj->Set(2, v8::Number::New(isolate, job_result->job_id));
+	obj->Set(3, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result.beta).c_str()));
+	obj->Set(4, v8::String::NewFromUtf8(isolate, job_result->description.c_str()));
+	return obj;
+}
+
 
 // Checks that the argument in the supplied position is a number type.
 // Doesn't check that it is a valid job ID.
