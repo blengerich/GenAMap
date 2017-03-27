@@ -24,7 +24,7 @@ FaSTLMM::FaSTLMM(const unordered_map<string, string> &options) {
     initTrainingFlag = false;
 }
 
-// Functions for Scheduler::set*
+// Functions for Scheduler::set
 
 void FaSTLMM::setX(MatrixXd inputX) {
     X = inputX;
@@ -74,35 +74,27 @@ void FaSTLMM::assertReadyToRun() {
 
 // Get the Eigen-Decomposition K = U S U_t by SVD on X = U S_sqrt V
 void FaSTLMM::decompose() {
-    // JacobiSVD<MatrixXd> svd(X, ComputeThinU);
-    // MatrixXd UV = svd.matrixU();
-    // MatrixXd SV = svd.singularValues().array().square();
-    // long rank = SV.rows();
-    // S.resize(ns, 1);
-    // U.resize(ns, ns);
-    // // low rank; need different algorithm.
-    // if (rank < ns) {
-    //     long diff = ns - rank;
-    //     S << SV, 
-    //          MatrixXd::Zero(diff, 1);
-    //     U << UV, MatrixXd::Zero(ns, diff);
-    // }
-    // else {
-    //     S = SV;
-    //     U = UV;
-    // }
-
-    // Eigen-decompose K directly
-    MatrixXd K = X*X.transpose();
-    JacobiSVD<MatrixXd> svd(K, ComputeThinU);
-    S = svd.singularValues();
+    JacobiSVD<MatrixXd> svd(X, ComputeFullU);
     U = svd.matrixU();
+    MatrixXd SV = svd.singularValues().array().square();
+    long rank = SV.rows();
+    S.resize(ns, 1);
+    // low rank
+    if (rank < ns) {
+        long diff = ns - rank;
+        S << SV,
+             MatrixXd::Zero(diff, 1);
+    }
+    else {
+        S = SV;
+    }
 }
 
 // Initiate ns, nf, X0, S, U
-// tested
-void FaSTLMM::init() {
+void FaSTLMM::init(MatrixXd inputX, MatrixXd inputY) {
     if (!initTrainingFlag) {
+        this->setX(inputX);
+        this->setY(inputY);
         ns = X.rows();
         nf = X.cols();
         X0 = MatrixXd::Ones(ns,1);
@@ -113,8 +105,7 @@ void FaSTLMM::init() {
 }
 
 // cost function
-// tested
-double FaSTLMM::f(double ldelta) {
+double FaSTLMM::objective(double ldelta) {
     double delta = exp(ldelta);
     MatrixXd Sd = S.array() + delta;
     double ldet = Sd.array().log().matrix().sum();
@@ -127,31 +118,39 @@ double FaSTLMM::f(double ldelta) {
 /* Do Brent Search on the negative of log-likelihood of the null model to get the optimal delta 
    and the corresponding minimum -log-likelihood of null model.
  */
-// tested
 void FaSTLMM::trainNullModel(double intervalNum, double ldeltaMin, double ldeltaMax) {
-    if (!initTrainingFlag) {this->init();}
     VectorXd nllGrid = VectorXd::Ones(intervalNum + 1);
     VectorXd ldeltaGrid = (VectorXd::LinSpaced(intervalNum + 1, 0, intervalNum) / intervalNum * (ldeltaMax - ldeltaMin)).array() + ldeltaMin;
     for (long i = 0; i <= intervalNum; i++) {
-        nllGrid(i) = f(ldeltaGrid(i));
+        nllGrid(i) = this->objective(ldeltaGrid(i));
     }
     MatrixXf::Index minRow;
     nllMin = nllGrid.minCoeff(&minRow);
     ldelta0 = ldeltaGrid(minRow);
-    // double ldeltaOpt, nllOpt;
-    // for (long i = 1; i < intervalNum; i++) {
-    //     if ( (nllGrid(i) < nllGrid(i - 1)) && (nllGrid(i) < nllGrid(i + 1)) ) {
-    //         // brent search
-    //         // nllOpt and ldeltaOpt are uninitialized without brent search
-    //         if (nllOpt < nllMin) {
-    //             nllMin = nllOpt;
-    //             ldelta0 = ldeltaOpt;
-    //         }
-    //     }
-    // }
+    double ldeltaOpt, nllOpt;
+    class Objective : public brent::func_base {
+        private:
+            MatrixXd X, y;
+        public:
+            Objective(MatrixXd M1, MatrixXd M2): X(M1), y(M2) {}
+            virtual double operator() (double x) {
+                FaSTLMM flmm = FaSTLMM();
+                flmm.init(X, y);
+                return flmm.objective(x);
+            }
+    };
+    Objective obj = Objective(X, y);
+    for (long i = 1; i < intervalNum; i++) {
+        if ( (nllGrid(i) < nllGrid(i - 1)) && (nllGrid(i) < nllGrid(i + 1)) ) {
+            nllOpt = brent::local_min(ldeltaGrid(i - 1), ldeltaGrid(i + 1), 1.0E-11, obj, ldeltaOpt);
+            if (nllOpt < nllMin) {
+                nllMin = nllOpt;
+                ldelta0 = ldeltaOpt;
+            }
+        }
+    }
 }
 
-// tested
 Vector2d FaSTLMM::tstat(double beta, double var, double sigma, double df) {
     double ts = beta/sqrt(var*sigma);
     students_t t_dist(df);
@@ -173,11 +172,10 @@ _Matrix_Type_ pseudoInverse(const _Matrix_Type_ &a, double epsilon = std::numeri
     return svd.matrixV() *  (svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0).matrix().asDiagonal() * svd.matrixU().adjoint();
 }
 
-// tested
+// For every SNP, find its beta, variance of beta, do t-test and output the p-values.
 VectorXd FaSTLMM::hypothesis_test(MatrixXd SUX, MatrixXd SUy, MatrixXd X, MatrixXd SUX0) {
     VectorXd p;
     p.resize(nf);
-    // for every SNP, find its beta, variance of beta and do t-test
     for (int i=0; i < nf; i++) {
         MatrixXd UXi;
         UXi.resize(ns, 2);
@@ -185,7 +183,7 @@ VectorXd FaSTLMM::hypothesis_test(MatrixXd SUX, MatrixXd SUy, MatrixXd X, Matrix
         MatrixXd XX = UXi.transpose()*UXi; // dimension is always 2*2
         MatrixXd XX_i = pseudoInverse(XX); // XX_i[1, 1] is variance of beta
         MatrixXd beta = (XX_i*UXi.transpose())*SUy; // dimension is always 2*1
-        MatrixXd Uyr = SUy - (UXi*beta); // Uyr slightly different
+        MatrixXd Uyr = SUy - (UXi*beta);
         double Q = (Uyr.transpose()*Uyr)(0, 0);
         double sigma = Q/ns; // genetic variance sigma_g
         Vector2d tp = this->tstat(beta(1, 0), XX_i(1, 1), sigma, ns-1);
@@ -197,27 +195,9 @@ VectorXd FaSTLMM::hypothesis_test(MatrixXd SUX, MatrixXd SUy, MatrixXd X, Matrix
     return p;
 }
 
-// VectorXd FaSTLMM::cv_train(MatrixXd X, MatrixXd Y, double regMin=1e-30, double regMax=1.0, long K=1) {
-//     VectorXd betaM;
-//     double breg = 0;
-//     long iteration = 0;
-//     long patience = 100;
-//     VectorXd regs;
-//     VectorXd ks;
-//     double mid_reg;
-//     while ((regMin < regMax) && (iteration < patience)) {
-//         iteration++;
-//         mid_reg = exp((log(regMin) + log(regMax))/2.0);
-//         // Lasso Fit
-//     }
 
-// }
-
-// tested
 void FaSTLMM::train(double intervalNum, double ldeltaMin, double ldeltaMax) {
-    if (!initTrainingFlag) {this->init();}
     this->trainNullModel(intervalNum, ldeltaMin, ldeltaMax);
-    ldelta0 = 1; // change this to the result of Brent Search later
     delta0 = exp(ldelta0);
     VectorXd Sdi = (S.array() + delta0).inverse();
     VectorXd SdiSqrt = Sdi.array().sqrt();
@@ -229,22 +209,6 @@ void FaSTLMM::train(double intervalNum, double ldeltaMin, double ldeltaMax) {
     SUX0 = SUX0.cwiseProduct(SdiSqrt);
     // Hypothesis Testing on beta
     VectorXd p = this->hypothesis_test(SUX, SUy, X, SUX0);
-    // cross validate regularization
-    double min_i, max_i, min_j, max_j;
-    min_i = 5;
-    max_i = 30;
-    min_j = 1;
-    max_j = 10;
-    VectorXd regs;
-    regs.resize((max_i - min_i)*(max_j - min_j));
-    long reg_index = 0;
-    for (long i=min_i; i < max_i; i++) {
-        for (long j=min_j; j < max_j; j++) {
-            regs(reg_index) = j*pow(10.0, -i);
-            reg_index++;
-        }
-    }
-    // this->cv_train(SUX, SUy);
 }
 
 

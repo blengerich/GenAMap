@@ -15,7 +15,10 @@
 #include <math.h>
 #include <cstdlib>
 #include <iomanip>
+#include <functional>
 #include <boost/math/distributions/students_t.hpp>
+#include <boost/math/tools/minima.hpp>
+#include "../Algorithms/brent.hpp"
 
 #ifdef BAZEL
 #include "Math/Math.hpp"
@@ -31,18 +34,16 @@ using namespace Eigen;
 class FaSTLMM : public Model {
 protected:
 
-    // What variables should be defined here?
-
     // Dimensions of the data
     long ns; // Number of samples
     long nf; // Number of features (SNPs)
 
-    // MatrixXd K; // Don't need to calculate K explicitly
+    MatrixXd X;
+    MatrixXd y;
     MatrixXd S;
     MatrixXd U;
     MatrixXd X0;
     MatrixXd Uy;
-
     // for test, delete it later
     MatrixXd SUX;
     MatrixXd SUy;
@@ -61,7 +62,7 @@ public:
 
     // Constructor
     FaSTLMM();
-    FaSTLMM(const unordered_map<string, string>& options); // why two constructors?
+    FaSTLMM(const unordered_map<string, string>& options);
 
     // For Scheduler
     void setX(MatrixXd);
@@ -77,12 +78,11 @@ public:
     MatrixXd get_SUX0();
     // end
 
-    void init();
-    double f(double);
+    void init(MatrixXd, MatrixXd);
+    double objective(double);
     void trainNullModel(double, double, double);
     Vector2d tstat(double, double, double, double);
     VectorXd hypothesis_test(MatrixXd, MatrixXd, MatrixXd, MatrixXd);
-    VectorXd cv_train(MatrixXd, MatrixXd, double, double, long);
     void train(double, double, double);
 
 };
