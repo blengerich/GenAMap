@@ -101,7 +101,7 @@ void ProximalGradientDescent::assertReadyToRun() {
 void ProximalGradientDescent::setUpRun() {
     mtx.lock();
     isRunning = true;
-    progress = 0.0;
+    progress = 0.01;
     shouldStop = false;
 }
 
@@ -231,6 +231,7 @@ void ProximalGradientDescent::run(TreeLasso * model) {
         if (residue < prev_residue){
             best_beta = beta;
         }
+        prev_residue = residue;
         diff = abs(prev_residue - residue);
     }
     model->updateBeta(best_beta);
