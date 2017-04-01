@@ -195,7 +195,6 @@ void ProximalGradientDescent::run(LinearRegression *model) {
     model->updateBeta(model->getBetaAll());
 }
 
-
 void ProximalGradientDescent::run(TreeLasso * model) {
     model->initBeta();
     model->hierarchicalClustering();
