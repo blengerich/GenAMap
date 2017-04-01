@@ -16,6 +16,7 @@ AdaMultiLasso::AdaMultiLasso() {
     lambda2 = default_lambda2;
     mu = default_mu;
     initTrainingFlag = false;
+    logisticFlag = false;
 }
 
 AdaMultiLasso::AdaMultiLasso(const unordered_map<string, string>& opts) {
@@ -35,6 +36,7 @@ AdaMultiLasso::AdaMultiLasso(const unordered_map<string, string>& opts) {
         mu = default_mu;
     }
     initTrainingFlag = false;
+    logisticFlag = false;
 }
 
 void AdaMultiLasso::setAttributeMatrix(const string& str, MatrixXf* Z) {
@@ -115,7 +117,7 @@ VectorXf AdaMultiLasso::gradient_v() {
     VectorXf grad = VectorXf::Zero(c);
     for (long j=0;j<c;j++){
         grad(j) += (-k*snpsFeatures1.col(j).array()/theta.array()).sum();
-        grad(j) += (snpsFeatures1.col(j).transpose()*(beta.array().abs().matrix())).array().sum();  // double check this shortcut
+        grad(j) += (snpsFeatures1.col(j).transpose()*(beta.array().abs().matrix())).array().sum();  // float check this shortcut
     }
     return grad;
 }
@@ -205,7 +207,13 @@ void AdaMultiLasso::initBeta() {
 
 float AdaMultiLasso::cost() {
     initTraining();
-    return 0.5*(y - X * beta).squaredNorm() + penalty_cost();
+    if (logisticFlag){
+        return 0.5*(y - (X * beta).unaryExpr(&sigmoid)).squaredNorm() + penalty_cost();
+    }
+    else{
+        return 0.5*(y - X * beta).squaredNorm() + penalty_cost();
+    }
+
 }
 
 float AdaMultiLasso::penalty_cost() {
@@ -237,6 +245,7 @@ void AdaMultiLasso::assertReadyToRun() {
             ", " + to_string(snpsFeatures2.cols()) + ") are not compatible with X of size (" +
             to_string(X.rows()) + ", " + to_string(X.cols()) + ").");
 	}
+    checkLogisticRegression();
 }
 
 void AdaMultiLasso::initTraining() {
@@ -300,7 +309,12 @@ MatrixXf AdaMultiLasso::proximal_derivative() {
     for (long i=0;i<r*taskNum;i++){
         A.row(i) = Math::getInstance().L2Thresholding(tmp.row(i)/mu);
     }
-    return X.transpose()*(X*beta-y) + C.transpose()*A;
+    if (logisticFlag){
+        return X.transpose()*((X*beta).unaryExpr(&sigmoid)-y) + C.transpose()*A;
+    }
+    else{
+        return X.transpose()*(X*beta-y) + C.transpose()*A;
+    }
 }
 
 MatrixXf AdaMultiLasso::proximal_operator(MatrixXf in, float lr) {
