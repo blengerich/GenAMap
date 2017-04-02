@@ -12,6 +12,7 @@
 #include "../../Algorithms/IterativeUpdate.hpp"
 #include "../../Algorithms/Algorithm.hpp"
 #include "../../Algorithms/HypoTestPlaceHolder.h"
+#include "../../Graph/NeighborSelection.hpp"
 #include "../Scheduler.hpp"
 
 using namespace std;

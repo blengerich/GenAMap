@@ -50,7 +50,7 @@ void LinearRegression::assertReadyToRun() {
             + to_string(y.rows()) + "," + to_string(y.cols()) + ") are not compatible.";
     checkLogisticRegression();
     if (!ready) {
-        throw runtime_error(err_str);
+        //throw runtime_error(err_str);
     }
 }
 
