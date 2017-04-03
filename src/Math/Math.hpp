@@ -66,6 +66,7 @@ public:
     void removeRow(MatrixXf*, long);
     void removeColRow(MatrixXf*, minXY);
 
+    MatrixXf pseudoInverse(MatrixXf& matrix);
 
     VectorXf L2Thresholding(VectorXf in);
 
