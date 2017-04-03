@@ -7,8 +7,8 @@ import config from '../../config'
 
 const GMDendrogramVisualization = React.createClass({
   componentDidMount() {
-    this.loadData(this.props.params),
-    this.setState({ pageParams: [] })
+    this.loadData(this.props.params)
+    /*this.setState({ pageParams: [] })*/
   },
   componentWillReceiveProps(nextProps) {
     this.loadData(nextProps.params)
@@ -19,6 +19,7 @@ const GMDendrogramVisualization = React.createClass({
     }
   },
   loadData: function (params) {
+    console.log(params);
     let dataRequest = {
       method: 'GET',
       headers: {

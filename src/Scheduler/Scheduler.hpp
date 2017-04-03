@@ -18,6 +18,7 @@
 #ifdef BAZEL
 #include "Algorithms/Algorithm.hpp"
 #include "Algorithms/AlgorithmOptions.hpp"
+#include "Models/Model.hpp"
 #include "Models/ModelOptions.hpp"
 #include "Scheduler/Job.hpp"
 #include "gtest/gtest_prod.h"
@@ -26,6 +27,7 @@
 #include "../Algorithms/AlgorithmOptions.hpp"
 #include "Job.hpp"
 #include "../Models/ModelOptions.hpp"
+#include "../Models/Model.hpp"
 #endif
 
 
@@ -69,9 +71,13 @@ public:
 	Job_t* getJob(const job_id_t);
 
 	MatrixXf getJobResult(const job_id_t);
+	// Returns the result matrix of a given job ID. 
 
-	// TODO: How to know if the user owns the algorithm?
+	modelResult getClusteringResult(const int);
+	// Returns the bi-clustered result (for dendrogram) for a given job ID.
+
 	bool deleteJob(const job_id_t);
+	// TODO: How to know if the user owns the algorithm?
 
 	static Scheduler* Instance();
 	// This class follows the singleton pattern.
@@ -108,37 +114,36 @@ private:
 	bool deleteAlgorithm(const algorithm_id_t);
 	bool deleteModel(const model_id_t);
 
+  #ifdef BAZEL
+  FRIEND_TEST(SchedulerTest, newAlgorithm);
+  FRIEND_TEST(SchedulerTest, newModel);
+  FRIEND_TEST(SchedulerTest, getNewAlgorithmId);
+  FRIEND_TEST(SchedulerTest, getNewModelId);
+  FRIEND_TEST(SchedulerTest, getNewJobId);
+  FRIEND_TEST(SchedulerTest, ValidAlgorithmId);
+  FRIEND_TEST(SchedulerTest, ValidModelId);
+  FRIEND_TEST(SchedulerTest, ValidJobId);
+  FRIEND_TEST(SchedulerTest, AlgorithmIdUsed);
+  FRIEND_TEST(SchedulerTest, ModelIdUsed);
+  FRIEND_TEST(SchedulerTest, JobIdUsed);
+  #endif
 
-    #ifdef BAZEL
-    FRIEND_TEST(SchedulerTest, newAlgorithm);
-    FRIEND_TEST(SchedulerTest, newModel);
-    FRIEND_TEST(SchedulerTest, getNewAlgorithmId);
-    FRIEND_TEST(SchedulerTest, getNewModelId);
-    FRIEND_TEST(SchedulerTest, getNewJobId);
-    FRIEND_TEST(SchedulerTest, ValidAlgorithmId);
-    FRIEND_TEST(SchedulerTest, ValidModelId);
-    FRIEND_TEST(SchedulerTest, ValidJobId);
-    FRIEND_TEST(SchedulerTest, AlgorithmIdUsed);
-    FRIEND_TEST(SchedulerTest, ModelIdUsed);
-    FRIEND_TEST(SchedulerTest, JobIdUsed);
-    #endif
+  static Scheduler* s_instance;   // Singleton
+  const unsigned int kMaxThreads = 5;
 
-    static Scheduler* s_instance;   // Singleton
-    const unsigned int kMaxThreads = 5;
+  const algorithm_id_t kMaxAlgorithmId = 100;
+  algorithm_id_t next_algorithm_id;
 
-    const algorithm_id_t kMaxAlgorithmId = 100;
-    algorithm_id_t next_algorithm_id;
+  const model_id_t kMaxModelId = 100;
+  model_id_t next_model_id;
 
-    const model_id_t kMaxModelId = 100;
-    model_id_t next_model_id;
+  const job_id_t kMaxJobId = 100;
+  job_id_t next_job_id;
 
-    const job_id_t kMaxJobId = 100;
-    job_id_t next_job_id;
-
-    unordered_map<algorithm_id_t, unique_ptr<Algorithm>> algorithms_map;
-    unordered_map<model_id_t, unique_ptr<Model>> models_map;
-    unordered_map<job_id_t, unique_ptr<Job_t>> jobs_map;
-    // Maps to track all jobs (running, waiting, and completed). indexed by job_id.  
+  unordered_map<algorithm_id_t, unique_ptr<Algorithm>> algorithms_map;
+  unordered_map<model_id_t, unique_ptr<Model>> models_map;
+  unordered_map<job_id_t, unique_ptr<Job_t>> jobs_map;
+  // Maps to track all jobs (running, waiting, and completed). indexed by job_id.  
 };
 
 void trainAlgorithmThread(uv_work_t* req);

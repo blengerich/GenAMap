@@ -15,7 +15,8 @@ gulp.task('watch', function () {
   var b = browserify({
     entries: ['src/index.js'],
     cache: {}, packageCache: {},
-    plugin: [watchify]
+    plugin: [watchify],
+    debug: true
   })
 
   b.on('update', makeBundle)

@@ -51,7 +51,7 @@ const GMRunAnalysisDialog = React.createClass({
       traitValue: '',
       markerLabelValue: '',
       traitLabelValue: '',
-      resultsPath: '',
+      resultsPaths: [],
       snpsFeature1Value: '',
       /*snpsFeature1Name: '',
       snpsFeature1FileName: '',*/
@@ -157,7 +157,7 @@ const GMRunAnalysisDialog = React.createClass({
         {name: 'snpsFeature2', val: this.state.snpsFeature2Value ? this.state.snpsFeature2Value : this.state.snpsFeature1Value},
         {name: 'population', val: this.state.populationValue}
       ],
-      resultsPath: this.state.resultsPath
+      resultsPaths: this.state.resultsPaths
     })
 
     this.setState(this.getInitialState())

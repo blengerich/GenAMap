@@ -464,28 +464,44 @@ app.post(`${config.api.getActivityUrl}/:id`, function (req, res) {
 app.post(`${config.api.getAnalysisResultsUrl}`, function(req, res) {
   const projectId = req.body.projectId
 
-  function checkFileExists(reqPath) {
-    /* check if result file has been written and added to database */
-    fs.stat(reqPath, function(err, stats) {
-      if (!err) {
-        app.models.file.findOne({ path: reqPath }, function(err, file) {
-          if (err) console.log(err)
+  function checkFileExists(reqPaths) {
+    files = []
+    console.log(reqPaths)
+    reqPaths.forEach(function(reqPath) {
+      /* check if result file has been written and added to database */
+      fs.stat(reqPath, function(err, stats) {
+        if (!err) {
+          app.models.file.findOne({ path: reqPath }, function(err, file) {
+            if (err) console.log(err)
+            if (file) {
+              console.log("pushing file onto files")
+              files.push(file)
+            } else {
+              console.log("Results file does not exist yet")
+            }
+          })
+        }
+        /*if (!err) {
+          app.models.file.findOne({ path: reqPath }, function(err, file) {
+            if (err) console.log(err)
 
-          if (!file) {
-            setTimeout(checkFileExists, 500, reqPath)
-          } else {
-            return res.json({ project: projectId, files: [file] })
-          }
-        })
-      } else if (err.code === 'ENOENT') {
-        setTimeout(checkFileExists, 500, reqPath)
-      } else {
-        console.log(err)
-      }
+            if (!file) {
+              setTimeout(checkFileExists, 500, reqPath)
+            } else {
+              return res.json({ project: projectId, files: [file] })
+            }
+          })
+        }*/ /*else if (err.code === 'ENOENT') {
+          setTimeout(checkFileExists, 500, reqPath) // TODO: better way of checking for created file
+        }*/ else {
+          console.log(err)
+        }
+      })
     })
+    return res.json({project: projectId, files: files})
   }
 
-  return checkFileExists(req.body.resultsPath)
+  return checkFileExists(req.body.resultsPaths)
 })
 
 app.get(`${config.api.dataUrl}/:id`, function (req, res) {
@@ -864,7 +880,9 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             const userPath = path.join('./.tmp', userId)
             const fileName = `${id}.csv`
             const resultsPath = path.join(userPath, fileName)
-
+            const id1 = guid()
+            const fileName1 = `${id1}.csv`
+            const resultsPath1 = path.join(userPath, fileName1)
             try {
               var success = Scheduler.startJob(jobId, function (results) {
                 // TODO: streamline this results passing - multiple types of data?
@@ -889,11 +907,50 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                     if (err) throw err
                   })
                 })
+
+                clustering_results = Scheduler.getClusteringResult(jobId);
+                const id2 = guid()
+                const fileName2 = `${id2}.csv`
+                const resultsPath2 = path.join(userPath, fileName2)
+                fs.writeFile(resultsPath2, clustering_results[1], function(err) {
+                  console.log("wrote row clustering to: ")
+                  console.log(resultsPath2)
+                })
+                const id3 = guid()
+                const fileName3 = `${id3}.csv`
+                const resultsPath3 = path.join(userPath, fileName3)
+                fs.writeFile(resultsPath3, clustering_results[2], function(err) {
+                  console.log("wrote column clustering to: ")
+                  console.log(resultsPath3)
+                })
+
+                fs.writeFile(resultsPath1, clustering_results[0], function(err) {
+                  app.models.file.create({
+                    name: req.body.jobName + " Dendrogram View",
+                    filetype: 'resultFile',
+                    path: resultsPath1,
+                    project: req.body.project,
+                    info: {
+                      resultType: 'dendrogram',
+                      labels: {
+                        marker: req.body.marker.data.labelId,
+                        trait: req.body.trait.data.labelId
+                      },
+                      clusterings: {
+                        tree1: id2,
+                        tree2: id3
+                      }
+                    },
+                    projectItem: 'Results'
+                  }).exec(function (err, file) {
+                    if (err) throw err
+                  })
+                })
               })
             } catch (err) {
               console.log(err)
             }
-            return res.json({ status: success, jobId, resultsPath })
+            return res.json({ status: success, jobId, resultsPaths: [resultsPath, resultsPath1] })
           }
           // Add any extra files
           const testAll = function(elem, index, array) {
