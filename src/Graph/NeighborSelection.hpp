@@ -44,4 +44,4 @@ public:
 };
 
 
-#endif //GRAPH_NEIGHBORSELECTION_HPP
+#endif //NEIGHBOR_SELECTION_HPP
