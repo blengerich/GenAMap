@@ -42,6 +42,7 @@
 #include "Stats/FisherTest.h"
 #include "Stats/Chi2Test.h"
 #include "Stats/WaldTest.h"
+#include "Graph/NeighborSelection.hpp"
 #include "Scheduler/Job.hpp"
 #else
 #include "../Algorithms/Algorithm.hpp"
@@ -64,6 +65,7 @@
 #include "../Stats/FisherTest.h"
 #include "../Stats/Chi2Test.h"
 #include "../Stats/WaldTest.h"
+#include "../Graph/NeighborSelection.hpp"
 #include "../Scheduler/Job.hpp"
 #endif
 
@@ -121,6 +123,10 @@ algorithm_id_t Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 			}
 			case algorithm_type::hypo_test:{
 				algorithms_map[id] = unique_ptr<HypoTestPlaceHolder>(new HypoTestPlaceHolder(options.options));
+				break;
+			}
+			case algorithm_type::neighbor_selection: {
+				algorithms_map[id] = unique_ptr<NeighborSelection>(new NeighborSelection(options.options));
 				break;
 			}
 			default:
@@ -315,7 +321,7 @@ void trainAlgorithmThread(uv_work_t* req) {
 		    alg->finishRun();
 		} else if (GridSearch* alg = dynamic_cast<GridSearch*>(job->algorithm)) {
 			alg->setUpRun();
-			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+		    if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
 		        alg->run(model);
 		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
 		        alg->run(model);
@@ -376,6 +382,14 @@ void trainAlgorithmThread(uv_work_t* req) {
 			} else if (Chi2Test* model = dynamic_cast<Chi2Test*>(job->model)) {
 				alg->run(model);
 			} else if (WaldTest* model = dynamic_cast<WaldTest*>(job->model)) {
+				alg->run(model);
+			} else {
+				throw runtime_error("Requested model type not implemented for the requested algorithm");
+			}
+			alg->finishRun();
+		} else if (NeighborSelection* alg = dynamic_cast<NeighborSelection*>(job->algorithm)) {
+			alg->setUpRun();
+			if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
 				alg->run(model);
 			} else {
 				throw runtime_error("Requested model type not implemented for the requested algorithm");
