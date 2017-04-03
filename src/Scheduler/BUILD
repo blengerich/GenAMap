@@ -28,6 +28,7 @@ cc_library(
         "//Models:Model",
         "//Models:ModelOptions",
         "//Models:TreeLasso",
+        "//Models:lmm",
         "//Scheduler:Job",
         "//Stats:FisherTest",
         "//Stats:Chi2Test",

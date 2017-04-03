@@ -27,6 +27,13 @@ cc_library(
 )
 
 cc_library(
+	name = "Brent",
+	srcs = ["NewBrent.cpp"],
+	hdrs = ["NewBrent.hpp"],
+	copts = ["-DBAZEL"]
+)
+
+cc_library(
 	name = "GridSearch",
 	srcs = ["GridSearch.cpp"],
 	hdrs = ["GridSearch.hpp"],

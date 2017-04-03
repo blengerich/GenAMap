@@ -4,7 +4,7 @@ cc_library(
     name = "FileIO",
     srcs = ["FileIO.cpp"],
     hdrs = ["FileIO.hpp"],
-    deps = ["//model:TreeLasso",],
+    deps = ["//Models:TreeLasso"],
 )
 
 cc_library(

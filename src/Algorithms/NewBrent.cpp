@@ -5,7 +5,7 @@
 
 using namespace std;
 
-# include "brent.hpp"
+# include "NewBrent.hpp"
 
 namespace brent{
 

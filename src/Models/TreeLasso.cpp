@@ -512,7 +512,7 @@ void TreeLasso::initGradientUpdate() {
 
         tauNorm = tau.maxCoeff();
 
-        float L1 = ((X*X.transpose()).eigenvalues()).real().maxCoeff();
+        float L1 = ((X.transpose()*X).eigenvalues()).real().maxCoeff();
         L = L1 + lambda*lambda*tauNorm/mu;
 
         XY = X.transpose()*y;

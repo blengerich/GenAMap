@@ -68,7 +68,7 @@ void MultiPopLasso::assertReadyToRun() {
 
 void MultiPopLasso::setAttributeMatrix(const string& str, MatrixXf* Z) {
     if (str == "population") {
-        cerr << "setting population" << endl;
+        // cerr << "setting population" << endl;
         // todo: stop copying data
         setPopulation(VectorXf(Map<VectorXf>(Z->data(), Z->rows())));
     } else if (str == "X") {

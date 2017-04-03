@@ -32,6 +32,15 @@ cc_library(
 	copts = ["-DBAZEL"]
 )
 
+cc_library(
+	name = "lmm",
+	srcs = ["lmm.cpp"],
+	hdrs = ["lmm.hpp"],
+	copts = ["-DBAZEL"],
+	deps = ["//Math:Math",
+			"Model",
+			"//Algorithms:Brent"]
+)
 
 cc_library(
 	name = "LinearMixedModel",
@@ -94,6 +103,7 @@ cc_test(
     		"GFlasso",
     		"lasso",
     		"LinearMixedModel",
+    		"lmm",
     		"LinearRegression",
     		"Model",
     		"ModelOptions",
@@ -101,7 +111,8 @@ cc_test(
     		"TreeLasso",
     		"//Math:Math",
 		"//JSON:JsonCoder",
- 		"//IO:DataBaseCommunicator"],
+ 		"//IO:DataBaseCommunicator",
+ 		"//IO:FileIO"],
 	size = "small"
 )
 

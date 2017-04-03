@@ -38,6 +38,7 @@
 #include "Models/MultiPopLasso.hpp"
 #include "Models/TreeLasso.hpp"
 #include "Models/LinearMixedModel.hpp"
+#include "Models/lmm.hpp"
 #include "Models/SparseLMM.h"
 #include "Stats/FisherTest.h"
 #include "Stats/Chi2Test.h"
@@ -60,6 +61,7 @@
 #include "../Models/ModelOptions.hpp"
 #include "../Models/MultiPopLasso.hpp"
 #include "../Models/LinearMixedModel.hpp"
+#include "../Models/lmm.hpp"
 #include "../Models/SparseLMM.h"
 #include "../Models/TreeLasso.hpp"
 #include "../Stats/FisherTest.h"
@@ -179,6 +181,10 @@ model_id_t Scheduler::newModel(const ModelOptions_t& options) {
 			}
 			case slmm: {
 				models_map[id] = unique_ptr<SparseLMM>(new SparseLMM(options.options));
+				break;
+			}
+			case new_lmm: {
+				models_map[id] = unique_ptr<FaSTLMM>(new FaSTLMM(options.options));
 				break;
 			}
 			default:
