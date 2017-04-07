@@ -6,6 +6,7 @@
 #include <math.h>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 
 #ifdef BAZEL
 #include "Algorithms/Algorithm.hpp"
@@ -67,9 +68,9 @@ public :
     // Extract Brent search parameters from vector
     vector<float> get_brent_params();
 
-    void run(Model* model);
+    void run(shared_ptr<Model>);
     // Run LLM model object pointer
-    void run(LinearMixedModel *);
+    void sub_run(shared_ptr<LinearMixedModel>);
 };
 
 #endif

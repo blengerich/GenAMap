@@ -6,6 +6,7 @@
 #define NEIGHBOR_SELECTION_HPP
 
 #include <map>
+#include <memory>
 
 #ifdef BAZEL
 #include "Algorithms/Algorithm.hpp"
@@ -33,8 +34,8 @@ public:
     void setUpRun();
     void finishRun();
 
-    void run(Model*);
-    void run(LinearRegression*);
+    void run(shared_ptr<Model>);
+    void run(shared_ptr<LinearRegression>);
 
     void setLearningRate(float);
     void setTolerance(float);

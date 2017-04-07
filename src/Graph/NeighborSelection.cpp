@@ -69,7 +69,7 @@ void NeighborSelection::setLearningRate(float lr) {
     learningRate = lr;
 }
 
-void NeighborSelection::run(Model *model) {
+void NeighborSelection::run(shared_ptr<Model> model) {
     cerr << "The algorithm for this specific model is not implemented, runs on basic model"<<endl;    
     int epoch = 0;
     float residue = model->cost();
@@ -85,7 +85,7 @@ void NeighborSelection::run(Model *model) {
     }
 }
 
-void NeighborSelection::run(LinearRegression *model) {
+void NeighborSelection::run(shared_ptr<LinearRegression> model) {
     int epoch = 0;
     MatrixXf X_origin = model->getX();
     MatrixXf X = model->getX();

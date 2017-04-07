@@ -29,17 +29,17 @@ void IterativeUpdate::assertReadyToRun() {
     throw runtime_error("Iterative Update not implemented yet");
 }
 
-void IterativeUpdate::run(Model* model) {
-    if (!model) {
+void IterativeUpdate::run(shared_ptr<Model> model) {
+    if (!model.get()) {
         throw runtime_error("Model not initialized");
-    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(model)) {
+    } else if (shared_ptr<TreeLasso> model = dynamic_pointer_cast<TreeLasso>(model)) {
         run(model);
     } else {
         throw runtime_error("Bad type of model for Algorithm: IterativeUpdate");
     }
 }
 
-void IterativeUpdate::run(TreeLasso* tl) {
+void IterativeUpdate::run(shared_ptr<TreeLasso> tl) {
     float i = 0;
     MatrixXf bestBeta = tl->getBeta();
     tl->initIterativeUpdate();

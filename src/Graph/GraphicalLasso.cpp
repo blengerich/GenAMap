@@ -84,7 +84,7 @@ MatrixXf GraphicalLasso::matrixRaiseToHalf(MatrixXf& matrix) {
 
 
 
-void GraphicalLasso::run(LinearRegression *model) {
+void GraphicalLasso::run(shared_ptr<LinearRegression> model) {
     MatrixXf X = model->getX();
     int num_samples = X.rows();
     int num_features = X.cols();
@@ -136,7 +136,7 @@ void GraphicalLasso::run(LinearRegression *model) {
     model->updateBeta(W_inv);
 }
 
-MatrixXf GraphicalLasso::fit(LinearRegression* model, MatrixXf& X, MatrixXf& Y) {
+MatrixXf GraphicalLasso::fit(shared_ptr<LinearRegression> model, MatrixXf& X, MatrixXf& Y) {
     model->setL1_reg(model->getL1_reg()*10);
     model->setX(X);
     model->setY(Y);
