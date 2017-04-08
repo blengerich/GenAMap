@@ -10,7 +10,7 @@ var bad_model_opts = {'type': 108,
 
 // Algorithm Options
 var alg_opts = {'type': 1, 	// ProximalGradientDescent
-			'options': {'tolerance': 0.01, 'learning_rate': 0.1}};
+			'options': {'tolerance': 0.01, 'learning_rate': 0.0001}};
 var bad_alg_opts = {'type': 10,
 			'options': {'tolerance': 0.01, 'learning_rate': 0.1}};
 
@@ -89,8 +89,8 @@ describe('LinearRegression', function() {
 		it('throw error for bad options', function () {
 			assert.throws(function() {backend.startJob(-1, function() {})},
 				Error, 'Job ID does not match any jobs.');
-			// assert.throws(function() {backend.startJob(job_id, function() {})},
-			// 	Error, 'X and Y matrices of size (0,0), and (0,0) are not compatible.');
+			//assert.throws(function() {backend.startJob(job_id, function() {})},
+			//	Error, 'X and Y matrices of size (0,0), and (0,0) are not compatible.');
 		});
 
 		it('return true for good job start', function() {
@@ -143,6 +143,7 @@ describe('LinearRegression', function() {
 
 		it('large job progress < 1 before ending and == 1 on ending', function(done) {
 			backend.startJob(job_id, function(results) {
+				//console.log(backend.getJobResult(job_id));
 				assert.equal(backend.checkJob(job_id), 1);
 				assert.deepEqual(backend.getJobResult(job_id), results);
 				done();

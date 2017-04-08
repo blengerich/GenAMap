@@ -1,13 +1,14 @@
 var assert = require('chai').assert;
+
 var expect = require('chai').expect;
 var backend = require('../../Scheduler/node/build/Release/scheduler.node');
 
 // Model Options
 var model_opts = {'type': '0',	// Linear Regression
-			'options': {'lambda': 0.5, 'L1_lambda': 1}};
+			'options': {'lambda': 0.1, 'L1_lambda': 0.1}};
 
 // Algorithm Options
-var alg_opts = {'type': 5, 	// ProximalGradientDescent
+var alg_opts = {'type': 6, 	// Graphical Lasso
 			'options': {'tolerance': 0.01, 'learning_rate': 0.001}};
 
 // Fake Data
@@ -19,12 +20,13 @@ const n_markers = 10;
 for (i = 0; i < n_patients; i++) {
 	var markers = [];
 	for (j = 1; j < n_markers; j++) {
-		markers.push(Math.round(Math.random()) + 1);
+		markers.push(Math.random());
 	}
 	largeX.push(markers);
 }
 
-describe('NeighborSelection', function() {
+
+describe('GraphicalLasso', function() {
 
 	describe('get result of small job', function() {
 		var job_id = backend.newJob({'model_options': model_opts, 'algorithm_options': alg_opts});
