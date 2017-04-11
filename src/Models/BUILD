@@ -38,8 +38,7 @@ cc_library(
 	hdrs = ["lmm.hpp"],
 	copts = ["-DBAZEL"],
 	deps = ["//Math:Math",
-			"Model",
-			"//Algorithms:Brent"]
+			"Model"]
 )
 
 cc_library(

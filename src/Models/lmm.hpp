@@ -38,12 +38,7 @@ protected:
     long nf; // Number of features (SNPs)
     bool initTrainingFlag;
 
-    // Input
-    MatrixXf X;
-    MatrixXf y;
-    // Output
     VectorXf p;
-    MatrixXf beta;
     // Eigendecomposition
     MatrixXf S;
     MatrixXf U;
@@ -63,7 +58,7 @@ public:
     VectorXf getP();
     MatrixXf getBeta();
 
-    void init(MatrixXf, MatrixXf);
+    void init();
     float cost(float);
     float trainNullModel(float, float, float);
     Vector2f tstat(float, float, float, float);

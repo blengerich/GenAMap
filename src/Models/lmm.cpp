@@ -24,33 +24,38 @@ FaSTLMM::FaSTLMM(const unordered_map<string, string> &options) {
 }
 
 void FaSTLMM::setX(MatrixXf inputX) {
-    X = inputX;
+    this->X = inputX;
 }
 
 void FaSTLMM::setY(MatrixXf inputY) {
-    y = inputY;
+    this->y = inputY;
 }
 
 void FaSTLMM::setAttributeMatrix(const string& str, MatrixXf* Z) {
     if (str == "setX") {
-        setX(*Z);
+        this->setX(*Z);
     } else if (str == "setY") {
-        setY(*Z);
+        this->setY(*Z);
     } else {
         std::clog << "Linear mixed models have no attribute with name " << str << endl;
     }
 }
 
 VectorXf FaSTLMM::getP() {
-    return p;
+    return this->p;
 }
 
 MatrixXf FaSTLMM::getBeta() {
-    return beta;
+    return this->beta;
 }
 
 void FaSTLMM::assertReadyToRun() {
-
+    // X and Y must be compatible
+    if (!((X.rows() > 0) && (X.rows() == y.rows())
+        && (X.cols() > 0) && (y.cols() > 0))) {
+        throw runtime_error("X and Y matrices of size (" + to_string(X.rows()) + "," + to_string(X.cols()) + "), and (" +
+            to_string(y.rows()) + "," + to_string(y.cols()) + ") are not compatible.");
+    }
 }
 
 // Get the Eigen-Decomposition K = U S U_t by SVD on X = U S_sqrt V
@@ -72,10 +77,8 @@ void FaSTLMM::decompose() {
 }
 
 // Initiate ns, nf, S, U
-void FaSTLMM::init(MatrixXf inputX, MatrixXf inputY) {
+void FaSTLMM::init() {
     if (!initTrainingFlag) {
-        this->setX(inputX);
-        this->setY(inputY);
         ns = X.rows();
         nf = X.cols();
         decompose();
@@ -98,10 +101,10 @@ float FaSTLMM::cost(float ldelta) {
 /* Do Brent Search on the negative of log-likelihood of the null model to get the optimal delta 
    and the corresponding minimum -log-likelihood of null model.
  */
-float FaSTLMM::trainNullModel(float intervalNum, float lo, float hi) {
+float FaSTLMM::trainNullModel(float intervalNum, float ldeltaStart, float ldeltaEnd) {
     using namespace boost::math::tools;
     VectorXf nllGrid = VectorXf::Ones(intervalNum + 1);
-    VectorXf ldeltaGrid = (VectorXf::LinSpaced(intervalNum + 1, 0, intervalNum) / intervalNum * (hi - lo)).array() + lo;
+    VectorXf ldeltaGrid = (VectorXf::LinSpaced(intervalNum + 1, 0, intervalNum) / intervalNum * (ldeltaEnd - ldeltaStart)).array() + ldeltaStart;
     for (long i = 0; i <= intervalNum; i++) {
         nllGrid(i) = this->cost(ldeltaGrid(i));
     }
@@ -116,7 +119,9 @@ float FaSTLMM::trainNullModel(float intervalNum, float lo, float hi) {
             func(MatrixXf M1, MatrixXf M2): X(M1), y(M2) {}
             virtual float operator()(float x) {
                 FaSTLMM flmm = FaSTLMM();
-                flmm.init(X, y);
+                flmm.setX(X);
+                flmm.setY(y);
+                flmm.init();
                 return flmm.cost(x);
             }
     };
@@ -178,9 +183,8 @@ void FaSTLMM::hypothesis_test(MatrixXf SUX, MatrixXf SUy, MatrixXf SUX0) {
     }
 }
 
-
-void FaSTLMM::train(float intervalNum, float ldeltaMin, float ldeltaMax) {
-    float delta0 = exp(this->trainNullModel(intervalNum, ldeltaMin, ldeltaMax));
+void FaSTLMM::train(float intervalNum, float ldeltaStart, float ldeltaEnd) {
+    float delta0 = exp(this->trainNullModel(intervalNum, ldeltaStart, ldeltaEnd));
     VectorXf Sdi = (S.array() + delta0).inverse();
     VectorXf SdiSqrt = Sdi.array().sqrt();
     MatrixXf SUX = U.transpose() * X;

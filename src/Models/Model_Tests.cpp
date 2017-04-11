@@ -792,7 +792,9 @@ MatrixXf y = FileIO::getInstance().readMatrixFile("/usr/src/genamap/models/LR_da
 MatrixXf alz_y = y.col(0);
 MatrixXf hunt_y = y.col(1);
 
-flmm.init(X, alz_y);
+flmm.setX(X);
+flmm.setY(alz_y);
+flmm.init();
 flmm.train(500, -5, 5);
 VectorXf p = flmm.getP();
 VectorXf p_true;
