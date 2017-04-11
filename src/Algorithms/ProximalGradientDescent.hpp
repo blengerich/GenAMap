@@ -6,6 +6,7 @@
 #define ALGORITHMS_PROXIMALGRADIENTDESCENT_HPP
 
 #include <map>
+#include <memory>
 
 #ifdef BAZEL
 #include "Algorithms/Algorithm.hpp"
@@ -53,13 +54,13 @@ public:
     void setUpRun();
     void finishRun();
 
-    void run(Model*);
-    void run(LinearRegression*);
-    void run(TreeLasso*);
-    void run(MultiPopLasso*);
-    void run(AdaMultiLasso*);
-    void run(Gflasso*);
-    void run(SparseLMM*);
+    void run(shared_ptr<Model>);
+    void run(shared_ptr<LinearRegression>);
+    void run(shared_ptr<TreeLasso>);
+    void run(shared_ptr<MultiPopLasso>);
+    void run(shared_ptr<AdaMultiLasso>);
+    void run(shared_ptr<Gflasso>);
+    void run(shared_ptr<SparseLMM>);
 
     void setLearningRate(float);
     void setTolerance(float);

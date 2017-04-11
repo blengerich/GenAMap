@@ -5,15 +5,15 @@
 #include "HypoTestPlaceHolder.h"
 
 HypoTestPlaceHolder::HypoTestPlaceHolder() {
-    model = NULL;
+    model = shared_ptr<StatsBasic>(nullptr);
 }
 
 HypoTestPlaceHolder::HypoTestPlaceHolder(const unordered_map<string, string>& opts) {
-    model = NULL;
+    model = shared_ptr<StatsBasic>(nullptr);
 }
 
 float HypoTestPlaceHolder::getProgress() {
-    if (model == NULL){
+    if (model.get() == nullptr){
         return 0;
     }
     else {
@@ -23,7 +23,7 @@ float HypoTestPlaceHolder::getProgress() {
 }
 
 bool HypoTestPlaceHolder::getIsRunning() {
-    if (model==NULL){
+    if (model.get() == nullptr){
         return true;
     }
     else{
@@ -33,35 +33,35 @@ bool HypoTestPlaceHolder::getIsRunning() {
 }
 
 void HypoTestPlaceHolder::stop() {
-    if (model==NULL){
+    if (model.get() == nullptr){
     }
     else{
         model->stop();
     }
 }
 
-void HypoTestPlaceHolder::run(StatsBasic *m) {
+void HypoTestPlaceHolder::run(shared_ptr<StatsBasic> m) {
     model = m;
     model->setUpRun();
     model->run();
     model->finishRun();
 }
 
-void HypoTestPlaceHolder::run(Chi2Test *m) {
+void HypoTestPlaceHolder::run(shared_ptr<Chi2Test> m) {
     model = m;
     model->setUpRun();
     model->run();
     model->finishRun();
 }
 
-void HypoTestPlaceHolder::run(FisherTest *m) {
+void HypoTestPlaceHolder::run(shared_ptr<FisherTest> m) {
     model = m;
     model->setUpRun();
     model->run();
     model->finishRun();
 }
 
-void HypoTestPlaceHolder::run(WaldTest *m) {
+void HypoTestPlaceHolder::run(shared_ptr<WaldTest> m) {
     model = m;
     model->setUpRun();
     model->run();

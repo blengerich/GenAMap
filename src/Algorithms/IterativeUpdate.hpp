@@ -6,6 +6,7 @@
 #define ALGORITHMS_ITERATIVEUPDATE_HPP
 
 #include <map>
+#include <memory>
 
 #include "Algorithm.hpp"
 #include "../Models/TreeLasso.hpp"
@@ -26,8 +27,8 @@ public:
 
     void setTolerance(float);
     void assertReadyToRun();
-    void run(Model*);
-    void run(TreeLasso*);
+    void run(shared_ptr<Model>);
+    void run(shared_ptr<TreeLasso>);
     void stop();
 };
 
