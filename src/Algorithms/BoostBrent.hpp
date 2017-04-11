@@ -43,8 +43,8 @@ public:
     float get_ldelta_end();
     float get_ldelta_interval();
 
-    void run(Model*);
-    void run(FaSTLMM*);
+    void run(shared_ptr<Model>);
+    void run(shared_ptr<FaSTLMM>);
 
 };
 
