@@ -29,6 +29,7 @@
 #include "Algorithms/IterativeUpdate.hpp"
 #include "Algorithms/ProximalGradientDescent.hpp"
 #include "Algorithms/HypoTestPlaceHolder.h"
+#include "Algorithms/BoostBrent.hpp"
 #include "Models/AdaMultiLasso.hpp"
 #include "Models/GFlasso.h"
 #include "Models/lasso.hpp"
@@ -38,6 +39,7 @@
 #include "Models/MultiPopLasso.hpp"
 #include "Models/TreeLasso.hpp"
 #include "Models/LinearMixedModel.hpp"
+#include "Models/lmm.hpp"
 #include "Models/SparseLMM.h"
 #include "Stats/FisherTest.h"
 #include "Stats/Chi2Test.h"
@@ -45,7 +47,6 @@
 #include "Graph/NeighborSelection.hpp"
 #include "Graph/GraphicalLasso.hpp"
 #include "Scheduler/Job.hpp"
-#include "iostream"
 #else
 #include "../Algorithms/Algorithm.hpp"
 #include "../Algorithms/AlgorithmOptions.hpp"
@@ -54,6 +55,7 @@
 #include "../Algorithms/IterativeUpdate.hpp"
 #include "../Algorithms/ProximalGradientDescent.hpp"
 #include "../Algorithms/HypoTestPlaceHolder.h"
+#include "../Algorithms/BoostBrent.hpp"
 #include "../Models/AdaMultiLasso.hpp"
 #include "../Models/GFlasso.h"
 #include "../Models/lasso.hpp"
@@ -62,6 +64,7 @@
 #include "../Models/ModelOptions.hpp"
 #include "../Models/MultiPopLasso.hpp"
 #include "../Models/LinearMixedModel.hpp"
+#include "../Models/lmm.hpp"
 #include "../Models/SparseLMM.h"
 #include "../Models/TreeLasso.hpp"
 #include "../Stats/FisherTest.h"
@@ -70,7 +73,6 @@
 #include "../Graph/NeighborSelection.hpp"
 #include "../Graph/GraphicalLasso.hpp"
 #include "../Scheduler/Job.hpp"
-#include "iostream"
 #endif
 
 using namespace std;
@@ -130,9 +132,12 @@ algorithm_id_t Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 			case algorithm_type::neighbor_selection:
 				algorithms_map[id] = shared_ptr<NeighborSelection>(new NeighborSelection(options.options));
 				break;
-            case algorithm_type::graphical_lasso:
+      			case algorithm_type::graphical_lasso:
 				algorithms_map[id] = shared_ptr<GraphicalLasso>(new GraphicalLasso(options.options));
 				break;
+      			case algorithm_type::boost_brent:
+				algorithms_map[id] = shared_ptr<BoostBrent>(new BoostBrent(options.options));
+        			break;
 			default:
 				return 0;
 		}
@@ -183,6 +188,10 @@ model_id_t Scheduler::newModel(const ModelOptions_t& options) {
 			}
 			case slmm: {
 				models_map[id] = shared_ptr<SparseLMM>(new SparseLMM(options.options));
+				break;
+			}
+			case new_lmm: {
+				models_map[id] = shared_ptr<FaSTLMM>(new FaSTLMM(options.options));
 				break;
 			}
 			default:
@@ -407,6 +416,14 @@ void trainAlgorithmThread(uv_work_t* req) {
 				throw runtime_error("Requested model type not implemented for the requested algorithm");
 			}
 			alg->finishRun();
+		} else if (shared_ptr<BoostBrent> alg = dynamic_pointer_cast<BoostBrent>(job->algorithm)) {
+			alg->setUpRun();
+			if (shared_ptr<FaSTLMM> model = dynamic_pointer_cast<FaSTLMM>(job->model)) {
+        			alg->run(model);
+      			} else {
+        			throw runtime_error("Requested model type not implemented for the requested algorithm");
+     			}
+			alg->finishRun();
 		} else {
 			throw runtime_error("Requested algorithm type not implemented");
 		}
@@ -518,6 +535,8 @@ MatrixXf Scheduler::getJobResult(const job_id_t job_id) {
 		} else if (shared_ptr<Chi2Test> model = dynamic_pointer_cast<Chi2Test>(job->model)) {
 			return model->getBeta();
 		} else if (shared_ptr<WaldTest> model = dynamic_pointer_cast<WaldTest>(job->model)) {
+			return model->getBeta();
+		} else if (shared_ptr<FaSTLMM> model = dynamic_pointer_cast<FaSTLMM>(job->model)) {
 			return model->getBeta();
 		} else {
 	    	return model->getBeta();

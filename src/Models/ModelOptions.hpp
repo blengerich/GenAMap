@@ -20,6 +20,7 @@ enum model_type {
 	wald_test = 7,
 	lmm = 8,
 	slmm = 9,
+	new_lmm = 10,
 };
 
 typedef struct ModelOptions_t {

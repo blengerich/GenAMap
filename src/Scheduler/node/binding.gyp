@@ -7,6 +7,7 @@
 			"../../Algorithms/GridSearch.cpp", "../../Algorithms/IterativeUpdate.cpp",
 			"../../Algorithms/ProximalGradientDescent.cpp",
 			"../../Algorithms/HypoTestPlaceHolder.cpp",
+			"../../Algorithms/BoostBrent.cpp",
 			"../../JSON/JsonCoder.cpp", "../../JSON/jsoncpp.cpp",
 			"../../Math/Math.cpp",
 			"../../Models/AdaMultiLasso.cpp", "../../Models/GFlasso.cpp",
@@ -15,6 +16,7 @@
 			"../../Models/SparseLMM.cpp", "../../Models/TreeLasso.cpp",
 			"../../Stats/Stats.cpp", "../../Stats/Chi2Test.cpp", "../../Stats/FisherTest.cpp", "../../Stats/WaldTest.cpp",
 			"../../Models/LinearMixedModel.cpp",
+			"../../Models/lmm.cpp",
  			"../../Graph/NeighborSelection.cpp",
 			"../../Graph/GraphicalLasso.cpp"],
 		'cflags': [

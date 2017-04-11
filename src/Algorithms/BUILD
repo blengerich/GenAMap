@@ -27,6 +27,16 @@ cc_library(
 )
 
 cc_library(
+	name = "BoostBrent",
+	srcs = ["BoostBrent.cpp"],
+	hdrs = ["BoostBrent.hpp"],
+	deps = ["//Algorithms:Algorithm",
+			"//Algorithms:AlgorithmOptions",
+			"//Models:lmm"],
+	copts = ["-DBAZEL"]
+)
+
+cc_library(
 	name = "GridSearch",
 	srcs = ["GridSearch.cpp"],
 	hdrs = ["GridSearch.hpp"],

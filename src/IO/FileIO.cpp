@@ -65,7 +65,7 @@ docInfo FileIO::countRowCol(string fileName, string format) {
     ifstream infile;
     infile.open(filename);
     string line;
-    while (getline(infile, line)){
+    while (getline(infile, line)) {
         ++doc.row;
         if (doc.row == 1){
             doc.col = countColumn(line, format);

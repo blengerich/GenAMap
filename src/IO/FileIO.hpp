@@ -9,7 +9,7 @@
 #include <vector>
 #include <Eigen/Dense>
 #include <unordered_map>
-#include "model/TreeLasso.hpp"
+#include "../Models/TreeLasso.hpp"
 
 using namespace Eigen;
 using namespace std;
