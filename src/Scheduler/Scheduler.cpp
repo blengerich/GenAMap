@@ -413,6 +413,7 @@ void trainAlgorithmThread(uv_work_t* req) {
 			} else {
 				throw runtime_error("Requested model type not implemented for the requested algorithm");
 			}
+			alg->finishRun();
 		} else if (shared_ptr<BoostBrent> alg = dynamic_pointer_cast<BoostBrent>(job->algorithm)) {
 			alg->setUpRun();
 			if (shared_ptr<FaSTLMM> model = dynamic_pointer_cast<FaSTLMM>(job->model)) {
@@ -420,6 +421,7 @@ void trainAlgorithmThread(uv_work_t* req) {
       			} else {
         			throw runtime_error("Requested model type not implemented for the requested algorithm");
      			}
+			alg->finishRun();
 		} else {
 			throw runtime_error("Requested algorithm type not implemented");
 		}
