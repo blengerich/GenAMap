@@ -34,7 +34,8 @@ cc_library(
         "//Stats:FisherTest",
         "//Stats:Chi2Test",
         "//Stats:WaldTest", 
-        "//Graph:NeighborSelection"]
+        	"//Graph:NeighborSelection",
+		"//Graph:GraphicalLasso"]
 )
 
 
