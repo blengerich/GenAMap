@@ -27,9 +27,12 @@ cc_library(
 )
 
 cc_library(
-	name = "Brent",
-	srcs = ["NewBrent.cpp"],
-	hdrs = ["NewBrent.hpp"],
+	name = "BoostBrent",
+	srcs = ["BoostBrent.cpp"],
+	hdrs = ["BoostBrent.hpp"],
+	deps = ["//Algorithms:Algorithm",
+			"//Algorithms:AlgorithmOptions",
+			"//Models:lmm"],
 	copts = ["-DBAZEL"]
 )
 
