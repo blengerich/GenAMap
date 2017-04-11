@@ -21,6 +21,7 @@ cc_library(
         "//Algorithms:HypoTestPlaceholder",
         "//Algorithms:IterativeUpdate",
         "//Algorithms:ProximalGradientDescent",
+        "//Algorithms:BoostBrent",
         "//Models:AdaMultiLasso",
         "//Models:GFlasso",
         "//Models:lasso",
@@ -32,9 +33,8 @@ cc_library(
         "//Scheduler:Job",
         "//Stats:FisherTest",
         "//Stats:Chi2Test",
-        "//Stats:WaldTest",
-		"//Graph:NeighborSelection",
-		"//Graph:GraphicalLasso"]
+        "//Stats:WaldTest", 
+        "//Graph:NeighborSelection"]
 )
 
 
