@@ -130,12 +130,12 @@ algorithm_id_t Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 			case algorithm_type::neighbor_selection:
 				algorithms_map[id] = shared_ptr<NeighborSelection>(new NeighborSelection(options.options));
 				break;
-      case algorithm_type::graphical_lasso:
+      			case algorithm_type::graphical_lasso:
 				algorithms_map[id] = shared_ptr<GraphicalLasso>(new GraphicalLasso(options.options));
 				break;
-      case algorithm_type::boost_brent:
+      			case algorithm_type::boost_brent:
 				algorithms_map[id] = shared_ptr<BoostBrent>(new BoostBrent(options.options));
-        break;
+        			break;
 			default:
 				return 0;
 		}
@@ -416,10 +416,10 @@ void trainAlgorithmThread(uv_work_t* req) {
 		} else if (shared_ptr<BoostBrent> alg = dynamic_pointer_cast<BoostBrent>(job->algorithm)) {
 			alg->setUpRun();
 			if (shared_ptr<FaSTLMM> model = dynamic_pointer_cast<FaSTLMM>(job->model)) {
-        alg->run(model);
-      } else {
-        throw runtime_error("Requested model type not implemented for the requested algorithm");
-      }
+        			alg->run(model);
+      			} else {
+        			throw runtime_error("Requested model type not implemented for the requested algorithm");
+     			}
 		} else {
 			throw runtime_error("Requested algorithm type not implemented");
 		}
