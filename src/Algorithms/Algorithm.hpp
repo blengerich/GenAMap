@@ -6,6 +6,7 @@
 #define ALGORITHMS_ALGORITHM_HPP
 
 #include <mutex>
+#include <memory>
 #include <unordered_map>
 
 #ifdef BAZEL
@@ -46,7 +47,7 @@ public:
     void stop();
 
     virtual void assertReadyToRun(){};
-    virtual void run(Model*);
+    virtual void run(shared_ptr<Model>);
     virtual void setUpRun(){};
     virtual void finishRun(){};
 

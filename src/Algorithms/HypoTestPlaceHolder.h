@@ -5,7 +5,9 @@
 #ifndef GENAMAP_V2_HYPOTESTPLACEHOLDER_H
 #define GENAMAP_V2_HYPOTESTPLACEHOLDER_H
 
+#include <memory>
 #include "Algorithm.hpp"
+
 #ifdef BAZEL
 #include "Stats/Stats.hpp"
 #include "Stats/Chi2Test.h"
@@ -21,7 +23,7 @@
 
 class HypoTestPlaceHolder : public Algorithm {
 private:
-    StatsBasic * model;
+    shared_ptr<StatsBasic> model;
 public:
 
     HypoTestPlaceHolder();
@@ -32,10 +34,10 @@ public:
     void stop();
 
     void assertReadyToRun(){};
-    void run(StatsBasic*);
-    void run(Chi2Test*);
-    void run(FisherTest*);
-    void run(WaldTest*);
+    void run(shared_ptr<StatsBasic>);
+    void run(shared_ptr<Chi2Test>);
+    void run(shared_ptr<FisherTest>);
+    void run(shared_ptr<WaldTest>);
     void setUpRun();
     void finishRun();
 };

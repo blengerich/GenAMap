@@ -7,6 +7,7 @@
 
 #include <map>
 #include <vector>
+#include <memory>
 
 #ifdef BAZEL
 #include "Algorithms/Algorithm.hpp"
@@ -30,7 +31,7 @@ private:
     static constexpr float default_tolerance = 0.000001;
 
     void stdNormalize(MatrixXf&);
-    MatrixXf fit(LinearRegression*, MatrixXf&, MatrixXf&);
+    MatrixXf fit(shared_ptr<LinearRegression>, MatrixXf&, MatrixXf&);
     vector<MatrixXf> partitionBlocks(MatrixXf&);
     MatrixXf composeBlocks(MatrixXf& m_11, MatrixXf& m_12, float m_22);
     MatrixXf matrixRaiseToHalf(MatrixXf&);
@@ -42,7 +43,7 @@ public:
     void setUpRun();
     void finishRun();
 
-    void run(LinearRegression*);
+    void run(shared_ptr<LinearRegression>);
 
     void setLearningRate(float);
     void setTolerance(float);

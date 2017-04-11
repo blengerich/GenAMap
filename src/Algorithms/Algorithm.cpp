@@ -43,6 +43,6 @@ void Algorithm::stop() {
 	mtx.unlock();
 }
 
-void Algorithm::run(Model* model) {
+void Algorithm::run(shared_ptr<Model> model) {
 	throw runtime_error("This algorithm is not implemented for the selected model.");
 }

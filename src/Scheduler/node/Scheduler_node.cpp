@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <uv.h>
 #include <v8.h>
+#include <memory>
 
 #include "../../Algorithms/ProximalGradientDescent.hpp"
 #include "../../Algorithms/IterativeUpdate.hpp"
@@ -108,7 +109,7 @@ void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 		}
 
 		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
-		Job_t* job = Scheduler::Instance()->getJob(job_id);
+		shared_ptr<Job_t> job = Scheduler::Instance()->getJob(job_id);
 		job->exception = nullptr;
 		job->callback.Reset(isolate, Local<Function>::Cast(args[1]));
 		job->job_id = job_id;
