@@ -18,6 +18,7 @@ enum algorithm_type {
 	hypo_test = 4,
 	neighbor_selection = 5,
 	graphical_lasso = 6,
+	boost_brent = 7,
 };
 
 typedef struct AlgorithmOptions_t {
