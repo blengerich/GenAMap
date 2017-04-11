@@ -21,20 +21,20 @@ BoostBrent::BoostBrent() {
 
 BoostBrent::BoostBrent(const unordered_map<string, string> opts) {
 	try {
-        ldelta_start = stod(opts.at("ldelta_start"));
-    } catch (std::out_of_range& oor) {
-        ldelta_start = default_ldelta_start;
-    }
-    try {
-        ldelta_end = stod(opts.at("ldelta_end"));
-    } catch (std::out_of_range& oor) {
-        ldelta_end = default_ldelta_end;
-    }
-    try {
-        ldelta_interval = stod(opts.at("ldelta_interval"));
-    } catch (std::out_of_range& oor) {
-        ldelta_interval = default_ldelta_interval;
-    }
+        	ldelta_start = stod(opts.at("ldelta_start"));
+    	} catch (std::out_of_range& oor) {
+        	ldelta_start = default_ldelta_start;
+    	}
+    	try {
+        	ldelta_end = stod(opts.at("ldelta_end"));
+    	} catch (std::out_of_range& oor) {
+        	ldelta_end = default_ldelta_end;
+    	}
+    	try {
+        	ldelta_interval = stod(opts.at("ldelta_interval"));
+    	} catch (std::out_of_range& oor) {
+        	ldelta_interval = default_ldelta_interval;
+    	}
 }
 
 void BoostBrent::set_ldelta_start(float start) {
@@ -61,17 +61,17 @@ float BoostBrent::get_ldelta_interval() {
 	return this->ldelta_interval;
 }
 
-void BoostBrent::run(Model *model) {
+void BoostBrent::run(shared_ptr<Model> model) {
 	if (!model) {
-        throw runtime_error("Model not initialized");
-    } else if (FaSTLMM *model = dynamic_cast<FaSTLMM*>(model)) {
-        run(model);
-    } else {
-        throw runtime_error("Bad type of model for Algorithm: BoostBrent");
-    }
+        	throw runtime_error("Model not initialized");
+    	} else if (shared_ptr<FaSTLMM> model = dynamic_pointer_cast<FaSTLMM>(model)) {
+        	run(model);
+    	} else {
+        	throw runtime_error("Bad type of model for Algorithm: BoostBrent");
+    	}
 }
 
-void BoostBrent::run(FaSTLMM *model) {
+void BoostBrent::run(shared_ptr<FaSTLMM> model) {
 	mtx.lock();
 	float start_val = this->get_ldelta_start();
 	float end_val = this->get_ldelta_end();
