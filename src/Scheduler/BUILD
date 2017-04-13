@@ -31,7 +31,9 @@ cc_library(
         "//Scheduler:Job",
         "//Stats:FisherTest",
         "//Stats:Chi2Test",
-        "//Stats:WaldTest"]
+        "//Stats:WaldTest",
+		"//Graph:NeighborSelection",
+		"//Graph:GraphicalLasso"]
 )
 
 

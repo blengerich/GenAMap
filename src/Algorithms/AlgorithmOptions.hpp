@@ -16,6 +16,8 @@ enum algorithm_type {
 	grid_search = 2,
 	iterative_update = 3,
 	hypo_test = 4,
+	neighbor_selection = 5,
+	graphical_lasso = 6,
 };
 
 typedef struct AlgorithmOptions_t {

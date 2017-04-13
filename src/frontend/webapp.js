@@ -367,10 +367,11 @@ app.post(config.api.ForgetPasswordEmailUrl, function (req, res) {
       if (err) {throw err}
       fs.readFile('./static/email/Password_2.html', function (err, html_2) {
         if (err) {throw err}
-      var password = foundUser.password
-      var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
-      var mailOptions = {
-          from: '"GenAMap" <genamap.v2.0@gmail.com>', // sender address
+        var password = foundUser.password
+        var auth_details = require('./static/email/Authentication.json');
+        var transporter = nodemailer.createTransport(auth_details.user + ':' + auth_details.pass);
+        var mailOptions = {
+          from: '"GenAMap" <genamap.team@gmail.com>', // sender address
           to: req.body.email,
           subject: 'GenAMap Forget Password Email', // Subject line
           text: 'Forget Password Email',

@@ -42,7 +42,10 @@
 #include "Stats/FisherTest.h"
 #include "Stats/Chi2Test.h"
 #include "Stats/WaldTest.h"
+#include "Graph/NeighborSelection.hpp"
+#include "Graph/GraphicalLasso.hpp"
 #include "Scheduler/Job.hpp"
+#include "iostream"
 #else
 #include "../Algorithms/Algorithm.hpp"
 #include "../Algorithms/AlgorithmOptions.hpp"
@@ -64,7 +67,10 @@
 #include "../Stats/FisherTest.h"
 #include "../Stats/Chi2Test.h"
 #include "../Stats/WaldTest.h"
+#include "../Graph/NeighborSelection.hpp"
+#include "../Graph/GraphicalLasso.hpp"
 #include "../Scheduler/Job.hpp"
+#include "iostream"
 #endif
 
 using namespace std;
@@ -81,9 +87,9 @@ Scheduler::Scheduler()
 : next_algorithm_id(1)
 , next_model_id(1)
 , next_job_id(1) {
-	algorithms_map = std::unordered_map<algorithm_id_t, unique_ptr<Algorithm>>();
-	models_map = std::unordered_map<model_id_t, unique_ptr<Model>>();
-	jobs_map = std::unordered_map<job_id_t, unique_ptr<Job_t>>();
+	algorithms_map = std::unordered_map<algorithm_id_t, shared_ptr<Algorithm>>();
+	models_map = std::unordered_map<model_id_t, shared_ptr<Model>>();
+	jobs_map = std::unordered_map<job_id_t, shared_ptr<Job_t>>();
 }
 
 Scheduler& Scheduler::operator=(Scheduler const& s) {
@@ -107,22 +113,26 @@ algorithm_id_t Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 	if (ValidAlgorithmId(id)) {
 		switch(options.type) {
 			case algorithm_type::brent_search:
-				algorithms_map[id] = unique_ptr<BrentSearch>(new BrentSearch(options.options));
+				algorithms_map[id] = shared_ptr<BrentSearch>(new BrentSearch(options.options));
 				break;
 			case algorithm_type::grid_search:
-				algorithms_map[id] = unique_ptr<GridSearch>(new GridSearch(options.options));
+				algorithms_map[id] = shared_ptr<GridSearch>(new GridSearch(options.options));
 				break;
 			case algorithm_type::iterative_update:
-				algorithms_map[id] = unique_ptr<IterativeUpdate>(new IterativeUpdate(options.options));
+				algorithms_map[id] = shared_ptr<IterativeUpdate>(new IterativeUpdate(options.options));
 				break;
-			case algorithm_type::proximal_gradient_descent: {
-				algorithms_map[id] = unique_ptr<ProximalGradientDescent>(new ProximalGradientDescent(options.options));	
+			case algorithm_type::proximal_gradient_descent:
+				algorithms_map[id] = shared_ptr<ProximalGradientDescent>(new ProximalGradientDescent(options.options));	
 				break;
-			}
-			case algorithm_type::hypo_test:{
-				algorithms_map[id] = unique_ptr<HypoTestPlaceHolder>(new HypoTestPlaceHolder(options.options));
+			case algorithm_type::hypo_test:
+				algorithms_map[id] = shared_ptr<HypoTestPlaceHolder>(new HypoTestPlaceHolder(options.options));
 				break;
-			}
+			case algorithm_type::neighbor_selection:
+				algorithms_map[id] = shared_ptr<NeighborSelection>(new NeighborSelection(options.options));
+				break;
+            case algorithm_type::graphical_lasso:
+				algorithms_map[id] = shared_ptr<GraphicalLasso>(new GraphicalLasso(options.options));
+				break;
 			default:
 				return 0;
 		}
@@ -136,43 +146,43 @@ model_id_t Scheduler::newModel(const ModelOptions_t& options) {
 	if (ValidModelId(id)) {
 		switch(options.type) {
 			case ada_multi_lasso: {
-				models_map[id] = unique_ptr<AdaMultiLasso>(new AdaMultiLasso(options.options));
+				models_map[id] = shared_ptr<AdaMultiLasso>(new AdaMultiLasso(options.options));
 				break;
 			}
 			case gf_lasso: {
-				models_map[id] = unique_ptr<Gflasso>(new Gflasso(options.options));
+				models_map[id] = shared_ptr<Gflasso>(new Gflasso(options.options));
 				break;
 			}
 			case linear_regression: {
-				models_map[id] = unique_ptr<LinearRegression>(new LinearRegression(options.options));
+				models_map[id] = shared_ptr<LinearRegression>(new LinearRegression(options.options));
 				break;
 			}
 			case multi_pop_lasso: {
-				models_map[id] = unique_ptr<MultiPopLasso>(new MultiPopLasso(options.options));
+				models_map[id] = shared_ptr<MultiPopLasso>(new MultiPopLasso(options.options));
 				break;
 			}
 			case tree_lasso: {
-				models_map[id] = unique_ptr<TreeLasso>(new TreeLasso(options.options));
+				models_map[id] = shared_ptr<TreeLasso>(new TreeLasso(options.options));
 				break;
 			}
 			case fisher_test: {
-				models_map[id] = unique_ptr<FisherTest>(new FisherTest(options.options));
+				models_map[id] = shared_ptr<FisherTest>(new FisherTest(options.options));
 				break;
 			}
 			case chi2_test: {
-				models_map[id] = unique_ptr<Chi2Test>(new Chi2Test(options.options));
+				models_map[id] = shared_ptr<Chi2Test>(new Chi2Test(options.options));
 				break;
 			}
 			case wald_test: {
-				models_map[id] = unique_ptr<WaldTest>(new WaldTest(options.options));
+				models_map[id] = shared_ptr<WaldTest>(new WaldTest(options.options));
 				break;
 			}
 			case lmm: {
-				models_map[id] = unique_ptr<LinearMixedModel>(new LinearMixedModel(options.options));
+				models_map[id] = shared_ptr<LinearMixedModel>(new LinearMixedModel(options.options));
 				break;
 			}
 			case slmm: {
-				models_map[id] = unique_ptr<SparseLMM>(new SparseLMM(options.options));
+				models_map[id] = shared_ptr<SparseLMM>(new SparseLMM(options.options));
 				break;
 			}
 			default:
@@ -231,7 +241,7 @@ job_id_t Scheduler::newJob(const JobOptions_t& options) {
 		try {
 			model_id_t model_id = newModel(options.model_opts);
 			my_job->model = getModel(model_id);
-			jobs_map[my_job->job_id] = unique_ptr<Job_t>(my_job);
+			jobs_map[my_job->job_id] = shared_ptr<Job_t>(my_job);
 			return job_id;
 		} catch (const exception& e) {
 			throw runtime_error("Error creating model");
@@ -251,9 +261,9 @@ bool Scheduler::startJob(const job_id_t job_id, void (*completion)(uv_work_t*, i
 		throw runtime_error("Job id must correspond to a job that has been created.");
 		return false;
 	}
-	Job_t* job = getJob(job_id);
+	shared_ptr<Job_t> job = getJob(job_id);
 
-	if (!job) {
+	if (!job.get()) {
 		throw runtime_error("Job must not be null.");
 		return false;
 	} else if (!job->algorithm || !job->model) {
@@ -266,7 +276,7 @@ bool Scheduler::startJob(const job_id_t job_id, void (*completion)(uv_work_t*, i
 	try {
 		job->algorithm->assertReadyToRun();
 		job->model->assertReadyToRun();
-		job->request.data = job;
+		job->request.data = job.get();
 		uv_queue_work(uv_default_loop(), &(job->request), trainAlgorithmThread, completion);
 		return true;
 	} catch (const exception& ex) {
@@ -293,89 +303,105 @@ void trainAlgorithmThread(uv_work_t* req) {
 		job->algorithm->assertReadyToRun();
 		job->model->assertReadyToRun();
 		// Object slicing makes this annoying
-		if (BrentSearch* alg = dynamic_cast<BrentSearch*>(job->algorithm)) {
+		if (shared_ptr<BrentSearch> alg = dynamic_pointer_cast<BrentSearch>(job->algorithm)) {
 			alg->setUpRun();
-			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+			if (shared_ptr<AdaMultiLasso> model = dynamic_pointer_cast<AdaMultiLasso>(job->model)) {
 		        alg->run(model);
-		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
+		    } else if (shared_ptr<Gflasso> model = dynamic_pointer_cast<Gflasso>(job->model)) {
 		        alg->run(model);
-		    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+		    } else if (shared_ptr<LinearRegression> model = dynamic_pointer_cast<LinearRegression>(job->model)) {
 		        alg->run(model);
-		    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
+		    } else if (shared_ptr<MultiPopLasso> model = dynamic_pointer_cast<MultiPopLasso>(job->model)) {
 		        alg->run(model);
-		    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
+		    } else if (shared_ptr<SparseLMM> model = dynamic_pointer_cast<SparseLMM>(job->model)) {
 		        alg->run(model);
-		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+		    } else if (shared_ptr<TreeLasso> model = dynamic_pointer_cast<TreeLasso>(job->model)) {
 		        alg->run(model);
-		    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
+		    } else if (shared_ptr<LinearMixedModel> model = dynamic_pointer_cast<LinearMixedModel>(job->model)) {
 				alg->run(model);
 			} else {
 		        throw runtime_error("Requested model type not implemented for the requested algorithm");
 		    }
 		    alg->finishRun();
-		} else if (GridSearch* alg = dynamic_cast<GridSearch*>(job->algorithm)) {
+		} else if (shared_ptr<GridSearch> alg = dynamic_pointer_cast<GridSearch>(job->algorithm)) {
 			alg->setUpRun();
-			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+		    if (shared_ptr<AdaMultiLasso> model = dynamic_pointer_cast<AdaMultiLasso>(job->model)) {
 		        alg->run(model);
-		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
+		    } else if (shared_ptr<Gflasso> model = dynamic_pointer_cast<Gflasso>(job->model)) {
 		        alg->run(model);
-		    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+		    } else if (shared_ptr<LinearRegression> model = dynamic_pointer_cast<LinearRegression>(job->model)) {
 		        alg->run(model);
-		    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
+		    } else if (shared_ptr<MultiPopLasso> model = dynamic_pointer_cast<MultiPopLasso>(job->model)) {
 		        alg->run(model);
-		    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
+		    } else if (shared_ptr<SparseLMM> model = dynamic_pointer_cast<SparseLMM>(job->model)) {
 		        alg->run(model);
-		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+		    } else if (shared_ptr<TreeLasso> model = dynamic_pointer_cast<TreeLasso>(job->model)) {
 		        alg->run(model);
-		    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
+		    } else if (shared_ptr<LinearMixedModel> model = dynamic_pointer_cast<LinearMixedModel>(job->model)) {
 				alg->run(model);
 			} else {
 		        throw runtime_error("Requested model type not implemented for the requested algorithm");
 		    }
 		    alg->finishRun();
-		} else if (IterativeUpdate* alg = dynamic_cast<IterativeUpdate*>(job->algorithm)) {
+		} else if (shared_ptr<IterativeUpdate> alg = dynamic_pointer_cast<IterativeUpdate>(job->algorithm)) {
 			alg->setUpRun();
-			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+			if (shared_ptr<AdaMultiLasso> model = dynamic_pointer_cast<AdaMultiLasso>(job->model)) {
 		        alg->run(model);
-		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
+		    } else if (shared_ptr<Gflasso> model = dynamic_pointer_cast<Gflasso>(job->model)) {
 		        alg->run(model);
-		    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+		    } else if (shared_ptr<LinearRegression> model = dynamic_pointer_cast<LinearRegression>(job->model)) {
 		        alg->run(model);
-		    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
+		    } else if (shared_ptr<MultiPopLasso> model = dynamic_pointer_cast<MultiPopLasso>(job->model)) {
 		        alg->run(model);
-		    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
+		    } else if (shared_ptr<SparseLMM> model = dynamic_pointer_cast<SparseLMM>(job->model)) {
 		        alg->run(model);
-		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+		    } else if (shared_ptr<TreeLasso> model = dynamic_pointer_cast<TreeLasso>(job->model)) {
 		        alg->run(model);
 		    } else {
 		        throw runtime_error("Requested model type not implemented for the requested algorithm");
 		    }
 		    alg->finishRun();
-		} else if (ProximalGradientDescent* alg = dynamic_cast<ProximalGradientDescent*>(job->algorithm)) {
+		} else if (shared_ptr<ProximalGradientDescent> alg = dynamic_pointer_cast<ProximalGradientDescent>(job->algorithm)) {
 			alg->setUpRun();
-			if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+			if (shared_ptr<AdaMultiLasso> model = dynamic_pointer_cast<AdaMultiLasso>(job->model)) {
 		        alg->run(model);
-		    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
+		    } else if (shared_ptr<Gflasso> model = dynamic_pointer_cast<Gflasso>(job->model)) {
 		        alg->run(model);
-		    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+		    } else if (shared_ptr<LinearRegression> model = dynamic_pointer_cast<LinearRegression>(job->model)) {
 		        alg->run(model);
-		    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
+		    } else if (shared_ptr<MultiPopLasso> model = dynamic_pointer_cast<MultiPopLasso>(job->model)) {
 		        alg->run(model);
-		    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
+		    } else if (shared_ptr<SparseLMM> model = dynamic_pointer_cast<SparseLMM>(job->model)) {
 		        alg->run(model);
-		    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+		    } else if (shared_ptr<TreeLasso> model = dynamic_pointer_cast<TreeLasso>(job->model)) {
 		        alg->run(model);
 		    } else {
 		        throw runtime_error("Requested model type not implemented for the requested algorithm");
 		    }
 		    alg->finishRun();
-		} else if (HypoTestPlaceHolder* alg = dynamic_cast<HypoTestPlaceHolder*>(job->algorithm)){
+		} else if (shared_ptr<HypoTestPlaceHolder> alg = dynamic_pointer_cast<HypoTestPlaceHolder>(job->algorithm)){
 			alg->setUpRun();
-			if (FisherTest* model = dynamic_cast<FisherTest*>(job->model)) {
+			if (shared_ptr<FisherTest> model = dynamic_pointer_cast<FisherTest>(job->model)) {
 				alg->run(model);
-			} else if (Chi2Test* model = dynamic_cast<Chi2Test*>(job->model)) {
+			} else if (shared_ptr<Chi2Test> model = dynamic_pointer_cast<Chi2Test>(job->model)) {
 				alg->run(model);
-			} else if (WaldTest* model = dynamic_cast<WaldTest*>(job->model)) {
+			} else if (shared_ptr<WaldTest> model = dynamic_pointer_cast<WaldTest>(job->model)) {
+				alg->run(model);
+			} else {
+				throw runtime_error("Requested model type not implemented for the requested algorithm");
+			}
+			alg->finishRun();
+		} else if (shared_ptr<NeighborSelection> alg = dynamic_pointer_cast<NeighborSelection>(job->algorithm)) {
+			alg->setUpRun();
+			if (shared_ptr<LinearRegression> model = dynamic_pointer_cast<LinearRegression>(job->model)) {
+				alg->run(model);
+			} else {
+				throw runtime_error("Requested model type not implemented for the requested algorithm");
+			}
+			alg->finishRun();
+		} else if (shared_ptr<GraphicalLasso> alg = dynamic_pointer_cast<GraphicalLasso>(job->algorithm)) {
+			alg->setUpRun();
+			if (shared_ptr<LinearRegression> model = dynamic_pointer_cast<LinearRegression>(job->model)) {
 				alg->run(model);
 			} else {
 				throw runtime_error("Requested model type not implemented for the requested algorithm");
@@ -443,55 +469,55 @@ bool Scheduler::deleteJob(const job_id_t job_id) {
 }
 
 
-Algorithm* Scheduler::getAlgorithm(const algorithm_id_t algorithm_id) {
+shared_ptr<Algorithm> Scheduler::getAlgorithm(const algorithm_id_t algorithm_id) {
 	if (AlgorithmIdUsed(algorithm_id)) {
-		return algorithms_map[algorithm_id].get();
+		return algorithms_map[algorithm_id];
 	} 
 	throw runtime_error("Algorithm ID does not match any algorithms.");
-	return NULL;
+	return shared_ptr<Algorithm>(nullptr);
 }
 
 
-Model* Scheduler::getModel(const model_id_t model_id) {
+shared_ptr<Model> Scheduler::getModel(const model_id_t model_id) {
 	if (ModelIdUsed(model_id)) {
-		return models_map[model_id].get();
+		return models_map[model_id];
 	} 
 	throw runtime_error("Model ID does not match any models.");
-	return NULL;
+	return shared_ptr<Model>(nullptr);
 }
 
 
-Job_t* Scheduler::getJob(const job_id_t job_id) {
+shared_ptr<Job_t> Scheduler::getJob(const job_id_t job_id) {
 	if (JobIdUsed(job_id)) {
-		return jobs_map[job_id].get();
+		return jobs_map[job_id];
 	}
 	throw runtime_error("Job ID does not match any jobs.");
-	return NULL;
+	return shared_ptr<Job_t>(nullptr);
 }
 
 
 MatrixXf Scheduler::getJobResult(const job_id_t job_id) {
 	if (JobIdUsed(job_id)) {
-		Job_t* job = getJob(job_id);
-		if (AdaMultiLasso* model = dynamic_cast<AdaMultiLasso*>(job->model)) {
+		shared_ptr<Job_t> job = getJob(job_id);
+		if (shared_ptr<AdaMultiLasso> model = dynamic_pointer_cast<AdaMultiLasso>(job->model)) {
 	        return model->getBeta();
-	    } else if (Gflasso* model = dynamic_cast<Gflasso*>(job->model)) {
+	    } else if (shared_ptr<Gflasso> model = dynamic_pointer_cast<Gflasso>(job->model)) {
 	        return model->getBeta();
-	    } else if (LinearRegression* model = dynamic_cast<LinearRegression*>(job->model)) {
+	    } else if (shared_ptr<LinearRegression> model = dynamic_pointer_cast<LinearRegression>(job->model)) {
 	        return model->getBeta();
-	    } else if (MultiPopLasso* model = dynamic_cast<MultiPopLasso*>(job->model)) {
+	    } else if (shared_ptr<MultiPopLasso> model = dynamic_pointer_cast<MultiPopLasso>(job->model)) {
 	        return model->getBeta();
-	    } else if (SparseLMM* model = dynamic_cast<SparseLMM*>(job->model)) {
+	    } else if (shared_ptr<SparseLMM> model = dynamic_pointer_cast<SparseLMM>(job->model)) {
 	        return model->getBeta();
-	    } else if (TreeLasso* model = dynamic_cast<TreeLasso*>(job->model)) {
+	    } else if (shared_ptr<TreeLasso> model = dynamic_pointer_cast<TreeLasso>(job->model)) {
 	        return model->getBeta();
-	    } else if (LinearMixedModel* model = dynamic_cast<LinearMixedModel*>(job->model)) {
+	    } else if (shared_ptr<LinearMixedModel> model = dynamic_pointer_cast<LinearMixedModel>(job->model)) {
 			return model->getBeta();
-		} else if (FisherTest* model = dynamic_cast<FisherTest*>(job->model)) {
+		} else if (shared_ptr<FisherTest> model = dynamic_pointer_cast<FisherTest>(job->model)) {
 			return model->getBeta();
-		} else if (Chi2Test* model = dynamic_cast<Chi2Test*>(job->model)) {
+		} else if (shared_ptr<Chi2Test> model = dynamic_pointer_cast<Chi2Test>(job->model)) {
 			return model->getBeta();
-		} else if (WaldTest* model = dynamic_cast<WaldTest*>(job->model)) {
+		} else if (shared_ptr<WaldTest> model = dynamic_pointer_cast<WaldTest>(job->model)) {
 			return model->getBeta();
 		} else {
 	    	return model->getBeta();

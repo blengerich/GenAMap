@@ -101,7 +101,7 @@ void ProximalGradientDescent::assertReadyToRun() {
 void ProximalGradientDescent::setUpRun() {
     mtx.lock();
     isRunning = true;
-    progress = 0.0;
+    progress = 0.01;
     shouldStop = false;
 }
 
@@ -115,7 +115,7 @@ void ProximalGradientDescent::setLearningRate(float lr) {
     learningRate = lr;
 }
 
-void ProximalGradientDescent::run(Model *model) {
+void ProximalGradientDescent::run(shared_ptr<Model> model) {
     cerr << "The algorithm for this specific model is not implemented, runs on basic model"<<endl;    
     int epoch = 0;
     float residue = model->cost();
@@ -131,7 +131,7 @@ void ProximalGradientDescent::run(Model *model) {
     }
 }
 
-void ProximalGradientDescent::run(Gflasso * model) {
+void ProximalGradientDescent::run(shared_ptr<Gflasso> model) {
     model->initBeta();
     learningRate = learningRate*2e6;
     int epoch = 0;
@@ -167,7 +167,7 @@ void ProximalGradientDescent::run(Gflasso * model) {
     model->updateBeta(best_beta);
 }
 
-void ProximalGradientDescent::run(LinearRegression *model) {
+void ProximalGradientDescent::run(shared_ptr<LinearRegression> model) {
     int epoch = 0;
     MatrixXf y = model->getY();
     model->setL1_reg(model->getL1_reg()*10);
@@ -195,8 +195,7 @@ void ProximalGradientDescent::run(LinearRegression *model) {
     model->updateBeta(model->getBetaAll());
 }
 
-
-void ProximalGradientDescent::run(TreeLasso * model) {
+void ProximalGradientDescent::run(shared_ptr<TreeLasso> model) {
     model->initBeta();
     model->hierarchicalClustering();
     learningRate = learningRate*1e5;
@@ -231,13 +230,14 @@ void ProximalGradientDescent::run(TreeLasso * model) {
         if (residue < prev_residue){
             best_beta = beta;
         }
+        prev_residue = residue;
         diff = abs(prev_residue - residue);
     }
     model->updateBeta(best_beta);
 }
 
 
-void ProximalGradientDescent::run(MultiPopLasso * model) {
+void ProximalGradientDescent::run(shared_ptr<MultiPopLasso> model) {
     MatrixXf X = model->getX();
     MatrixXf y = model->getY();
     int epoch = 0;
@@ -284,7 +284,7 @@ void ProximalGradientDescent::run(MultiPopLasso * model) {
 //    model->updateBeta(model->getBetaAll());
 }
 
-void ProximalGradientDescent::run(AdaMultiLasso *model) {
+void ProximalGradientDescent::run(shared_ptr<AdaMultiLasso> model) {
     // this is not just proximal gradient descent, also including iteratively updating beta and w, v
     model->initBeta();
     model->initTraining();
@@ -360,17 +360,17 @@ bool ProximalGradientDescent::checkVectorConvergence(VectorXf v1, VectorXf v2, f
     return (r < d);
 }
 
-void ProximalGradientDescent::run(SparseLMM *model) {
+void ProximalGradientDescent::run(shared_ptr<SparseLMM> model) {
     BrentSearch *brentSearch = new BrentSearch();
     brentSearch->set_delta(0.5);
     brentSearch->run(model);
     float delta = model->get_lambda();
     model->rotateXY(delta);
-    LinearRegression lr = LinearRegression();
-    lr.setL1_reg(model->getL1reg());
-    lr.setX(model->getRotatedX());
-    lr.setY(model->getRoattedY());
-    run(&lr);
-    MatrixXf tmp = lr.getBeta();
+    shared_ptr<LinearRegression> lr = shared_ptr<LinearRegression>(new LinearRegression());
+    lr->setL1_reg(model->getL1reg());
+    lr->setX(model->getRotatedX());
+    lr->setY(model->getRoattedY());
+    run(lr);
+    MatrixXf tmp = lr->getBeta();
     model->updateBeta(tmp);
 }

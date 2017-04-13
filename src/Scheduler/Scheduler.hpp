@@ -64,9 +64,9 @@ public:
 	// Cancels a potentially running job.
 	// Returns True is the job was successfully sent a shutdown signal, false otherwise.
 
-	Model* getModel(const model_id_t);
-	Algorithm* getAlgorithm(const algorithm_id_t);
-	Job_t* getJob(const job_id_t);
+	shared_ptr<Model> getModel(const model_id_t);
+	shared_ptr<Algorithm> getAlgorithm(const algorithm_id_t);
+	shared_ptr<Job_t> getJob(const job_id_t);
 
 	MatrixXf getJobResult(const job_id_t);
 
@@ -135,9 +135,9 @@ private:
     const job_id_t kMaxJobId = 100;
     job_id_t next_job_id;
 
-    unordered_map<algorithm_id_t, unique_ptr<Algorithm>> algorithms_map;
-    unordered_map<model_id_t, unique_ptr<Model>> models_map;
-    unordered_map<job_id_t, unique_ptr<Job_t>> jobs_map;
+    unordered_map<algorithm_id_t, shared_ptr<Algorithm>> algorithms_map;
+    unordered_map<model_id_t, shared_ptr<Model>> models_map;
+    unordered_map<job_id_t, shared_ptr<Job_t>> jobs_map;
     // Maps to track all jobs (running, waiting, and completed). indexed by job_id.  
 };
 

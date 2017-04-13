@@ -2,6 +2,7 @@
 #define JOB_HPP
 
 #include <exception>
+#include <memory>
 #include <mutex>
 #include <thread>
 #include <uv.h>
@@ -26,10 +27,10 @@ using namespace v8;
 typedef unsigned int job_id_t;	// job_id = 0 indicates error.
 
 typedef struct Job_t {
-	Algorithm* algorithm;
+	shared_ptr<Algorithm> algorithm;
 	exception_ptr exception;
 	job_id_t job_id;
-	Model* model;
+	shared_ptr<Model> model;
 	thread::id thread_id;
 	Persistent<Function> callback;
 	uv_work_t request;
