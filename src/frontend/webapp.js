@@ -275,7 +275,7 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
           subject: 'GenAMap Sign-up Confirmation', // Subject line
           text: 'Registration Confirmation',
           html: html_1
-          + "'http://192.168.99.100:49160/#/confirm/" 
+          + "'http://54.191.129.39/#/confirm/" 
           + req.body.code + "'>Confirm E-mail</a>" 
           + '<br/> Or copy this verification code into the confirmation field: <b><br/>'
           + req.body.code + '</b>'
@@ -468,8 +468,9 @@ app.post(`${config.api.getAnalysisResultsUrl}`, function(req, res) {
     fs.stat(reqPath, function(err, stats) {
       if (!err) {
         app.models.file.findOne({ path: reqPath }, function(err, file) {
-          if (err) console.log(err)
-
+          if (err) {
+            console.log(err)
+          }
           if (!file) {
             setTimeout(checkFileExists, 500, reqPath)
           } else {
