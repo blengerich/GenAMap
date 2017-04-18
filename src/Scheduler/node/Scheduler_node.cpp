@@ -38,7 +38,7 @@ void setX(const FunctionCallbackInfo<Value>& args) {
 		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
 		Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
 		MatrixXf* mat = v8toEigen(ar);
-		result = Scheduler::Instance()->setX(job_id, *mat);
+		result = Scheduler::Instance().setX(job_id, *mat);
 	}
 	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
@@ -52,7 +52,7 @@ void setY(const FunctionCallbackInfo<Value>& args) {
 		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
 		Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
 		MatrixXf* mat = v8toEigen(ar);
-		result = Scheduler::Instance()->setY(job_id, *mat);
+		result = Scheduler::Instance().setY(job_id, *mat);
 	}
 	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
@@ -66,7 +66,7 @@ void setModelAttributeMatrix(const FunctionCallbackInfo<Value>& args) {
 		const string attribute_name(*v8::String::Utf8Value(args[1]->ToString()));
 		Local<v8::Array> ar = Local<v8::Array>::Cast(args[2]);
 		MatrixXf* mat = v8toEigen(ar);
-		result = Scheduler::Instance()->setModelAttributeMatrix(job_id, attribute_name, mat);
+		result = Scheduler::Instance().setModelAttributeMatrix(job_id, attribute_name, mat);
 	}
 	args.GetReturnValue().Set(Boolean::New(isolate, result));	
 }
@@ -79,7 +79,7 @@ void newJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
 	const JobOptions_t& options = JobOptions_t(isolate, options_v8);
 	try {
-		const job_id_t id = Scheduler::Instance()->newJob(options);
+		const job_id_t id = Scheduler::Instance().newJob(options);
 		if (id == 0) {
 			isolate->ThrowException(Exception::Error(
 				String::NewFromUtf8(isolate, "Could not add another job")));
@@ -109,11 +109,11 @@ void startJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 		}
 
 		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
-		shared_ptr<Job_t> job = Scheduler::Instance()->getJob(job_id);
+		shared_ptr<Job_t> job = Scheduler::Instance().getJob(job_id);
 		job->exception = nullptr;
 		job->callback.Reset(isolate, Local<Function>::Cast(args[1]));
 		job->job_id = job_id;
-		bool result = Scheduler::Instance()->startJob(job_id, trainAlgorithmComplete);
+		bool result = Scheduler::Instance().startJob(job_id, trainAlgorithmComplete);
 		usleep(1);	// let the execution thread start -- necessary?
 		if (job->exception) {
 			rethrow_exception(job->exception);
@@ -139,7 +139,7 @@ void checkJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	}
 
 	const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
-	const float progress = Scheduler::Instance()->checkJobProgress(job_id);
+	const float progress = Scheduler::Instance().checkJobProgress(job_id);
 	Local<Number> retval = Number::New(isolate, progress);
 	args.GetReturnValue().Set(retval);
 }
@@ -158,7 +158,7 @@ void getJobResult(const v8::FunctionCallbackInfo<v8::Value>& args) {
 		}
 
 		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
-		const MatrixXf& result = Scheduler::Instance()->getJobResult(job_id);
+		const MatrixXf& result = Scheduler::Instance().getJobResult(job_id);
 		Local<v8::Array> obj = v8::Array::New(isolate);
 		obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
 		args.GetReturnValue().Set(obj);
@@ -184,7 +184,7 @@ void cancelJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	}
 	try {
 		const job_id_t job_id = (unsigned int)Local<Integer>::Cast(args[0])->Value();
-		const bool success = Scheduler::Instance()->cancelJob(job_id);
+		const bool success = Scheduler::Instance().cancelJob(job_id);
 		Handle<Boolean> retval = Boolean::New(isolate, success);
 		args.GetReturnValue().Set(retval);
 	} catch(const exception& e) {
@@ -204,7 +204,7 @@ void deleteJob(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	}
 
 	const job_id_t job_id = (unsigned int)Local<Integer>::Cast(args[0])->Value();
-	const bool success = Scheduler::Instance()->deleteJob(job_id);
+	const bool success = Scheduler::Instance().deleteJob(job_id);
 	Handle<Boolean> retval = Boolean::New(isolate, success);
 	args.GetReturnValue().Set(retval);
 }
@@ -224,7 +224,7 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 
 	try {
 		// Pack up the data to be returned to JS
-		const MatrixXf& result = Scheduler::Instance()->getJobResult(job->job_id);
+		const MatrixXf& result = Scheduler::Instance().getJobResult(job->job_id);
 		// TODO: Fewer convserions to return a matrix
 		obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
 		
@@ -298,7 +298,7 @@ void newAlgorithm(const FunctionCallbackInfo<Value>& args) {
 	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
 	const AlgorithmOptions_t& options = AlgorithmOptions_t(isolate, options_v8);
 
-	const int id = Scheduler::Instance()->newAlgorithm(options);
+	const int id = Scheduler::Instance().newAlgorithm(options);
 	if (id < 0) {
 		isolate->ThrowException(Exception::Error(
 			String::NewFromUtf8(isolate, "Could not add another algorithm.")));
@@ -315,7 +315,7 @@ void newModel(const FunctionCallbackInfo<Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	Handle<Object> options_v8 = Handle<Object>::Cast(args[0]);
 	const ModelOptions_t& options = ModelOptions_t(isolate, options_v8);
-	const int id = Scheduler::Instance()->newModel(options);
+	const int id = Scheduler::Instance().newModel(options);
 	if (id < 0) {
 		isolate->ThrowException(Exception::Error(
 			String::NewFromUtf8(isolate, "Could not add another model")));
@@ -331,7 +331,7 @@ void newModel(const FunctionCallbackInfo<Value>& args) {
 void deleteAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	const int algorithm_id = (int)Local<Integer>::Cast(args[0])->Value();
-	const bool success = Scheduler::Instance()->deleteAlgorithm(algorithm_id);
+	const bool success = Scheduler::Instance().deleteAlgorithm(algorithm_id);
 	Handle<Boolean> retval = Boolean::New(isolate, success);
 	args.GetReturnValue().Set(retval);
 }
@@ -341,7 +341,7 @@ void deleteAlgorithm(const v8::FunctionCallbackInfo<v8::Value>& args) {
 void deleteModel(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	const int model_id = (int)Local<Integer>::Cast(args[0])->Value();
-	const bool success = Scheduler::Instance()->deleteModel(model_id);
+	const bool success = Scheduler::Instance().deleteModel(model_id);
 	Handle<Boolean> retval = Boolean::New(isolate, success);
 	args.GetReturnValue().Set(retval);
 }
