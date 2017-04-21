@@ -73,7 +73,7 @@ public:
 	// TODO: How to know if the user owns the algorithm?
 	bool deleteJob(const job_id_t);
 
-	static Scheduler* Instance();
+	static Scheduler& Instance();
 	// This class follows the singleton pattern.
 
 protected:
@@ -123,7 +123,6 @@ private:
     FRIEND_TEST(SchedulerTest, JobIdUsed);
     #endif
 
-    static Scheduler* s_instance;   // Singleton
     const unsigned int kMaxThreads = 5;
 
     const algorithm_id_t kMaxAlgorithmId = 100;
