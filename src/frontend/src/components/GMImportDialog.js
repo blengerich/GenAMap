@@ -253,14 +253,14 @@ class GMImportDialog extends Component {
                       accept='.csv'
                       onChange={this.onChangeMarkerFileName.bind(this)}
                       fileLabel={this.state.markerFileName}
-                    />
+                    /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
                     <GMFileInput
                       id='markerLabelFile'
                       buttonLabel='Marker Label File'
                       accept='.csv'
                       onChange={this.onChangeMarkerLabelFileName.bind(this)}
                       fileLabel={this.state.markerLabelFileName}
-                    />
+                    /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
                   </div>
                   <br />
                   <div>
@@ -277,14 +277,14 @@ class GMImportDialog extends Component {
                       accept='.csv'
                       onChange={this.onChangeTraitFileName.bind(this)}
                       fileLabel={this.state.traitFileName}
-                    />
+                    /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
                     <GMFileInput
                       id='traitLabelFile'
                       buttonLabel='Trait Label File'
                       accept='.csv'
                       onChange={this.onChangeTraitLabelFileName.bind(this)}
                       fileLabel={this.state.traitLabelFileName}
-                    />
+                    /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
                   </div>
                   <div id="populationDiv">
                     <TextField
@@ -302,7 +302,7 @@ class GMImportDialog extends Component {
                       onChange={this.onChangePopulationFileName.bind(this)}
                       fileLabel={this.state.populationFileName}
                       importOnSubmit={true}
-                    />
+                    /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
                   </div>
                   <div id="snpFeaturesDiv">
                     <TextField
@@ -320,7 +320,7 @@ class GMImportDialog extends Component {
                       onChange={this.onChangeSnpsFeatureFileName.bind(this)}
                       fileLabel={this.state.snpsFeatureFileName}
                       importOnSubmit={true}
-                    />
+                    /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
                   </div>
                 </div>:
                (this.state.datatype == 'plink') ?
@@ -341,7 +341,7 @@ class GMImportDialog extends Component {
                       accept='.ped'
                       onChange={this.onChangeMarkerFileName.bind(this)}
                       fileLabel={this.state.markerFileName}
-                    />
+                    /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
                   </div>
                   <br />
                   <div>
@@ -359,7 +359,7 @@ class GMImportDialog extends Component {
                       accept='.map'
                       onChange={this.onChangeTraitFileName.bind(this)}
                       fileLabel={this.state.traitFileName}
-                    />
+                    /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
                   </div>
                 </div>:
                (this.state.datatype == 'bed') ?
