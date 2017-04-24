@@ -32,7 +32,7 @@ const styles = {
     top: '20%',
     width: '30%',
     height: '50%',
-    minWidth: '450px',
+    minWidth: '500px',
     minHeight: '500px',
     textAlign: 'center'
   },

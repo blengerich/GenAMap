@@ -48,7 +48,7 @@ const GMActivity = React.createClass({
     )
     var calculatedProgress = (this.props.activity.progress*100.0).toFixed(1) + '%'
     if (calculatedProgress == "-100.0%") {
-      calculatedProgress = "ERR";
+      calculatedProgress = "ERROR";
     }
     return (
       <ListItem disabled={true} rightIconButton={cancelButton}>

@@ -275,7 +275,7 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
           subject: 'GenAMap Sign-up Confirmation', // Subject line
           text: 'Registration Confirmation',
           html: html_1
-          + "'http://54.191.129.39/#/confirm/" 
+          + 'http://' + config.serverPort + '/#/confirm/' 
           + req.body.code + "'>Confirm E-mail</a>" 
           + '<br/> Or copy this verification code into the confirmation field: <b><br/>'
           + req.body.code + '</b>'

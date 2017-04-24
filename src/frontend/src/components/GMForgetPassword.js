@@ -35,7 +35,7 @@ const styles = {
     top: '20%',
     width: '30%',
     height: '50%',
-    minWidth: '450px',
+    minWidth: '500px',
     minHeight: '500px',
     textAlign: 'center'
   },
@@ -87,7 +87,7 @@ class ForgetPassword extends Component {
             showMenuIconButton={false}
           >
             <Avatar src={logosrc} style={{alignSelf: 'center', border: 'none', order: 0}} />
-            <h1 style={styles.header}>GenAMap 2.0</h1>
+            <h1 style={styles.header}>GenAMap</h1>
           </AppBar>
           <p style={{ 'fontSize': '1.8em' }}>Forget Password</p>
           <div>
