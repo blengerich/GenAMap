@@ -45,7 +45,6 @@
 #include "Graph/NeighborSelection.hpp"
 #include "Graph/GraphicalLasso.hpp"
 #include "Scheduler/Job.hpp"
-#include "iostream"
 #else
 #include "../Algorithms/Algorithm.hpp"
 #include "../Algorithms/AlgorithmOptions.hpp"
@@ -70,13 +69,9 @@
 #include "../Graph/NeighborSelection.hpp"
 #include "../Graph/GraphicalLasso.hpp"
 #include "../Scheduler/Job.hpp"
-#include "iostream"
 #endif
 
 using namespace std;
-
-// Global static pointer used to ensure a single instance of this class.
-Scheduler* Scheduler::s_instance;
 
 
 //////////////////////////////////////////
@@ -93,13 +88,11 @@ Scheduler::Scheduler()
 }
 
 Scheduler& Scheduler::operator=(Scheduler const& s) {
-	return *Scheduler::Instance();
+    return Scheduler::Instance();
 }
 
-Scheduler* Scheduler::Instance() {	
-	if (!s_instance) {	// Singleton
-		s_instance = new Scheduler();
-	}
+Scheduler& Scheduler::Instance() {	
+	static Scheduler s_instance;
 	return s_instance;
 }
 
