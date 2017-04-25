@@ -46,6 +46,10 @@ const GMActivity = React.createClass({
       'cancel',
       () => this.props.actions.onCancelClick(this.props.activity)
     )
+    var calculatedProgress = (this.props.activity.progress*100.0).toFixed(1) + '%'
+    if (calculatedProgress == "-100.0%") {
+      calculatedProgress = "ERROR";
+    }
     return (
       <ListItem disabled={true} rightIconButton={cancelButton}>
         <div style={styles.flexWrapper}>
@@ -55,7 +59,7 @@ const GMActivity = React.createClass({
           </div>
           <div style={styles.flexItemPrimary}>
             <LinearProgress mode='determinate' value={this.props.activity.progress} />
-            <span style={styles.secondaryText}>{(this.props.activity.progress*100.0).toFixed(1) + '%'}</span>
+            <span style={styles.secondaryText}>{calculatedProgress}</span>
           </div>
         </div>
       </ListItem>

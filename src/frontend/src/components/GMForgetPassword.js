@@ -21,6 +21,7 @@ const styles = {
     marginBottom: '5%'
   },
   background: {
+    backgroundImage: 'url(./images/dna.jpg)',
     backgroundColor: 'rgba(0, 0, 0, 0.25)',
     position: 'absolute',
     width: '100%',
@@ -33,7 +34,9 @@ const styles = {
     left: '35%',
     top: '20%',
     width: '30%',
-    height: '60%',
+    height: '50%',
+    minWidth: '500px',
+    minHeight: '500px',
     textAlign: 'center'
   },
   form: {
@@ -84,7 +87,7 @@ class ForgetPassword extends Component {
             showMenuIconButton={false}
           >
             <Avatar src={logosrc} style={{alignSelf: 'center', border: 'none', order: 0}} />
-            <h1 style={styles.header}>GenAMap 2.0</h1>
+            <h1 style={styles.header}>GenAMap</h1>
           </AppBar>
           <p style={{ 'fontSize': '1.8em' }}>Forget Password</p>
           <div>

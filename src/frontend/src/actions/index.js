@@ -625,13 +625,12 @@ export function confirmAccount (creds) {
     .then(response => response.json().then(account => ({ account, response })))
     .then(({ account, response }) =>  {
       if (!response.ok) {
-        dispatch(confirmAccountError(account.message))
-        return Promise.reject(account.message)
+        return dispatch(confirmAccountError(account.message))
       } else {
-        dispatch(receiveConfirmAccount(account))
-        Promise.resolve(account)
-        return dispatch(redirectTo('/login'))
+        return dispatch(receiveConfirmAccount(account))
       }
+    }).then(() => {
+      return dispatch(redirectTo('/login'))
     }).catch(err => console.log("Error: ", err))
   }
 }

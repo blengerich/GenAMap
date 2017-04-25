@@ -31,7 +31,9 @@ const styles = {
     left: '35%',
     top: '20%',
     width: '30%',
-    height: '60%',
+    height: '50%',
+    minWidth: '500px',
+    minHeight: '500px',
     textAlign: 'center'
   },
   form: {
@@ -52,7 +54,6 @@ class Login extends Component {
   render () {
     const { errorMessage, emailVerified } = this.props
     const logosrc = 'images/' + logos[0]
-
     const emailSuccessHeader = emailVerified ? (
       <p style={{ 'color': 'green', 'fontSize': '0.8em' }}>
         {emailVerified} successfully verified.
@@ -104,6 +105,9 @@ class Login extends Component {
           <div style={{ margin: '10px 0' }}>
             {"Don't have an account? "}
             <Link to='/register' onClick={this.clearErrors.bind(this)}>{'Sign up'}</Link>
+          </div>
+          <div style={{ margin: '10px 0', color: '#ABB2B9' }}>
+            {"Use Mozilla Firefox or Google Chrome for best experience"}
           </div>
         </div>
       </div>
