@@ -9,7 +9,7 @@ var async = require('async')
 var diskAdapter = require('sails-disk')
 var omit = require('lodash.omit')
 var mkdirp = require('mkdirp')
-var Converter = require('csvtojson').Converter;
+var csvtojson = require('csvtojson')
 var nodemailer = require('nodemailer')
 require('es6-promise').polyfill()
 require('isomorphic-fetch')
@@ -47,7 +47,7 @@ app.engine('.html', require('ejs').renderFile)
 app.use(express.static('static'))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-app.use('/api/', expressjwt({ secret: config.secret }))
+//app.use('/api/', expressjwt({ secret: config.secret }))
 //app.use(favicon(__dirname + '/static/images/favicon.ico'));
 
 const waterlineConfig = {
@@ -840,17 +840,15 @@ app.post(config.api.importDataUrl, function (req, res) {
  */
 
 app.post(config.api.runAnalysisUrl, function (req, res) {
-  var converter = new Converter({noheader:true});
   // Get marker file
   app.models.file.findOne({ id: req.body.marker.data.id }).exec(function (err, markerFile) {
     if (err) console.log('Error getting marker for analysis: ', err);
-    converter.fromFile(markerFile.path, function(err, markerData) {
+    csvtojson({noheader:true}).fromFile(markerFile.path, function(err, markerData) {
       if (err) console.log('Error getting marker for analysis: ', err);
       // Get trait file
       app.models.file.findOne({ id: req.body.trait.data.id }).exec(function (err, traitFile) {
         if (err) console.log('Error getting trait for analysis: ', err)
-        var traitConverter = new Converter({noheader:true});
-        traitConverter.fromFile(traitFile.path, function(err, traitData) {
+        csvtojson({noheader:true}).fromFile(traitFile.path, function(err, traitData) {
           if (err) console.log('Error getting trait for analysis: ', err)
           // Create job
           const jobId = Scheduler.newJob({'algorithm_options': req.body.algorithmOptions, 'model_options': req.body.modelOptions})
@@ -914,8 +912,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
               app.models.file.findOne({id: value.val.data.id}).exec(function(err, attributeFile) {
                 if (err) console.log('Error getting attribute' + value.val.name + 'for analysis: ' + err);
                 if (attributeFile) {
-                  var attributeConverter = new Converter({noheader: true});
-                  attributeConverter.fromFile(attributeFile.path, function(err, attributeData) {
+                  csvtojson({noheader:true}).fromFile(attributeFile.path, function(err, attributeData) {
                     if (err) console.log('Error getting extra data for analysis: ', err);
                     try {
                       Scheduler.setModelAttributeMatrix(jobId, value.name, attributeData);
@@ -953,14 +950,14 @@ app.post(config.api.cancelJobUrl, function(req, res) {
 })
 
 
-app.get('/api/projects', function (req, res) {
+app.get(config.api.projectUrl, function (req, res) {
   app.models.project.find().populate('files').exec(function (err, models) {
     if (err) return res.status(500).json({err: err})
     return res.json(models)
   })
 })
 
-app.get('/api/projects/:id', function (req, res) {
+app.get(`${config.api.projectUrl}/:id`, function (req, res) {
   app.models.project.findOne({id: req.params.id}).populate('files').exec(function (err, model) {
     if (err) return res.status(500).json({err: err})
     return res.json(model)
@@ -1070,5 +1067,160 @@ app.post(config.api.ChangePasswordUrl, function (req, res) {
           return res.json(foundUser)
         }
     )
+  })
+})
+
+// GENEVIZ API
+
+var api = require('./api/routes/getRange')
+var snpdata = require('./api/snpdata')
+var writeData = require('./api/routes/writeData')
+var db = require('./api/db')
+var j2cStream = require('json2csv-stream')
+var streamify = require('stream-array')
+
+var simpleCache = {}
+
+// the id is the id of the complete file
+// query parameters : start, end, zoom
+app.get('/api/getaggregate/:id', function (req, res) {
+  var datas = db.collection('datas')
+  datas.count({fileName : req.params.id}, (err, count) => {
+    if (err) return res.status(500).send(err)
+    if (count == 0) {
+      return res.send("no data loaded")
+    } else {
+      var completeID = req.params.id
+      var response = {
+          start: req.query.start,
+          end: req.query.end,
+          zoom: req.query.zoom
+      };
+
+      if (simpleCache[completeID] &&
+          simpleCache[completeID][response.start + ":" + response.end] &&
+          simpleCache[completeID][response.start + ":" + response.end][response.zoom]){
+          console.log("CACHE YES")
+          res.send(simpleCache[completeID][response.start + ":" + response.end][response.zoom])
+      } else {
+        api.getRange(response.start, response.end, response.zoom, completeID).then(function(result) {
+            var f = {}
+            f[response.zoom] =  result
+            simpleCache[completeID] = {}
+            simpleCache[completeID][response.start + ":" + response.end] = f
+            res.json(result);
+        });
+      }
+    }
+  })
+})
+
+//writes a complete file based on the given marker_labels file, reuslts file, and project
+
+/**
+ * @param {Object} req
+ * @param {Object} [req.body]
+ * @param {Number} [req.body.marker_labels] (id of marker_label file)
+ * @param {Number} [req.body.traits]
+ * @param {Number} [req.body.results]       (id of results file)
+ * @param {Number} [req.body.project]
+ */
+app.post('/api/load-data', function (req, res) {
+  app.models.file.findOne({id: req.body.marker_labels}).exec(function (err, marker_labels) {
+    if (err) return res.status(500).json({err: err})
+    if (!marker_labels) return res.status(404).json({ message: 'Marker Labels File not found' })
+    app.models.file.findOne({id : req.body.results}).exec(function (err,results) {
+      if (err) return res.status(500).json({err: err})
+      if (!results) return res.status(404).json({message : 'Results file not found'})
+
+      var fields = ['rid','name','snp','chromosome','mapinfo']
+
+      var processResults = new Promise((resolve,reject) => {
+        fs.readFile(results.path, function(err,data) {
+          var resultsJSON = JSON.parse(data)
+          var numCols = resultsJSON['c']
+          var numRows = resultsJSON['r']
+          var resultsData = resultsJSON['v'].replace(/;/g,"\n")
+          csvtojson({noheader:true}).fromString(resultsData, function(err,data) {
+            if (err) {
+              console.log(err)
+              reject(err)
+            }
+            for (var i  = 0; i < numCols; i++) {
+                fields.push(`field${i + 1}`)
+            }
+            resolve(data)
+          })
+        })
+      })
+
+      function fillData (table) {
+        var promise = new Promise(function(resolve,reject) {
+          csvtojson({noheader:true}).fromFile(marker_labels.path, function(err,data) {
+            if (err) {
+              console.log(err)
+              reject(err)
+            }
+            //var notFound = 0
+            for (var i = 0; i < data.length; i++) {
+              var id = data[i]["field1"]
+              table[i]['rid'] = i + 1
+              table[i]['name'] = id
+              var info = snpdata[id]
+              if (!info) {
+                console.log(id + ' not found in snpdata')
+                //notFound++
+                continue
+              }
+              table[i]['snp'] = info["marker_alleles"]
+              table[i]['chromosome'] = info["chrom"]
+              table[i]['mapinfo'] = info["base_pair"]
+            }
+            resolve(table)
+          })
+        })
+        return promise
+      }
+
+
+
+      function loadData(table) {
+
+          app.models.file.create({
+            name: marker_labels.name + " " + results.name + " Complete File",
+            filetype: 'completeFile',
+            path: "in mongo",
+            project: req.body.project,
+          }).exec(function (err, file) {
+            if (err) throw err
+            res.json(file)
+            app.models.file.findOne({id : req.body.traits}, (err, traits_file) => {
+              if (err) return res.status(500).json({err : err})
+              csvtojson({noheader:true}).fromFile(traits_file.path, (err,data) => {
+                if (err) return res.status(500).json({err : err})
+                traits = data.map((obj) => {return obj["field1"]})
+                console.log(traits)
+                console.log("Loading data...")
+                var j2c = new j2cStream({showHeader: false, keys : fields})
+                var tableStream = streamify(table.map(JSON.stringify))
+                writeData.load(tableStream.pipe(j2c), file.id,traits)
+                .then(function (a) {
+                    console.log(a); // should print "Data loaded!" when finished
+                });
+              })
+            })
+          })
+      }
+      processResults.then(fillData).then(loadData)
+
+    })
+  })
+})
+
+app.delete('/api/del-data', function (req, res) {
+  app.models.file.destroy({filetype: 'completeFile'}).exec((err,records) => {
+    if (err) return res.status(500).json({err : err})
+    writeData.deleteAll();
+    res.json(records)
   })
 })
