@@ -275,8 +275,8 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
           subject: 'GenAMap Sign-up Confirmation', // Subject line
           text: 'Registration Confirmation',
           html: html_1
-          + 'http://' + config.serverPort + '/#/confirm/' 
-          + req.body.code + "'>Confirm E-mail</a>" 
+          + 'http://' + config.serverPort + '/#/confirm/'
+          + req.body.code + "'>Confirm E-mail</a>"
           + '<br/> Or copy this verification code into the confirmation field: <b><br/>'
           + req.body.code + '</b>'
           + html_2
@@ -388,7 +388,7 @@ app.post(config.api.ForgetPasswordEmailUrl, function (req, res) {
           return res.json(info.response)
       });
       })
-      })  
+      })
   }
     else{
       app.models.tempuser.findOne({ email }).exec(function (err, foundTempUser) {
@@ -1081,9 +1081,11 @@ var streamify = require('stream-array')
 
 var simpleCache = {}
 
-// the id is the id of the complete file
+// the id is the id of the result file corresponding to the loaded data
 // query parameters : start, end, zoom
-app.get('/api/getaggregate/:id', function (req, res) {
+// responds with aggregated data in json form
+// see ./api/routes/getRange.js for moreinfo
+app.get('/api/get-range/:id', function (req, res) {
   var datas = db.collection('datas')
   datas.count({fileName : req.params.id}, (err, count) => {
     if (err) return res.status(500).send(err)
@@ -1115,15 +1117,13 @@ app.get('/api/getaggregate/:id', function (req, res) {
   })
 })
 
-//writes a complete file based on the given marker_labels file, reuslts file, and project
-
+// loads project data to mongo
 /**
  * @param {Object} req
  * @param {Object} [req.body]
  * @param {Number} [req.body.marker_labels] (id of marker_label file)
  * @param {Number} [req.body.traits]
  * @param {Number} [req.body.results]       (id of results file)
- * @param {Number} [req.body.project]
  */
 app.post('/api/load-data', function (req, res) {
   app.models.file.findOne({id: req.body.marker_labels}).exec(function (err, marker_labels) {
@@ -1185,42 +1185,39 @@ app.post('/api/load-data', function (req, res) {
 
 
       function loadData(table) {
-
-          app.models.file.create({
-            name: marker_labels.name + " " + results.name + " Complete File",
-            filetype: 'completeFile',
-            path: "in mongo",
-            project: req.body.project,
-          }).exec(function (err, file) {
-            if (err) throw err
-            res.json(file)
-            app.models.file.findOne({id : req.body.traits}, (err, traits_file) => {
-              if (err) return res.status(500).json({err : err})
-              csvtojson({noheader:true}).fromFile(traits_file.path, (err,data) => {
-                if (err) return res.status(500).json({err : err})
-                traits = data.map((obj) => {return obj["field1"]})
-                console.log(traits)
-                console.log("Loading data...")
-                var j2c = new j2cStream({showHeader: false, keys : fields})
-                var tableStream = streamify(table.map(JSON.stringify))
-                writeData.load(tableStream.pipe(j2c), file.id,traits)
-                .then(function (a) {
-                    console.log(a); // should print "Data loaded!" when finished
-                });
-              })
-            })
+        app.models.file.findOne({id : req.body.traits}, (err, traits_file) => {
+          if (err) return res.status(500).json({err : err})
+          csvtojson({noheader:true}).fromFile(traits_file.path, (err,data) => {
+            if (err) return res.status(500).json({err : err})
+            traits = data.map((obj) => {return obj["field1"]})
+            console.log(traits)
+            console.log("Loading data...")
+            var j2c = new j2cStream({showHeader: false, keys : fields})
+            var tableStream = streamify(table.map(JSON.stringify))
+            writeData.load(tableStream.pipe(j2c), req.body.results,traits)
+            .then(function (a) {
+                console.log(a); // should print "Data loaded!" when finished
+                res.json(a);
+            });
           })
+        })
       }
-      processResults.then(fillData).then(loadData)
 
+      var datas = db.collection('datas')
+      datas.count({fileName : req.body.results}, (err, count) => {
+        if (count == 0) {
+          processResults.then(fillData).then(loadData)
+        } else {
+          res.json("Data already loaded!")
+        }
+      })
     })
   })
 })
 
+// deleta all stored data in mongo and corresponding file records
 app.delete('/api/del-data', function (req, res) {
-  app.models.file.destroy({filetype: 'completeFile'}).exec((err,records) => {
-    if (err) return res.status(500).json({err : err})
-    writeData.deleteAll();
-    res.json(records)
-  })
+  writeData.deleteAll(() =>
+    res.json("Data deleted!")
+  );
 })
