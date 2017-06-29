@@ -1121,97 +1121,98 @@ app.get('/api/get-range/:id', function (req, res) {
 /**
  * @param {Object} req
  * @param {Object} [req.body]
- * @param {Number} [req.body.marker_labels] (id of marker_label file)
+ * @param {Number} [req.body.markers] (id of marker_label file)
  * @param {Number} [req.body.traits]
  * @param {Number} [req.body.results]       (id of results file)
  */
 app.post('/api/load-data', function (req, res) {
-  app.models.file.findOne({id: req.body.marker_labels}).exec(function (err, marker_labels) {
-    if (err) return res.status(500).json({err: err})
-    if (!marker_labels) return res.status(404).json({ message: 'Marker Labels File not found' })
+  console.log(req.body)
+    
+  var fields = ['rid','name','snp','chromosome','mapinfo']
+
+  var processResults = new Promise((resolve,reject) => {
     app.models.file.findOne({id : req.body.results}).exec(function (err,results) {
       if (err) return res.status(500).json({err: err})
       if (!results) return res.status(404).json({message : 'Results file not found'})
-
-      var fields = ['rid','name','snp','chromosome','mapinfo']
-
-      var processResults = new Promise((resolve,reject) => {
-        fs.readFile(results.path, function(err,data) {
-          var resultsJSON = JSON.parse(data)
-          var numCols = resultsJSON['c']
-          var numRows = resultsJSON['r']
-          var resultsData = resultsJSON['v'].replace(/;/g,"\n")
-          csvtojson({noheader:true}).fromString(resultsData, function(err,data) {
-            if (err) {
-              console.log(err)
-              reject(err)
-            }
-            for (var i  = 0; i < numCols; i++) {
-                fields.push(`field${i + 1}`)
-            }
-            resolve(data)
-          })
+      fs.readFile(results.path, function(err,data) {
+        var resultsJSON = JSON.parse(data)
+        var numCols = resultsJSON['c']
+        var numRows = resultsJSON['r']
+        var resultsData = resultsJSON['v'].replace(/;/g,"\n")
+        csvtojson({noheader:true}).fromString(resultsData, function(err,data) {
+          if (err) {
+            console.log(err)
+            reject(err)
+          }
+          for (var i  = 0; i < numCols; i++) {
+              fields.push(`field${i + 1}`)
+          }
+          resolve(data)
         })
-      })
-
-      function fillData (table) {
-        var promise = new Promise(function(resolve,reject) {
-          csvtojson({noheader:true}).fromFile(marker_labels.path, function(err,data) {
-            if (err) {
-              console.log(err)
-              reject(err)
-            }
-            //var notFound = 0
-            for (var i = 0; i < data.length; i++) {
-              var id = data[i]["field1"]
-              table[i]['rid'] = i + 1
-              table[i]['name'] = id
-              var info = snpdata[id]
-              if (!info) {
-                console.log(id + ' not found in snpdata')
-                //notFound++
-                continue
-              }
-              table[i]['snp'] = info["marker_alleles"]
-              table[i]['chromosome'] = info["chrom"]
-              table[i]['mapinfo'] = info["base_pair"]
-            }
-            resolve(table)
-          })
-        })
-        return promise
-      }
-
-
-
-      function loadData(table) {
-        app.models.file.findOne({id : req.body.traits}, (err, traits_file) => {
-          if (err) return res.status(500).json({err : err})
-          csvtojson({noheader:true}).fromFile(traits_file.path, (err,data) => {
-            if (err) return res.status(500).json({err : err})
-            traits = data.map((obj) => {return obj["field1"]})
-            console.log(traits)
-            console.log("Loading data...")
-            var j2c = new j2cStream({showHeader: false, keys : fields})
-            var tableStream = streamify(table.map(JSON.stringify))
-            writeData.load(tableStream.pipe(j2c), req.body.results,traits)
-            .then(function (a) {
-                console.log(a); // should print "Data loaded!" when finished
-                res.json(a);
-            });
-          })
-        })
-      }
-
-      var datas = db.collection('datas')
-      datas.count({fileName : req.body.results}, (err, count) => {
-        if (count == 0) {
-          processResults.then(fillData).then(loadData)
-        } else {
-          res.json("Data already loaded!")
-        }
       })
     })
+  })
+
+  function fillData (table) {
+    var promise = new Promise(function(resolve,reject) {
+      app.models.file.findOne({id: req.body.markers}).exec(function (err, markers) {
+        if (err) return res.status(500).json({err: err})
+        if (!markers) return res.status(404).json({ message: 'Marker Labels File not found' })
+        csvtojson({noheader:true}).fromFile(markers.path, function(err,data) {
+          if (err) {
+            console.log(err)
+            reject(err)
+          }
+          //var notFound = 0
+          for (var i = 0; i < data.length; i++) {
+            var id = data[i]["field1"]
+            table[i]['rid'] = i + 1
+            table[i]['name'] = id
+            var info = snpdata[id]
+            if (!info) {
+              console.log(id + ' not found in snpdata')
+              //notFound++
+              continue
+            }
+            table[i]['snp'] = info["marker_alleles"]
+            table[i]['chromosome'] = info["chrom"]
+            table[i]['mapinfo'] = info["base_pair"]
+          }
+          resolve(table)
+        })
+      })
+    })
+    return promise
+  }
+
+
+
+  function loadData(table) {
+    app.models.file.findOne({id : req.body.traits}, (err, traits_file) => {
+      if (err) return res.status(500).json({err : err})
+      csvtojson({noheader:true}).fromFile(traits_file.path, (err,data) => {
+        if (err) return res.status(500).json({err : err})
+        traits = data.map((obj) => {return obj["field1"]})
+        console.log(traits)
+        console.log("Loading data...")
+        var j2c = new j2cStream({showHeader: false, keys : fields})
+        var tableStream = streamify(table.map(JSON.stringify))
+        writeData.load(tableStream.pipe(j2c), req.body.results,traits)
+        .then(function (a) {
+            console.log(a); // should print "Data loaded!" when finished
+            res.json(a);
+        });
+      })
+    })
+  }
+
+  var datas = db.collection('datas')
+  datas.count({fileName : req.body.results}, (err, count) => {
+    if (count == 0) {
+      processResults.then(fillData).then(loadData)
+    } else {
+      res.json("Data already loaded!")
+    }
   })
 })
 
