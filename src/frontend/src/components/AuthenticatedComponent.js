@@ -44,7 +44,7 @@ export function requireAuthentication (Component) {
           }, 100)
         } else {
           // first time visiting, show welcome screen
-          document.cookie = "visited"; 
+          document.cookie = "visited";
           setTimeout(function() {
             document.getElementById("welcomeScreen").style.visibility = "visible"
           }, 100)
@@ -58,13 +58,13 @@ export function requireAuthentication (Component) {
         <div>
           <div id="welcomeScreen" style={{"position": "fixed", "top": "0%", "visibility": "none",
           "left": "0%", "height": "100%", "width": "100%", "textAlign": "center", "zIndex":"999999"}}>
-            <img src={"tutorial/" + String(this.state.imgIndex) + ".png"} style={{"width": "100%", 
+            <img src={"tutorial/" + String(this.state.imgIndex) + ".png"} style={{"width": "100%",
             "minWidth": "1200px", "minHeight": "800px"}} />
             <div style={{"position": "absolute", "left": "0", "top": "0", "textAlign": "center",
             "width": "100%", "height": "100%", "paddingTop": "500px"}}>
             <button onClick={this.changeSrc.bind(this)}
-            style={{"width": "300px", "fontSize": "1.6em", 
-                    "fontFamily": "Roboto", "backgroundColor": "#fdb515", 
+            style={{"width": "300px", "fontSize": "1.6em",
+                    "fontFamily": "Roboto", "backgroundColor": "#fdb515",
                     "color": "white", "border": "none", "padding": "5px", "boxShadow": "5px 5px 2px rgba(0,0,0,0.3)"}}>
                     Continue Tutorial</button>
             </div>
@@ -78,7 +78,7 @@ export function requireAuthentication (Component) {
   }
 
   const mapStateToProps = (state) => ({
-    token: state.userData.auth.token,   
+    token: state.userData.auth.token,
     isAuthenticated: state.userData.auth.isAuthenticated
   })
 

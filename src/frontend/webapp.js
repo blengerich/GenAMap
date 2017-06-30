@@ -47,7 +47,7 @@ app.engine('.html', require('ejs').renderFile)
 app.use(express.static('static'))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-//app.use('/api/', expressjwt({ secret: config.secret }))
+app.use('/api/', expressjwt({ secret: config.secret }))
 //app.use(favicon(__dirname + '/static/images/favicon.ico'));
 
 const waterlineConfig = {
@@ -1127,7 +1127,7 @@ app.get('/api/get-range/:id', function (req, res) {
  */
 app.post('/api/load-data', function (req, res) {
   console.log(req.body)
-    
+
   var fields = ['rid','name','snp','chromosome','mapinfo']
 
   var processResults = new Promise((resolve,reject) => {

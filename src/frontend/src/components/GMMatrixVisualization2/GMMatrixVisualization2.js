@@ -127,7 +127,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
         //                this.axis.forceUpdate()
         //         }.bind(this));
         //     });
-        var url = "/api/get-range/" + this.props.params.result + "?start=" + start + "&end=" + end + "&zoom=" + Math.floor((end-start)/steps)
+        var url = `/api/get-range/${this.props.params.result}?start=${start}&end=${end}&zoom=${Math.floor((end-start)/steps)}`
         console.log(url)
         var dataRequest = {
           method: 'GET',
@@ -143,7 +143,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
                 this.setState({ data: json[0] },function(){
                    this.axis.forceUpdate()
                 }.bind(this))
-            }) 
+            })
         })
     }
 
