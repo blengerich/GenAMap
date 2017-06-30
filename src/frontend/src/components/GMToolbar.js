@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import Transitions from 'material-ui/Transitions'
+import Transitions from 'material-ui/styles/transitions'
 import Toolbar from 'material-ui/Toolbar'
 
 var GMToolbar = React.createClass({

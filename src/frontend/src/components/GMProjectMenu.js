@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import { Link } from 'react-router'
-import Divider from 'material-ui/lib/divider'
+import Divider from 'material-ui/Divider'
 import IconMenu from 'material-ui/IconMenu'
 import MenuItem from 'material-ui/MenuItem'
 import {List, ListItem} from 'material-ui/List';

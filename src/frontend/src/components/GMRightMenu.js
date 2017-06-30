@@ -1,5 +1,5 @@
 import React from 'react'
-import LeftNav from 'material-ui/LeftNav'
+import LeftNav from 'material-ui/Drawer'
 import {Tabs,Tab} from 'material-ui/Tabs'
 
 const styles = {

@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
-import Popover from 'material-ui/lib/popover/popover'
-import Menu from 'material-ui/lib/menus/menu'
+import Popover from 'material-ui/Popover'
+import Menu from 'material-ui/Menu'
 import MenuItem from 'material-ui/MenuItem'
 import Dialog from 'material-ui/Dialog'
 import FlatButton from 'material-ui/FlatButton'

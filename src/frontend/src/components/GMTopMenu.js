@@ -4,7 +4,7 @@ import FlatButton from 'material-ui/FlatButton'
 import FontIcon from 'material-ui/FontIcon'
 import IconButton from 'material-ui/IconButton'
 import Avatar from 'material-ui/Avatar'
-import NavigationClose from 'material-ui/lib/svg-icons/navigation/close'
+import NavigationClose from 'material-ui/svg-icons/navigation/close'
 
 import GMRunAnalysisDialogContainer from './GMRunAnalysisDialogContainer'
 import GMSettingContainer from './GMSettingContainer'

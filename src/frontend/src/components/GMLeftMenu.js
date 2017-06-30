@@ -1,5 +1,5 @@
 import React from 'react'
-import LeftNav from 'material-ui/LeftNav'
+import LeftNav from 'material-ui/Drawer'
 
 import GMUser from './GMUser'
 import GMProjectMenuContainer from './GMProjectMenuContainer'
