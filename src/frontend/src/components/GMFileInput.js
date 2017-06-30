@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
-import FlatButton from 'material-ui/lib/flat-button'
-import TextField from 'material-ui/lib/text-field'
+import FlatButton from 'material-ui/FlatButton'
+import TextField from 'material-ui/TextField'
 
 const styles = {
   fileInput: {

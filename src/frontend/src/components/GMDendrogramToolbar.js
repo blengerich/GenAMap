@@ -1,8 +1,8 @@
 import React, { Component, PropTypes } from 'react'
-import AutoComplete from 'material-ui/lib/auto-complete'
-import FontIcon from 'material-ui/lib/font-icon'
-import IconButton from 'material-ui/lib/icon-button'
-import FlatButton from 'material-ui/lib/flat-button'
+import AutoComplete from 'material-ui/AutoComplete'
+import FontIcon from 'material-ui/FontIcon'
+import IconButton from 'material-ui/IconButton'
+import FlatButton from 'material-ui/FlatButton'
 import { Link } from 'react-router'
 
 import GMToolbar from './GMToolbar'

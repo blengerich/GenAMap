@@ -1,10 +1,10 @@
 import React, { Component, PropTypes } from 'react'
 import { Link } from 'react-router'
-import Avatar from 'material-ui/lib/avatar'
-import AppBar from 'material-ui/lib/app-bar'
-import Dialog from 'material-ui/lib/dialog'
-import RaisedButton from 'material-ui/lib/raised-button'
-import TextField from 'material-ui/lib/text-field'
+import Avatar from 'material-ui/Avatar'
+import AppBar from 'material-ui/AppBar'
+import Dialog from 'material-ui/Dialog'
+import RaisedButton from 'material-ui/RaisedButton'
+import TextField from 'material-ui/TextField'
 
 import config from '../../config'
 

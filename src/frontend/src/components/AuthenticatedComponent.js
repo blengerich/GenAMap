@@ -1,9 +1,9 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { redirectToLogin } from '../actions'
-import FontIcon from 'material-ui/lib/font-icon'
-import FlatButton from 'material-ui/lib/flat-button'
-import FloatingActionButton from 'material-ui/lib/floating-action-button'
+import FontIcon from 'material-ui/FontIcon'
+import FlatButton from 'material-ui/FlatButton'
+import FloatingActionButton from 'material-ui/FloatingActionButton'
 
 export function requireAuthentication (Component) {
   class AuthenticatedComponent extends React.Component {

@@ -1,9 +1,8 @@
 import React from 'react'
-import List from 'material-ui/lib/lists/list'
-import ListItem from 'material-ui/lib/lists/list-item'
-import LinearProgress from 'material-ui/lib/linear-progress'
-import FontIcon from 'material-ui/lib/font-icon'
-import IconButton from 'material-ui/lib/icon-button'
+import {List, ListItem} from 'material-ui/List';
+import LinearProgress from 'material-ui/LinearProgress'
+import FontIcon from 'material-ui/FontIcon'
+import IconButton from 'material-ui/IconButton'
 
 const styles = {
   flexWrapper: {
