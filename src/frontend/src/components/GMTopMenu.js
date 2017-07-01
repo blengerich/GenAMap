@@ -12,6 +12,9 @@ import GMActivities from './GMActivities'
 import GMActivitiesContainer from './GMActivitiesContainer'
 import config from '../../config'
 import fetch from './fetch'
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+
 
 const styles = {
   appBar: {
@@ -76,7 +79,11 @@ var GMTopMenu = React.createClass({
   onDialogClose: function () {
     this.setState({dialogOpen: false})
   },
-  render: function () {
+  // getChildContext() {
+  //   return { muiTheme: getMuiTheme() }
+  // },
+
+    render: function () {
     var logosrc = 'images/' + this.state.logos[this.state.logoIndex]
     const menuIcon =
       <IconButton
@@ -87,7 +94,8 @@ var GMTopMenu = React.createClass({
       </IconButton>
 
     return (
-      <div>
+      <MuiThemeProvider>
+        <div>
         <AppBar
           title=''
           style={Object.assign(this.props.style, styles.appBar)}
@@ -120,7 +128,8 @@ var GMTopMenu = React.createClass({
           onRequestClose={this.handleRequestClose}
         />
       </div>
-    )
+    </MuiThemeProvider>
+        )
   }
 })
 

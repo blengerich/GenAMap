@@ -5,6 +5,7 @@ import AppBar from 'material-ui/AppBar'
 import Dialog from 'material-ui/Dialog'
 import RaisedButton from 'material-ui/RaisedButton'
 import TextField from 'material-ui/TextField'
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
 import config from '../../config'
 
@@ -116,75 +117,77 @@ class CreateAccount extends Component {
     const { errorMessage } = this.props
     const logosrc = 'images/' + logos[0]
     return (
-      <div style={styles.background}>
-        <div style={styles.body}>
-          <AppBar
-            title=''
-            style={styles.appBar}
-            showMenuIconButton={false}
-          >
-            <Avatar src={logosrc} style={{alignSelf: 'center', border: 'none', order: 0}} />
-            <h1 style={styles.header}>GenAMap</h1>
-          </AppBar>
-          <p style={{ 'fontSize': '1.8em' }}>Register for GenAMap</p>
-          <div>
-            <TextField
-              className={'form-control'}
-              hintText={'Email Address'}
-              type={'email'}
-              onChange={this.onChangeUsername.bind(this)}
-              style={styles.form}
-            /><br/>
+      <MuiThemeProvider >
+        <div style={styles.background}>
+          <div style={styles.body}>
+            <AppBar
+              title=''
+              style={styles.appBar}
+              showMenuIconButton={false}
+            >
+              <Avatar src={logosrc} style={{alignSelf: 'center', border: 'none', order: 0}} />
+              <h1 style={styles.header}>GenAMap</h1>
+            </AppBar>
+            <p style={{ 'fontSize': '1.8em' }}>Register for GenAMap</p>
+            <div>
+              <TextField
+                className={'form-control'}
+                hintText={'Email Address'}
+                type={'email'}
+                onChange={this.onChangeUsername.bind(this)}
+                style={styles.form}
+              /><br/>
+            </div>
+            <div>
+              <TextField
+                className={'form-control'}
+                hintText={'Password'}
+                type={'password'}
+                onChange={this.onChangePassword.bind(this)}
+                style={styles.form}
+              /><br/>
+            </div>
+            <div>
+              <TextField
+                className={'form-control'}
+                errorText={errorMessage}
+                hintText={'Confirm Password'}
+                type={'password'}
+                onChange={this.onChangeConfirmPassword.bind(this)}
+                style={styles.form}
+              /><br/>
+            </div>
+             <div>
+              <TextField
+                className={'form-control'}
+                hintText={'Organization'}
+                type={'organization'}
+                onChange={this.onChangeOrganization.bind(this)}
+                style={styles.form}
+              /><br/>
+            </div>
+            <div>
+              <RaisedButton
+                label={'Create Account'}
+                onClick={this.handleCreateAccountClick.bind(this)}
+                primary={true}
+                style={styles.action}
+              />
+            </div>
+            <div style={{ margin: '10px 0' }}>
+              {"Already have an account? "}
+              <Link to='/login' onClick={this.clearErrors.bind(this)}>{'Sign in'}</Link>
+            </div>
           </div>
-          <div>
-            <TextField
-              className={'form-control'}
-              hintText={'Password'}
-              type={'password'}
-              onChange={this.onChangePassword.bind(this)}
-              style={styles.form}
-            /><br/>
-          </div>
-          <div>
-            <TextField
-              className={'form-control'}
-              errorText={errorMessage}
-              hintText={'Confirm Password'}
-              type={'password'}
-              onChange={this.onChangeConfirmPassword.bind(this)}
-              style={styles.form}
-            /><br/>
-          </div>
-           <div>
-            <TextField
-              className={'form-control'}
-              hintText={'Organization'}
-              type={'organization'}
-              onChange={this.onChangeOrganization.bind(this)}
-              style={styles.form}
-            /><br/>
-          </div>
-          <div>
-            <RaisedButton
-              label={'Create Account'}
-              onClick={this.handleCreateAccountClick.bind(this)}
-              primary={true}
-              style={styles.action}
-            />
-          </div>
-          <div style={{ margin: '10px 0' }}>
-            {"Already have an account? "}
-            <Link to='/login' onClick={this.clearErrors.bind(this)}>{'Sign in'}</Link>
-          </div>
-        </div>
 
-        <GMConfirmAccount
-          open={this.props.verifyDialogOpen}
-          email={this.props.emailToVerify}
-          submitConfirm={this.props.submitConfirm}
-        />
+          <GMConfirmAccount
+            open={this.props.verifyDialogOpen}
+            email={this.props.emailToVerify}
+            submitConfirm={this.props.submitConfirm}
+          />
       </div>
-    )
+    </MuiThemeProvider>
+  )
   }
 
   clearErrors (event) {
