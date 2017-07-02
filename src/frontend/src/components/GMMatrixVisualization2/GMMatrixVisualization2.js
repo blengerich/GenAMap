@@ -92,28 +92,6 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     componentWillMount(){
-        var payload = {
-            markers: this.props.params.marker,
-            traits: this.props.params.trait,
-            results: this.props.params.result
-        };
-
-        console.log(payload)
-
-        fetch("/api/load-data",
-        {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        })
-
-        .then(res => {
-            res.json().then(json => {
-                console.log(json)
-            })
-        })
-        //TODO: Put into config
-        console.log('will mount')
         this.fetchData(1,3088286401,zoomFactor)
     }
 

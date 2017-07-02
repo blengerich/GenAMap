@@ -886,6 +886,9 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                     projectItem: 'Results'
                   }).exec(function (err, file) {
                     if (err) throw err
+
+                    console.log(loadData(req.body.marker.data.labelId,req.body.trait.data.labelId,file.id))
+
                   })
                 })
               })
@@ -1117,23 +1120,13 @@ app.get('/api/get-range/:id', function (req, res) {
   })
 })
 
-// loads project data to mongo
-/**
- * @param {Object} req
- * @param {Object} [req.body]
- * @param {Number} [req.body.markers] (id of marker_label file)
- * @param {Number} [req.body.traits]
- * @param {Number} [req.body.results]       (id of results file)
- */
-app.post('/api/load-data', function (req, res) {
-  console.log(req.body)
-
+function loadData(markersId,traitsId,resultsId) {
   var fields = ['rid','name','snp','chromosome','mapinfo']
 
   var processResults = new Promise((resolve,reject) => {
-    app.models.file.findOne({id : req.body.results}).exec(function (err,results) {
-      if (err) return res.status(500).json({err: err})
-      if (!results) return res.status(404).json({message : 'Results file not found'})
+    app.models.file.findOne({id : resultsId}).exec(function (err,results) {
+      if (err) return console.log(err)
+      if (!results) return console.log('results file not found')
       fs.readFile(results.path, function(err,data) {
         var resultsJSON = JSON.parse(data)
         var numCols = resultsJSON['c']
@@ -1155,9 +1148,9 @@ app.post('/api/load-data', function (req, res) {
 
   function fillData (table) {
     var promise = new Promise(function(resolve,reject) {
-      app.models.file.findOne({id: req.body.markers}).exec(function (err, markers) {
-        if (err) return res.status(500).json({err: err})
-        if (!markers) return res.status(404).json({ message: 'Marker Labels File not found' })
+      app.models.file.findOne({id: markersId}).exec(function (err, markers) {
+        if (err) return console.log(err)
+        if (!markers) return console.log('Marker Labels File not found' )
         csvtojson({noheader:true}).fromFile(markers.path, function(err,data) {
           if (err) {
             console.log(err)
@@ -1188,32 +1181,46 @@ app.post('/api/load-data', function (req, res) {
 
 
   function loadData(table) {
-    app.models.file.findOne({id : req.body.traits}, (err, traits_file) => {
-      if (err) return res.status(500).json({err : err})
+    app.models.file.findOne({id : traitsId}, (err, traits_file) => {
+      if (err) return console.log(err)
       csvtojson({noheader:true}).fromFile(traits_file.path, (err,data) => {
-        if (err) return res.status(500).json({err : err})
+        if (err) console.log(err)
         traits = data.map((obj) => {return obj["field1"]})
         console.log(traits)
         console.log("Loading data...")
         var j2c = new j2cStream({showHeader: false, keys : fields})
         var tableStream = streamify(table.map(JSON.stringify))
-        writeData.load(tableStream.pipe(j2c), req.body.results,traits)
+        writeData.load(tableStream.pipe(j2c), resultsId,traits)
         .then(function (a) {
             console.log(a); // should print "Data loaded!" when finished
-            res.json(a);
+            return a;
         });
       })
     })
   }
 
   var datas = db.collection('datas')
-  datas.count({fileName : req.body.results}, (err, count) => {
+  datas.count({fileName : resultsId}, (err, count) => {
     if (count == 0) {
-      processResults.then(fillData).then(loadData)
+      return processResults.then(fillData).then(loadData)
     } else {
-      res.json("Data already loaded!")
+      return "Data already loaded!"
     }
   })
+}
+
+// loads project data to mongo
+/**
+ * @param {Object} req
+ * @param {Object} [req.body]
+ * @param {Number} [req.body.markers] (id of marker_label file)
+ * @param {Number} [req.body.traits]
+ * @param {Number} [req.body.results]       (id of results file)
+ */
+app.post('/api/load-data', function (req, res) {
+  console.log(req.body)
+  res.json(loadData(req.body.markers,req.body.traits,req.body.results))
+
 })
 
 // deleta all stored data in mongo and corresponding file records
