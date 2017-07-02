@@ -3,20 +3,20 @@ var browserify = require('browserify')
 var source = require('vinyl-source-stream')
 var watchify = require('watchify')
 
-var appBundler = browserify({
-  entries: ['src/index.js'],
-  transform: [
-    ['babelify', {
-      "presets": ['es2015', 'react'],
-      "plugins": ['transform-object-rest-spread'],
-      "compact" : false
-      }
-    ],
-    ['browserify-css']
-  ]
-}, { debug : true });
 
-gulp.task('mybundle', function () {
+gulp.task('bundle', function () {
+   var appBundler = browserify({
+       entries: ['src/index.js'],
+       transform: [
+           ['babelify', {
+               "presets": ['es2015', 'react'],
+               "plugins": ['transform-object-rest-spread'],
+               "compact" : false
+           }
+           ],
+           ['browserify-css']
+       ]
+   }, { debug : true });
   return appBundler
     .bundle()
     .on('error', function (err) {
@@ -27,8 +27,8 @@ gulp.task('mybundle', function () {
     .pipe(gulp.dest('static/'))
 })
 
-gulp.task('mywatch', function () {
-  var b = browserify({
+gulp.task('watch', function () {
+  var appBundler = browserify({
     entries: ['src/index.js'],
     transform: [
       ['babelify', {
@@ -44,10 +44,10 @@ gulp.task('mywatch', function () {
     plugin: [watchify]
   }, { debug : true });
 
-  b.on('update', makeBundle)
+  appBundler.on('update', makeBundle)
 
   function makeBundle () {
-      b
+      appBundler
       .bundle()
       .on('error', function (err) {
         console.error(err.message)
@@ -60,45 +60,7 @@ gulp.task('mywatch', function () {
 
   makeBundle()
 
-  return b
-})
-
-gulp.task('bundle', function () {
-  return browserify('src/index.js')
-    .transform('babelify', {presets: ['es2015', 'react'], 'plugins': ['transform-object-rest-spread'], 'compact': false})
-    .bundle()
-    .on('error', function (err) {
-      console.error(err.message)
-      console.error(err.codeFrame)
-    })
-    .pipe(source('bundle.js'))
-    .pipe(gulp.dest('static/'))
-})
-
-gulp.task('watch', function () {
-  var b = browserify({
-    entries: ['src/index.js'],
-    cache: {}, packageCache: {},
-    plugin: [watchify]
-  })
-
-  b.on('update', makeBundle)
-
-  function makeBundle () {
-    b.transform('babelify', {presets: ['es2015', 'react'], 'plugins': ['transform-object-rest-spread'], 'compact': false})
-      .bundle()
-      .on('error', function (err) {
-        console.error(err.message)
-        console.error(err.codeFrame)
-      })
-      .pipe(source('bundle.js'))
-      .pipe(gulp.dest('static/'))
-    console.log('Bundle updated, success')
-  }
-
-  makeBundle()
-
-  return b
+  return appBundler
 })
 
 gulp.task('default', ['watch'])

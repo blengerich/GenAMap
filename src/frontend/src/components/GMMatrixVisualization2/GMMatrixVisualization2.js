@@ -117,7 +117,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
         .then(res => {
             res.json()
             .then (json => {
-                console.log(json[1])
+                console.log(json)
                 this.setState({ data: json[0] },function(){
                    this.axis.forceUpdate()
                 }.bind(this))
