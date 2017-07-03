@@ -77,8 +77,8 @@ const GMSetting = React.createClass({
   },
   render: function () {
     const {errorMessage , accountname} = this.props
-    console.log(errorMessage)
-    console.log(accountname)
+    // console.log(errorMessage)
+    // console.log(accountname)
     var actions = [
       <FlatButton
         label='Cancel'

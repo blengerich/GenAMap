@@ -13,12 +13,10 @@ var csvtojson = require('csvtojson')
 var nodemailer = require('nodemailer')
 require('es6-promise').polyfill()
 require('isomorphic-fetch')
-var readline = require('readline')
-var zlib = require('zlib')
 var config = require('./config')
 var Scheduler = require('../Scheduler/node/build/Release/scheduler.node')
 var jwt = require('jsonwebtoken')
-var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest
+var psqlAdapter = require('sails-postgresql')
 
 // temp
 var http = require('http')
@@ -53,13 +51,22 @@ app.use('/api/', expressjwt({ secret: config.secret }))
 const waterlineConfig = {
   adapters: {
     'default': diskAdapter,
-    disk: diskAdapter
+    disk: diskAdapter,
+    psql : psqlAdapter
   },
 
   connections: {
     myLocalDisk: {
       adapter: 'disk'
-    }
+    },
+     postgres: {
+         adapter: 'psql',
+         database: 'postgres',
+         host: process.env.POSTGRES_PORT_5432_TCP_ADDR,
+         port: process.env.POSTGRES_PORT_5432_TCP_PORT,
+         user: 'postgres',
+         password: ''
+     }
   },
 
   defaults: {
@@ -69,45 +76,46 @@ const waterlineConfig = {
 }
 
 const User = Waterline.Collection.extend({
-  tableName: 'user',
-  connection: 'myLocalDisk',
+    identity: 'user',
+    tableName: 'genamapuser',
+    connection: 'postgres',
 
-  attributes: {
-    id: {
-      type: 'text',
-      primaryKey: true,
-      unique: true,
-      defaultsTo: function () {
-        return guid()
-      }
-    },
-    username: {
-      type: 'string',
-      required: false
-    },
-    email: {
-      type: 'email',
-      required: true
-    },
-    password: {
-      type: 'string',
-      required: false
-    },
-    organization: {
-      type: 'string',
-      required: false
-    },
-    toJSON: function () {
-      var obj = this.toObject()
-      delete obj.password
-      return obj
+    attributes: {
+        id: {
+          type: 'text',
+          primaryKey: true,
+          unique: true,
+          defaultsTo: function () {
+            return guid()
+          }
+        },
+        username: {
+          type: 'string',
+          required: false
+        },
+        email: {
+          type: 'email',
+          required: true
+        },
+        password: {
+          type: 'string',
+          required: false
+        },
+        organization: {
+          type: 'string',
+          required: false
+        },
+        toJSON: function () {
+          var obj = this.toObject()
+          delete obj.password
+          return obj
+        }
     }
-  }
 })
 
 const Project = Waterline.Collection.extend({
   tableName: 'project',
-  connection: 'myLocalDisk',
+  connection: 'postgres',
 
   attributes: {
     files: {
@@ -131,7 +139,7 @@ const Project = Waterline.Collection.extend({
 
 const File = Waterline.Collection.extend({
   tableName: 'file',
-  connection: 'myLocalDisk',
+  connection: 'postgres',
 
   attributes: {
     path: {
@@ -154,13 +162,21 @@ const File = Waterline.Collection.extend({
     project: {
       model: 'project',
       required: true
+    },
+    projectItem: {
+      type: 'string',
+      required: true
+    },
+
+    info : {
+      type: 'json'
     }
   }
 })
 
 const State = Waterline.Collection.extend({
   tableName: 'state',
-  connection: 'myLocalDisk',
+  connection: 'postgres',
 
   attributes: {
     state: {
@@ -175,8 +191,8 @@ const State = Waterline.Collection.extend({
 })
 
 const TempUser = Waterline.Collection.extend({
-  tableName: 'tempUser',
-  connection: 'myLocalDisk',
+  tableName: 'tempuser',
+  connection: 'postgres',
 
   attributes: {
     id: {

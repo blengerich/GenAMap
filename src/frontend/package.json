@@ -56,7 +56,7 @@
     "serve-favicon": "2.3.0",
     "stream-array": "^1.1.2",
     "sync": "0.2.5",
-    "waterline": "0.11.0",
+    "waterline": "^0.11.11",
     "xmlhttprequest": "1.8.0",
     "zlib": "1.0.5"
   },
