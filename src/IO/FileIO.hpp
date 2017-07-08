@@ -28,8 +28,6 @@ private:
 
     void operator=(FileIO const &); // don't implement
 
-    vector<string> split(const string &, string);
-
     string checkFileFormat(string);
 
     docInfo countRowCol(string, string);
@@ -49,6 +47,8 @@ public:
         static FileIO instance;
         return instance;
     }
+
+    vector<string> split(const string &, string);
 
     MatrixXf readMatrixFile(string);
 
