@@ -65,7 +65,7 @@ const waterlineConfig = {
          host: process.env.POSTGRES_PORT_5432_TCP_ADDR,
          port: process.env.POSTGRES_PORT_5432_TCP_PORT,
          user: 'postgres',
-         password: ''
+         password: config.pg
      }
   },
 
