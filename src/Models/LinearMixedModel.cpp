@@ -89,7 +89,7 @@ void LinearMixedModel::assertReadyToRun() {
 // Decomposition of Similarity Matrix ->
 // K = U*S*transpose(U)
 void LinearMixedModel::decomposition() {
-    JacobiSVD<MatrixXf> svd(this->K, ComputeThinU | ComputeThinV);
+    BDCSVD<MatrixXf> svd(this->K, ComputeThinU | ComputeThinV);
     MatrixXf tmpS = svd.singularValues();
     U = svd.matrixU();
     S = MatrixXf::Zero(tmpS.rows(), tmpS.rows());
