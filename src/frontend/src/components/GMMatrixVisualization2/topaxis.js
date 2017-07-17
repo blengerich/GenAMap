@@ -36,6 +36,7 @@ export default class TopAxis extends React.PureComponent {
     this._cellRenderer = this._cellRenderer.bind(this)
     this._renderXAxisCell = this._renderXAxisCell.bind(this)
     this._getDatum = this._getDatum.bind(this)
+    this._getColumnWidth = this._getColumnWidth.bind(this)
 
 };
 
@@ -68,7 +69,7 @@ export default class TopAxis extends React.PureComponent {
                 ref={this._setGridRef}
                 cellRenderer = {this._cellRenderer}
                 columnCount={columnCount}
-                columnWidth={5}
+                columnWidth={this._getColumnWidth}
                 height={30}
                 rowCount={rowCount}
                 rowHeight={30}
@@ -156,7 +157,10 @@ export default class TopAxis extends React.PureComponent {
         return this.state.list.get(index % this.state.list.size)
 
     }
-    
+
+    _getColumnWidth(){
+        return (window.innerWidth - 48 ) /  300
+    }
 
     
 

@@ -341,7 +341,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     _getColumnWidth(){
-        return window.innerWidth / zoomFactor
+        return (window.innerWidth - 48 ) /  zoomFactor
     }
 
     _getDatum(index) {

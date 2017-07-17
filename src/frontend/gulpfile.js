@@ -2,7 +2,7 @@ var gulp = require('gulp')
 var browserify = require('browserify')
 var source = require('vinyl-source-stream')
 var watchify = require('watchify')
-
+var touch = require('touch')
 
 gulp.task('bundle', function () {
    var appBundler = browserify({
@@ -27,7 +27,7 @@ gulp.task('bundle', function () {
     .pipe(gulp.dest('static/'))
 })
 
-gulp.task('watch', function () {
+gulp.task('watch',function () {
   var appBundler = browserify({
     entries: ['src/index.js'],
     transform: [
@@ -41,12 +41,17 @@ gulp.task('watch', function () {
     ],
     cache: {},
     packageCache: {},
-    plugin: [watchify]
+    plugin: [watchify],
   }, { debug : true });
+
+  //appBundler = watchify(appBundler,{delay:1000,poll:true,ignoreWatch:true})
+  //appBundler.plugin(makeBundle,{delay:100,poll:true})
 
   appBundler.on('update', makeBundle)
 
   function makeBundle () {
+
+      console.log("updated")
       appBundler
       .bundle()
       .on('error', function (err) {
