@@ -39,3 +39,7 @@ sampleData/*
 
 # main.cpp for testing backend
 src/main.cpp
+
+#Database
+scripts/postgresdbpath/*
+scripts/mongodbpath/*
