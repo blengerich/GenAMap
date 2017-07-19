@@ -160,6 +160,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
 
                 <div className={styles.zoomBar} >
+                    <h1> Zoombar Should be here </h1>
                     <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(4/maxZoom)) + "%"}}></div>
                     <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(3/maxZoom)) + "%"}}></div>
                     <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(2/maxZoom)) + "%"}}></div>
@@ -341,7 +342,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     _getColumnWidth(){
-        return (window.innerWidth - 48 ) /  zoomFactor
+        return (window.innerWidth - 48) /  zoomFactor
     }
 
     _getDatum(index) {
@@ -449,6 +450,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
         const tensMillions =  Math.floor(datum / 10000000 % 10)
         const hundredMillions =  Math.floor(datum / 100000000 % 10)
         const billions =  Math.floor(datum / 1000000000 % 10)
+
 
         //Compute the resolution for the scale
         let zstate = this.state.zoomStack.get(this.state.zoomStack.size- 1)
