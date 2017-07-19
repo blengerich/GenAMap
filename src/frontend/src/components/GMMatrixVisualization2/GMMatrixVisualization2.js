@@ -56,7 +56,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
             height: 600,
             overscanColumnCount: 0,
             overscanRowCount: 0,
-            rowHeight: 50,
+            rowHeight: 30,
             rowCount: 4,
             useDynamicRowHeight: false,
             list: Immutable.List(items),
