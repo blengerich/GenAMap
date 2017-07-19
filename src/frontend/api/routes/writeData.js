@@ -47,7 +47,7 @@ exports.loadData = function (src, dst) {
 
         var bulkData = [];
 
-
+        var count = 0;
         src.pipe(through(write,end))
         function write (input,enc,cb) {
             //if (!first) {
@@ -148,7 +148,7 @@ exports.loadSNPs = function (src) {
                 SNP.count({}, (err,c) => {
                   resolve(`${c} snps loaded!`)
                 })
-              });
+              })
             })
         }
         else {

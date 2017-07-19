@@ -98,15 +98,6 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
     //fetch only the firstelement of the json array
     fetchData(start,end,steps){
-        //TODO: Put in config
-        // let url = "http://localhost:3001/data/?start=" + start + "&end=" + end + "&zoom=" + Math.floor((end-start)/steps)
-        // console.log(url)
-        // axios.get(url)
-        //     .then((res) => {
-        //         this.setState({ data: res.data },function(){
-        //                this.axis.forceUpdate()
-        //         }.bind(this));
-        //     });
         var url = `/api/get-range/${this.props.params.result}?start=${start}&end=${end}&zoom=${Math.floor((end-start)/steps)}`
         console.log(url)
         var dataRequest = {
@@ -125,7 +116,6 @@ export default class GMMatrixVisualization2 extends PureComponent {
                    this.axis.forceUpdate()
 
                 }.bind(this))
-                console.log("data",this.state.data)
 
         })
     })
@@ -161,7 +151,6 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
                 let start = zstack.get(zstack.size - 1).start
                 let end = zstack.get(zstack.size - 1).end
-        console.log(this.state.rowCount)
 
         return (
             <div>
@@ -169,11 +158,11 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
                 <div className={styles.zoomBar} >
                     <h1> Zoombar Should be here </h1>
-                    <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(4/maxZoom)) + "%"}}></div>
-                    <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(3/maxZoom)) + "%"}}></div>
-                    <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(2/maxZoom)) + "%"}}></div>
-                    <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(1/maxZoom)) + "%"}}></div>
-                    <div className={styles.zoomBarCursor} style={{top: cursorPosition}}></div>
+                    <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(4/maxZoom)) + "%"}}/>
+                    <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(3/maxZoom)) + "%"}}/>
+                    <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(2/maxZoom)) + "%"}}/>
+                    <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(1/maxZoom)) + "%"}}/>
+                    <div className={styles.zoomBarCursor} style={{top: cursorPosition}}/>
                 </div>
 
                 <div className={styles.topAxis}>
