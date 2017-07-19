@@ -65,7 +65,7 @@ const waterlineConfig = {
          host: process.env.POSTGRES_PORT_5432_TCP_ADDR,
          port: process.env.POSTGRES_PORT_5432_TCP_PORT,
          user: 'postgres',
-         password: ''
+         password: config.pg
      }
   },
 
@@ -903,7 +903,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                   }).exec(function (err, file) {
                     if (err) throw err
 
-                    console.log(loadData(req.body.marker.data.labelId,req.body.trait.data.labelId,file.id))
+                    console.log(loadResults(req.body.marker.data.labelId,req.body.trait.data.labelId,file.id))
 
                   })
                 })
@@ -1050,6 +1050,8 @@ orm.initialize(waterlineConfig, function (err, models) {
   app.models = models.collections
   app.connections = models.connections
 
+  writeData.loadSNPs('./api/snpdata.txt').then(console.log)
+
   console.log('Connected correctly to server.')
   var server = app.listen(3000, function () {
     var port = server.address().port || 'default port'
@@ -1092,13 +1094,14 @@ app.post(config.api.ChangePasswordUrl, function (req, res) {
 // GENEVIZ API
 
 var api = require('./api/routes/getRange')
-var snpdata = require('./api/snpdata')
 var writeData = require('./api/routes/writeData')
 var db = require('./api/db')
 var j2cStream = require('json2csv-stream')
 var streamify = require('stream-array')
 
 var simpleCache = {}
+
+
 
 // the id is the id of the result file corresponding to the loaded data
 // query parameters : start, end, zoom
@@ -1136,8 +1139,8 @@ app.get('/api/get-range/:id', function (req, res) {
   })
 })
 
-function loadData(markersId,traitsId,resultsId) {
-  var fields = ['rid','name','snp','chromosome','mapinfo']
+function loadResults(markersId,traitsId,resultsId) {
+  var fields = ['name']
 
   var processResults = new Promise((resolve,reject) => {
     app.models.file.findOne({id : resultsId}).exec(function (err,results) {
@@ -1175,17 +1178,7 @@ function loadData(markersId,traitsId,resultsId) {
           //var notFound = 0
           for (var i = 0; i < data.length; i++) {
             var id = data[i]["field1"]
-            table[i]['rid'] = i + 1
             table[i]['name'] = id
-            var info = snpdata[id]
-            if (!info) {
-              console.log(id + ' not found in snpdata')
-              //notFound++
-              continue
-            }
-            table[i]['snp'] = info["marker_alleles"]
-            table[i]['chromosome'] = info["chrom"]
-            table[i]['mapinfo'] = info["base_pair"]
           }
           resolve(table)
         })
@@ -1196,7 +1189,7 @@ function loadData(markersId,traitsId,resultsId) {
 
 
 
-  function loadData(table) {
+  function loadInDB(table) {
     app.models.file.findOne({id : traitsId}, (err, traits_file) => {
       if (err) return console.log(err)
       csvtojson({noheader:true}).fromFile(traits_file.path, (err,data) => {
@@ -1206,7 +1199,8 @@ function loadData(markersId,traitsId,resultsId) {
         console.log("Loading data...")
         var j2c = new j2cStream({showHeader: false, keys : fields})
         var tableStream = streamify(table.map(JSON.stringify))
-        writeData.load(tableStream.pipe(j2c), resultsId,traits)
+        writeData.loadTraits(traits, resultsId).then(console.log)
+        writeData.loadData(tableStream.pipe(j2c), resultsId)
         .then(function (a) {
             console.log(a); // should print "Data loaded!" when finished
             return a;
@@ -1218,7 +1212,7 @@ function loadData(markersId,traitsId,resultsId) {
   var datas = db.collection('datas')
   datas.count({fileName : resultsId}, (err, count) => {
     if (count == 0) {
-      return processResults.then(fillData).then(loadData)
+      return processResults.then(fillData).then(loadInDB)
     } else {
       return "Data already loaded!"
     }
@@ -1235,7 +1229,7 @@ function loadData(markersId,traitsId,resultsId) {
  */
 app.post('/api/load-data', function (req, res) {
   console.log(req.body)
-  res.json(loadData(req.body.markers,req.body.traits,req.body.results))
+  res.json(loadResults(req.body.markers,req.body.traits,req.body.results))
 
 })
 

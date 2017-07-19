@@ -293,7 +293,6 @@ class GMImportDialog extends Component {
                       hintText='Population File Name'
                       errorText={this.state.populationFileName && !this.state.populationName && errorText}
                       onChange={this.onChangePopulationName.bind(this)}
-                      importOnSubmit={true}
                     />
                     <GMFileInput
                       id='populationFile'
@@ -301,7 +300,6 @@ class GMImportDialog extends Component {
                       accept='.csv'
                       onChange={this.onChangePopulationFileName.bind(this)}
                       fileLabel={this.state.populationFileName}
-                      importOnSubmit={true}
                     /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
                   </div>
                   <div id="snpFeaturesDiv">
@@ -311,7 +309,6 @@ class GMImportDialog extends Component {
                       hintText='SNPs Features Name'
                       errorText={this.state.snpsFeatureFileName && !this.state.snpsFeatureName && errorText}
                       onChange={this.onChangeSnpsFeatureName.bind(this)}
-                      importOnSubmit={true}
                     />
                     <GMFileInput
                       id='snpsFeatureFile'
@@ -319,7 +316,6 @@ class GMImportDialog extends Component {
                       accept='.csv'
                       onChange={this.onChangeSnpsFeatureFileName.bind(this)}
                       fileLabel={this.state.snpsFeatureFileName}
-                      importOnSubmit={true}
                     /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
                   </div>
                 </div>:

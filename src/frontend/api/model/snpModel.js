@@ -2,8 +2,7 @@ var mongoose = require('mongoose')
    ,Schema = mongoose.Schema
 
 var snpSchema = new Schema({
-    rid: Number,
-    name: String,
+    name: { type: String, unique: true },
     allels: String,
     chrom: String,
     basePair: Number,

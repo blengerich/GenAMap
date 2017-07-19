@@ -8,8 +8,10 @@ var fs = require('fs');
 var readline = require('readline')
 var Data = require('../model/dataModel');
 var SNP = require('../model/snpModel');
+var Trait = require('../model/traitModel');
 var through = require('through2')
 var stream = require('stream')
+var csvtojson = require('csvtojson')
 
 const genome = {
     "1": 0,
@@ -40,67 +42,121 @@ const genome = {
     };
 
 /* Function loads CSV (src) into the db */
-exports.load = function (src, dst, traits) {
+exports.loadData = function (src, dst) {
     return new Promise((resolve, reject) => {
 
-        var bulkSNP = [];
         var bulkData = [];
 
 
         src.pipe(through(write,end))
         function write (input,enc,cb) {
             //if (!first) {
-                // we are bulk inserting arrays of 2000 data points into mongodb
-                if (bulkSNP.length == 2000 && bulkData.length == 2000) {
-                    // save this bulk of 2000 data points
-                    SNP.collection.insert(bulkSNP);
-                    Data.collection.insert(bulkData);
-                    // start bulk over for next 2000 data points
-                    bulkSNP = [];
-                    bulkData = [];
+            // we are bulk inserting arrays of 2000 data points into mongodb
+            if (bulkData.length >= 2000) {
+                // save this bulk of 2000 data points
+                Data.insertMany(bulkData);
+                // start bulk over for next 2000 data points
+                bulkData = [];
+            }
+
+            var row = input.toString().split(",").filter(String)
+            var name = row[0]
+            SNP.findOne({name: name.trim()}, (err,snp) => {
+                if (err) {
+                    console.log(err)
+                    reject(err)
                 }
+                if (snp) {
 
-                var row = input.toString().split(",").filter(String)
-                var chromosome = row[3];
-                var bp = parseInt(row[4]);
-                var index = genome[chromosome] + bp;
-                // TODO: standardize CSV files that are to be loaded
-                var newSNP = new SNP({
-                    rid: parseInt(row[0]),
-                    name: row[1],
-                    allels: row[2],
-                    chrom: chromosome,
-                    basePair: bp,
-                    index: index
-                });
-                
-                var newData = new Data({
-                    fileName: dst,
-                    index: index,
-                    data: row.slice(5, row.length).map(parseFloat),
-                    traits: traits,
-                    zoomLevel: 0 // for now all are at level 0 (TODO: delete if aggregation is good to go)
-                });
+                    var newData = new Data({
+                        fileName: dst,
+                        index: snp.index,
+                        data: row.slice(1, row.length).map(parseFloat),
+                    });
 
-                // build up the bulk of data
-                bulkSNP.push(newSNP);
-                bulkData.push(newData);
-            //}
-            //first = false
-            cb()
+                    // build up the bulk of data
+                    bulkData.push(newData);
+                    cb()
+                } else {
+                    count ++;
+                    console.log(name,"is not found")
+                    cb()
+                }
+            })
+
         }
 
         function end (cb) {
             // insert remainder bulk
-            SNP.collection.insert(bulkSNP);
-            Data.collection.insert(bulkData);
-            // create index for SNP and Data collections
-            SNP.collection.createIndex({basePair: "1"});
-            Data.collection.createIndex({index: "1"});
-            resolve("Data loaded!");
-            cb()
+            Data.insertMany(bulkData, () => {
+              // create index for SNP and Data collections
+              Data.collection.createIndex({index: "1"});
+              resolve("Data loaded!");
+              cb()
+            });
         }
     });
+}
+
+exports.loadTraits = function(traits,dst) {
+  return new Promise((resolve,reject) => {
+    var trait = new Trait({
+      fileName: dst,
+      traits: traits
+    })
+    trait.save(function (err) {
+      if (err) {
+        reject(err)
+      } else {
+        resolve('Traits loaded!')
+      }
+    })
+  })
+}
+
+exports.loadSNPs = function (src) {
+    return new Promise((resolve,reject) => {
+      const NUM_SNPS = 555091
+      var num = 0
+      SNP.count({}, (err, c) => {
+        if (c < NUM_SNPS) {
+          console.log('loading SNPs, this will take a couple minutes')
+          var snpdata = fs.createReadStream(src)
+          var bulkSNP = []
+          csvtojson({delimiter: "\t"})
+            .fromStream(snpdata)
+            .on('json', (json) => {
+              if (bulkSNP.length >= 2000) {
+                // save this bulk of 2000 data points
+                SNP.insertMany(bulkSNP);
+                // start bulk over for next 2000 data points
+                bulkSNP = [];
+              }
+              index = parseInt(genome[json.chrom]) + parseInt(json.base_pair)
+              var newSNP = new SNP({
+                name: json.marker_name,
+                allels: json.marker_alleles,
+                chrom: json.chrom,
+                basePair: json.base_pair,
+                index: index
+              });
+              bulkSNP.push(newSNP)
+            })
+            .on('done', () => {
+              SNP.insertMany(bulkSNP, () => {
+                SNP.collection.createIndex({basePair: "1"});
+                SNP.count({}, (err,c) => {
+                  resolve(`${c} snps loaded!`)
+                })
+              });
+            })
+        }
+        else {
+            resolve(`${c} snps already loaded!`)
+        }
+      })
+    })
+
 }
 
 /* Function clears the db */

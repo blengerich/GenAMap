@@ -40,13 +40,17 @@ export function requireAuthentication (Component) {
         if (document.cookie.indexOf("visited") >= 0) {
           // already visited before, do not show welcome screen
           setTimeout(function() {
-            document.getElementById("welcomeScreen").remove()
+            if (document.getElementById("welcomeScreen")) {
+              document.getElementById("welcomeScreen").remove()
+            }
           }, 100)
         } else {
           // first time visiting, show welcome screen
           document.cookie = "visited";
           setTimeout(function() {
-            document.getElementById("welcomeScreen").style.visibility = "visible"
+            if (document.getElementById("welcomeScreen")) {
+              document.getElementById("welcomeScreen").style.visibility = "visible"
+            }
           }, 100)
         }
       }

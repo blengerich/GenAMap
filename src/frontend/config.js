@@ -1,5 +1,6 @@
 const config = {
   secret: 'VReLsDLsyAKYPFL69IQp2KYvguj8E3eNdbt0a9UkhGB5xrBXeJYwFYAx2kAsW',
+  pg: '!!GeNaMaPnew00',
   serverPort: '54.191.129.39',
   api: {
     projectUrl: '/api/projects',

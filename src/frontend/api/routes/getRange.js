@@ -5,6 +5,7 @@
 
 var Data = require('../model/dataModel');
 var SNP = require('../model/snpModel');
+var Trait = require('../model/traitModel');
 
 // perhaps for future use if we define zoom levels
 var getZoomFactor = function(zoom) {
@@ -31,7 +32,7 @@ exports.getRange = function (start, end, factor, fileName) {
         start = 1;
     }
     return new Promise((resolve,reject) => {
-        Data.findOne({fileName : fileName}, (err,single) => {
+        Trait.findOne({fileName : fileName}, (err,trait) => {
 
 
             // no aggregation
@@ -48,9 +49,9 @@ exports.getRange = function (start, end, factor, fileName) {
                     }
 
                     if (!result || result.length == 0) { // no results
-                        resolve([null,single.traits]);
+                        resolve([null,trait.traits]);
                     } else { // return no-aggregate-query
-                        resolve([result,single.traits]);
+                        resolve([result,trait.traits]);
                     }
                 });
             }
@@ -113,9 +114,9 @@ exports.getRange = function (start, end, factor, fileName) {
                         aggregateResults.push(obj);
                     }
                     if (!aggregateResults || aggregateResults.length == 0) { // no results
-                        resolve([null,single.traits]);
+                        resolve([null,trait.traits]);
                     } else {
-                        resolve([aggregateResults,single.traits]);
+                        resolve([aggregateResults,trait.traits]);
                     }
                 })
             })

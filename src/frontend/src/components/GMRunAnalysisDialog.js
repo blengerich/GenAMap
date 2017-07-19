@@ -448,7 +448,6 @@ const GMRunAnalysisDialog = React.createClass({
                   id='project'
                   className='hidden'
                   value={this.state.projectValue}
-                  importOnSubmit={true}
                   readOnly
                 >
                   {projectListReact}
@@ -667,7 +666,6 @@ export default GMRunAnalysisDialog
       hintText='SNPs Feature Name'
       errorText={this.state.snpsFeature1FileName && !this.state.snpsFeature1Name && errorText}
       onChange={this.onChangesnpsFeature1Name}
-      importOnSubmit={true}
     />
     <GMFileInput
       id='snpsFeatureFile'
@@ -675,7 +673,6 @@ export default GMRunAnalysisDialog
       accept='.csv'
       onChange={this.onChangesnpsFeature1FileName}
       fileLabel={this.state.snpsFeature1FileName}
-      importOnSubmit={true}
     />
   </div>
 : null}
@@ -690,7 +687,6 @@ export default GMRunAnalysisDialog
       hintText='SNPs Feature Name'
       errorText={this.state.snpsFeature2FileName && !this.state.snpsFeature2Name && errorText}
       onChange={this.onChangesnpsFeature2Name}
-      importOnSubmit={true}
     />
     <GMFileInput
       id='snpsFeatureFile'
@@ -698,7 +694,6 @@ export default GMRunAnalysisDialog
       accept='.csv'
       onChange={this.onChangesnpsFeature2FileName}
       fileLabel={this.state.snpsFeature2FileName}
-      importOnSubmit={true}
     />
   </div>
 : null}
