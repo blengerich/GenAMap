@@ -694,7 +694,7 @@ float r = lmm.f(lambda);
 EXPECT_NEAR(r, 3.87016, 0.01);
 lambda = 0;
 r = lmm.f(lambda);
-EXPECT_NEAR(r, 114.884521484375, 20); // very sensitive to data format
+EXPECT_NEAR(r, 114.884, 0.01); // very sensitive to data format
 }
 
 

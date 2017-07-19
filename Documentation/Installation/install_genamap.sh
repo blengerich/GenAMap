@@ -1,5 +1,3 @@
-set -e
-
 # Install and start Mongo DB
 if [ ! -d ./mongodbpath ]; then
   mkdir mongodbpath
