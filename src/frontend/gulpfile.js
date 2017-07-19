@@ -2,7 +2,6 @@ var gulp = require('gulp')
 var browserify = require('browserify')
 var source = require('vinyl-source-stream')
 var watchify = require('watchify')
-var touch = require('touch')
 
 gulp.task('bundle', function () {
    var appBundler = browserify({
@@ -41,8 +40,10 @@ gulp.task('watch',function () {
     ],
     cache: {},
     packageCache: {},
-    plugin: [watchify],
+    // plugin: [watchify],
   }, { debug : true });
+
+
 
   //appBundler = watchify(appBundler,{delay:1000,poll:true,ignoreWatch:true})
   //appBundler.plugin(makeBundle,{delay:100,poll:true})
@@ -68,4 +69,10 @@ gulp.task('watch',function () {
   return appBundler
 })
 
+gulp.task('watcher', function () {
+    gulp.watch(['./src/**/*.js'], ['watch']);
+});
+
 gulp.task('default', ['watch'])
+
+

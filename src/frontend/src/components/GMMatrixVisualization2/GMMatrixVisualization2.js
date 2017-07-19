@@ -56,8 +56,8 @@ export default class GMMatrixVisualization2 extends PureComponent {
             height: 600,
             overscanColumnCount: 0,
             overscanRowCount: 0,
-            rowHeight: 20,
-            rowCount: 30,
+            rowHeight: 50,
+            rowCount: 4,
             useDynamicRowHeight: false,
             list: Immutable.List(items),
             zoomindex:100,
@@ -65,6 +65,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
             zoomLevel: 0,
             zoomStack: Immutable.List(zoominfo),
             data:[],
+            traits:[],
             dataIndex: 0,
             lastFactor: factor,
             start: 1,
@@ -95,6 +96,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
         this.fetchData(1,3088286401,zoomFactor)
     }
 
+    //fetch only the firstelement of the json array
     fetchData(start,end,steps){
         //TODO: Put in config
         // let url = "http://localhost:3001/data/?start=" + start + "&end=" + end + "&zoom=" + Math.floor((end-start)/steps)
@@ -118,11 +120,16 @@ export default class GMMatrixVisualization2 extends PureComponent {
             res.json()
             .then (json => {
                 console.log(json)
-                this.setState({ data: json[0] },function(){
+                this.setState({ data: json[0], traits: json[1]},function(){
+
                    this.axis.forceUpdate()
+
                 }.bind(this))
-            })
+                console.log("data",this.state.data)
+
         })
+    })
+
     }
 
     render() {
@@ -154,6 +161,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
                 let start = zstack.get(zstack.size - 1).start
                 let end = zstack.get(zstack.size - 1).end
+        console.log(this.state.rowCount)
 
         return (
             <div>
@@ -192,8 +200,8 @@ export default class GMMatrixVisualization2 extends PureComponent {
                                         overscanColumnCount={overscanColumnCount}
                                         overscanRowCount={overscanRowCount}
                                         rowHeight={
-                                            ((height - 10) / rowCount)
-                                        }
+                                            rowHeight
+                                      }
                                         rowCount={rowCount}
                                         scrollToColumn={scrollToColumn}
                                         onKeyDown={this._onKeyDown}
