@@ -56,7 +56,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
             height: 600,
             overscanColumnCount: 0,
             overscanRowCount: 0,
-            rowHeight: 30,
+            rowHeight: 25,
             rowCount: 4,
             useDynamicRowHeight: false,
             list: Immutable.List(items),
@@ -152,6 +152,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
                 let start = zstack.get(zstack.size - 1).start
                 let end = zstack.get(zstack.size - 1).end
+
 
         return (
             <div>
@@ -360,6 +361,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     _getYLabel(rowIndex) { // TODO: Add reference to return a trait number from DB
+
         return this.state.traits[rowIndex-2]
     }
 
@@ -502,6 +504,8 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
     _renderYAxisCell({columnIndex, key, rowIndex, style}) {
 
+
+
         style = {
             ...style,
 
@@ -509,18 +513,28 @@ export default class GMMatrixVisualization2 extends PureComponent {
         }
 
        let label = ""
-
+       let fullTraitName = this._getYLabel(rowIndex);
        if (columnIndex == 0) {
-           label = this._getYLabel(rowIndex);
+           if(rowIndex == this.state.hoveredRowIndex){
+               label = fullTraitName;
+           }
+           else{
+               label = fullTraitName.slice(0,3).concat("..")
+           }
+
        }
+
+
 
         return (
             <div
                 key={key}
-                style={style}
+                style = {style}
             >
+
                 {label}
             </div>
+
         )
     }
 
