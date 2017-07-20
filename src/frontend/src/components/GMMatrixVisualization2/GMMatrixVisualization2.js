@@ -56,7 +56,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
             height: 600,
             overscanColumnCount: 0,
             overscanRowCount: 0,
-            rowHeight: 25,
+            rowHeight: 30,
             rowCount: 4,
             useDynamicRowHeight: false,
             list: Immutable.List(items),
@@ -159,7 +159,6 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
 
                 <div className={styles.zoomBar} >
-                    <h1> Zoombar Should be here </h1>
                     <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(4/maxZoom)) + "%"}}/>
                     <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(3/maxZoom)) + "%"}}/>
                     <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(2/maxZoom)) + "%"}}/>
@@ -508,6 +507,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
         style = {
             ...style,
+            zIndex: "10",
 
 
         }
