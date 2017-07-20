@@ -126,7 +126,7 @@ VectorXf Math::L2Thresholding(VectorXf in) {
 
 MatrixXf Math::pseudoInverse(MatrixXf& matrix) {
     float epsilon = numeric_limits<float>::epsilon();
-    JacobiSVD<MatrixXf> svd(matrix, ComputeThinU | ComputeThinV);
+    BDCSVD<MatrixXf> svd(matrix, ComputeThinU | ComputeThinV);
     float tolerance = epsilon * max(matrix.cols(), matrix.rows()) * 
                       svd.singularValues().array().abs()(0);
     return svd.matrixV() * (svd.singularValues().array().abs() > tolerance)
