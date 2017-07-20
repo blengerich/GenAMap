@@ -8,7 +8,7 @@ To install Docker, see [here](./Docker/Quick_Start.md)
 
 ### Build the backend as a Node addon
 
-	cd /usr/src/genamap/src/Scheduler/node
+	cd /usr/src/genamap/Scheduler/node
 	node-gyp rebuild
 	
 Build the frontend. Gulp watches all the source files and compiles them into `bundle.js` every time we change a JS file. So it won’t ever finish (that’s why we run it as a background process).
