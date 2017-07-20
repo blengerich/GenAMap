@@ -116,6 +116,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
                    this.axis.forceUpdate()
 
                 }.bind(this))
+                console.log("traits",this.state.traits)
 
         })
     })
@@ -188,9 +189,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
                                         width={width}
                                         overscanColumnCount={overscanColumnCount}
                                         overscanRowCount={overscanRowCount}
-                                        rowHeight={
-                                            rowHeight
-                                      }
+                                        rowHeight={rowHeight}
                                         rowCount={rowCount}
                                         scrollToColumn={scrollToColumn}
                                         onKeyDown={this._onKeyDown}
@@ -361,7 +360,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     _getYLabel(rowIndex) { // TODO: Add reference to return a trait number from DB
-        return rowIndex.toString()
+        return this.state.traits[rowIndex-2]
     }
 
     _getDataIndex() {
@@ -504,7 +503,9 @@ export default class GMMatrixVisualization2 extends PureComponent {
     _renderYAxisCell({columnIndex, key, rowIndex, style}) {
 
         style = {
-            ...style
+            ...style,
+
+
         }
 
        let label = ""
