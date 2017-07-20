@@ -16,4 +16,4 @@ then
 	docker pull blengerich/genamap || { echo 'docker pull failed'; exit 1; }
 	date +%s > last_docker_pull.start
 fi
-docker run -ti -p 7000:3000 -v ${PWD}/../:/usr/src/genamap blengerich/genamap || { echo 'docker run failed'; exit 1; }
+docker run -ti -p 7000:3000 -v ${PWD}/../src/:/usr/src/genamap blengerich/genamap || { echo 'docker run failed'; exit 1; }
