@@ -1056,6 +1056,17 @@ orm.initialize(waterlineConfig, function (err, models) {
   var server = app.listen(3000, function () {
     var port = server.address().port || 'default port'
     console.log('Example app listening on port', port)
+
+    var email = "demo@demo.com"
+    var password = "demo"
+    var organization = "demo"
+    var initialState = {}
+    app.models.user.create({ email, password, organization }).exec(function (err, createdUser) {
+      if (err) console.log(err)
+
+      app.models.state.create({ state: JSON.stringify(initialState), user: createdUser.id }).exec(function (err, createdState) {
+      })
+    })
   })
 })
 
