@@ -1061,11 +1061,15 @@ orm.initialize(waterlineConfig, function (err, models) {
     var password = "demo"
     var organization = "demo"
     var initialState = {}
-    app.models.user.create({ email, password, organization }).exec(function (err, createdUser) {
-      if (err) console.log(err)
+    app.models.user.count({ email, password, organization }).exec((err,c) => {
+      if (c <= 0) {
+        app.models.user.create({ email, password, organization }).exec(function (err, createdUser) {
+          if (err) console.log(err)
 
-      app.models.state.create({ state: JSON.stringify(initialState), user: createdUser.id }).exec(function (err, createdState) {
-      })
+          app.models.state.create({ state: JSON.stringify(initialState), user: createdUser.id }).exec(function (err, createdState) {
+          })
+        })
+      }
     })
   })
 })
