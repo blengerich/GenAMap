@@ -76,7 +76,7 @@ void GraphicalLasso::setLearningRate(float lr) {
 }
 
 MatrixXf GraphicalLasso::matrixRaiseToHalf(MatrixXf& matrix) {
-    JacobiSVD<MatrixXf> svd(matrix, ComputeThinU | ComputeThinV);
+    BDCSVD<MatrixXf> svd(matrix, ComputeThinU | ComputeThinV);
     MatrixXf D = svd.singularValues().array().sqrt().matrix().asDiagonal();
     MatrixXf U = svd.matrixU();
     return U * D * U.transpose();
