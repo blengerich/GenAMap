@@ -265,7 +265,7 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
     fs.readFile('./static/email/Registration_2.html', function (err, html_2) {
       if (err) {throw err}
       //fs.readFile('./static/email/Authentication.txt', 'utf8', function (err, auth_details) {
-      var auth_details = require('./static/email/Authentication.json');
+      var auth_details = require('./static/email2/Authentication.json');
       //if (err) {throw err}
       var transporter = nodemailer.createTransport(auth_details.user + ':' + auth_details.pass);
       //var transporter = nodemailer.createTransport('smtps://email@gmail.com:pass@smtp.gmail.com');
@@ -1038,6 +1038,15 @@ orm.initialize(waterlineConfig, function (err, models) {
   var server = app.listen(3000, function () {
     var port = server.address().port || 'default port'
     console.log('Example app listening on port', port)
+  })
+  var initialState={}
+  var email="demo@demo.com"
+  var password='demo'
+  var organization='demo'
+  app.models.user.create({ email, password, organization }).exec(function (err, createdUser) {
+      app.models.state.create({ state: JSON.stringify(initialState), user: createdUser.id }).exec(function (err, createdState) {
+          if (err) return res.status(500).json({ err, from: 'createdState' })
+      })
   })
 })
 
