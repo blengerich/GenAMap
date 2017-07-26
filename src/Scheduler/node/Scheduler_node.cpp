@@ -13,9 +13,6 @@
 #include <uv.h>
 #include <v8.h>
 #include <memory>
-#include <fstream>
-#include <vector>
-#include <string>
 
 #include "../../Algorithms/ProximalGradientDescent.hpp"
 #include "../../Algorithms/IterativeUpdate.hpp"
@@ -225,14 +222,13 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope handleScope(isolate);
 	Job_t* job = static_cast<Job_t*>(req->data);
-	Local<v8::Array> obj = v8::Array::New(isolate);
-
+    Local<Number> retval;
 	try {
 		// Pack up the data to be returned to JS
 		const MatrixXf& result = Scheduler::Instance().getJobResult(job->job_id);
-		// TODO: Fewer convserions to return a matrix
-		obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
-		
+
+        int id = MongoInterface::getInstance().storeResults(result,(unsigned int)(job->job_id));
+        retval = Number::New(isolate, id);
 		if (status < 0) { // libuv error
 			throw runtime_error("Libuv error (check server)");
 		}
@@ -242,10 +238,10 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 	} catch(const exception& e) {
 		// If the job failed, the second entry in the array is the exception text.
 		// Is this really a good way to return data? It is different than the result from getJobResult()
-		obj->Set(1, v8::String::NewFromUtf8(isolate, e.what()));	
+		std::cout << e.what() << std::endl;
 	}
 	
-	Handle<Value> argv[] = { obj };
+	Handle<Value> argv[] = { retval };
 	// execute the callback
 	Local<Function>::New(isolate, job->callback)->Call(
 		isolate->GetCurrentContext()->Global(), 1, argv);

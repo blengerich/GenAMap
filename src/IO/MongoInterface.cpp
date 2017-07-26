@@ -29,7 +29,6 @@ MongoInterface::MongoInterface()
 {
     char* addr = getenv("MONGO_PORT_27017_TCP_ADDR");
     char* port = getenv("MONGO_PORT_27017_TCP_PORT");
-    cout << addr << "\n" << port << "\n";
     string path = "mongodb://";
     path += addr;
     path += ":";
@@ -37,12 +36,11 @@ MongoInterface::MongoInterface()
     uri = mongocxx::uri(path);
     client = mongocxx::client(uri);
     useDB("test");
-    cout << "instance made!\n";
 }
 
 void MongoInterface::useDB(string dbName) {
     db = client[dbName];
-    cout << "connected to " << dbName << "!\n";
+    cout << "mongocxx connected to " << dbName << "!\n";
 }
 
 mongocxx::collection MongoInterface::getCollection(string collectionName) {
@@ -69,7 +67,6 @@ int MongoInterface::storeResults(const MatrixXf& results, unsigned int job_id) {
         docs.push_back(doc);
     }
     datas.insert_many(docs);
-    cout << "loaded job " << job_id << "\n";
 
     return (int)job_id;
 }

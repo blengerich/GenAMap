@@ -100,7 +100,7 @@ VectorXf FileIO::decodeLine(string line, string format, unsigned long col) {
     VectorXf row(col);
     if (format.compare("CSV") == 0) {
         vector<string> values = split(line, ",");
-        for (int i=0; i<values.size();i++){
+        for (std::size_t i=0; i<values.size();i++){
             row(i) = stod(values[i]);
         }
         return row;
