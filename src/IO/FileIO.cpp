@@ -131,135 +131,135 @@ void FileIO::formatError() {
     }
 }
 
-Tree* FileIO::readTreeFile(string fileName) {
-    // Each line has to be tab delimited, spaces are not accepted.
-    // Root has to be represented by "root" (without "")
-    ifstream infile;
-    infile.open(fileName);
-    string text;
-    string line;
-    bool parenthesis = false;
-    bool flag = true;
-    unordered_map<string, vector<treeNode*>> maps;
-    vector<string> tmp;
-    Tree* tree = new Tree();
-    while (getline(infile, line)){
-        if (flag){
-            flag = false;
-            if (boost::starts_with(line, "(")){
-                parenthesis = true;
-            }
-            else{
-                parenthesis = false;
-            }
-        }
-        if (parenthesis){
-            text += line;
-            }
-        else{
-            tmp = split(line, "\t");
-            if (boost::starts_with(tmp[0], "T")){
-                int l = stoi(tmp[0].substr(1,tmp[0].size()-1));
-                treeNode* node = tree->buildLeafNode(l);
-                if (maps.count(tmp[1]) > 0){
-                    vector<treeNode*> nodes = maps.at(tmp[1]);
-                    maps.erase(tmp[1]);
-                    nodes.push_back(node);
-                    maps.insert({tmp[1], nodes});
-                }
-                else{
-                    vector<treeNode*> nodes;
-                    nodes.push_back(node);
-                    maps.insert({tmp[1], nodes});
-                }
-            }
-            else{
-                if (tmp[0].compare("root")!=0){
-                    vector<treeNode*> nodes = maps.at(tmp[0]);
-                    treeNode* node = tree->buildParentFromChildren(nodes);
-                    maps.erase(tmp[0]);
-                    if (maps.count(tmp[1]) > 0){
-                        vector<treeNode*> nodes = maps.at(tmp[1]);
-                        maps.erase(tmp[1]);
-                        nodes.push_back(node);
-                        maps.insert({tmp[1], nodes});
-                    }
-                    else{
-                        vector<treeNode*> nodes;
-                        nodes.push_back(node);
-                        maps.insert({tmp[1], nodes});
-                    }
-                }
-            }
-        }
-    }
-    if (parenthesis){
-        delete tree;
-        return readTreeFromParanthesis(text);
-    }
-    else{
-        vector<treeNode*> nodes = maps.at("root");
-        treeNode * root = tree->buildParentFromChildren(nodes);
-        tree->setRoot(root);
-        tree->setWeight();
-        return tree;
-    }
-}
+//Tree* FileIO::readTreeFile(string fileName) {
+//    // Each line has to be tab delimited, spaces are not accepted.
+//    // Root has to be represented by "root" (without "")
+//    ifstream infile;
+//    infile.open(fileName);
+//    string text;
+//    string line;
+//    bool parenthesis = false;
+//    bool flag = true;
+//    unordered_map<string, vector<treeNode*>> maps;
+//    vector<string> tmp;
+//    Tree* tree = new Tree();
+//    while (getline(infile, line)){
+//        if (flag){
+//            flag = false;
+//            if (boost::starts_with(line, "(")){
+//                parenthesis = true;
+//            }
+//            else{
+//                parenthesis = false;
+//            }
+//        }
+//        if (parenthesis){
+//            text += line;
+//            }
+//        else{
+//            tmp = split(line, "\t");
+//            if (boost::starts_with(tmp[0], "T")){
+//                int l = stoi(tmp[0].substr(1,tmp[0].size()-1));
+//                treeNode* node = tree->buildLeafNode(l);
+//                if (maps.count(tmp[1]) > 0){
+//                    vector<treeNode*> nodes = maps.at(tmp[1]);
+//                    maps.erase(tmp[1]);
+//                    nodes.push_back(node);
+//                    maps.insert({tmp[1], nodes});
+//                }
+//                else{
+//                    vector<treeNode*> nodes;
+//                    nodes.push_back(node);
+//                    maps.insert({tmp[1], nodes});
+//                }
+//            }
+//            else{
+//                if (tmp[0].compare("root")!=0){
+//                    vector<treeNode*> nodes = maps.at(tmp[0]);
+//                    treeNode* node = tree->buildParentFromChildren(nodes);
+//                    maps.erase(tmp[0]);
+//                    if (maps.count(tmp[1]) > 0){
+//                        vector<treeNode*> nodes = maps.at(tmp[1]);
+//                        maps.erase(tmp[1]);
+//                        nodes.push_back(node);
+//                        maps.insert({tmp[1], nodes});
+//                    }
+//                    else{
+//                        vector<treeNode*> nodes;
+//                        nodes.push_back(node);
+//                        maps.insert({tmp[1], nodes});
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    if (parenthesis){
+//        delete tree;
+//        return readTreeFromParanthesis(text);
+//    }
+//    else{
+//        vector<treeNode*> nodes = maps.at("root");
+//        treeNode * root = tree->buildParentFromChildren(nodes);
+//        tree->setRoot(root);
+//        tree->setWeight();
+//        return tree;
+//    }
+//}
 
-Tree* FileIO::readTreeFromParanthesis(string text) {
-    Tree* tree = new Tree();
-    unordered_map<int, vector<treeNode*>> maps;
-    string str;
-    unsigned long i = 0;
-    int depth = 0;
-    int maxDepth = 0;
-    while (i<text.size()){
-        str = getNextToken(i, text);
-        if (str.compare("(") == 0){
-            depth += 1;
-            maxDepth = max(depth, maxDepth);
-        }
-        else if (str.compare(")") == 0){
-            depth -= 1;
-            vector<treeNode*> nodes = maps.at(depth+1);
-            maps.erase(depth+1);
-            treeNode * node = tree->buildParentFromChildren(nodes);
-            if (maps.count(depth) > 0){
-                vector<treeNode*> nodes = maps.at(depth);
-                maps.erase(depth);
-                nodes.push_back(node);
-                maps.insert({depth, nodes});
-            }
-            else{
-                vector<treeNode*> nodes;
-                nodes.push_back(node);
-                maps.insert({depth, nodes});
-            }
-        }
-        else if (str.compare(",") == 0){
-        }
-        else{
-            int l = stoi(str.substr(1,str.size()-1));
-            treeNode* node = tree->buildLeafNode(l);
-            if (maps.count(depth) > 0){
-                vector<treeNode*> nodes = maps.at(depth);
-                maps.erase(depth);
-                nodes.push_back(node);
-                maps.insert({depth, nodes});
-            }
-            else{
-                vector<treeNode*> nodes;
-                nodes.push_back(node);
-                maps.insert({depth, nodes});
-            }
-        }
-        i += str.size();
-    }
-    vector<treeNode*> nodes = maps.at(0);
-    tree->setRoot(nodes[0]);
-    tree->setWeight();
-    return tree;
-}
+//Tree* FileIO::readTreeFromParanthesis(string text) {
+//    Tree* tree = new Tree();
+//    unordered_map<int, vector<treeNode*>> maps;
+//    string str;
+//    unsigned long i = 0;
+//    int depth = 0;
+//    int maxDepth = 0;
+//    while (i<text.size()){
+//        str = getNextToken(i, text);
+//        if (str.compare("(") == 0){
+//            depth += 1;
+//            maxDepth = max(depth, maxDepth);
+//        }
+//        else if (str.compare(")") == 0){
+//            depth -= 1;
+//            vector<treeNode*> nodes = maps.at(depth+1);
+//            maps.erase(depth+1);
+//            treeNode * node = tree->buildParentFromChildren(nodes);
+//            if (maps.count(depth) > 0){
+//                vector<treeNode*> nodes = maps.at(depth);
+//                maps.erase(depth);
+//                nodes.push_back(node);
+//                maps.insert({depth, nodes});
+//            }
+//            else{
+//                vector<treeNode*> nodes;
+//                nodes.push_back(node);
+//                maps.insert({depth, nodes});
+//            }
+//        }
+//        else if (str.compare(",") == 0){
+//        }
+//        else{
+//            int l = stoi(str.substr(1,str.size()-1));
+//            treeNode* node = tree->buildLeafNode(l);
+//            if (maps.count(depth) > 0){
+//                vector<treeNode*> nodes = maps.at(depth);
+//                maps.erase(depth);
+//                nodes.push_back(node);
+//                maps.insert({depth, nodes});
+//            }
+//            else{
+//                vector<treeNode*> nodes;
+//                nodes.push_back(node);
+//                maps.insert({depth, nodes});
+//            }
+//        }
+//        i += str.size();
+//    }
+//    vector<treeNode*> nodes = maps.at(0);
+//    tree->setRoot(nodes[0]);
+//    tree->setWeight();
+//    return tree;
+//}
 
 string FileIO::getNextToken(unsigned long i, string str) {
     if (str[i] == '('){
@@ -283,40 +283,40 @@ string FileIO::getNextToken(unsigned long i, string str) {
     }
 }
 
-void FileIO::writeTreeFile(string fileName, Tree * tree) {
-    struct parentTreeNode{
-        string parent;
-        treeNode* T;
-    };
-    string output = "";
-    queue<parentTreeNode> nodes;
-    int count = 1;
-    treeNode * root = tree->getRoot();
-    string name;
-    for (int i=0; i<root->children.size(); i++){
-        parentTreeNode ptn;
-        ptn.parent = "root";
-        ptn.T = root->children[i];
-        nodes.push(ptn);
-    }
-    while (nodes.size()>0){
-        parentTreeNode ptnp = nodes.front();
-        if (ptnp.T->children.size()==0){
-            name = "T"+to_string(ptnp.T->trait[0]);
-            output = name+"\t"+ptnp.parent+"\n"+output;
-        }
-        else{
-            name = "node"+to_string(count++);
-            output = name+"\t"+ptnp.parent+"\n"+output;
-            for (int i=0; i<ptnp.T->children.size();i++){
-                parentTreeNode ptn;
-                ptn.parent = name;
-                ptn.T = ptnp.T->children[i];
-                nodes.push(ptn);
-            }
-        }
-        nodes.pop();
-    }
-    ofstream file (fileName);
-    file << output;
-}
+//void FileIO::writeTreeFile(string fileName, Tree * tree) {
+//    struct parentTreeNode{
+//        string parent;
+//        treeNode* T;
+//    };
+//    string output = "";
+//    queue<parentTreeNode> nodes;
+//    int count = 1;
+//    treeNode * root = tree->getRoot();
+//    string name;
+//    for (int i=0; i<root->children.size(); i++){
+//        parentTreeNode ptn;
+//        ptn.parent = "root";
+//        ptn.T = root->children[i];
+//        nodes.push(ptn);
+//    }
+//    while (nodes.size()>0){
+//        parentTreeNode ptnp = nodes.front();
+//        if (ptnp.T->children.size()==0){
+//            name = "T"+to_string(ptnp.T->trait[0]);
+//            output = name+"\t"+ptnp.parent+"\n"+output;
+//        }
+//        else{
+//            name = "node"+to_string(count++);
+//            output = name+"\t"+ptnp.parent+"\n"+output;
+//            for (int i=0; i<ptnp.T->children.size();i++){
+//                parentTreeNode ptn;
+//                ptn.parent = name;
+//                ptn.T = ptnp.T->children[i];
+//                nodes.push(ptn);
+//            }
+//        }
+//        nodes.pop();
+//    }
+//    ofstream file (fileName);
+//    file << output;
+//}

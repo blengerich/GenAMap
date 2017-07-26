@@ -9,7 +9,7 @@
 #include <vector>
 #include <Eigen/Dense>
 #include <unordered_map>
-#include "model/TreeLasso.hpp"
+//#include "model/TreeLasso.hpp"
 
 using namespace Eigen;
 using namespace std;
@@ -42,7 +42,7 @@ private:
 
     string getNextToken(unsigned long, string);
 
-    Tree* readTreeFromParanthesis(string);
+//    Tree* readTreeFromParanthesis(string);
 
 public:
     static FileIO &getInstance() {
@@ -52,13 +52,13 @@ public:
 
     MatrixXf readMatrixFile(string);
 
-    Tree* readTreeFile(string);
+//    Tree* readTreeFile(string);
 
     void writeMatrixFile(string, MatrixXf);
 
     void writeVectorFile(string, VectorXf);
 
-    void writeTreeFile(string, Tree*);
+//    void writeTreeFile(string, Tree*);
 };
 
 
