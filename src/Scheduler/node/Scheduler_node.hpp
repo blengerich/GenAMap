@@ -24,8 +24,11 @@ using namespace v8;
 // Visible from Node
 /////////////////////////////////////////////////////
 
+void setMetaData(const v8::FunctionCallbackInfo<v8::Value>& args);
+// Argument: job_num, filename(to id results), filepath to marker_labels
+
 void setX(const v8::FunctionCallbackInfo<v8::Value>& args);
-// Arguments: job_num, JSON Matrix
+// Arguments: job_num, filepath to marker_values
 
 void setY(const v8::FunctionCallbackInfo<v8::Value>& args);
 // Arguments: job_num, JSON Matrix
@@ -93,6 +96,7 @@ bool ArgsHaveJobID(const FunctionCallbackInfo<Value>& args, const int position);
 /////////////////////
 
 void Init(Handle<Object> exports, Handle<Object> module) {
+    NODE_SET_METHOD(exports, "setMetaData", setMetaData);
 	NODE_SET_METHOD(exports, "setX", setX);
 	NODE_SET_METHOD(exports, "setY", setY);
 	NODE_SET_METHOD(exports, "setModelAttributeMatrix", setModelAttributeMatrix);

@@ -9,7 +9,7 @@ var readline = require('readline')
 var Data = require('../model/dataModel');
 var SNP = require('../model/snpModel');
 var Trait = require('../model/traitModel');
-var through = require('through2')
+require('es6-promise').polyfill()
 var csvtojson = require('csvtojson')
 
 const genome = {
@@ -39,51 +39,6 @@ const genome = {
     "Y": 3031042417,
     "M": 3088269832,
     };
-
-/* Function loads CSV (src) into the db */
-exports.loadData = function (src, dst, id) {
-    return new Promise((resolve, reject) => {
-
-        var rid = 0;
-        src.pipe(through(write,end))
-        function write (input,enc,cb) {
-            var name = input.toString().trim()
-            SNP.findOne({name: name}, (err,snp) => {
-                if (err) {
-                    console.log(err)
-                    reject(err)
-                }
-                if (snp && snp.index) {
-                    Data.update({row_id: rid, job_id: id}, {
-                      $set : {
-                        fileName: dst,
-                        index: snp.index
-                      },
-                      $unset : {
-                        row_id: "",
-                        job_id: ""
-                      }
-                    }).exec(() => {
-                      rid++
-                      cb()
-                    })
-                } else {
-                    console.log(name,"is not found in SNP db")
-                    Data.remove({row_id: rid, job_id: id}).exec(() => {
-                      rid++
-                      cb()
-                    })
-                }
-            })
-
-        }
-
-        function end (cb) {
-            resolve("Data loaded!");
-            cb()
-        }
-    });
-}
 
 exports.loadTraits = function(traits,dst) {
   return new Promise((resolve,reject) => {
@@ -131,7 +86,7 @@ exports.loadSNPs = function (src) {
             })
             .on('done', () => {
               SNP.insertMany(bulkSNP, () => {
-                SNP.collection.createIndex({basePair: "1"});
+                SNP.collection.createIndex({name: "1"});
                 SNP.count({}, (err,c) => {
                   resolve(`${c} snps loaded!`)
                 })

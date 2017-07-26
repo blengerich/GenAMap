@@ -13,6 +13,7 @@
 #include <uv.h>
 #include <v8.h>
 #include <memory>
+#include <fstream>
 
 #include "../../Algorithms/ProximalGradientDescent.hpp"
 #include "../../Algorithms/IterativeUpdate.hpp"
@@ -30,6 +31,22 @@ using namespace Eigen;
 using namespace std;
 using namespace v8;
 
+void setMetaData(const FunctionCallbackInfo<Value>& args) {
+    bool result = false;
+    Isolate* isolate = args.GetIsolate();
+    if (ArgsHaveJobID(args,0)) {
+        const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
+        string filename(*v8::String::Utf8Value(args[1]->ToString()));
+        string marker_ids_path(*v8::String::Utf8Value(args[2]->ToString()));
+        ifstream in(marker_ids_path);
+        vector<string> marker_ids;
+        std::string line;
+        while ( std::getline(in, line) )
+           marker_ids.push_back(line);
+        result = Scheduler::Instance().setMetaData(job_id,filename,marker_ids);
+    }
+    args.GetReturnValue().Set(Boolean::New(isolate, result));
+}
 
 // Sets the X matrix of a given model.
 // Arguments: job_id, JSON matrix
@@ -222,13 +239,13 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope handleScope(isolate);
 	Job_t* job = static_cast<Job_t*>(req->data);
-    Local<Number> retval;
+    Local<Boolean> retval;
 	try {
 		// Pack up the data to be returned to JS
 		const MatrixXf& result = Scheduler::Instance().getJobResult(job->job_id);
 
-        int id = MongoInterface::getInstance().storeResults(result,(unsigned int)(job->job_id));
-        retval = Number::New(isolate, id);
+        int success = MongoInterface::getInstance().storeResults(result,job->filename,job->marker_ids);
+        retval = Boolean::New(isolate, success);
 		if (status < 0) { // libuv error
 			throw runtime_error("Libuv error (check server)");
 		}

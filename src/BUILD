@@ -1,21 +1,36 @@
 package(default_visibility = ["//visibility:public"])
 
 cc_binary(
-	name = "main",
-	srcs = ["main.cpp"],
-	deps = ["//model:LinearRegression",
-	        "//model:Model",
-	        "//model:MultiPopLasso",
-	        "//model:TreeLasso",
-            "//algorithm:ProximalGradientDescent",
-            "//algorithm:Algorithm",
-            "//algorihtm:IterativeUpdate",
-            "//:FileIO",
-            "//:Math",
-            "//json:JsonCoder",
-            "//:DataBaseCommunication",
-		],
+    name = "main",
+    srcs = ["main.cpp"],
+    deps = [
+            "//IO:FileIO",
+            "//IO:MongoInterface"
+           ],
+    copts = [
+        "-I/usr/local/include/mongocxx/v_noabi",
+        "-I/usr/local/include/libmongoc-1.0",
+        "-I/usr/local/include/bsoncxx/v_noabi",
+        "-I/usr/local/include/libbson-1.0",],
+    linkopts = ["-lmongocxx","-lbsoncxx"],
 )
+
+#cc_binary(
+	#name = "main",
+	#srcs = ["main.cpp"],
+	#deps = ["//model:LinearRegression",
+			#"//model:Model",
+			#"//model:MultiPopLasso",
+			#"//model:TreeLasso",
+            #"//algorithm:ProximalGradientDescent",
+            #"//algorithm:Algorithm",
+            #"//algorihtm:IterativeUpdate",
+            #"//:FileIO",
+            #"//:Math",
+            #"//json:JsonCoder",
+            #"//:DataBaseCommunication",
+		#],
+#)
 
 cc_library(
 	name = "FileIO",

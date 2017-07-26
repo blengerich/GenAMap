@@ -47,26 +47,54 @@ mongocxx::collection MongoInterface::getCollection(string collectionName) {
     return db[collectionName];
 }
 
-int MongoInterface::storeResults(const MatrixXf& results, unsigned int job_id) {
+bool MongoInterface::storeResults(const MatrixXf& results, const string& filename, const vector<string>& marker_ids) {
     vector<bsoncxx::document::value> docs;
     mongocxx::collection datas =  getCollection("datas");
-    for (int i = 0; i < results.rows(); i++) {
-        if (docs.size() >= 1000) {
+    mongocxx::collection snps = getCollection("snps");
+    if ((int)marker_ids.size() != (int)results.rows()) {
+        std::cout << "INVALID marker_ids and results" << std::endl;
+        return false;
+    }
+    for (int i = 0; i < results.rows(); ++i) {
+        if (docs.size() >= 2000) {
             datas.insert_many(docs);
             docs.clear();
         }
-        auto builder = document{};
-        auto insertedRow = builder << "row_id" << i;
-        auto insertedJob = insertedRow << "job_id" << (int)job_id;
-        auto inArray = insertedJob << "data" << open_array;
-        for (int j = 0; j < results.cols(); j++) {
-            inArray = inArray << results(i,j);
-        }
-        auto afterArray = inArray << close_array;
-        bsoncxx::document::value doc = afterArray << finalize;
-        docs.push_back(doc);
+        bsoncxx::stdx::optional<bsoncxx::document::value> snp_value{snps.find_one(document{} << "name" << marker_ids[i] << finalize)};
+        if (snp_value) {
+            bsoncxx::document::view snp_view{snp_value->view()};
+            bsoncxx::document::element index_element{snp_view["index"]};
+            if (index_element) {
+                double index;
+                if (index_element.type() == bsoncxx::type::k_double) {
+                    index = index_element.get_double();
+                }  else if (index_element.type() == bsoncxx::type::k_int32) {
+                    index = (double)index_element.get_int32();
+                }  else {
+                    index = 0;
+                    cout << "this element was not classified: \n";
+                    cout << "\tsnp\t- " << marker_ids[i] << "\n";
+                    cout << "\tbsoncxx::type\t- " << (int)index_element.type() << endl;
+                }
+
+                auto builder = document{};
+                auto insertedIndex = builder << "index" << index;
+                auto insertedFilename = insertedIndex << "fileName" << filename;
+                auto inArray = insertedFilename << "data" << open_array;
+                for (int j = 0; j < results.cols(); j++) {
+                    inArray = inArray << results(i,j);
+                }
+                auto afterArray = inArray << close_array;
+                bsoncxx::document::value doc = afterArray << finalize;
+                docs.push_back(doc);
+             } else {
+                std::cout << marker_ids[i] << " has an unspecified index in db!\n";
+             }
+         } else {
+            std::cout << marker_ids[i] << " not found in SNP db!\n";
+         }
     }
     datas.insert_many(docs);
-
-    return (int)job_id;
+    datas.create_index(document{} << "fileName" << 1 << "index" << 1 << finalize);
+    return true;
 }

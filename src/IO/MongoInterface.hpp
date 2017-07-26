@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <Eigen/Dense>
+#include <vector>
 
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
@@ -30,7 +31,9 @@ public:
     void useDB(string dbName);
     mongocxx::collection getCollection(string collectionName);
 
-    int storeResults(const MatrixXf& results, unsigned int job_id);
+    bool storeResults(const MatrixXf& results, const string& filename, const vector<string>& marker_ids);
+    // takes in identifying filename to store with results, as well as ids of markers
+    // the size of marker_ids must be equal to the number of rows in results
 };
 
 #endif

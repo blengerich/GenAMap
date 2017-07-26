@@ -872,32 +872,44 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           const resultsPath = path.join(userPath, fileName)
 
           try {
-          var success = Scheduler.startJob(jobId, function (id) {
-            fs.writeFile(resultsPath, "", function(err) {
-                app.models.file.create({
-                  name: req.body.jobName + " Matrix View",
-                  filetype: 'resultFile',
-                  path: resultsPath,
-                  project: req.body.project,
-                  info: {
-                    resultType: 'matrix',
-                    labels: {
-                      marker: req.body.marker.data.labelId,
-                      trait: req.body.trait.data.labelId
-                    }
-                  },
-                  projectItem: 'Results'
-                }).exec(function (err, file) {
-                  if (err) throw err
+            fs.writeFile(resultsPath,"",function(err) {
+              app.models.file.create({
+                name: req.body.jobName + " Matrix View",
+                filetype: 'resultFile',
+                path: resultsPath,
+                project: req.body.project,
+                info: {
+                  resultType: 'matrix',
+                  labels: {
+                    marker: req.body.marker.data.labelId,
+                    trait: req.body.trait.data.labelId
+                  }
+                },
+                projectItem: 'Results'
+              }).exec(function (err, file) {
+                if (err) throw err
+                app.models.file.findOne({id: req.body.marker.data.labelId}).exec(function (err,mLabelsFile) {
+                  Scheduler.setMetaData(jobId, file.id, mLabelsFile.path)
 
-                loadResults(req.body.marker.data.labelId, req.body.trait.data.labelId, file.id, jobId)
+                  var success = Scheduler.startJob(jobId, function (retval) {
+                    if (retval) {
+                      console.log(`Data loaded from job ${jobId}!`)
+                      loadTraits(req.body.trait.data.labelId, file.id)
+                    } else {
+                      console.log(`Data load from job ${jobId} FAILED!`);
+                    }
+                  })
+                  console.log(success)
+                  return res.json({ status: success, jobId, resultsPath })
                 })
+
               })
             })
+
           } catch (err) {
             console.log(err)
           }
-        return res.json({ status: success, jobId, resultsPath })
+
         }
         // Add any extra files
         const testAll = function(elem, index, array) {
@@ -1138,14 +1150,7 @@ app.get('/api/get-range/:id', function (req, res) {
   })
 })
 
-function loadResults(markersId,traitsId,resultsId,jobId) {
-
-  app.models.file.findOne({id: markersId}, (err, markers_file) => {
-      if (err) return console.log(err)
-    var stream = byline(fs.createReadStream(markers_file.path))
-    writeData.loadData(stream,resultsId,jobId).then(console.log)
-  })
-
+function loadTraits(traitsId,resultsId) {
 
     app.models.file.findOne({id : traitsId}, (err, traits_file) => {
       if (err) return console.log(err)
