@@ -23,6 +23,8 @@
 #include "../Job.hpp"
 #include "../Scheduler.hpp"
 #include "../../JSON/JsonCoder.hpp"
+#include "../../IO/FileIO.hpp"
+#include "../../IO/MongoInterface.hpp"
 
 using namespace Eigen;
 using namespace std;
@@ -36,9 +38,9 @@ void setX(const FunctionCallbackInfo<Value>& args) {
 	Isolate* isolate = args.GetIsolate();
 	if (ArgsHaveJobID(args, 0)) {
 		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
-		Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
-		MatrixXf* mat = v8toEigen(ar);
-		result = Scheduler::Instance().setX(job_id, *mat);
+		const string path_name(*v8::String::Utf8Value(args[1]->ToString()));
+		MatrixXf mat = FileIO::getInstance().readMatrixFile(path_name);
+		result = Scheduler::Instance().setX(job_id, mat);
 	}
 	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
@@ -220,14 +222,13 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope handleScope(isolate);
 	Job_t* job = static_cast<Job_t*>(req->data);
-	Local<v8::Array> obj = v8::Array::New(isolate);
-
+    Local<Number> retval;
 	try {
 		// Pack up the data to be returned to JS
 		const MatrixXf& result = Scheduler::Instance().getJobResult(job->job_id);
-		// TODO: Fewer convserions to return a matrix
-		obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
-		
+
+        int id = MongoInterface::getInstance().storeResults(result,(unsigned int)(job->job_id));
+        retval = Number::New(isolate, id);
 		if (status < 0) { // libuv error
 			throw runtime_error("Libuv error (check server)");
 		}
@@ -237,10 +238,10 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 	} catch(const exception& e) {
 		// If the job failed, the second entry in the array is the exception text.
 		// Is this really a good way to return data? It is different than the result from getJobResult()
-		obj->Set(1, v8::String::NewFromUtf8(isolate, e.what()));	
+		std::cout << e.what() << std::endl;
 	}
 	
-	Handle<Value> argv[] = { obj };
+	Handle<Value> argv[] = { retval };
 	// execute the callback
 	Local<Function>::New(isolate, job->callback)->Call(
 		isolate->GetCurrentContext()->Global(), 1, argv);

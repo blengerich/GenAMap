@@ -10,7 +10,6 @@ var Data = require('../model/dataModel');
 var SNP = require('../model/snpModel');
 var Trait = require('../model/traitModel');
 var through = require('through2')
-var stream = require('stream')
 var csvtojson = require('csvtojson')
 
 const genome = {
@@ -42,58 +41,46 @@ const genome = {
     };
 
 /* Function loads CSV (src) into the db */
-exports.loadData = function (src, dst) {
+exports.loadData = function (src, dst, id) {
     return new Promise((resolve, reject) => {
 
-        var bulkData = [];
-
-        var count = 0;
+        var rid = 0;
         src.pipe(through(write,end))
         function write (input,enc,cb) {
-            //if (!first) {
-            // we are bulk inserting arrays of 2000 data points into mongodb
-            if (bulkData.length >= 2000) {
-                // save this bulk of 2000 data points
-                Data.insertMany(bulkData);
-                // start bulk over for next 2000 data points
-                bulkData = [];
-            }
-
-            var row = input.toString().split(",").filter(String)
-            var name = row[0]
-            SNP.findOne({name: name.trim()}, (err,snp) => {
+            var name = input.toString().trim()
+            SNP.findOne({name: name}, (err,snp) => {
                 if (err) {
                     console.log(err)
                     reject(err)
                 }
-                if (snp) {
-
-                    var newData = new Data({
+                if (snp && snp.index) {
+                    Data.update({row_id: rid, job_id: id}, {
+                      $set : {
                         fileName: dst,
-                        index: snp.index,
-                        data: row.slice(1, row.length).map(parseFloat),
-                    });
-
-                    // build up the bulk of data
-                    bulkData.push(newData);
-                    cb()
+                        index: snp.index
+                      },
+                      $unset : {
+                        row_id: "",
+                        job_id: ""
+                      }
+                    }).exec(() => {
+                      rid++
+                      cb()
+                    })
                 } else {
-                    count ++;
-                    console.log(name,"is not found")
-                    cb()
+                    console.log(name,"is not found in SNP db")
+                    Data.remove({row_id: rid, job_id: id}).exec(() => {
+                      rid++
+                      cb()
+                    })
                 }
             })
 
         }
 
         function end (cb) {
-            // insert remainder bulk
-            Data.insertMany(bulkData, () => {
-              // create index for SNP and Data collections
-              Data.collection.createIndex({index: "1"});
-              resolve("Data loaded!");
-              cb()
-            });
+            resolve("Data loaded!");
+            cb()
         }
     });
 }
