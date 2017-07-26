@@ -16,4 +16,6 @@ then
 	docker pull blengerich/genamap || { echo 'docker pull failed'; exit 1; }
 	date +%s > last_docker_pull.start
 fi
-docker run -ti -p 7000:3000 -v ${PWD}/../src/:/usr/src/genamap blengerich/genamap || { echo 'docker run failed'; exit 1; }
+#docker run -ti -p 7000:3000 -v ${PWD}/../src/:/usr/src/genamap blengerich/genamap || { echo 'docker run failed'; exit 1; }
+docker run -ti -p 7000:3000 -v ${PWD}/../src/:/usr/src/genamap -v ${PWD}/../gena/:/usr/src/genamap/frontend/static/email2/       blengerich/genamap || { echo 'docker run failed'; exit 1;} #if we place the example json file to the gena file as we showed you.
+
