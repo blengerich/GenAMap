@@ -859,8 +859,6 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
   // Get marker file
   app.models.file.findOne({ id: req.body.marker.data.id }).exec(function (err, markerFile) {
     if (err) console.log('Error getting marker for analysis: ', err);
-    csvtojson({noheader:true}).fromFile(markerFile.path, function(err, markerData) {
-      if (err) console.log('Error getting marker for analysis: ', err);
       // Get trait file
       app.models.file.findOne({ id: req.body.trait.data.id }).exec(function (err, traitFile) {
         if (err) console.log('Error getting trait for analysis: ', err)
@@ -871,7 +869,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           if (jobId === 0) {
             return res.json({msg: 'error creating job'});
           }
-          Scheduler.setX(jobId, markerData);
+        Scheduler.setX(jobId, markerFile.path);
           Scheduler.setY(jobId, traitData);
           const startJobFinish = function() {
             const userId = extractUserIdFromHeader(req.headers)
@@ -952,7 +950,6 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
           }
           /*results.map((value, index) => assert(value));*/
 
-        });
       });
     });
   })
