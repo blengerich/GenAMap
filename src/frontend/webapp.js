@@ -23,9 +23,7 @@ var querystring = require('querystring')
 //var favicon = require('serve-favicon')
 var request = require('request');
 
-const getTokenContent = (token) =
->
-{
+const getTokenContent = (token) => {
     try {
         const decoded = jwt.verify(token, config.secret)
         return decoded
@@ -33,15 +31,11 @@ const getTokenContent = (token) =
         return
     }
 }
-const extractFromToken = (token, param) =
->
-{
+const extractFromToken = (token, param) => {
     const tokenContent = getTokenContent(token)
     return tokenContent[param]
 }
-const createToken = (content) =
->
-jwt.sign(content, config.secret, {expiresIn: '5h'})
+const createToken = (content) => jwt.sign(content, config.secret, {expiresIn: '5h'})
 
 var app = express()
 var orm = new Waterline()
@@ -1017,38 +1011,38 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             const testAll = function (elem, index, array) {
                 return elem;
             }
-            var ready = req.body.other_data.map((value, index) = > {false}
-            )
-            ;
+            var ready = req.body.other_data.map((value, index) => {
+                false
+            });
             if (req.body.other_data.length > 0) {
-                req.body.other_data.map((value, index) = > {
+                req.body.other_data.map((value, index) => {
                     console.log(value);
-                if (!value.val || !value.val.data || !value.val.data.id || value.val.data.id < 0) {
-                    ready[index] = true;
-                    if (ready.every(testAll)) {
-                        startJobFinish();
+                    if (!value.val || !value.val.data || !value.val.data.id || value.val.data.id < 0) {
+                        ready[index] = true;
+                        if (ready.every(testAll)) {
+                            startJobFinish();
+                        }
+                        return false;
                     }
-                    return false;
-                }
-                app.models.file.findOne({id: value.val.data.id}).exec(function (err, attributeFile) {
-                    if (err) console.log('Error getting attribute' + value.val.name + 'for analysis: ' + err);
-                    if (attributeFile) {
-                        csvtojson({noheader: true}).fromFile(attributeFile.path, function (err, attributeData) {
-                            if (err) console.log('Error getting extra data for analysis: ', err);
-                            try {
-                                Scheduler.setModelAttributeMatrix(jobId, value.name, attributeData);
-                                ready[index] = true;
-                                if (ready.every(testAll)) {
-                                    startJobFinish();
+                    app.models.file.findOne({id: value.val.data.id}).exec(function (err, attributeFile) {
+                        if (err) console.log('Error getting attribute' + value.val.name + 'for analysis: ' + err);
+                        if (attributeFile) {
+                            csvtojson({noheader: true}).fromFile(attributeFile.path, function (err, attributeData) {
+                                if (err) console.log('Error getting extra data for analysis: ', err);
+                                try {
+                                    Scheduler.setModelAttributeMatrix(jobId, value.name, attributeData);
+                                    ready[index] = true;
+                                    if (ready.every(testAll)) {
+                                        startJobFinish();
+                                    }
+                                } catch (err) {
+                                    console.log(err);
+                                    return false;
                                 }
-                            } catch (err) {
-                                console.log(err);
-                                return false;
-                            }
-                        })
-                    }
+                            })
+                        }
+                    })
                 })
-            })
             } else {
                 startJobFinish();
             }
@@ -1161,21 +1155,19 @@ orm.initialize(waterlineConfig, function (err, models) {
         var password = "demo"
         var organization = "demo"
         var initialState = {}
-        app.models.user.count({email, password, organization}).exec((err, c) = > {
-            if (c <= 0
-        )
-        {
-            app.models.user.create({email, password, organization}).exec(function (err, createdUser) {
-                if (err) console.log(err)
+        app.models.user.count({email, password, organization}).exec((err, c) => {
+            if (c <= 0) {
+                app.models.user.create({email, password, organization}).exec(function (err, createdUser) {
+                    if (err) console.log(err)
 
-                app.models.state.create({
-                    state: JSON.stringify(initialState),
-                    user: createdUser.id
-                }).exec(function (err, createdState) {
+                    app.models.state.create({
+                        state: JSON.stringify(initialState),
+                        user: createdUser.id
+                    }).exec(function (err, createdState) {
+                    })
                 })
-            })
-        }
-    })
+            }
+        })
     })
 })
 
@@ -1227,38 +1219,34 @@ var simpleCache = {}
 // see ./api/routes/getRange.js for moreinfo
 app.get('/api/get-range/:id', function (req, res) {
     var datas = db.collection('datas')
-    datas.count({fileName: req.params.id}, (err, count) = > {
+    datas.count({fileName: req.params.id}, (err, count) => {
         if (err) return res.status(500).send(err)
-        if (count == 0
-    )
-    {
-        return res.send("no data loaded")
-    }
-    else
-    {
-        var completeID = req.params.id
-        var response = {
-            start: req.query.start,
-            end: req.query.end,
-            zoom: req.query.zoom
-        };
-
-        if (simpleCache[completeID] &&
-            simpleCache[completeID][response.start + ":" + response.end] &&
-            simpleCache[completeID][response.start + ":" + response.end][response.zoom]) {
-            console.log("CACHE YES")
-            res.send(simpleCache[completeID][response.start + ":" + response.end][response.zoom])
+        if (count == 0) {
+            return res.send("no data loaded")
         } else {
-            api.getRange(response.start, response.end, response.zoom, completeID).then(function (result) {
-                var f = {}
-                f[response.zoom] = result
-                simpleCache[completeID] = {}
-                simpleCache[completeID][response.start + ":" + response.end] = f
-                res.json(result);
-            });
+            var completeID = req.params.id
+            var response = {
+                start: req.query.start,
+                end: req.query.end,
+                zoom: req.query.zoom
+            };
+
+            if (simpleCache[completeID] &&
+                simpleCache[completeID][response.start + ":" + response.end] &&
+                simpleCache[completeID][response.start + ":" + response.end][response.zoom]) {
+                console.log("CACHE YES")
+                res.send(simpleCache[completeID][response.start + ":" + response.end][response.zoom])
+            } else {
+                api.getRange(response.start, response.end, response.zoom, completeID).then(function (result) {
+                    var f = {}
+                    f[response.zoom] = result
+                    simpleCache[completeID] = {}
+                    simpleCache[completeID][response.start + ":" + response.end] = f
+                    res.json(result);
+                });
+            }
         }
-    }
-})
+    })
 })
 
 function loadTrait(traitName, resultsId) {
@@ -1267,17 +1255,16 @@ function loadTrait(traitName, resultsId) {
 
 function loadTraits(traitsId, resultsId) {
 
-    app.models.file.findOne({id: traitsId}, (err, traits_file) = > {
+    app.models.file.findOne({id: traitsId}, (err, traits_file) => {
         if (err) return console.log(err)
-        csvtojson({noheader:true}).fromFile(traits_file.path, (err, data) = > {
-        if (err) console.log(err)
-    traits = data.map((obj) = > {
-            return obj["field1"]
-        }
-)
-    writeData.loadTraits(traits, resultsId).then(console.log)
-})
-})
+        csvtojson({noheader: true}).fromFile(traits_file.path, (err, data) => {
+            if (err) console.log(err)
+            traits = data.map((obj) => {
+                return obj["field1"]
+            })
+            writeData.loadTraits(traits, resultsId).then(console.log)
+        })
+    })
 }
 
 // loads project data to mongo
@@ -1296,8 +1283,7 @@ function loadTraits(traitsId, resultsId) {
 
 // deleta all stored data in mongo and corresponding file records
 app.delete('/api/del-data', function (req, res) {
-    writeData.deleteAll(() = >
-    res.json("Data deleted!")
-    )
-    ;
+    writeData.deleteAll(() =>
+        res.json("Data deleted!")
+    );
 })
