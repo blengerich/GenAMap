@@ -2,7 +2,7 @@
 	"targets": [
 	{
 		"target_name": "scheduler",
-		"sources": ["../Scheduler.cpp", "Scheduler_node.cpp",
+		"sources": ["../Scheduler.cpp", "Scheduler_node.cpp", "../../IO/PlinkReader.cpp",
 			"../../Algorithms/Algorithm.cpp", "../../Algorithms/BrentSearch.cpp",
 			"../../Algorithms/GridSearch.cpp", "../../Algorithms/IterativeUpdate.cpp",
 			"../../Algorithms/ProximalGradientDescent.cpp",
@@ -31,7 +31,7 @@
             "/usr/local/include/libmongoc-1.0",
             "/usr/local/include/bsoncxx/v_noabi",
             "/usr/local/include/libbson-1.0",],
-		"libraries": ["-lmongocxx","-lbsoncxx"],
+		"libraries": ["-lmongocxx","-lbsoncxx", "-lplinkio"],
 	}
 	]
 }

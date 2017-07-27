@@ -25,6 +25,7 @@
 #include "../Scheduler.hpp"
 #include "../../JSON/JsonCoder.hpp"
 #include "../../IO/FileIO.hpp"
+#include "../../IO/PlinkReader.h"
 #include "../../IO/MongoInterface.hpp"
 
 using namespace Eigen;
@@ -38,40 +39,76 @@ void setMetaData(const FunctionCallbackInfo<Value>& args) {
         const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
         string filename(*v8::String::Utf8Value(args[1]->ToString()));
         string marker_ids_path(*v8::String::Utf8Value(args[2]->ToString()));
-        ifstream in(marker_ids_path);
+		cout << "DEBUG-ywt: " << marker_ids_path << endl;
+
+        /* Get the markerName file extension type */
         vector<string> marker_ids;
-        std::string line;
-        while ( std::getline(in, line) )
-           marker_ids.push_back(line);
+        string ext_name = marker_ids_path.substr(marker_ids_path.length() - 3, 3);
+        if (ext_name.compare("csv") == 0) // csv file
+        {
+            ifstream in(marker_ids_path);
+            std::string line;
+            while (std::getline(in, line))
+                marker_ids.push_back(line);
+        }
+        else if (ext_name.compare("bim") == 0 || ext_name.compare("bed") == 0 || ext_name.compare("fam") == 0) // Plink file
+        {
+            marker_ids_path.erase(marker_ids_path.length() - 4, 4); // cut the extension
+            PlinkReader::getInstance().getXname(marker_ids_path, marker_ids);
+        }
         result = Scheduler::Instance().setMetaData(job_id,filename,marker_ids);
     }
     args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
 
-// Sets the X matrix of a given model.
-// Arguments: job_id, JSON matrix
+// Sets the X matrix of a given model from Plink file.
+// Arguments: job_id, plink filepath
 void setX(const FunctionCallbackInfo<Value>& args) {
 	bool result = false;
 	Isolate* isolate = args.GetIsolate();
+
 	if (ArgsHaveJobID(args, 0)) {
 		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
-		const string path_name(*v8::String::Utf8Value(args[1]->ToString()));
-		MatrixXf mat = FileIO::getInstance().readMatrixFile(path_name);
+		string path_name(*v8::String::Utf8Value(args[1]->ToString()));
+		MatrixXf mat;
+
+		/* Get the extension type */
+		string ext_name = path_name.substr(path_name.length() - 3, 3);
+		if (ext_name.compare("csv") == 0) // csv file
+			mat = FileIO::getInstance().readMatrixFile(path_name);
+		else if (ext_name.compare("bim") == 0 || ext_name.compare("bed") == 0 || ext_name.compare("fam") == 0) // Plink file
+		{
+			path_name.erase(path_name.length() - 4, 4); // cut the extension
+			PlinkReader::getInstance().getX(path_name, mat);
+		}
+
 		result = Scheduler::Instance().setX(job_id, mat);
 	}
 	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
 
-// Sets the Y matrix of a given model.
-// Arguments: job_id, JSON matrix
+// Sets the Y matrix of a given model from Plink file.
+// Arguments: job_id, plink filepath
 void setY(const FunctionCallbackInfo<Value>& args) {
 	bool result = false;
 	Isolate* isolate = args.GetIsolate();
+
 	if (ArgsHaveJobID(args, 0)) {
 		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
-		Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
-		MatrixXf* mat = v8toEigen(ar);
-		result = Scheduler::Instance().setY(job_id, *mat);
+		string path_name(*v8::String::Utf8Value(args[1]->ToString()));
+		MatrixXf mat;
+
+		/* Get the extension type */
+		string ext_name = path_name.substr(path_name.length() - 3, 3);
+		if (ext_name.compare("csv") == 0) // csv file
+			mat = FileIO::getInstance().readMatrixFile(path_name);
+		else if (ext_name.compare("bim") == 0 || ext_name.compare("bed") == 0 || ext_name.compare("fam") == 0) // Plink file
+		{
+			path_name.erase(path_name.length() - 4, 4); // cut the extension
+			PlinkReader::getInstance().getY(path_name, mat);
+		}
+
+		result = Scheduler::Instance().setY(job_id, mat);
 	}
 	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }

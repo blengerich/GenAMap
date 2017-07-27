@@ -40,6 +40,22 @@ const genome = {
     "M": 3088269832,
     };
 
+exports.loadTrait = function(traitName,dst) {
+    return new Promise((resolve,reject) => {
+        var trait = new Trait({
+            fileName: dst,
+            traits: [traitName]
+        })
+        trait.save(function (err) {
+            if (err) {
+                reject(err)
+            } else {
+                resolve('Trait loaded!')
+            }
+        })
+    })
+}
+
 exports.loadTraits = function(traits,dst) {
   return new Promise((resolve,reject) => {
     var trait = new Trait({

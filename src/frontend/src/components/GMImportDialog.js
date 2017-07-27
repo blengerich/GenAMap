@@ -383,7 +383,7 @@ class GMImportDialog extends Component {
                     id='bedFile'
                     buttonLabel='BED File'
                     hintText= 'BED file can be put here'
-                    accept='.ped'
+                    accept='.bed'
                     onChange={this.onChangeMarkerFileName.bind(this)}
                     fileLabel={this.state.markerFileName}
                   />
@@ -392,7 +392,7 @@ class GMImportDialog extends Component {
                     id='File'
                     buttonLabel='BIM File'
                     hintText = 'BIM file can be put here'
-                    accept='.map'
+                    accept='.bim'
                     onChange={this.onChangeTraitFileName.bind(this)}
                     fileLabel={this.state.traitFileName}
                   />
@@ -401,9 +401,9 @@ class GMImportDialog extends Component {
                     id='traitFile'
                     buttonLabel='FAM File'
                     hintText = 'FAM file can be put here'
-                    accept='.map'
-                    onChange={this.onChangeTraitFileName.bind(this)}
-                    fileLabel={this.state.traitFileName}
+                    accept='.fam'
+                    onChange={this.onChangeSnpsFeatureFileName.bind(this)}
+                    fileLabel={this.state.snpsFeatureFileName}
                   />
                 </div>
                 </div>:

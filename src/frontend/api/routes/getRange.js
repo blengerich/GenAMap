@@ -75,7 +75,7 @@ exports.getRange = function (start, end, factor, fileName) {
                             "idx": {"$floor": {"$divide": ["$index", factor]}},
                             "aridx": "$arrayIndex"
                         },
-                        "maxValue": {"$max": "$data"}
+                        "maxValue": {"$avg": "$data"}
                       }
                     },
                     {"$sort": {"_id.aridx": 1}},

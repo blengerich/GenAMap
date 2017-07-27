@@ -656,7 +656,8 @@ app.post(config.api.importDataUrl, function (req, res) {
     if (!!filename) {
       const folderPath = path.join('./.tmp', userId)
       mkdirp.sync(folderPath)
-      if(filename.split('.')[filename.split('.').length-1] == 'ped'){
+      var ext_name = filename.split('.')[filename.split('.').length-1];
+        if(ext_name  == 'ped'){
         file.on('data', function(data){
           result = data.toString()
           var lines = result.split('\n')
@@ -744,10 +745,9 @@ app.post(config.api.importDataUrl, function (req, res) {
             else{console.log('trait Label done');}
           })
 
-
         })
       }
-      else if(filename.split('.')[filename.split('.').length-1] == 'map'){
+      else if(ext_name == 'map'){
         file.on('data', function(data){
           result = data.toString()
           var lines = result.split('\n')
@@ -771,25 +771,56 @@ app.post(config.api.importDataUrl, function (req, res) {
           markerLabelStream.end()
         })
       }
-      else if(filename.split('.')[filename.split('.').length-1] == 'csv'){
-        const id = guid()
-        const fileName = `${id}.csv`
-        const fullPath = path.join(folderPath, fileName)
-        const fstream = fs.createWriteStream(fullPath)
-        file.pipe(fstream)
-        var data
-        if (fieldname === 'markerFile') data = dataList.marker
-        else if (fieldname === 'traitFile') data = dataList.trait
-        else if (fieldname === 'markerLabelFile') data = dataList.markerLabel
-        else if (fieldname === 'traitLabelFile') data = dataList.traitLabel
-        else if (fieldname === 'snpsFeatureFile') data = dataList.snpsFeature
-        else if (fieldname === 'populationFile') data = dataList.population
-        else console.log("Unhandled file:", fieldname)
-        data.filetype = fieldname
-        data.path = fullPath
+      else if(ext_name == 'bim' || ext_name == 'bed' || ext_name == 'fam'){
+          const id = guid()
+          const fileName = filename
+          const fullPath = path.join(folderPath, fileName)
+          const fstream = fs.createWriteStream(fullPath)
+          console.log('get a plink file, stored in ' + fullPath)
+          file.pipe(fstream)
+          var data, newFieldname
+          if (fieldname === 'bedFile')        // for BED file
+          {
+              data = dataList.marker
+              fieldname = "markerFile"
+          }
+          else if (fieldname === 'File')      // for BIM file
+          {
+              data = dataList.trait
+              fieldname = 'traitFile'
+          }
+          else if (fieldname === 'traitFile') // for FAM file
+          {
+              data = dataList.snpsFeature
+              fieldname = 'snpsFeatureFile'
+          } // not used
+          else console.log("Unhandled file:", fieldname)
+          data.filetype = fieldname
+          data.path = fullPath
+          data.projectItem = fileName
+          data.name = 'PLINK File'
       }
+      else if(ext_name == 'csv'){
+            const csv_id = guid()
+            const csv_fileName = `${csv_id}.` + ext_name;
+            const csv_fullPath = path.join(folderPath, csv_fileName)
+            const csv_fstream = fs.createWriteStream(csv_fullPath)
+            file.pipe(csv_fstream)
+            var data
+            if (fieldname === 'markerFile') data = dataList.marker
+            else if (fieldname === 'traitFile') data = dataList.trait
+            else if (fieldname === 'markerLabelFile') data = dataList.markerLabel
+            else if (fieldname === 'traitLabelFile') data = dataList.traitLabel
+            else if (fieldname === 'snpsFeatureFile') data = dataList.snpsFeature
+            else if (fieldname === 'populationFile') data = dataList.population
+            else if (fieldname === 'bedFile') data = dataList.population
+            else console.log("Unhandled file:", fieldname)
+            data.filetype = fieldname
+            data.path = csv_fullPath
+        }
       else {console.log('not recognized data format')}
     }
+
   }
   )
 
@@ -849,110 +880,123 @@ app.post(config.api.importDataUrl, function (req, res) {
  */
 
 app.post(config.api.runAnalysisUrl, function (req, res) {
-  // Get marker file
-  app.models.file.findOne({ id: req.body.marker.data.id }).exec(function (err, markerFile) {
-    if (err) console.log('Error getting marker for analysis: ', err);
-      // Get trait file
-    app.models.file.findOne({ id: req.body.trait.data.id }).exec(function (err, traitFile) {
-      if (err) console.log('Error getting trait for analysis: ', err)
-      csvtojson({noheader:true}).fromFile(traitFile.path, function(err, traitData) {
-        if (err) console.log('Error getting trait for analysis: ', err)
-        // Create job
-        const jobId = Scheduler.newJob({'algorithm_options': req.body.algorithmOptions, 'model_options': req.body.modelOptions})
-        if (jobId === 0) {
-          return res.json({msg: 'error creating job'});
-        }
-        Scheduler.setX(jobId, markerFile.path);
-        Scheduler.setY(jobId, traitData);
-        const startJobFinish = function() {
-          const userId = extractUserIdFromHeader(req.headers)
-          const id = guid()
-          const userPath = path.join('./.tmp', userId)
-          const fileName = `${id}.csv`
-          const resultsPath = path.join(userPath, fileName)
+    // Get marker file
+    app.models.file.findOne({ id: req.body.marker.data.id }).exec(function (err, markerFile) {
+        if (err) console.log('Error getting marker for analysis: ', err);
+        // Get trait file
+        app.models.file.findOne({ id: req.body.trait.data.id }).exec(function (err, traitFile) {
+            if (err) console.log('Error getting trait for analysis: ', err)
+                // Create job
+                const jobId = Scheduler.newJob({'algorithm_options': req.body.algorithmOptions, 'model_options': req.body.modelOptions})
+                if (jobId === 0) {
+                    return res.json({msg: 'error creating job'});
+                }
+                Scheduler.setX(jobId, markerFile.path);
+                Scheduler.setY(jobId, traitFile.path);
+                const startJobFinish = function() {
+                    const userId = extractUserIdFromHeader(req.headers)
+                    const id = guid()
+                    const userPath = path.join('./.tmp', userId)
+                    const fileName = `${id}.csv`
+                    const resultsPath = path.join(userPath, fileName)
 
-          try {
-            fs.writeFile(resultsPath,"",function(err) {
-              app.models.file.create({
-                name: req.body.jobName + " Matrix View",
-                filetype: 'resultFile',
-                path: resultsPath,
-                project: req.body.project,
-                info: {
-                  resultType: 'matrix',
-                  labels: {
-                    marker: req.body.marker.data.labelId,
-                    trait: req.body.trait.data.labelId
-                  }
-                },
-                projectItem: 'Results'
-              }).exec(function (err, file) {
-                if (err) throw err
-                app.models.file.findOne({id: req.body.marker.data.labelId}).exec(function (err,mLabelsFile) {
-                  Scheduler.setMetaData(jobId, file.id, mLabelsFile.path)
+                    try {
+                        fs.writeFile(resultsPath,"",function(err) {
+                            app.models.file.create({
+                                name: req.body.jobName + " Matrix View",
+                                filetype: 'resultFile',
+                                path: resultsPath,
+                                project: req.body.project,
+                                info: {
+                                    resultType: 'matrix',
+                                    labels: {
+                                        marker: req.body.marker.data.labelId,
+                                        trait: req.body.trait.data.labelId
+                                    }
+                                },
+                                projectItem: 'Results'
+                            }).exec(function (err, file) {
+                                if (err) throw err
+                                app.models.file.findOne({id: req.body.marker.data.labelId}).exec(function (err,mLabelsFile) {
+                                    app.models.file.findOne({id: req.body.marker.data.id}).exec(function (err,mPlinkFile) {
+                                      console.log(typeof mLabelsFile)
+                                    if (typeof mLabelsFile != 'undefined') {
+                                        console.log('DEBUG-ywt: hello from csv')
+                                        Scheduler.setMetaData(jobId, file.id, mLabelsFile.path)
+                                    }
+                                    else {
+                                        console.log('DEBUG-ywt: hello from plink' + mPlinkFile.path)
 
-                  var success = Scheduler.startJob(jobId, function (retval) {
-                    if (retval) {
-                      console.log(`Data loaded from job ${jobId}!`)
-                      loadTraits(req.body.trait.data.labelId, file.id)
-                    } else {
-                      console.log(`Data load from job ${jobId} FAILED!`);
+                                        Scheduler.setMetaData(jobId, file.id, mPlinkFile.path)
+                                    }
+                                    var success = Scheduler.startJob(jobId, function (retval) {
+                                        if (retval) {
+                                            console.log(`Data loaded from job ${jobId}!`)
+                                            if (typeof mLabelsFile != 'undefined') {
+                                                loadTraits(req.body.trait.data.labelId, file.id)
+                                            }
+                                            else{
+                                                loadTrait("Your Trait", file.id)
+                                            }
+
+                                        } else {
+                                            console.log(`Data load from job ${jobId} FAILED!`);
+                                        }
+                                    })
+                                    console.log(success)
+                                    return res.json({ status: success, jobId, resultsPath })
+                                })
+                                })
+
+                            })
+                        })
+
+                    } catch (err) {
+                        console.log(err)
                     }
-                  })
-                  console.log(success)
-                  return res.json({ status: success, jobId, resultsPath })
-                })
 
-              })
-            })
-
-          } catch (err) {
-            console.log(err)
-          }
-
-        }
-        // Add any extra files
-        const testAll = function(elem, index, array) {
-          return elem;
-        }
-        var ready = req.body.other_data.map((value, index) => { false });
-        if (req.body.other_data.length > 0) {
-          req.body.other_data.map((value, index) => {
-            console.log(value);
-            if (!value.val || !value.val.data || !value.val.data.id || value.val.data.id < 0) {
-              ready[index] = true;
-              if (ready.every(testAll)) {
-                startJobFinish();
-              }
-              return false;
-            }
-            app.models.file.findOne({id: value.val.data.id}).exec(function(err, attributeFile) {
-              if (err) console.log('Error getting attribute' + value.val.name + 'for analysis: ' + err);
-              if (attributeFile) {
-                csvtojson({noheader:true}).fromFile(attributeFile.path, function(err, attributeData) {
-                  if (err) console.log('Error getting extra data for analysis: ', err);
-                  try {
-                    Scheduler.setModelAttributeMatrix(jobId, value.name, attributeData);
-                    ready[index] = true;
-                    if (ready.every(testAll)) {
-                      startJobFinish();
+                }
+                // Add any extra files
+                const testAll = function(elem, index, array) {
+                    return elem;
+                }
+                var ready = req.body.other_data.map((value, index) => { false });
+                if (req.body.other_data.length > 0) {
+                    req.body.other_data.map((value, index) => {
+                        console.log(value);
+                    if (!value.val || !value.val.data || !value.val.data.id || value.val.data.id < 0) {
+                        ready[index] = true;
+                        if (ready.every(testAll)) {
+                            startJobFinish();
+                        }
+                        return false;
                     }
-                  } catch (err) {
-                    console.log(err);
-                    return false;
-                  }
+                    app.models.file.findOne({id: value.val.data.id}).exec(function(err, attributeFile) {
+                        if (err) console.log('Error getting attribute' + value.val.name + 'for analysis: ' + err);
+                        if (attributeFile) {
+                            csvtojson({noheader:true}).fromFile(attributeFile.path, function(err, attributeData) {
+                                if (err) console.log('Error getting extra data for analysis: ', err);
+                                try {
+                                    Scheduler.setModelAttributeMatrix(jobId, value.name, attributeData);
+                                    ready[index] = true;
+                                    if (ready.every(testAll)) {
+                                        startJobFinish();
+                                    }
+                                } catch (err) {
+                                    console.log(err);
+                                    return false;
+                                }
+                            })
+                        }
+                    })
                 })
-              }
-            })
-          })
-        } else {
-          startJobFinish();
-        }
-        /*results.map((value, index) => assert(value));*/
+                } else {
+                    startJobFinish();
+                }
+              /*results.map((value, index) => assert(value));*/
 
-      });
-    });
-  })
+        });
+    })
 })
 
 
@@ -1149,6 +1193,10 @@ app.get('/api/get-range/:id', function (req, res) {
     }
   })
 })
+
+function loadTrait(traitName, resultsId) {
+  writeData.loadTrait(traitName,resultsId).then(console.log)
+}
 
 function loadTraits(traitsId,resultsId) {
 
