@@ -75,7 +75,7 @@ void PlinkReader::getX(string filename, MatrixXf &X)
     long m = pio_num_samples( &plink_file );
     long n = pio_num_loci(&plink_file );
 
-    cout << m << ' ' << n << endl;
+    cout << "DEBUG-ywt: Get a " <<  m << ' * ' << n << "PLINK file. "<< endl;
 
     X = MatrixXf::Zero(m, n);
     vector<string> markers(n);
@@ -90,18 +90,12 @@ void PlinkReader::getX(string filename, MatrixXf &X)
         locus_id++;
     }
 
-//    const static IOFormat CSVFormat(StreamPrecision, DontAlignCols, ", ", "\n");
-//    string name = "x.csv";
-//    ofstream file(name.c_str());
-//    file << X.format(CSVFormat);
-
     free( snp_buffer );
     pio_close( &plink_file );
 }
 
 void PlinkReader::getXname(string filename, vector<string> &markers)
 {
-    cout << "DEBUG-ywt: " << filename << endl;
     if( pio_open( &plink_file, filename.c_str() ) != PIO_OK )
     {
         printf( "Error: Could not open file" );

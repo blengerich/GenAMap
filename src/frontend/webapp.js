@@ -977,7 +977,6 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                                     }
                                     else {
                                         console.log('DEBUG-ywt: hello from plink' + mPlinkFile.path)
-
                                         Scheduler.setMetaData(jobId, file.id, mPlinkFile.path)
                                     }
                                     var success = Scheduler.startJob(jobId, function (retval) {
@@ -987,7 +986,9 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                                                 loadTraits(req.body.trait.data.labelId, file.id)
                                             }
                                             else {
-                                                loadTrait("Your Trait", file.id)
+                                                traitName = mPlinkFile.path.split("/").pop().split(".")[0]
+                                                console.log("get trait name: " + traitName)
+                                                loadTrait(traitName, file.id)
                                             }
 
                                         } else {
