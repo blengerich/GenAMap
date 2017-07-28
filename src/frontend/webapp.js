@@ -995,7 +995,6 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                                             console.log(`Data load from job ${jobId} FAILED!`);
                                         }
                                     })
-                                    console.log(success)
                                     return res.json({status: success, jobId, resultsPath})
                                 })
                             })
@@ -1215,7 +1214,7 @@ var simpleCache = {}
 
 
 // the id is the id of the result file corresponding to the loaded data
-// query parameters : start, end, zoom
+// query parameters : start, end, zoom, thresh
 // responds with aggregated data in json form
 // see ./api/routes/getRange.js for moreinfo
 app.get('/api/get-range/:id', function (req, res) {
@@ -1229,20 +1228,25 @@ app.get('/api/get-range/:id', function (req, res) {
             var response = {
                 start: req.query.start,
                 end: req.query.end,
-                zoom: req.query.zoom
+                zoom: req.query.zoom,
+                thresh: req.query.thresh
             };
-
+            var range = response.start + ":" + response.end
+            if (!response.thresh) response.thresh = "undefined"
             if (simpleCache[completeID] &&
-                simpleCache[completeID][response.start + ":" + response.end] &&
-                simpleCache[completeID][response.start + ":" + response.end][response.zoom]) {
+                simpleCache[completeID][range] &&
+                simpleCache[completeID][range][response.zoom] &&
+                simpleCache[completeID][range][response.zoom][response.thresh]) {
                 console.log("CACHE YES")
-                res.send(simpleCache[completeID][response.start + ":" + response.end][response.zoom])
+                res.json(simpleCache[completeID][range][response.zoom][response.thresh])
             } else {
-                api.getRange(response.start, response.end, response.zoom, completeID).then(function (result) {
-                    var f = {}
-                    f[response.zoom] = result
-                    simpleCache[completeID] = {}
-                    simpleCache[completeID][response.start + ":" + response.end] = f
+                api.getRange(response.start, response.end, response.zoom, completeID, response.thresh).then(function (result) {
+                    if (!simpleCache[completeID]) simpleCache[completeID] = {}
+                    if (!simpleCache[completeID][range]) simpleCache[completeID][range] = {}
+                    if (!simpleCache[completeID][range][response.zoom])
+                        simpleCache[completeID][range][response.zoom] = {}
+                    if (!simpleCache[completeID][range][response.zoom][response.thresh])
+                        simpleCache[completeID][range][response.zoom][response.thresh] = result
                     res.json(result);
                 });
             }

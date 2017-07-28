@@ -20,13 +20,19 @@ var getZoomFactor = function(zoom) {
  * arg: start - start index of query (inclusive)
  * arg: end - end index of query (exclusive)
  * arg: factor - factor to aggregate by (0 or 1 yields no aggregation)
+ * arg: fileName - identifier for a group of result records
+ * thresh: a values in [0,1] to calculate threshold
  *
  * [example: start = 1000, end = 1500, factor = 100
  *           results in these index aggregations:
  *           [1000-1099, 1100-1199, 1200-1299, 1300-1399, 1400-1499]
  * ]
  */
-exports.getRange = function (start, end, factor, fileName) {
+exports.getRange = function (start, end, factor, fileName, thresh) {
+    if (!factor) factor = 1
+    if (!(0 <= thresh && thresh <= 1)) {
+        thresh = .5
+    }
     // we ignore values with index 0 since they are incorrect/missing
     if (parseInt(start) == 0) {
         start = 1;
@@ -69,32 +75,54 @@ exports.getRange = function (start, end, factor, fileName) {
                     { "$match": { "fileName" : fileName, "index": {"$gte": start, "$lt": end}}},
                     // for all documents we find, we will unwind the data field to aggregate across documents
                     { "$unwind": { "path": "$data", "includeArrayIndex": "arrayIndex"}},
-                    // aggregate max values based on index buckets (dependent on zoom factor) and data index (aridx)
-                    { "$group": {
-                        "_id": {
-                            "idx": {"$floor": {"$divide": ["$index", factor]}},
-                            "aridx": "$arrayIndex"
-                        },
-                        "maxValue": {"$avg": "$data"}
-                      }
-                    },
-                    {"$sort": {"_id.aridx": 1}},
-                    // aggregate max values for each index bucket
-                    { "$group": {
-                        "_id": "$_id.idx",
-                        "data": { "$push": { "values": "$maxValue"}}}
-                    },
-                    {"$sort": {"_id": 1}}
+                    { "$facet" :
+                        {
+                            data :
+                            [
+                                // aggregate max values based on index buckets (dependent on zoom factor) and data index (aridx)
+                                { "$group": {
+                                    "_id": {
+                                        "idx": {"$floor": {"$divide": ["$index", factor]}},
+                                        "aridx": "$arrayIndex"
+                                    },
+                                    "maxValue": {"$max": "$data"}
+                                  }
+                                },
+                                {"$sort": {"_id.aridx": 1}},
+                                // aggregate max values for each index bucket
+                                { "$group": {
+                                    "_id": "$_id.idx",
+                                    "data": { "$push": { "values": "$maxValue"}}}
+                                },
+                                { "$sort": { "_id": 1}}
+                            ],
+                            thresh :
+                            [
+                                { "$project" :
+                                    {
+                                        "absdata": { "$abs" : "$data" }
+                                    }
+                                },
+                                { "$sort": { "absdata" :1}},
+                                { "$group":
+                                    {
+                                        "_id": null,
+                                        "values": { "$push": { "value": "$absdata" }},
+                                        "count": { "$sum": 1 }
+                                    }
+                                }
+                            ]
+                        }
+                    }
                 ], function(err, result) { // after query is fetched
                     if (err) {
                         console.error(err);
                         reject(err);
                     }
-
-                    for (var i = 0; i < result.length; i++) { // loop through to format for app.js
+                    for (var i = 0; i < result[0].data.length; i++) { // loop through to format for app.js
                         var obj = new Object();
                         var row = [];
-                        var col = result[i];
+                        var col = result[0].data[i];
                         var offset = col._id - (Math.floor(start/factor)); // 0, 1, 2, ... based on $index/factor
                         // generate index range for each aggregate range
                         var startIndex = start + offset * factor;
@@ -116,7 +144,10 @@ exports.getRange = function (start, end, factor, fileName) {
                     if (!aggregateResults || aggregateResults.length == 0) { // no results
                         resolve([null,trait.traits]);
                     } else {
-                        resolve([aggregateResults,trait.traits]);
+                        threshValue = 0 <= thresh && thresh <= 1 ?
+                            result[0].thresh[0].values[Math.floor(thresh * result[0].thresh[0].count)].value
+                            : null
+                        resolve([aggregateResults,trait.traits,threshValue]);
                     }
                 })
             })
