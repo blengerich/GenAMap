@@ -96,25 +96,24 @@ exports.getRange = function (start, end, factor, fileName, thresh) {
                                 },
                                 { "$sort": { "_id": 1}}
                             ],
-                            thresh :
+                            meta :
                             [
                                 { "$project" :
                                     {
                                         "absdata": { "$abs" : "$data" }
                                     }
                                 },
-                                { "$sort": { "absdata" :1}},
                                 { "$group":
                                     {
                                         "_id": null,
-                                        "values": { "$push": { "value": "$absdata" }},
-                                        "count": { "$sum": 1 }
+                                        "hi": {"$max": "$absdata"},
+                                        "lo": {"$min": "$absdata"}
                                     }
                                 }
                             ]
                         }
                     }
-                ], function(err, result) { // after query is fetched
+                ]).exec( function(err, result) { // after query is fetched
                     if (err) {
                         console.error(err);
                         reject(err);
@@ -144,10 +143,8 @@ exports.getRange = function (start, end, factor, fileName, thresh) {
                     if (!aggregateResults || aggregateResults.length == 0) { // no results
                         resolve([null,trait.traits]);
                     } else {
-                        threshValue = 0 <= thresh && thresh <= 1 ?
-                            result[0].thresh[0].values[Math.floor(thresh * result[0].thresh[0].count)].value
-                            : null
-                        resolve([aggregateResults,trait.traits,threshValue]);
+                        var meta = { "hi": result[0].meta[0].hi, "lo": result[0].meta[0].lo}
+                        resolve([aggregateResults,trait.traits,meta]);
                     }
                 })
             })

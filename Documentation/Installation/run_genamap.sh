@@ -1,6 +1,6 @@
 set -e
 
-# Install Mongo DB and PostgreSQL 
+# Install Mongo DB and PostgreSQL
 if [ ! -d ./mongodbpath ]; then
   mkdir mongodbpath
 fi
@@ -18,8 +18,8 @@ echo "PostgreSQL has been successfully launched!"
 
 # Run the latest GenAMap server
 printf "\nDownload the latest GenAMap server...\n"
-docker pull haohanwang/genamap_server 
+docker pull haohanwang/genamap_server
 
 printf "\nStarting the server\n"
 docker run -d -p 49160:3000 --link mongo:mongo --link postgres:postgres haohanwang/genamap_server
-printf "\nServer is running in the background successfully...""
+printf "\nServer is running in the background successfully..."
