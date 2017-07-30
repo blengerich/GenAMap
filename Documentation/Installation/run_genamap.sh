@@ -33,7 +33,7 @@ if [ ! -d ./postgresdbpath ]; then
   mkdir postgresdbpath
 fi
 
-# Run Mongo DB Container
+# Run MongoDB Container
 if ! docker ps --format "{{.Names}}"| grep -q mongo; then
     if ! docker ps -a --format "{{.Names}}"| grep -q mongo; then
         { docker run -v "$(pwd)/mongodbpath":/data -p 27017:27017 --name mongo -d mongo mongod --smallfiles || { docker stop mongo; docker rm mongo; docker run -v "$(pwd)/mongodbpath":/data -p 27017:27017 --name mongo -d mongo mongod --smallfiles;} }  1> /dev/null
@@ -41,7 +41,11 @@ if ! docker ps --format "{{.Names}}"| grep -q mongo; then
         docker start mongo 1>/dev/null
     fi
     hr
-    echo "Mongo DB container has been successfully launched!"
+    echo "MongoDB container has been successfully launched!"
+    hr
+else
+    hr
+    echo "MongoDB container is already running..."
     hr
 fi
 
@@ -56,6 +60,10 @@ if ! docker ps --format "{{.Names}}"| grep -q postgres; then
     hr
     echo "PostgreSQL container has been successfully launched!"
     hr
+else
+    hr
+    echo "PostgreSQL container is already running..."
+    hr
 fi
 
 # Run the GenAMap server
@@ -68,6 +76,10 @@ if ! docker ps | grep -q haohanwang/genamap_server; then
     fi
     hr
     echo "GenAMap Server container has been successfully launched!"
+    hr
+else
+    hr
+    echo "GenAMap Server container is already running..."
     hr
 fi
 hr

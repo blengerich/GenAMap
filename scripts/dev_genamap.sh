@@ -43,9 +43,13 @@ if ! docker ps --format "{{.Names}}"| grep -q mongo; then
     hr
     echo "Mongo DB container has been successfully launched!"
     hr
+else
+    hr
+    echo "Mongo DB container is already running..."
+    hr
 fi
 
-# Run PostgresQL container
+# Run PostgreSQL container
 
 if ! docker ps --format "{{.Names}}"| grep -q postgres; then
     if docker ps -a --format "{{.Names}}"| grep -q postgres; then
@@ -55,6 +59,10 @@ if ! docker ps --format "{{.Names}}"| grep -q postgres; then
     fi
     hr
     echo "PostgreSQL container has been successfully launched!"
+    hr
+else
+    hr
+    echo "PostgreSQL container is already running..."
     hr
 fi
 
