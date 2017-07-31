@@ -73,17 +73,15 @@ hr
 if ! docker ps --format "{{.Image}}" | grep -q blengerich/genamap; then
     if docker ps -a --format "{{.Image}}"| grep -q blengerich/genamap; then
         line=$(docker ps -a --format "{{.Image}}" | grep -n blengerich/genamap | cut -d':' -f1)
-        container=$(docker ps -a --format "{{.Names}}" | sed -n ${line}p)
-        docker start ${container}
+        container=$(docker ps -a --format "{{.Names}}" | sed -n "${line}p")
+        docker start ${container} 1>/dev/null
         docker exec -it ${container} bash
     else
         docker run -ti -p 7000:3000 --link mongo:mongo --link postgres:postgres -w /usr/src/genamap -v ${PWD}/../src/:/usr/src/genamap blengerich/genamap 1>/dev/null
     fi
 else
     line=$(docker ps -a --format "{{.Image}}" | grep -n blengerich/genamap | cut -d':' -f1)
-    container=$(docker ps -a --format "{{.Names}}" | sed -n ${line}p)
+    container=$(docker ps -a --format "{{.Names}}" | sed -n "${line}p")
+    echo ${container}
     docker exec -it ${container} bash
 fi
-#hr
-#echo "The GenAMap project is ready for development"
-#hr
