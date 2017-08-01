@@ -34,52 +34,53 @@ if [ ! -d ./postgresdbpath ]; then
 fi
 
 # Run MongoDB Container
-if ! docker ps --format "{{.Names}}"| grep -q mongo; then
-    if ! docker ps -a --format "{{.Names}}"| grep -q mongo; then
-        { docker run -v "$(pwd)/mongodbpath":/data -p 27017:27017 --name mongo -d mongo mongod --smallfiles || { docker stop mongo; docker rm mongo; docker run -v "$(pwd)/mongodbpath":/data -p 27017:27017 --name mongo -d mongo mongod --smallfiles;} }  1> /dev/null
+m_name="genamap_production_mongo"
+if ! docker ps --format "{{.Names}}"| grep -q ${m_name}; then
+    if ! docker ps -a --format "{{.Names}}"| grep -q ${m_name}; then
+        docker run -v "$(pwd)/mongodbpath":/data -p 27017:27017 --name ${m_name} -d mongo mongod --smallfiles 1> /dev/null
     else
-        docker start mongo 1>/dev/null
+        docker start ${m_name} 1>/dev/null
     fi
     hr
-    echo "MongoDB container has been successfully launched!"
+    echo "MongoDB production container has been successfully launched!"
     hr
 else
     hr
-    echo "MongoDB container is already running..."
+    echo "MongoDB production container is already running..."
     hr
 fi
 
 # Run PostgresSQL container
-
-if ! docker ps --format "{{.Names}}"| grep -q postgres; then
-    if ! docker ps -a --format "{{.Names}}"| grep -q postgres; then
-        { docker run --name postgres -p 5432:5432  -v "$(pwd)/postgresdbpath":/var/lib/postgresql/data -e POSTGRES_PASSWORD='!!GeNaMaPnew00' -e POSTGRES_USER='postgres' -d postgres || { docker stop postgres; docker rm postgres; docker run --name postgres -p 5432:5432  -v "$(pwd)/postgresdbpath":/var/lib/postgresql/data -e POSTGRES_PASSWORD='!!GeNaMaPnew00' -e POSTGRES_USER='postgres' -d postgres;} } 1> /dev/null
+p_name="genamap_production_postgres"
+if ! docker ps --format "{{.Names}}"| grep -q ${p_name}; then
+    if ! docker ps -a --format "{{.Names}}"| grep -q ${p_name}; then
+        docker run --name ${p_name} -p 5432:5432  -v "$(pwd)/postgresdbpath":/var/lib/postgresql/data -e POSTGRES_PASSWORD='!!GeNaMaPnew00' -e POSTGRES_USER='postgres' -d postgres 1> /dev/null
     else
-        docker start postgres 1>/dev/null
+        docker start ${p_name} 1>/dev/null
     fi
     hr
-    echo "PostgreSQL container has been successfully launched!"
+    echo "PostgreSQL production container has been successfully launched!"
     hr
 else
     hr
-    echo "PostgreSQL container is already running..."
+    echo "PostgreSQL production container is already running..."
     hr
 fi
 
 # Run the GenAMap server
-if ! docker ps | grep -q haohanwang/genamap_server; then
-    if ! docker ps -a --format "{{.Image}}"| grep -q haohanwang/genamap_server; then
-        docker run -d -p 49160:3000 --link mongo:mongo --link postgres:postgres haohanwang/genamap_server 1> /dev/null
+g_name="genamap_production_server"
+if ! docker ps --format "{{.Names}}"| grep -q ${g_name}; then
+    if ! docker ps -a --format "{{.Names}}"| grep -q ${g_name}; then
+        docker run -d -p 49160:3000 --name ${g_name} --link ${m_name}:mongo --link ${p_name}:postgres haohanwang/genamap_server 1> /dev/null
     else
-        line=$(docker ps -a --format "{{.Image}}" | grep -n haohanwang/genamap_server | cut -d':' -f1)
-        docker start $(docker ps -a --format "{{.Names}}" | sed -n ${line}p)
+        docker start ${g_name} 1>/dev/null
     fi
     hr
-    echo "GenAMap Server container has been successfully launched!"
+    echo "GenAMap Prouction Server container has been successfully launched!"
     hr
 else
     hr
-    echo "GenAMap Server container is already running..."
+    echo "GenAMap Production Server container is already running..."
     hr
 fi
 hr
