@@ -34,7 +34,7 @@ if [ ! -d ./postgresdbpath ]; then
 fi
 
 # Run MongoDB Container
-m_name="genamap_production_mongo"
+m_name="genamap_mongo"
 if ! docker ps --format "{{.Names}}"| grep -q ${m_name}; then
     if ! docker ps -a --format "{{.Names}}"| grep -q ${m_name}; then
         docker run -v "$(pwd)/mongodbpath":/data -p 27017:27017 --name ${m_name} -d mongo mongod --smallfiles 1> /dev/null
@@ -51,7 +51,7 @@ else
 fi
 
 # Run PostgresSQL container
-p_name="genamap_production_postgres"
+p_name="genamap_postgres"
 if ! docker ps --format "{{.Names}}"| grep -q ${p_name}; then
     if ! docker ps -a --format "{{.Names}}"| grep -q ${p_name}; then
         docker run --name ${p_name} -p 5432:5432  -v "$(pwd)/postgresdbpath":/var/lib/postgresql/data -e POSTGRES_PASSWORD='!!GeNaMaPnew00' -e POSTGRES_USER='postgres' -d postgres 1> /dev/null

@@ -14,7 +14,7 @@ else
     hr
 fi
 
-m_name="genamap_development_mongo"
+m_name="genamap_mongo"
 if docker ps --format "{{.Names}}" | grep -q ${m_name}; then
     hr
     echo -e "Stopping MongoDB development container"
@@ -26,7 +26,7 @@ else
     hr
 fi
 
-p_name="genamap_development_postgres"
+p_name="genamap_postgres"
 if docker ps --format "{{.Names}}" | grep -q ${p_name}; then
     hr
     echo -e "Stopping PostgreSQL development container"
