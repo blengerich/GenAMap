@@ -135,3 +135,9 @@ svg:active{
   font-family: sans-serif;
   font-weight: bold;
 }
+div.bar {
+    display: inline-block;
+    width: 200px;
+    height: 100px;   /* We'll override this later */
+    background-color: teal;
+}

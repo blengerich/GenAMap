@@ -279,9 +279,11 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
                 throw err
             }
             //fs.readFile('./static/email/Authentication.txt', 'utf8', function (err, auth_details) {
-            var auth_details = require('./static/email/Authentication.json');
+            //var auth_details = require('./static/email2/Authentication.json');
             //if (err) {throw err}
-            var transporter = nodemailer.createTransport(auth_details.user + ':' + auth_details.pass);
+            //var transporter = nodemailer.createTransport(auth_details.user + ':' + auth_details.pass);
+            //var transporter = nodemailer.createTransport('smtps://xiang.liu1995@gmail.com:19951220lx@@smtp.gmail.com');
+            var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com')
             //var transporter = nodemailer.createTransport('smtps://email@gmail.com:pass@smtp.gmail.com');
             var mailOptions = {
                 from: '"GenAMap" <genamap.team@gmail.com>', // sender address

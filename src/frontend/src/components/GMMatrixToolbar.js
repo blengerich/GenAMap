@@ -1,15 +1,15 @@
 import React from 'react'
-import FontIcon from 'material-ui/FontIcon'
-import FlatButton from 'material-ui/FlatButton'
-import Badge from 'material-ui/lib/badge'
+// import FontIcon from 'material-ui/FontIcon'
+// import FlatButton from 'material-ui/FlatButton'
+// import Badge from 'material-ui/lib/badge'
 import Slider from 'material-ui/Slider'
-import AutoComplete from 'material-ui/AutoComplete'
-import MenuItem from 'material-ui/MenuItem'
-import Popover from 'material-ui/Popover'
-import Menu from 'material-ui/lib/menus/menu'
-import GMProjectSearch from './GMProjectSearch'
+// import AutoComplete from 'material-ui/AutoComplete'
+// import MenuItem from 'material-ui/MenuItem'
+// import Popover from 'material-ui/Popover'
+// import Menu from 'material-ui/lib/menus/menu'
+// import GMProjectSearch from './GMProjectSearch'
 import GMToolbar from './GMToolbar'
-import GMManhattanDialog from './GMManhattanDialog'
+// import GMManhattanDialog from './GMManhattanDialog'
 
 const styles = {
   slider: {
@@ -43,7 +43,7 @@ const GMSliderName = React.createClass({
       fontSize: '15px',
       fontFamily: 'Roboto, sans-serif',
       fontWeight: 'bold',
-      textAlign: 'center'
+      textAlign: 'center',
     };
 
     var slider = document.getElementById('slider');
@@ -87,6 +87,7 @@ const GMMatrixToolbar = React.createClass({
   render: function () {
     return (
       <div>
+
         <GMToolbar
           open={this.state.open}
           height={60}
@@ -97,18 +98,22 @@ const GMMatrixToolbar = React.createClass({
         }}
           left={this.props.left}
           right={this.props.right}
+
         >
           <Slider id={"slider"}
             style={styles.slider}
             onChange={this.onThresholdChange}
             defaultValue={0}
+            step={0.1}
           />
-          <span style={styles.sliderValue}>{this.state.slider.threshold.toFixed(2)}</span>
+
+          <span style={styles.sliderValue}>{this.state.slider.threshold.toFixed(1)}</span>
+          <span style={styles.sliderValue}>{(this.props.label).toFixed(3)}</span>
           <GMSliderName />
-          <GMManhattanDialog
-            pageParams={this.props.pageParams}
-            traitLabels={this.props.traitLabels}
-          />
+          {/*<GMManhattanDialog*/}
+            {/*pageParams={this.props.pageParams}*/}
+            {/*traitLabels={this.props.traitLabels}*/}
+          {/*/>*/}
           <p style={styles.disclaimer}>GenAMap is a project of&nbsp;
             <a style={styles.webLinks} href="http://www.sailing.cs.cmu.edu/main/">Sailing Lab</a> at&nbsp;
             <a style={styles.webLinks} href="http://www.cmu.edu/">Carnegie Mellon University.</a>

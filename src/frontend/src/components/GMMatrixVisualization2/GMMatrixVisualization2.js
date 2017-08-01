@@ -8,7 +8,7 @@ import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer'
 import Grid from 'react-virtualized/dist/commonjs/Grid'
 import TopAxis from './topaxis'
 import fetch from '../fetch'
-
+import GMMatrixToolbar from '../GMMatrixToolbar'
 /*
 TODO LIST
 - Axis ( Make the major and minor axis
@@ -24,7 +24,10 @@ const zoomFactor = 100;
 const maxZoom = 4;
 const yAxisCellSize = 1;
 let dataIndex = 0;
-
+// const windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+var min_=0;
+var max_=1;
+var label_value=0;
 
 //TODO : Remove d3 deps
 const calculateColorScale = (min, max, threshold) => {
@@ -37,6 +40,7 @@ const calculateColorScale = (min, max, threshold) => {
 }
 
 
+
 export default class GMMatrixVisualization2 extends PureComponent {
 
     constructor(props, context) {
@@ -44,12 +48,15 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
         const zoominfo = [{"start": 1,"end": 3088286401}]
         let items = [];
+        // var maxmax_=1.0
+        // var minmin_=0.0
         //Aggregating labels
         let factor = ((zoominfo[0].end - zoominfo[0].start) / zoomFactor);
         for (let i = zoominfo[0].start; i < (zoominfo[0].end); i = i + factor) {
 
             items.push(Math.floor(i));
         }
+
 
         this.state = {
             columnCount: zoomFactor,
@@ -69,7 +76,10 @@ export default class GMMatrixVisualization2 extends PureComponent {
             dataIndex: 0,
             lastFactor: factor,
             start: 1,
-            end: 3088286401
+            end: 3088286401,
+            correlationThreshold:0.0,
+            // maxmax:maxmax_,
+            // minmin:minmin_
         }
 
         this._cellRenderer = this._cellRenderer.bind(this)
@@ -90,6 +100,8 @@ export default class GMMatrixVisualization2 extends PureComponent {
         this._getYLabel = this._getYLabel.bind(this)
         this._onKeyDown = this._onKeyDown.bind(this)
         this._updateZoom = this._updateZoom.bind(this)
+        this._onThresholdChange=this. _onThresholdChange.bind(this)
+
     }
 
     componentWillMount(){
@@ -107,21 +119,28 @@ export default class GMMatrixVisualization2 extends PureComponent {
           }
         }
         fetch(url,dataRequest)
+        fetch(url,dataRequest)
         .then(res => {
             res.json()
             .then (json => {
-                console.log(json)
+                console.log(json);
+                max_=json[2]['hi'];
+                min_=json[2]['lo'];
                 this.setState({ data: json[0], traits: json[1]},function(){
 
                    this.axis.forceUpdate()
 
                 }.bind(this))
+                // console.log(this.state.minmin);
+                // console.log(this.state.maxmax);
                 console.log("traits",this.state.traits)
 
         })
     })
 
     }
+
+
 
     render() {
         const {
@@ -153,12 +172,12 @@ export default class GMMatrixVisualization2 extends PureComponent {
                 let start = zstack.get(zstack.size - 1).start
                 let end = zstack.get(zstack.size - 1).end
 
-
         return (
             <div>
 
 
                 <div className={styles.zoomBar} >
+
                     <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(4/maxZoom)) + "%"}}/>
                     <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(3/maxZoom)) + "%"}}/>
                     <div className={styles.zoomBarCursorMarker} style={{top: 100 - (100*(2/maxZoom)) + "%"}}/>
@@ -177,7 +196,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
                     onKeyDown={this._onKeyDown}
                     >
 
-                <div className={styles.CustomWindowScrollerWrapper}>
+                <div id="#id" className={styles.CustomWindowScrollerWrapper}>
                             <AutoSizer disableHeight>
                                 {({width}) => (
                                     <Grid
@@ -202,9 +221,25 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
                 </div>
             </div>
+            <GMMatrixToolbar
+                left={this.props.minPad}
+                right={this.props.minPad}
+                slider={{"onThresholdChange": this._onThresholdChange}}
+                label={label_value}
+                pageParams={this.state.pageParams}
+                traitLabels={this.state.traitLabels}
+            />
             </div>
         )
     }
+
+    _onThresholdChange(event, value) {
+        //console.log(value);
+        this.setState({
+            correlationThreshold: value
+        });
+    }
+
 
     _convertRemToPixels(rem) {
         return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
@@ -361,7 +396,12 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
     _getYLabel(rowIndex) { // TODO: Add reference to return a trait number from DB
 
-        return this.state.traits[rowIndex-2]
+        if (((this.state.traits[rowIndex-2]).length)>=3) {
+            return this.state.traits[rowIndex - 2].substring(0, 3);
+        }else{
+            return this.state.traits[rowIndex - 2];
+        }
+        //here I just use the first three characters
     }
 
     _getDataIndex() {
@@ -378,23 +418,25 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     _renderDataCell({columnIndex, key, rowIndex, style}) {
-
+        // console.log(style)
         let label = ""
         let color = ""
-        if (this.state.data.length > 0){
-            let dataInRange = this._dataInRange(this.state.data[dataIndex]["start"],
-                                    this.state.data[dataIndex]["end"], columnIndex);
+        // var dataInRange
+        if (this.state.data.length > 0) {
+            var dataInRange = this._dataInRange(this.state.data[dataIndex]["start"], this.state.data[dataIndex]["end"], columnIndex);
             if (dataInRange) {
                 label = this.state.data[dataIndex]["data"][rowIndex - 2];
-                 dataIndex = (dataIndex + 1) % (this.state.data.length-yAxisCellSize);
-                let cellColorScale = calculateColorScale(0, 1, parseInt(label))
+                dataIndex = (dataIndex + 1) % (this.state.data.length - yAxisCellSize);
+                //let cellColorScale = calculateColorScale(0, 1, parseInt(label)
+                // console.log(this.state.minmin,this.state.maxmax);
+                let cellColorScale = calculateColorScale(min_, max_, this.state.correlationThreshold)
                 color = cellColorScale(label)
             }
             else {
                 label = 0;
             }
-        }
 
+        }
         var grid = this.axis
 
 
@@ -404,7 +446,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
             color = "rgba(100, 0, 0, 0.25)"
             cname = styles.hoveredItem
         }
-
+        var name =this.state.traits[rowIndex-2]
         style = {
             ...style,
             backgroundColor: color
@@ -415,6 +457,9 @@ export default class GMMatrixVisualization2 extends PureComponent {
             className: cname,
             key: key,
             onMouseOver: function () {
+
+                // console.log('mouse~')
+                //var mousePos = d3.event;
                 setState({
                     hoveredColumnIndex: columnIndex,
                     hoveredRowIndex: rowIndex
@@ -422,7 +467,15 @@ export default class GMMatrixVisualization2 extends PureComponent {
                 if(grid){
                     grid.recomputeGridSize({columnIndex: columnIndex, rowIndex: rowIndex})
                 }
+                if(label>=min_){
+                    // onLabelChange(label)
+                    label_value=label
+                    // console.log(label)
+                }
+
+
             },
+
             style: style
         })
 
