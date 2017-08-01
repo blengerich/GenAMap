@@ -95,25 +95,13 @@ export default class TopAxis extends React.PureComponent {
          })
 
         if(datum * 10000000 >= min && datum * 10000000 <= max ){
-            style = {
-                ...style,
-                backgroundColor: "#20B2AA" ,
+            style = Object.assign(style,{backgroundColor: "#abc0dd"})
 
-            }
         }
 
         else if(max - min < 10000000 && Math.floor(min/10000000)==datum){
-               style = {
-                ...style,
-                backgroundColor: "#20B2AA",
+                   style = Object.assign(style,{backgroundColor: "#c7e2d4"})
 
-
-            }
-        }
-        else{         
-            style = {
-            ...style,
-            }
         }
 
 

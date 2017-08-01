@@ -27,7 +27,7 @@ sampleData/*
 # Auto-generated files
 **/.tmp/
 **/genamapApp/activity/*
-**/frontend/build/*
+**/frontend/dist/*
 **/bundle.js
 **/*.start
 **/Scheduler/**/build/*
