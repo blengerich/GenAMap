@@ -29,11 +29,11 @@ fi
 p_name="genamap_postgres"
 if docker ps --format "{{.Names}}" | grep -q ${p_name}; then
     hr
-    echo -e "Stopping PostgreSQL production container"
+    echo -e "Stopping PostgreSQL container"
     hr
     docker stop ${p_name} 1>/dev/null
 else
     hr
-    echo -e "PostgreSQL production container already exited"
+    echo -e "PostgreSQL container already exited"
     hr
 fi

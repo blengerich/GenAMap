@@ -17,23 +17,23 @@ fi
 m_name="genamap_mongo"
 if docker ps --format "{{.Names}}" | grep -q ${m_name}; then
     hr
-    echo -e "Stopping MongoDB development container"
+    echo -e "Stopping MongoDB container"
     hr
     docker stop ${m_name} 1>/dev/null
 else
     hr
-    echo -e "MongoDB development container already exited"
+    echo -e "MongoDB container already exited"
     hr
 fi
 
 p_name="genamap_postgres"
 if docker ps --format "{{.Names}}" | grep -q ${p_name}; then
     hr
-    echo -e "Stopping PostgreSQL development container"
+    echo -e "Stopping PostgreSQL container"
     hr
     docker stop ${p_name} 1>/dev/null
 else
     hr
-    echo -e "PostgreSQL development container already exited"
+    echo -e "PostgreSQL container already exited"
     hr
 fi

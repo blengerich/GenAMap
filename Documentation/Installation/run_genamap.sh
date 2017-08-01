@@ -42,11 +42,11 @@ if ! docker ps --format "{{.Names}}"| grep -q ${m_name}; then
         docker start ${m_name} 1>/dev/null
     fi
     hr
-    echo "MongoDB production container has been successfully launched!"
+    echo "MongoDB container has been successfully launched!"
     hr
 else
     hr
-    echo "MongoDB production container is already running..."
+    echo "MongoDB container is already running..."
     hr
 fi
 
@@ -59,11 +59,11 @@ if ! docker ps --format "{{.Names}}"| grep -q ${p_name}; then
         docker start ${p_name} 1>/dev/null
     fi
     hr
-    echo "PostgreSQL production container has been successfully launched!"
+    echo "PostgreSQL container has been successfully launched!"
     hr
 else
     hr
-    echo "PostgreSQL production container is already running..."
+    echo "PostgreSQL container is already running..."
     hr
 fi
 
