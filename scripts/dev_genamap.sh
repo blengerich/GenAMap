@@ -77,7 +77,7 @@ if ! docker ps --format "{{.Names}}" | grep -q ${g_name}; then
         docker start ${g_name} 1>/dev/null
         docker exec -it ${g_name} bash
     else
-        docker run -ti -p 7000:3000 --name ${g_name} --link ${m_name}:mongo --link ${p_name}:postgres -w /usr/src/genamap -v ${PWD}/../src/:/usr/src/genamap blengerich/genamap
+        docker run -ti -p 3000:3000 -p 3001:3001 --name ${g_name} --link ${m_name}:mongo --link ${p_name}:postgres -w /usr/src/genamap -v ${PWD}/../src/:/usr/src/genamap blengerich/genamap
     fi
 else
     docker exec -it ${g_name} bash
