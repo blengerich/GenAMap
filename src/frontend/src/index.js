@@ -4,6 +4,7 @@ import { render } from 'react-dom'
 import { Provider } from 'react-redux'
 import { Router, Route, hashHistory } from 'react-router'
 import injectTapEventPlugin from 'react-tap-event-plugin'
+import { AppContainer } from 'react-hot-loader';
 
 injectTapEventPlugin()
 

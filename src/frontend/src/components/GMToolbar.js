@@ -125,14 +125,14 @@ var GMToolbar = React.createClass({
       children,
       className,
       style,
-      ...other
+     // ...other
     } = this.props
 
     var styles = this.getStyles()
 
     return (
       <Toolbar
-        {...other}
+        //{...other}
         className={className}
         style={Object.assign({}, styles.root, style)}
       >

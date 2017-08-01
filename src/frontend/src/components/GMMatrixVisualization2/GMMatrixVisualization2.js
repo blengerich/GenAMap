@@ -447,11 +447,8 @@ export default class GMMatrixVisualization2 extends PureComponent {
             cname = styles.hoveredItem
         }
         var name =this.state.traits[rowIndex-2]
-        style = {
-            ...style,
-            backgroundColor: color
-        }
 
+        style = Object.assign(style,{            backgroundColor: color})
 
         return React.DOM.div({
             className: cname,
@@ -491,9 +488,6 @@ export default class GMMatrixVisualization2 extends PureComponent {
             [styles.centeredCell]: columnIndex > 0
         })
 
-        style = {
-            ...style,
-        }
 
         //Format based on length of number
         const millions =  Math.floor(datum / 1000000 % 10)
@@ -557,13 +551,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
     _renderYAxisCell({columnIndex, key, rowIndex, style}) {
 
 
-
-        style = {
-            ...style,
-            zIndex: "10",
-
-
-        }
+        style =  Object.assign(style,{            zIndex: "10"})
 
        let label = ""
        let fullTraitName = this._getYLabel(rowIndex);
@@ -599,11 +587,10 @@ export default class GMMatrixVisualization2 extends PureComponent {
         // Don't modify styles.
         // These are frozen by React now (as of 16.0.0).
         // Since Grid caches and re-uses them, they aren't safe to modify.
-        style = {
-            ...style,
+        style = Object.assign(style,{
             backgroundColor: datum.color,
-            cursor: "move"
-        }
+            cursor: "grab"
+        })
 
         return (
             <div
