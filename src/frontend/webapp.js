@@ -1210,7 +1210,6 @@ app.post(config.api.ChangePasswordUrl, function (req, res) {
 var api = require('./api/routes/getRange')
 var writeData = require('./api/routes/writeData')
 var db = require('./api/db')
-var byline = require('byline')
 
 var simpleCache = {}
 
