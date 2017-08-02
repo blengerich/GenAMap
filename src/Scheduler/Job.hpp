@@ -8,6 +8,7 @@
 #include <uv.h>
 #include <v8.h>
 #include <Eigen/Dense>
+#include<vector>
 
 #ifdef BAZEL
 #include "Algorithms/Algorithm.hpp"
@@ -34,6 +35,8 @@ typedef struct Job_t {
 	thread::id thread_id;
 	Persistent<Function> callback;
 	uv_work_t request;
+	string filename;
+	vector<string> marker_ids;
 } Job_t;
 
 typedef struct JobOptions_t {

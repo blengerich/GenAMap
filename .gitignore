@@ -9,6 +9,7 @@ CMakeLists.txt
 .todos*
 .idea*
 .DS_Store
+*.iml
 
 # node stuff
 **/node/build*
@@ -26,7 +27,7 @@ sampleData/*
 # Auto-generated files
 **/.tmp/
 **/genamapApp/activity/*
-**/frontend/build/*
+**/frontend/dist/*
 **/bundle.js
 **/*.start
 **/Scheduler/**/build/*
@@ -38,3 +39,7 @@ sampleData/*
 
 # main.cpp for testing backend
 src/main.cpp
+
+#Database
+scripts/postgresdbpath/*
+scripts/mongodbpath/*

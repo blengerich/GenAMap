@@ -1,7 +1,7 @@
 import React from 'react'
-import FontIcon from 'material-ui/lib/font-icon'
-import FlatButton from 'material-ui/lib/flat-button'
-import FloatingActionButton from 'material-ui/lib/floating-action-button'
+import FontIcon from 'material-ui/FontIcon'
+import FlatButton from 'material-ui/FlatButton'
+import FloatingActionButton from 'material-ui/FloatingActionButton'
 
 import fetch from './fetch'
 import config from '../../config'

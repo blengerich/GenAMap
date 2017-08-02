@@ -3,6 +3,7 @@ import React, { PropTypes, Component } from 'react'
 import GMTopMenu from './GMTopMenu'
 import GMLeftMenu from './GMLeftMenu'
 import config from '../../config'
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
 class GMApp extends Component {
   constructor (props, context) {
@@ -40,18 +41,20 @@ class GMApp extends Component {
         return React.cloneElement(child, { minPad: config.ui.minPad });
     });
     return (
-      <div>
-        <GMTopMenu
-          handleLeftIconTouch={this.handleLeftIconTouch.bind(this)}
-          handleLogoutButton={this.handleLogoutButton.bind(this)}
-          style={navPadding}
-          visibility={this.getVisibility()}
-        />
-        <GMLeftMenu open={this.props.leftNavOpen} width={config.ui.navWidth} user={this.props.user} />
-        <main style={fixedPadding}>
-          {childrenWithProps}
-        </main>
-      </div>
+      <MuiThemeProvider>
+        <div>
+          <GMTopMenu
+            handleLeftIconTouch={this.handleLeftIconTouch.bind(this)}
+            handleLogoutButton={this.handleLogoutButton.bind(this)}
+            style={navPadding}
+            visibility={this.getVisibility()}
+          />
+          <GMLeftMenu open={this.props.leftNavOpen} width={config.ui.navWidth} user={this.props.user} />
+          <main style={fixedPadding}>
+            {childrenWithProps}
+          </main>
+        </div>
+      </MuiThemeProvider>
     )
   }
 }

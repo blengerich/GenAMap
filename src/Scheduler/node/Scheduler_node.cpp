@@ -13,6 +13,7 @@
 #include <uv.h>
 #include <v8.h>
 #include <memory>
+#include <fstream>
 
 #include "../../Algorithms/ProximalGradientDescent.hpp"
 #include "../../Algorithms/IterativeUpdate.hpp"
@@ -23,36 +24,91 @@
 #include "../Job.hpp"
 #include "../Scheduler.hpp"
 #include "../../JSON/JsonCoder.hpp"
+#include "../../IO/FileIO.hpp"
+#include "../../IO/PlinkReader.h"
+#include "../../IO/MongoInterface.hpp"
 
 using namespace Eigen;
 using namespace std;
 using namespace v8;
 
+void setMetaData(const FunctionCallbackInfo<Value>& args) {
+    bool result = false;
+    Isolate* isolate = args.GetIsolate();
+    if (ArgsHaveJobID(args,0)) {
+        const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
+        string filename(*v8::String::Utf8Value(args[1]->ToString()));
+        string marker_ids_path(*v8::String::Utf8Value(args[2]->ToString()));
+		cout << "DEBUG-ywt: " << marker_ids_path << endl;
 
-// Sets the X matrix of a given model.
-// Arguments: job_id, JSON matrix
+        /* Get the markerName file extension type */
+        vector<string> marker_ids;
+        string ext_name = marker_ids_path.substr(marker_ids_path.length() - 3, 3);
+        if (ext_name.compare("csv") == 0) // csv file
+        {
+            ifstream in(marker_ids_path);
+            std::string line;
+            while (std::getline(in, line))
+                marker_ids.push_back(line);
+        }
+        else if (ext_name.compare("bim") == 0 || ext_name.compare("bed") == 0 || ext_name.compare("fam") == 0) // Plink file
+        {
+            marker_ids_path.erase(marker_ids_path.length() - 4, 4); // cut the extension
+            PlinkReader::getInstance().getXname(marker_ids_path, marker_ids);
+        }
+        result = Scheduler::Instance().setMetaData(job_id,filename,marker_ids);
+    }
+    args.GetReturnValue().Set(Boolean::New(isolate, result));
+}
+
+// Sets the X matrix of a given model from Plink file.
+// Arguments: job_id, plink filepath
 void setX(const FunctionCallbackInfo<Value>& args) {
 	bool result = false;
 	Isolate* isolate = args.GetIsolate();
+
 	if (ArgsHaveJobID(args, 0)) {
 		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
-		Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
-		MatrixXf* mat = v8toEigen(ar);
-		result = Scheduler::Instance().setX(job_id, *mat);
+		string path_name(*v8::String::Utf8Value(args[1]->ToString()));
+		MatrixXf mat;
+
+		/* Get the extension type */
+		string ext_name = path_name.substr(path_name.length() - 3, 3);
+		if (ext_name.compare("csv") == 0) // csv file
+			mat = FileIO::getInstance().readMatrixFile(path_name);
+		else if (ext_name.compare("bim") == 0 || ext_name.compare("bed") == 0 || ext_name.compare("fam") == 0) // Plink file
+		{
+			path_name.erase(path_name.length() - 4, 4); // cut the extension
+			PlinkReader::getInstance().getX(path_name, mat);
+		}
+
+		result = Scheduler::Instance().setX(job_id, mat);
 	}
 	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
 
-// Sets the Y matrix of a given model.
-// Arguments: job_id, JSON matrix
+// Sets the Y matrix of a given model from Plink file.
+// Arguments: job_id, plink filepath
 void setY(const FunctionCallbackInfo<Value>& args) {
 	bool result = false;
 	Isolate* isolate = args.GetIsolate();
+
 	if (ArgsHaveJobID(args, 0)) {
 		const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
-		Local<v8::Array> ar = Local<v8::Array>::Cast(args[1]);
-		MatrixXf* mat = v8toEigen(ar);
-		result = Scheduler::Instance().setY(job_id, *mat);
+		string path_name(*v8::String::Utf8Value(args[1]->ToString()));
+		MatrixXf mat;
+
+		/* Get the extension type */
+		string ext_name = path_name.substr(path_name.length() - 3, 3);
+		if (ext_name.compare("csv") == 0) // csv file
+			mat = FileIO::getInstance().readMatrixFile(path_name);
+		else if (ext_name.compare("bim") == 0 || ext_name.compare("bed") == 0 || ext_name.compare("fam") == 0) // Plink file
+		{
+			path_name.erase(path_name.length() - 4, 4); // cut the extension
+			PlinkReader::getInstance().getY(path_name, mat);
+		}
+
+		result = Scheduler::Instance().setY(job_id, mat);
 	}
 	args.GetReturnValue().Set(Boolean::New(isolate, result));
 }
@@ -220,14 +276,13 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope handleScope(isolate);
 	Job_t* job = static_cast<Job_t*>(req->data);
-	Local<v8::Array> obj = v8::Array::New(isolate);
-
+    Local<Boolean> retval;
 	try {
 		// Pack up the data to be returned to JS
 		const MatrixXf& result = Scheduler::Instance().getJobResult(job->job_id);
-		// TODO: Fewer convserions to return a matrix
-		obj->Set(0, v8::String::NewFromUtf8(isolate, JsonCoder::getInstance().encodeMatrix(result).c_str()));
-		
+
+        int success = MongoInterface::getInstance().storeResults(result,job->filename,job->marker_ids);
+        retval = Boolean::New(isolate, success);
 		if (status < 0) { // libuv error
 			throw runtime_error("Libuv error (check server)");
 		}
@@ -237,10 +292,10 @@ void trainAlgorithmComplete(uv_work_t* req, int status) {
 	} catch(const exception& e) {
 		// If the job failed, the second entry in the array is the exception text.
 		// Is this really a good way to return data? It is different than the result from getJobResult()
-		obj->Set(1, v8::String::NewFromUtf8(isolate, e.what()));	
+		std::cout << e.what() << std::endl;
 	}
 	
-	Handle<Value> argv[] = { obj };
+	Handle<Value> argv[] = { retval };
 	// execute the callback
 	Local<Function>::New(isolate, job->callback)->Call(
 		isolate->GetCurrentContext()->Global(), 1, argv);

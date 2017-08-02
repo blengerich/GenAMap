@@ -4,24 +4,56 @@ var source = require('vinyl-source-stream')
 var watchify = require('watchify')
 
 gulp.task('bundle', function () {
-  return browserify('src/index.js')
-    .transform('babelify', {presets: ['es2015', 'react'], 'plugins': ['transform-object-rest-spread'], 'compact': false})
+   var appBundler = browserify({
+       entries: ['src/index.js'],
+       transform: [
+           ['babelify', {
+               "presets": ['es2015', 'react'],
+               "plugins": ['transform-object-rest-spread'],
+               "compact" : false
+           }
+           ],
+           ['browserify-css']
+       ]
+   }, { debug : true });
+  return appBundler
     .bundle()
+    .on('error', function (err) {
+      console.error(err.message)
+      console.error(err.codeFrame)
+    })
     .pipe(source('bundle.js'))
     .pipe(gulp.dest('static/'))
 })
 
-gulp.task('watch', function () {
-  var b = browserify({
+gulp.task('watch',function () {
+  var appBundler = browserify({
     entries: ['src/index.js'],
-    cache: {}, packageCache: {},
-    plugin: [watchify]
-  })
+    transform: [
+      ['babelify', {
+        "presets": ['es2015', 'react'],
+        "plugins": ['transform-object-rest-spread'],
+        "compact" : false
+        }
+      ],
+      ['browserify-css']
+    ],
+    cache: {},
+    packageCache: {},
+    // plugin: [watchify],
+  }, { debug : true });
 
-  b.on('update', makeBundle)
+
+
+  //appBundler = watchify(appBundler,{delay:1000,poll:true,ignoreWatch:true})
+  //appBundler.plugin(makeBundle,{delay:100,poll:true})
+
+  appBundler.on('update', makeBundle)
 
   function makeBundle () {
-    b.transform('babelify', {presets: ['es2015', 'react'], 'plugins': ['transform-object-rest-spread'], 'compact': false})
+
+      console.log("updated")
+      appBundler
       .bundle()
       .on('error', function (err) {
         console.error(err.message)
@@ -34,7 +66,13 @@ gulp.task('watch', function () {
 
   makeBundle()
 
-  return b
+  return appBundler
 })
 
+gulp.task('watcher', function () {
+    gulp.watch(['./src/**/*.js'], ['watch']);
+});
+
 gulp.task('default', ['watch'])
+
+

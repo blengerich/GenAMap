@@ -1,7 +1,6 @@
 import React from 'react'
-import Popover from 'material-ui/lib/popover/popover'
-import Tabs from 'material-ui/lib/tabs/tabs'
-import Tab from 'material-ui/lib/tabs/tab'
+import Popover from 'material-ui/Popover'
+import {Tabs,Tab} from 'material-ui/Tabs'
 
 import GMActivityList from './GMActivityList'
 

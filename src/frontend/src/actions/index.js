@@ -222,9 +222,25 @@ export function addActivity (activity) {
 }
 
 export function cancelActivity (activity) {
-  return {
-    type: CANCEL_ACTIVITY,
-    id: activity.id
+  if (! activity.completed) {
+    let postCancelActivityRequest = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jobId: activity.id,
+      })
+    }
+    fetch(`${config.api.cancelJobUrl}`, postCancelActivityRequest).then((response) => {
+      return {
+        type: CANCEL_ACTIVITY,
+        id: activity.id
+      }
+    })
+  } else {
+    return {
+      type: CANCEL_ACTIVITY,
+      id: activity.id
+    }
   }
 }
 

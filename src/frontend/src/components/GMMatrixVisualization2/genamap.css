@@ -1,0 +1,103 @@
+body, html, #root {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont,  "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",  "Fira Sans", "Droid Sans", "Helvetica Neue",  sans-serif;
+    font-size: 12px;
+    overflow: hidden;
+}
+.CustomWindowScrollerWrapper {
+    flex: 1 1 auto;
+}
+
+* {
+    box-sizing: border-box;
+
+}
+
+
+.headerCell {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.cell {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-right: 1px dotted #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: rgba(199, 226, 212, 0.23);
+}
+
+/*.cell:hover {*/
+    /*background-color: black;*/
+/*}*/
+
+.hoveredItem {
+    background-color: green;
+}
+
+
+.headerCell {
+    font-weight: bold;
+    border-right: 1px solid #e0e0e0;
+}
+.centeredCell {
+    align-items: center;
+    text-align: center;
+}
+
+.letterCell {
+    font-size: 10px;
+    color: #fff;
+    text-align: center;
+}
+
+
+.noCells {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1em;
+    color: #bdbdbd;
+}
+
+.zoomBar {
+    border: 1px solid #000;
+    right: 0.5rem;
+    height: 80%;
+    top: 10%;
+    width: 24px;
+    position: absolute;
+    z-index: 1;
+}
+
+.zoomBarCursorMarker {
+    background-color: #000;
+    width: 22px;
+    height: 2px;
+    bottom: 50%;
+    position: absolute;
+}
+
+.zoomBarCursor {
+    background-color: #000;
+    width: 22px;
+    height: 7px;
+    top: 99%;
+    position: absolute;
+    -webkit-transition: top 0.2s; /* Safari */
+    transition: top 0.2s;
+    transition-timing-function: ease-out;
+}

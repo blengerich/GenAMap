@@ -1,8 +1,6 @@
 import React from 'react'
-import Checkbox from 'material-ui/lib/checkbox'
-import Card from 'material-ui/lib/card/card'
-import CardMedia from 'material-ui/lib/card/card-media'
-import CardText from 'material-ui/lib/card/card-text'
+import Checkbox from 'material-ui/Checkbox'
+import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
 
 const GMAlgorithmCard = React.createClass({
   handleOnCheck: function (event) {

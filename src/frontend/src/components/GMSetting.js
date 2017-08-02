@@ -1,10 +1,10 @@
 import React, { Component, PropTypes } from 'react'
-import Popover from 'material-ui/lib/popover/popover'
-import Menu from 'material-ui/lib/menus/menu'
-import MenuItem from 'material-ui/lib/menus/menu-item'
-import Dialog from 'material-ui/lib/dialog'
-import FlatButton from 'material-ui/lib/flat-button'
-import TextField from 'material-ui/lib/text-field'
+import Popover from 'material-ui/Popover'
+import Menu from 'material-ui/Menu'
+import MenuItem from 'material-ui/MenuItem'
+import Dialog from 'material-ui/Dialog'
+import FlatButton from 'material-ui/FlatButton'
+import TextField from 'material-ui/TextField'
 import config from '../../config'
 
 const styles = {
@@ -77,8 +77,8 @@ const GMSetting = React.createClass({
   },
   render: function () {
     const {errorMessage , accountname} = this.props
-    console.log(errorMessage)
-    console.log(accountname)
+    // console.log(errorMessage)
+    // console.log(accountname)
     var actions = [
       <FlatButton
         label='Cancel'

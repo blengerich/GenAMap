@@ -1,9 +1,11 @@
 import React, { Component, PropTypes } from 'react'
 import { Link } from 'react-router'
-import Avatar from 'material-ui/lib/avatar'
-import AppBar from 'material-ui/lib/app-bar'
-import RaisedButton from 'material-ui/lib/raised-button'
-import TextField from 'material-ui/lib/text-field'
+import Avatar from 'material-ui/Avatar'
+import AppBar from 'material-ui/AppBar'
+import RaisedButton from 'material-ui/RaisedButton'
+import TextField from 'material-ui/TextField'
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
 
 import config from '../../config'
 
@@ -60,9 +62,12 @@ class Login extends Component {
       </p>
     ) : undefined
 
-    return (
+
+
+      return (
+      <MuiThemeProvider>
       <div style={styles.background}>
-        <div style={styles.body}>
+      <div style={styles.body}>
           <AppBar
             title=''
             style={styles.appBar}
@@ -110,9 +115,15 @@ class Login extends Component {
             {"Use Mozilla Firefox or Google Chrome for best experience"}
           </div>
         </div>
-      </div>
+  </div>
+  </MuiThemeProvider>
     )
   }
+
+
+    getChildContext() {
+        return {muiTheme: getMuiTheme()}
+    }
 
   clearErrors (event) {
     this.props.clearAuthErrors()
@@ -143,5 +154,10 @@ Login.propTypes = {
   onCreateAccountClick: PropTypes.func.isRequired,
   errorMessage: PropTypes.string
 }
+
+Login.childContextTypes = {
+    muiTheme: React.PropTypes.object.isRequired,
+}
+
 
 export default Login

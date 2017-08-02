@@ -1,11 +1,11 @@
 import React, { Component, PropTypes } from 'react'
-import Dialog from 'material-ui/lib/dialog'
-import FlatButton from 'material-ui/lib/flat-button'
-import SelectField from 'material-ui/lib/select-field'
-import MenuItem from 'material-ui/lib/menus/menu-item'
-import TextField from 'material-ui/lib/text-field'
-import ListItem from 'material-ui/lib/lists/list-item'
-import FontIcon from 'material-ui/lib/font-icon'
+import Dialog from 'material-ui/Dialog'
+import FlatButton from 'material-ui/FlatButton'
+import SelectField from 'material-ui/SelectField'
+import MenuItem from 'material-ui/MenuItem'
+import TextField from 'material-ui/TextField'
+import {ListItem} from 'material-ui/List'
+import FontIcon from 'material-ui/FontIcon'
 
 import config from '../../config'
 import GMFileInput from './GMFileInput'
@@ -293,7 +293,6 @@ class GMImportDialog extends Component {
                       hintText='Population File Name'
                       errorText={this.state.populationFileName && !this.state.populationName && errorText}
                       onChange={this.onChangePopulationName.bind(this)}
-                      importOnSubmit={true}
                     />
                     <GMFileInput
                       id='populationFile'
@@ -301,7 +300,6 @@ class GMImportDialog extends Component {
                       accept='.csv'
                       onChange={this.onChangePopulationFileName.bind(this)}
                       fileLabel={this.state.populationFileName}
-                      importOnSubmit={true}
                     /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
                   </div>
                   <div id="snpFeaturesDiv">
@@ -311,7 +309,6 @@ class GMImportDialog extends Component {
                       hintText='SNPs Features Name'
                       errorText={this.state.snpsFeatureFileName && !this.state.snpsFeatureName && errorText}
                       onChange={this.onChangeSnpsFeatureName.bind(this)}
-                      importOnSubmit={true}
                     />
                     <GMFileInput
                       id='snpsFeatureFile'
@@ -319,7 +316,6 @@ class GMImportDialog extends Component {
                       accept='.csv'
                       onChange={this.onChangeSnpsFeatureFileName.bind(this)}
                       fileLabel={this.state.snpsFeatureFileName}
-                      importOnSubmit={true}
                     /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
                   </div>
                 </div>:
@@ -387,7 +383,7 @@ class GMImportDialog extends Component {
                     id='bedFile'
                     buttonLabel='BED File'
                     hintText= 'BED file can be put here'
-                    accept='.ped'
+                    accept='.bed'
                     onChange={this.onChangeMarkerFileName.bind(this)}
                     fileLabel={this.state.markerFileName}
                   />
@@ -396,7 +392,7 @@ class GMImportDialog extends Component {
                     id='File'
                     buttonLabel='BIM File'
                     hintText = 'BIM file can be put here'
-                    accept='.map'
+                    accept='.bim'
                     onChange={this.onChangeTraitFileName.bind(this)}
                     fileLabel={this.state.traitFileName}
                   />
@@ -405,9 +401,9 @@ class GMImportDialog extends Component {
                     id='traitFile'
                     buttonLabel='FAM File'
                     hintText = 'FAM file can be put here'
-                    accept='.map'
-                    onChange={this.onChangeTraitFileName.bind(this)}
-                    fileLabel={this.state.traitFileName}
+                    accept='.fam'
+                    onChange={this.onChangeSnpsFeatureFileName.bind(this)}
+                    fileLabel={this.state.snpsFeatureFileName}
                   />
                 </div>
                 </div>:

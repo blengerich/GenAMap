@@ -186,6 +186,14 @@ model_id_t Scheduler::newModel(const ModelOptions_t& options) {
 	return id;
 }
 
+bool Scheduler::setMetaData(const job_id_t job_id, const string& filename, vector<string>& marker_ids) {
+    if (JobIdUsed(job_id)) {
+        shared_ptr<Job_t> job = getJob(job_id);
+        job->filename = filename;
+        job->marker_ids = marker_ids;
+    }
+    return false;
+}
 
 bool Scheduler::setX(const job_id_t job_id, const Eigen::MatrixXf& X) {
 	if (JobIdUsed(job_id) && getJob(job_id)->model) {

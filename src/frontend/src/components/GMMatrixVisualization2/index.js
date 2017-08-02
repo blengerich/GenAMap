@@ -1,0 +1,2 @@
+import GMMatrixVisualization2 from './GMMatrixVisualization2'
+export default GMMatrixVisualization2

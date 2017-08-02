@@ -1,6 +1,6 @@
 import React from 'react'
 
-import AutoComplete from 'material-ui/lib/auto-complete'
+import AutoComplete from 'material-ui/AutoComplete'
 
 const GMProjectSearch = React.createClass({
   getInitialState: function () {

@@ -40,6 +40,10 @@ public:
 	// Assumes that algorithm and job have been created by this scheduler.
 	// Simply packages as a job and assigns an ID.
 	// Returns the job's assigned ID, 0 for failure.
+
+	bool setMetaData(const job_id_t, const string&, vector<string>&);
+	// Sets the filename and marker_ids for the job at the given job_id
+	// returns true on success, false otherwise
 	
 	bool setX(const job_id_t, const Eigen::MatrixXf&);
 	// Sets the X matrix for the job at the given job_id.

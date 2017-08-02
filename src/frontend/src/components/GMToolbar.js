@@ -1,8 +1,8 @@
 import React, { PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import getMuiTheme from 'material-ui/lib/styles/getMuiTheme'
-import Transitions from 'material-ui/lib/styles/transitions'
-import Toolbar from 'material-ui/lib/toolbar/toolbar'
+import getMuiTheme from 'material-ui/styles/getMuiTheme'
+import Transitions from 'material-ui/styles/transitions'
+import Toolbar from 'material-ui/Toolbar'
 
 var GMToolbar = React.createClass({
 
@@ -125,14 +125,14 @@ var GMToolbar = React.createClass({
       children,
       className,
       style,
-      ...other
+     // ...other
     } = this.props
 
     var styles = this.getStyles()
 
     return (
       <Toolbar
-        {...other}
+        //{...other}
         className={className}
         style={Object.assign({}, styles.root, style)}
       >
