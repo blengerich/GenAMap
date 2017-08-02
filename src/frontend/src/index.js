@@ -24,7 +24,7 @@ import { setInitialUserState, confirmAccountFromLink } from './actions'
 import { getToken, verifyToken, removeToken } from './middleware/token'
 import GMMatrixVisualization2 from './components/GMMatrixVisualization2'
 
-const store = configureStore()
+const store = configureStore(window.localStorage.getItem('redux') || {})
 
 const token = getToken()
 verifyToken(token) ? store.dispatch(setInitialUserState(token)) : removeToken()
