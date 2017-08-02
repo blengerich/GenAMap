@@ -1061,7 +1061,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
  * @param {Number} req.body.jobId
  **/
 app.post(config.api.cancelJobUrl, function (req, res) {
-    console.log("cancelling job", Scheduler.cancelJob(req.body.jobId));
+    console.log("cancelling job", Scheduler.cancelJob(parseInt(req.body.jobId)));
 })
 
 
