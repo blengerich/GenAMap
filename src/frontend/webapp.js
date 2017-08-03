@@ -252,7 +252,6 @@ app.post(config.api.createAccountUrl, function (req, res) {
     if (password !== password2) {
         return res.status(400).send({message: "Passwords don't match"})
     }
-
     app.models.user.findOne({email}).exec(function (err, foundUser) {
         if (err) console.log(err)
         if (foundUser) {

@@ -446,7 +446,7 @@ export function loginUser (creds) {
       } else {
         setToken(user.id_token)
         dispatch(receiveLogin(user))
-        dispatch(getUserState(user.id_token))
+        dispatch(setInitialUserState(user.id_token))
         return user
       }
     }).catch(err => console.log("Error: ", err))
@@ -480,7 +480,9 @@ export function getUserState (token) {
         dispatch(userStateError())
         Promise.reject({error: 'Could not get state'})
       }
-    }).then(state => state
+    }).then((state) => {
+        return state
+    }
     ).catch(error => {
       console.log('error', error)
     })
