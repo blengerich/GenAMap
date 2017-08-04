@@ -12,13 +12,13 @@ The proliferation of genomic data has increased the usefulness of complex machin
 To get started, see the [docs](https://github.com/blengerich/GenAMap/tree/master/Documentation), which include [usage examples](https://github.com/blengerich/GenAMap/tree/master/Documentation/ExampleData) and [development information](https://github.com/blengerich/GenAMap/tree/master/Documentation/Development).
 
 ## Installation:
-To install GenAMap locally, all you need to do is execute the following script in your terminal:
+To install GenAMap locally, first you need to [Install Docker](https://docs.docker.com/engine/installation/), and then execute the following script in your terminal:
 
 ```shell
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/blengerich/GenAMap/master/Documentation/Installation/run_genamap.sh)"
 ```
 
-
+After that, you can enjoy the next-generation GWAS by visiting __localhost:49160__ on Linux. On Mac, this is __192.168.99.100:49160__, or __0.0.0.0:49160__ if your docker version > 1.2.x
 
 ## Contact:
 Have a question about GenAMap? Email us at genamap.team@gmail.com. To help us to get to know you better, please provide your name and affiliation when requesting support. We also have a [Google group](https://groups.google.com/forum/#!forum/genamap-users) for users.
