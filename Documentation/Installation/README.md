@@ -45,3 +45,8 @@ chmod +x stop_genamap.sh
 ```bash
 ./stop_genamap.sh
 ```
+
+# Updating the GenAMap Server
+```bash
+./run_genamap.sh -u
+```
