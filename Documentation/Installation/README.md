@@ -1,10 +1,47 @@
-# User's guidance
+# Setting Up the GenAMap Server
 
-* [Install Docker](https://docs.docker.com/engine/installation/)
-* Make sure that your docker containers have __memory more than 8GB__ (default is 2GB), you can check the setting in "Docker icon -> Preference -> Advanced" in macOS
+### Install Docker
+[Docker](https://docs.docker.com/engine/installation/)
+### Get the run script
+```bash
+curl https://raw.githubusercontent.com/blengerich/GenAMap/master/Documentation/Installation/run_genamap.sh > run_genamap.sh
+```
+### Give executable permissions to the run script
+```bash
+chmod +x run_genamap.sh
+```
+### Run the run script
+* When running the script for the first time, it may need to pull the images, which will take a while and require internet connection. 
+```bash
+./run_genamap.sh
+```
+* Run  ```docker ps```, the output should indicate that three containers are running
+    * genamap_production_server
+    * genamap_mongo
+    * genamap_postgres
+* If this isn't true, run ```./run_genamap.sh``` again.
 
+    
+### Enjoy next generation GWAS
+* Once the script has setup the server, visit __localhost:49160__
+    * The site will be ready a few minutes after run_genamap.sh completes. The server has to load SNP data which will take a couple of minutes.
+* There is already a demo user setup with the following credentials
+    * *email*: demo@demo.com
+    * *passw*: demo
+    
+    
+# Stopping the GenAMap Server
+### Get the stop script
+```bash
+curl https://raw.githubusercontent.com/blengerich/GenAMap/master/Documentation/Installation/stop_genamap.sh > stop_genamap.sh
+```
 
-* Run ***run_genamap.sh*** 
-   * For the first time, it needs to download the database and program, which will take a while and need Internet connection
-   * The server is runing in the backend
-   * Enjoy the next-generation GWAS by visiting __localhost:49160__ on Linux. On Mac, this is __192.168.99.100:49160__, or __0.0.0.0:49160__ if your docker version > 1.2.x
+### Give executable permissions to the stop script
+```bash
+chmod +x stop_genamap.sh
+```
+
+### Run the stop script
+```bash
+./stop_genamap.sh
+```

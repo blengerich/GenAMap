@@ -1,31 +1,36 @@
 # How to Build/Run GenAMap
 
 ### Enter Docker.
-To install Docker, see [here](./Docker/Quick_Start.md)
-
-	cd scripts	
-	./launch_docker.sh
-
+Install [Docker](./Docker/Quick_Start.md)
+```bash
+cd scripts	
+./dev_genamap.sh
+```
 ### Build the backend as a Node addon
-
-	cd /usr/src/genamap/Scheduler/node
-	node-gyp rebuild
+```bash
+cd /usr/src/genamap/Scheduler/node
+node-gyp rebuild
+```
 	
-Build the frontend. Gulp watches all the source files and compiles them into `bundle.js` every time we change a JS file. So it won’t ever finish (that’s why we run it as a background process).
+### Install the Node dependencies
+```bash
+cd /usr/src/genamap/frontend
+npm install
+```
 
-	cd ../../frontend
-	npm install --no-bin-links	# This may need sudo privileges on Windows
-	gulp watch &
-	
-### Run GenAMap
+### Start the development server
+```bash
+npm run dev
+```
 
-	nodemon -L webapp.js
-	# listening on port 3000
-	
-Now navigate in a web browser to the port. On Linux, this is localhost:7000. On Mac, this is 192.168.99.100:7000, or 0.0.0.0:7000 if your docker version > 1.2.x.
+### Open the application
+Now navigate in a web browser to the port at localhost:3001.
 
 ### Login
 Follow the prompts on the GUI to login and/or create an ID.
+* There is already a demo user setup with the following credentials
+    * *email*: demo@demo.com
+    * *passw*: demo
 
 ### Import Data
 * From the menu on the left, select "Import Local Data".
@@ -48,11 +53,8 @@ Select "Run Analysis".
 
 Click "Run Analysis". We can track the progress of this job by looking at the "Activity" tab. When this job is finished, a new folder called "Results"  will be created under our project.
 
-### Matrix View
-Click on the file named "Matrix View" and the visualization should appear in the main window.
-
-### Manhattan Plot
-TODO: Jingkang, what is the status of Manhattan plot?
+### Visualization
+* In the project files navigator, click on *[Project Name]->Results->[Job Name]* to open the results visualization.
 
 
 ## Dependencies:
