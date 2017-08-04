@@ -481,7 +481,6 @@ export function getUserState(token) {
           Promise.reject({error: 'Could not get state'})
         }
       }).then((state) => {
-          console.log(state)
           return state
         }
       ).catch(error => {
