@@ -54,7 +54,7 @@ if ! docker ps --format "{{.Names}}"| grep -q ${p_name}; then
             -e POSTGRES_PASSWORD='!!GeNaMaPnew00' -e POSTGRES_USER='postgres' -d postgres \
             || { echo "starting postgres failed" >&2; exit 1; }
     else
-        docker start ${p_name} 1 || { echo "starting postgres failed" >&2; exit 1; }
+        docker start ${p_name} || { echo "starting postgres failed" >&2; exit 1; }
     fi
     hr
     echo "PostgreSQL container has been successfully launched!"

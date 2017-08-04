@@ -18,6 +18,16 @@ cd /usr/src/genamap/frontend
 npm install
 ```
 
+### Edit src/frontend/static/index.html
+Change the line
+```html
+<script type="text/javascript" src="/bundle.js"></script>
+```
+to
+```html
+<script type="text/javascript" src="/build/bundle.js"></script>
+```
+
 ### Start the development server
 ```bash
 cd /usr/src/genamap/frontend
