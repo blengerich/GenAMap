@@ -20,6 +20,7 @@ npm install
 
 ### Start the development server
 ```bash
+cd /usr/src/genamap/frontend
 npm run dev
 ```
 
@@ -55,7 +56,6 @@ Click "Run Analysis". We can track the progress of this job by looking at the "A
 
 ### Visualization
 * In the project files navigator, click on *[Project Name]->Results->[Job Name]* to open the results visualization.
-
 
 ## Dependencies:
 For informational purposes only, you don't need to install anything. We are now using [Docker](http://docker.com) to sync our environments. See [docs](https://github.com/blengerich/GenAMap_V2/blob/master/Documentation/Development/Docker/Quick_Start.md) for more information.
