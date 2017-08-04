@@ -12,7 +12,13 @@ The proliferation of genomic data has increased the usefulness of complex machin
 To get started, see the [docs](https://github.com/blengerich/GenAMap/tree/master/Documentation), which include [usage examples](https://github.com/blengerich/GenAMap/tree/master/Documentation/ExampleData) and [development information](https://github.com/blengerich/GenAMap/tree/master/Documentation/Development).
 
 ## Installation:
-To install GenAMap locally, follow the [installation instructions](https://github.com/blengerich/GenAMap/tree/master/Documentation/Installation/README.md) with [scripts](https://github.com/blengerich/GenAMap/tree/master/Documentation/Installation/)
+To install GenAMap locally, all you need to do is execute the following script in your terminal:
+
+```shell
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/blengerich/GenAMap/master/Documentation/Installation/run_genamap.sh)"
+```
+
+
 
 ## Contact:
 Have a question about GenAMap? Email us at genamap.team@gmail.com. To help us to get to know you better, please provide your name and affiliation when requesting support. We also have a [Google group](https://groups.google.com/forum/#!forum/genamap-users) for users.
