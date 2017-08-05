@@ -28,7 +28,6 @@ const config = {
 
 
     plugins: [
-        // new WebpackCleanupPlugin(),
         new webpack.DefinePlugin({
             'process.env': {
                 NODE_ENV: '"production"'
@@ -42,31 +41,16 @@ const config = {
                 drop_debugger: true
             }
         }),
-        //new webpack.optimize.OccurenceOrderPlugin(),
-        // new ExtractTextPlugin('[contenthash].css', {
-        //     allChunks: true
-        // }),
         new webpack.NoEmitOnErrorsPlugin(),
-        // new HtmlWebpackPlugin({
-        //     template: './static/index.html',
-        //     files: {
-        //         css: ['style.css'],
-        //         js: [ '/build/[contenthash].js'],
-        //     }
-        // }),
     ],
     module: {
         loaders: [
             {
                 test: /\.js$/,
                 loaders: ['react-hot-loader/webpack', 'babel-loader'],
-                //exclude:path.resolve(__dirname, "node_modules"),
                 include: [
                     path.resolve(__dirname, './src'),
                 ],
-                // query : {
-                //     presets : ['es2015','react']
-                // }
             },
             {
                 test: /\.css$/,
@@ -74,7 +58,6 @@ const config = {
                 include: [
                     path.resolve(__dirname, './src'),
                 ],
-                //exclude:path.resolve(__dirname, "node_modules"),
             },
             {
                 test: /\.scss$/,
