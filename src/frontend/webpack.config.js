@@ -80,36 +80,48 @@ const config = {
 
         ]
     },
-     devServer: {
-         contentBase: "./static",
-         noInfo: false,
-         hot: true,
-         inline: true,
-         port: 3001,
-         host: "0.0.0.0",
-             proxy: {
-                 '/sessions': {
-                     target: 'http://localhost:3000/',
-                     secure: false
-                 },
-                 '/api': {
-                     target: 'http://localhost:3000/',
-                     secure: false
-                 },
-                 '/data': {
-                     target: 'http://localhost:3000/',
-                     secure: false
-                 },
-                 '/activity': {
-                     target: 'http://localhost:3000/',
-                     secure: false
-                 },
-                 '/analysis-results': {
-                     target: 'http://localhost:3000/',
-                     secure: false
-                 }
-             }
-     },
+    devServer: {
+        contentBase: "./static",
+        noInfo: false,
+        hot: true,
+        inline: true,
+        port: 3001,
+        host: "0.0.0.0",
+        proxy: {
+            '/create': {
+                target: 'http://localhost:3000/',
+                secure: false
+            },
+            '/sessions': {
+                target: 'http://localhost:3000/',
+                secure: false
+            },
+            '/api': {
+                target: 'http://localhost:3000/',
+                secure: false
+            },
+            '/data': {
+                target: 'http://localhost:3000/',
+                secure: false
+            },
+            '/activity': {
+                target: 'http://localhost:3000/',
+                secure: false
+            },
+            '/analysis-results': {
+                target: 'http://localhost:3000/',
+                secure: false
+            },
+            '/user': {
+                target: 'http://localhost:3000/',
+                secure: false
+            },
+            '/login': {
+                target: 'http://localhost:3000/',
+                secure: false
+            }
+        }
+    },
 
 }
 
