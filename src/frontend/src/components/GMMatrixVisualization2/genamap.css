@@ -81,6 +81,7 @@ body, html, #root {
     width: 24px;
     position: absolute;
     z-index: 1;
+    background-color:transparent;
 }
 
 .zoomBarCursorMarker {
@@ -101,3 +102,14 @@ body, html, #root {
     transition: top 0.2s;
     transition-timing-function: ease-out;
 }
+.topAxis{
+    background-color: transparent;
+}
+.style_t{
+    height:30px;
+    left:0px;
+    position:absolute;
+    top:90px;
+    width:0px;
+}
+

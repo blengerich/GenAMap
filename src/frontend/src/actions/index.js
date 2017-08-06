@@ -139,6 +139,7 @@ export function runAnalysis (data) {
 }
 
 export function toggleLeftNav () {
+  // console.log('toggle')
   return {
     type: TOGGLE_LEFT_NAV
   }

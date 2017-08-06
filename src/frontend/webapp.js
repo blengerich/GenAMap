@@ -281,9 +281,9 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
             //var auth_details = require('./static/email2/Authentication.json');
             //if (err) {throw err}
             //var transporter = nodemailer.createTransport(auth_details.user + ':' + auth_details.pass);
-            //var transporter = nodemailer.createTransport('smtps://xiang.liu1995@gmail.com:19951220lx@@smtp.gmail.com');
-            var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com')
-            //var transporter = nodemailer.createTransport('smtps://email@gmail.com:pass@smtp.gmail.com');
+            //var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com')
+            //var transporter = nodemailer.createTransport('smtps://wentingye52@gmail.com:1996111ywt@smtp.gmail.com')
+            var transporter = nodemailer.createTransport('smtps://email@gmail.com:pass@smtp.gmail.com');
             var mailOptions = {
                 from: '"GenAMap" <genamap.team@gmail.com>', // sender address
                 to: req.body.email,
@@ -296,6 +296,7 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
                 + req.body.code + '</b>'
                 + html_2
             };
+            console.log("hello22222222222")
 
             // send mail with defined transport object
             transporter.sendMail(mailOptions, function (error, info) {

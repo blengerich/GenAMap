@@ -16,15 +16,28 @@ const styles = {
     width: '300px'
   },
   sliderValue: {
+    // word-break:'normal',
+    // display:"inline-block",
     position: 'relative',
     fontSize: '14px',
     fontFamily: 'Roboto,sans-serif',
     fontWeight: 'bold',
-    left: '-40px',
-    bottom: '7px',
+    // left: '-40px',
+    // bottom: '7px',
     marginLeft: '15px',
     marginRight: '20px'
   },
+  sliderValue_L: {
+      position: 'relative',
+      fontSize: '12px',
+      fontFamily: 'Roboto,sans-serif',
+      fontWeight: 'bold',
+      // left: '-70px',
+      // bottom: '7px',
+      marginLeft: '15px',
+      marginRight: '20px'
+  },
+
   disclaimer: {
     fontFamily: 'Roboto',
     color: '#BDBDBD',
@@ -59,7 +72,8 @@ const GMSliderName = React.createClass({
     }
 
     return (
-      <span style={labelStyle}>Effect Size Threshold</span>
+      <span style={labelStyle}>Effect Size Threshold </span>
+      // max:{(this.props.max).toFixed(3)} min:{(this.props.min).toFixed(3)}
     )
   }
 })
@@ -107,8 +121,8 @@ const GMMatrixToolbar = React.createClass({
             step={0.1}
           />
 
-          <span style={styles.sliderValue}>{this.state.slider.threshold.toFixed(1)}</span>
-          <span style={styles.sliderValue}>{(this.props.label).toFixed(3)}</span>
+          <span style={styles.sliderValue_L}>max:{(this.props.max).toFixed(3)} min:{(this.props.min).toFixed(3)} | {this.state.slider.threshold.toFixed(1)} </span>
+          <span style={styles.sliderValue}>{this.props.name_value} {this.props.position}:{(this.props.label).toFixed(3)}</span>
           <GMSliderName />
           {/*<GMManhattanDialog*/}
             {/*pageParams={this.props.pageParams}*/}
