@@ -11,7 +11,7 @@ curl https://raw.githubusercontent.com/blengerich/GenAMap/master/Documentation/I
 chmod +x run_genamap.sh
 ```
 ### Run the run script
-* When running the script for the first time, it may need to pull the images, which will take a while and require internet connection. 
+* When running the script for the first time, it may need to pull the images, which will take a while and require internet connection.
 ```bash
 ./run_genamap.sh
 ```
@@ -21,15 +21,15 @@ chmod +x run_genamap.sh
     * genamap_postgres
 * If this isn't true, run ```./run_genamap.sh``` again.
 
-    
+
 ### Enjoy next generation GWAS
 * Once the script has setup the server, visit __localhost:49160__
     * The site will be ready a few minutes after run_genamap.sh completes. The server has to load SNP data which will take a couple of minutes.
 * There is already a demo user setup with the following credentials
     * *email*: demo@demo.com
-    * *passw*: demo
-    
-    
+    * *password*: demo
+
+
 # Stopping the GenAMap Server
 ### Get the stop script
 ```bash
@@ -50,3 +50,4 @@ chmod +x stop_genamap.sh
 ```bash
 ./run_genamap.sh -u
 ```
+
