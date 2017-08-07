@@ -13,8 +13,7 @@
     "build": "NODE_ENV='production' webpack --config webpack.production.js",
     "start": "node webapp.js",
     "test": "mocha",
-    "posttest": "standard",
-    "build": "NODE_ENV='production' webpack --config webpack.production.js"
+    "posttest": "standard"
   },
   "author": "Anuraag Jain",
   "dependencies": {
