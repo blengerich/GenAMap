@@ -10,19 +10,15 @@ const config = {
     devtool: 'source-map',
     entry: [
         'webpack-dev-server/client?http://localhost:3001/',
-        // 'webpack/hot/only-dev-server',
         'babel-polyfill',
         'react-hot-loader/patch',
         './src/index'
     ],
     output: {
-        path: path.resolve(__dirname, 'build'),
+        path: path.resolve(__dirname, 'static'),
         filename: 'bundle.js',
-        publicPath: '/build/'
+        publicPath: '/'
     },
-    // resolve: {
-    //     extensions: ['.js', '.jsx']
-    // },
     target:'web',
     node: {
         console: true,
@@ -34,12 +30,7 @@ const config = {
 
 
     plugins: [
-        // new webpack.HotModuleReplacementPlugin(),
         new webpack.NoEmitOnErrorsPlugin(),
-        // new ExtractTextPlugin({
-        //     filename: 'style.css',
-        //     allChunks: true
-        // }),
         new HtmlWebpackPlugin({
             template: './static/index.html',
             files: {
@@ -53,13 +44,9 @@ const config = {
             {
                 test: /\.js$/,
                 loaders: ['react-hot-loader/webpack', 'babel-loader'],
-                //exclude:path.resolve(__dirname, "node_modules"),
                 include: [
                     path.resolve(__dirname, './src'),
                 ],
-                // query : {
-                //     presets : ['es2015','react']
-                // }
             },
             {
                 test: /\.css$/,
@@ -67,7 +54,6 @@ const config = {
                 include: [
                     path.resolve(__dirname, './src'),
                 ],
-                //exclude:path.resolve(__dirname, "node_modules"),
             },
             {
                 test: /\.scss$/,
@@ -75,41 +61,52 @@ const config = {
                 include: [
                     path.resolve(__dirname, './src'),
                 ],
-                //exclude:path.resolve(__dirname, "node_modules"),
             }
 
         ]
     },
-     devServer: {
-         contentBase: "./static",
-         noInfo: false,
-         hot: true,
-         inline: true,
-         port: 3001,
-         host: "0.0.0.0",
-             proxy: {
-                 '/sessions': {
-                     target: 'http://localhost:3000/',
-                     secure: false
-                 },
-                 '/api': {
-                     target: 'http://localhost:3000/',
-                     secure: false
-                 },
-                 '/data': {
-                     target: 'http://localhost:3000/',
-                     secure: false
-                 },
-                 '/activity': {
-                     target: 'http://localhost:3000/',
-                     secure: false
-                 },
-                 '/analysis-results': {
-                     target: 'http://localhost:3000/',
-                     secure: false
-                 }
-             }
-     },
+    devServer: {
+        contentBase: "./static",
+        noInfo: false,
+        hot: true,
+        inline: true,
+        port: 3001,
+        host: "0.0.0.0",
+        proxy: {
+            '/create': {
+                target: 'http://localhost:3000/',
+                secure: false
+            },
+            '/sessions': {
+                target: 'http://localhost:3000/',
+                secure: false
+            },
+            '/api': {
+                target: 'http://localhost:3000/',
+                secure: false
+            },
+            '/data': {
+                target: 'http://localhost:3000/',
+                secure: false
+            },
+            '/activity': {
+                target: 'http://localhost:3000/',
+                secure: false
+            },
+            '/analysis-results': {
+                target: 'http://localhost:3000/',
+                secure: false
+            },
+            '/user': {
+                target: 'http://localhost:3000/',
+                secure: false
+            },
+            '/login': {
+                target: 'http://localhost:3000/',
+                secure: false
+            }
+        }
+    },
 
 }
 

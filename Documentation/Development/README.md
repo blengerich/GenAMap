@@ -3,7 +3,7 @@
 ### Enter Docker.
 Install [Docker](./Docker/Quick_Start.md)
 ```bash
-cd scripts	
+cd scripts
 ./dev_genamap.sh
 ```
 ### Build the backend as a Node addon
@@ -11,7 +11,7 @@ cd scripts
 cd /usr/src/genamap/Scheduler/node
 node-gyp rebuild
 ```
-	
+
 ### Install the Node dependencies
 ```bash
 cd /usr/src/genamap/frontend
@@ -31,7 +31,7 @@ Now navigate in a web browser to the port at localhost:3001.
 Follow the prompts on the GUI to login and/or create an ID.
 * There is already a demo user setup with the following credentials
     * *email*: demo@demo.com
-    * *passw*: demo
+    * *password*: demo
 
 ### Import Data
 * From the menu on the left, select "Import Local Data".
