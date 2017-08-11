@@ -22,7 +22,11 @@ function save (state) {
 
 const saver = store => next => action => {
   let result = next(action)
-  if (action.type.indexOf('INITIAL') < 0) {
+  if (action.type.indexOf('INITIAL') < 0 &&
+      action.type.indexOf('LOGIN') < 0 &&
+      action.type.indexOf('LOAD_INITIAL_PROJECTS') < 0 &&
+      action.type.indexOf('LOAD_INITIAL_ACTIVITIES') < 0 &&
+      action.type.indexOf('REDIRECT') < 0) {
     save(store.getState())
   }
   return result

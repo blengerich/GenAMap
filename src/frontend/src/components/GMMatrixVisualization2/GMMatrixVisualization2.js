@@ -9,6 +9,7 @@ import Grid from 'react-virtualized/dist/commonjs/Grid'
 import TopAxis from './topaxis'
 import fetch from '../fetch'
 import GMMatrixToolbar from '../GMMatrixToolbar'
+// var dimensions = require('dimensions');
 /*
 TODO LIST
 - Axis ( Make the major and minor axis
@@ -18,8 +19,14 @@ TODO LIST
 - Make it look prettier
 
  */
-const colorRange = ["#990000", "#eeeeee", "#ffffff", "#eeeeee", "#000099"];
 
+// var style_t="{ height:30px; left:0px; position:absolute;top:90px; width:0px;} "
+
+
+
+
+const colorRange = ["#990000", "#eeeeee", "#ffffff", "#eeeeee", "#000099"];
+// const Dimensions2 = require('Dimensions');
 const zoomFactor = 100;
 const maxZoom = 4;
 const yAxisCellSize = 1;
@@ -28,7 +35,18 @@ let dataIndex = 0;
 var min_=0;
 var max_=1;
 var label_value=0;
+var name_value="";
+var start_=1
+var end_=3088286401
+var steps_=100
+var position=0
+var first=true
+var style_t
+var value_all=0.0
+// var temp_event
 
+
+//style = Object.assign(style,{backgroundColor: " transparent"})
 //TODO : Remove d3 deps
 const calculateColorScale = (min, max, threshold) => {
     const mid = (min + max) / 2
@@ -48,8 +66,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
         const zoominfo = [{"start": 1,"end": 3088286401}]
         let items = [];
-        // var maxmax_=1.0
-        // var minmin_=0.0
+
         //Aggregating labels
         let factor = ((zoominfo[0].end - zoominfo[0].start) / zoomFactor);
         for (let i = zoominfo[0].start; i < (zoominfo[0].end); i = i + factor) {
@@ -57,10 +74,9 @@ export default class GMMatrixVisualization2 extends PureComponent {
             items.push(Math.floor(i));
         }
 
-
         this.state = {
             columnCount: zoomFactor,
-            height: 600,
+            height:window.innerHeight,
             overscanColumnCount: 0,
             overscanRowCount: 0,
             rowHeight: 30,
@@ -110,8 +126,11 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
     //fetch only the firstelement of the json array
     fetchData(start,end,steps){
+        start_=start
+        end_=end
+        steps_=steps
         var url = `/api/get-range/${this.props.params.result}?start=${start}&end=${end}&zoom=${Math.floor((end-start)/steps)}`
-        console.log(url)
+
         var dataRequest = {
           method: 'GET',
           headers: {
@@ -123,7 +142,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
         .then(res => {
             res.json()
             .then (json => {
-                console.log(json);
+                //console.log(json)
                 max_=json[2]['hi'];
                 min_=json[2]['lo'];
                 this.setState({ data: json[0], traits: json[1]},function(){
@@ -131,9 +150,6 @@ export default class GMMatrixVisualization2 extends PureComponent {
                    this.axis.forceUpdate()
 
                 }.bind(this))
-                // console.log(this.state.minmin);
-                // console.log(this.state.maxmax);
-                console.log("traits",this.state.traits)
 
         })
     })
@@ -156,12 +172,12 @@ export default class GMMatrixVisualization2 extends PureComponent {
                     } = this.state
 
         let cursorPosition;
+
         if (this.state.zoomamount > 0) {
             cursorPosition =  Math.min(100, ((99 - (100*(this.state.zoomLevel / maxZoom))) -  (this.state.zoomamount*0.2))) + "%";
         } else {
             cursorPosition =  Math.max(0, (99 - (100*(this.state.zoomLevel / maxZoom))) -  (this.state.zoomamount*0.2)) + "%";
         }
-
         let zstack = this.state.zoomStack
                 if (zstack.length > 1){
                     nstack = zstack.pop()
@@ -188,6 +204,9 @@ export default class GMMatrixVisualization2 extends PureComponent {
                 <div className={styles.topAxis}>
                     <TopAxis selected_min={this.state.start}
                              selected_max={this.state.end}
+                             style={{
+                                backgroundColor:'transparent'
+                             }}
                     />
                 </div>
 
@@ -211,8 +230,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
                                         rowHeight={rowHeight}
                                         rowCount={rowCount}
                                         scrollToColumn={scrollToColumn}
-                                        onKeyDown={this._onKeyDown}
-
+                                        // onKeyDown={this._onKeyDown}
                                     />
 
 
@@ -221,6 +239,9 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
                 </div>
             </div>
+            {/*<div id="#id2" className={styles.CustomWindowScrollerWrapper}*/}
+                 {/*// onKeyDown={this._onKeyDown}*/}
+            {/*>*/}
             <GMMatrixToolbar
                 left={this.props.minPad}
                 right={this.props.minPad}
@@ -228,16 +249,40 @@ export default class GMMatrixVisualization2 extends PureComponent {
                 label={label_value}
                 pageParams={this.state.pageParams}
                 traitLabels={this.state.traitLabels}
+                max={max_}
+                min={min_}
+                name_value={name_value}
+                position={position}
             />
+            {/*</div>*/}
+
             </div>
         )
     }
 
     _onThresholdChange(event, value) {
-        //console.log(value);
+
         this.setState({
             correlationThreshold: value
         });
+
+
+        var key="0-0" //useless
+        value_all=value
+        for (var i=0;i<=99;i++)
+        {
+            for (var j=0;j<=this.state.data[dataIndex]["data"].length+2;j++){
+                // console.log(i,j)
+                var width=this._getColumnWidth()
+                var width2=width*i
+                style_t = Object.assign(style_t,{width:width })
+                style_t = Object.assign(style_t,{left:width2 })
+                console.log(width,width2)
+                this._cellRenderer({i, key, j, style_t})
+            }
+        }
+        // this._updateZoom({event})
+
     }
 
 
@@ -254,6 +299,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     _updateZoom({event}) {
+        console.log("hello")
         let zoomamt = this.state.zoomamount
         switch (event.key){
 
@@ -358,7 +404,10 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
 
     _cellRenderer({columnIndex, key, rowIndex, style}) {
-
+         if(first){
+             style_t=style
+             first=false
+         }
          if (rowIndex <= 1 && columnIndex > yAxisCellSize - 1) {
              columnIndex -= yAxisCellSize
              return this._renderXAxisCell({columnIndex, key, rowIndex, style})
@@ -395,9 +444,8 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     _getYLabel(rowIndex) { // TODO: Add reference to return a trait number from DB
-
-        if (((this.state.traits[rowIndex-2]).length)>=3) {
-            return this.state.traits[rowIndex - 2].substring(0, 3);
+        if (((this.state.traits[rowIndex-2]).length)>=4) {
+            return this.state.traits[rowIndex - 2].substring(0, 4);
         }else{
             return this.state.traits[rowIndex - 2];
         }
@@ -418,63 +466,66 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     _renderDataCell({columnIndex, key, rowIndex, style}) {
-        // console.log(style)
-        let label = ""
-        let color = ""
-        // var dataInRange
-        if (this.state.data.length > 0) {
-            var dataInRange = this._dataInRange(this.state.data[dataIndex]["start"], this.state.data[dataIndex]["end"], columnIndex);
-            if (dataInRange) {
-                label = this.state.data[dataIndex]["data"][rowIndex - 2];
-                dataIndex = (dataIndex + 1) % (this.state.data.length - yAxisCellSize);
-                //let cellColorScale = calculateColorScale(0, 1, parseInt(label)
-                // console.log(this.state.minmin,this.state.maxmax);
-                let cellColorScale = calculateColorScale(min_, max_, this.state.correlationThreshold)
-                color = cellColorScale(label)
-            }
-            else {
-                label = 0;
-            }
-
-        }
-        var grid = this.axis
 
 
-        var setState = this.setState.bind(this)
-        var cname = styles.cell
-        if (columnIndex == this.state.hoveredColumnIndex){
-            color = "rgba(100, 0, 0, 0.25)"
-            cname = styles.hoveredItem
-        }
-        var name =this.state.traits[rowIndex-2]
+            let label = ""
+            let color = ""
+            var name = this.state.traits[rowIndex - 2]
 
-        style = Object.assign(style,{            backgroundColor: color})
+            if (this.state.data.length > 0) {
 
-        return React.DOM.div({
-            className: cname,
-            key: key,
-            onMouseOver: function () {
-
-                // console.log('mouse~')
-                //var mousePos = d3.event;
-                setState({
-                    hoveredColumnIndex: columnIndex,
-                    hoveredRowIndex: rowIndex
-                })
-                if(grid){
-                    grid.recomputeGridSize({columnIndex: columnIndex, rowIndex: rowIndex})
+                var dataInRange = this._dataInRange(this.state.data[dataIndex]["start"], this.state.data[dataIndex]["end"], columnIndex);
+                if (dataInRange) {
+                    label = this.state.data[dataIndex]["data"][rowIndex - 2];
+                    dataIndex = (dataIndex + 1) % (this.state.data.length - yAxisCellSize);
+                    let cellColorScale = calculateColorScale(min_, max_, value_all)
+                    color = cellColorScale(label)
                 }
-                if(label>=min_){
-                    // onLabelChange(label)
-                    label_value=label
-                    // console.log(label)
+                else {
+                    label = 0;
                 }
 
+            }
+            var dataIndex_ = dataIndex
+            var grid = this.axis
 
-            },
 
-            style: style
-        })
+            var setState = this.setState.bind(this)
+            var cname = styles.cell
+            if (columnIndex == this.state.hoveredColumnIndex) {
+                color = "rgba(100, 0, 0, 0.25)"
+                cname = styles.hoveredItem
+            }
+
+            if(color!="") {
+
+                style = Object.assign(style, {backgroundColor: color})
+            }
+
+            return React.DOM.div({
+                className: cname,
+                key: key,
+                onMouseOver: function () {
+
+                    setState({
+                        hoveredColumnIndex: columnIndex,
+                        hoveredRowIndex: rowIndex
+                    })
+                    if (grid) {
+                        grid.recomputeGridSize({columnIndex: columnIndex, rowIndex: rowIndex})
+                    }
+                    if (label >= min_) {
+                        label_value = label
+                    }
+
+                    name_value = name
+
+                    position = start_ + Math.floor(((end_ - start_) / steps_)) * dataIndex_
+
+                },
+
+                style: style
+            })
 
     }
 
@@ -506,6 +557,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
         let scale = 1000 * 1000 * 1000 * 10 // 1 Billion
         let start = Math.floor(zstate.start / scale % 10)
         let end = Math.floor(zstate.end / scale % 10)
+
 
         while (start == end){
             scale = scale / 10
@@ -626,6 +678,8 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
 
     _onKeyDown (event) {
+        // temp_event=event
+        // console.log(event)
         return this._updateZoom({event})
     }
 

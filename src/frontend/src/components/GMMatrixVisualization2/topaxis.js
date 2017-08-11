@@ -8,6 +8,8 @@ import d3 from 'd3'
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer'
 import Grid from 'react-virtualized/dist/commonjs/Grid'
 
+var begin=1
+var last=3088286401
 
 export default class TopAxis extends React.PureComponent {
 
@@ -82,25 +84,27 @@ export default class TopAxis extends React.PureComponent {
      }
 
      _renderXAxisCell({columnIndex, key, rowIndex, style}) {
-    
+
         const rowClass = this._getRowClassName(rowIndex)
         let datum = this._getDatum(columnIndex)
 
         let min = this.state.selected_min
         let max = this.state.selected_max
- 
 
         const classNames = cn(rowClass, styles.cell, {
         [styles.centeredCell]: columnIndex > 0
          })
 
-        if(datum * 10000000 >= min && datum * 10000000 <= max ){
-            style = Object.assign(style,{backgroundColor: "#abc0dd"})
+        if ((min==begin) &&(max==last)) {
+            style = Object.assign(style,{backgroundColor: " transparent"})
+     }
+        else if(datum * 10000000 >= min && datum * 10000000 <= max ){
+            style = Object.assign(style,{backgroundColor: " #abc0dd"}) //|transparent  #abc0dd
 
         }
 
         else if(max - min < 10000000 && Math.floor(min/10000000)==datum){
-                   style = Object.assign(style,{backgroundColor: "#c7e2d4"})
+                   style = Object.assign(style,{backgroundColor: "#c7e2d4"})//|transparent
 
         }
 
@@ -132,6 +136,7 @@ export default class TopAxis extends React.PureComponent {
      }
 
      _cellRenderer({columnIndex, key, rowIndex, style}) {
+
           return this._renderXAxisCell({columnIndex, key, rowIndex, style})
      }
 
