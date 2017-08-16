@@ -26,13 +26,13 @@ Running our Node App/Editing files from a Docker container
 Because Docker containers mask the ports from the host machine, it can be a little tricky to get a Node app to respond from within our container. We're going to [mount the source directory into the container as a volume](https://docs.docker.com/engine/userguide/containers/dockervolumes/). This means that when we change the files in this directory, they change in the Docker container immediately. Finally, nodemon restarts our app whenever it detects a change in the source code.
 
 *       > cd ..
-        > docker run -ti -p 49160:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap
+        > docker run -ti -p 80:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap
         > cd /usr/src/genamap/src/Scheduler/node
         > node-gyp rebuild
         > cd /usr/src/genamap/src/frontend
         > nodemon -L webapp.js
         
-* Then we can see our app running at localhost:49160
+* Then we can see our app running at localhost:80
 
 
 If you want to add a dependency

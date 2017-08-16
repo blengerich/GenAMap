@@ -33,13 +33,13 @@ If you also need to gulp (update the source files) (with CLI):
 To run the node app (without CLI):
 * Open Docker Quickstart Terminal
 * From the root directory (Genamap_V2), run:
-   $ docker run -ti -p 49160:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap
+   $ docker run -ti -p 80:3000 -v ${PWD}:/usr/src/genamap blengerich/genamap
 * This will create a local image of the docker container. Now we will need to run the node app:
   $ cd /usr/src/genamap/frontend/genamapApp
   $ nodemon -L webapp.js
 * To view the website, from a different terminal window, run:
   $ docker-machine ip default
-* Since we are running on a Mac, Docker binds localhost to the VM that the image is running on. This means that we need the VM's ip to see the actual site. Now, with the ip address, go to <ip>:49160, where <ip> is probably something like '192.168.99.100/' in your browser
+* Since we are running on a Mac, Docker binds localhost to the VM that the image is running on. This means that we need the VM's ip to see the actual site. Now, with the ip address, go to <ip>:80, where <ip> is probably something like '192.168.99.100/' in your browser
 If you are changing files in genamapApp/src (i.e., editing the node source code), you will need to open another instance of the same docker container.
 * From the same terminal window as the docker-machine command, run:
   $ docker ps -a

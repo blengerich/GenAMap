@@ -84,5 +84,5 @@ else
     hr
 fi
 hr
-echo "Server is running in the background successfully on port 49160..."
+echo "Server is running in the background successfully on port 80..."
 hr
