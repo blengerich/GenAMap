@@ -319,7 +319,7 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
  text: 'Registration Comfiration',
  html: 'Hi! <br/>'+
  'Thanks for registering for GenAMap. Now you can enjoy visual machine learning software totally free!<br/>'
- + 'Verification code: ' + req.body.code + '<br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code + '<br/'
+ + 'Verification code: ' + req.body.code + '<br/>Or confirm at 192.168.99.100:80/#/confirm/' + req.body.code + '<br/'
  + 'Yours sincerely<br/>' + 'GenAMap Team'
  };*/
 

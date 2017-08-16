@@ -69,7 +69,7 @@ fi
 g_name="genamap_production_server"
 if ! docker ps --format "{{.Names}}"| grep -q ${g_name}; then
     if ! docker ps -a --format "{{.Names}}"| grep -q ${g_name}; then
-        docker run -d -p 49160:3000 --name ${g_name} --link ${m_name}:mongo --link ${p_name}:postgres haohanwang/genamap_server \
+        docker run -d -p 80:3000 --name ${g_name} --link ${m_name}:mongo --link ${p_name}:postgres haohanwang/genamap_server \
             || { echo "starting genamap failed" >&2; exit 1; }
     else
         docker start ${g_name} \
@@ -84,5 +84,5 @@ else
     hr
 fi
 hr
-echo "Server is running in the background successfully on port 49160..."
+echo "Server is running in the background successfully on port 80..."
 hr
