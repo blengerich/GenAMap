@@ -145,12 +145,11 @@ export default class GMMatrixVisualization2 extends PureComponent {
                 //console.log(json)
                 max_=json[2]['hi'];
                 min_=json[2]['lo'];
-                this.setState({ data: json[0], traits: json[1]},function(){
+                this.setState({ data: json[0], traits: json[1], rowCount:json[1].length + 2},function(){
 
                    this.axis.forceUpdate()
 
                 }.bind(this))
-
         })
     })
 
