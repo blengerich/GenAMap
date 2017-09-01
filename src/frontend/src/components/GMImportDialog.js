@@ -41,13 +41,22 @@ class GMImportDialog extends Component {
   }
 
   validateForm () {
-    return this.state.projectValue === 'new' ?
-      (!!this.state.projectName && !!this.state.speciesValue) : // New projects only require a name and a species
-      (!!this.state.projectValue && // If we are using an existing project, we can add markers and/or traits
-        (!!this.state.markerName && !!this.state.markerFileName && !!this.state.markerLabelFileName) ||
-        (!!this.state.traitName && !!this.state.traitFileName && !!this.state.traitLabelFileName) ||
-        (!!this.state.snpsFeatureName && !!this.state.snpsFeatureFileName) ||
-        (!!this.state.populationName && !!this.state.populationFileName))
+    // return this.state.projectValue === 'new' ?(!!this.state.projectName && !!this.state.speciesValue) : // New projects only require a name and a species
+    //     (!!this.state.projectValue && // If we are using an existing project, we can add markers and/or traits
+    //     (!!this.state.markerName && !!this.state.markerFileName ) ||(!!this.state.markerFileName && !!this.state.markerLabelFileName)
+    //     (!!this.state.traitName && !!this.state.traitFileName) ||(!!this.state.traitFileName && !!this.state.traitLabelFileName)
+    //     (!!this.state.snpsFeatureName && !!this.state.snpsFeatureFileName) ||
+    //     (!!this.state.populationName && !!this.state.populationFileName))
+    return true
+
+
+        // (!!this.state.projectName && !!this.state.speciesValue) : // New projects only require a name and a species
+        // (!!this.state.projectValue && // If we are using an existing project, we can add markers and/or traits
+        // (!!this.state.markerName && !!this.state.markerFileName && !!this.state.markerLabelFileName) ||
+        // (!!this.state.traitName && !!this.state.traitFileName && !!this.state.traitLabelFileName) ||
+        // (!!this.state.snpsFeatureName && !!this.state.snpsFeatureFileName) ||
+        // (!!this.state.populationName && !!this.state.populationFileName))
+
   }
 
   handleSubmit () {
