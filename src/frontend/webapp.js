@@ -277,11 +277,12 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
             if (err) {
                 throw err
             }
-            //var transporter = nodemailer.createTransport('smtps://genamap.v2.0@gmail.com:GenAMapV2@smtp.gmail.com');
-            fs.readFile('../genamap2/Authentication.json', 'utf8', function (err, auth_details) {
-                var transporter = nodemailer.createTransport(auth_details.user + ':' + auth_details.password);
-            })
-            //var transporter = nodemailer.createTransport('smtps://email@gmail.com:pass@smtp.gmail.com');
+            var json_file=fs.readFileSync('../../genamap3/Authentication.json')
+
+
+            var jsonContent = JSON.parse(json_file);
+            var transporter = nodemailer.createTransport(jsonContent.user + ':' + jsonContent.password);
+
 
             var mailOptions = {
                 from: '"GenAMap" <genamap.team@gmail.com>', // sender address
