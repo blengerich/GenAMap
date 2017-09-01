@@ -274,7 +274,7 @@ var Graph = function(data, markerLabels, traitLabels, min, max, threshold) {
     svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     var zoomAmount = d3.event.scale;
     var translateAmount = d3.event.translate;
-    console.log("zoom", translateAmount, zoomAmount)
+    //console.log("zoom", translateAmount, zoomAmount)
 
     axisOnZoom(translateAmount, zoomAmount);
 

@@ -299,7 +299,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     _updateZoom({event}) {
-        console.log("hello")
+        //console.log("hello")
         let zoomamt = this.state.zoomamount
         switch (event.key){
 
