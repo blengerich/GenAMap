@@ -142,7 +142,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
         .then(res => {
             res.json()
             .then (json => {
-                //console.log(json)
+                // console.log(json)
                 max_=json[2]['hi'];
                 min_=json[2]['lo'];
                 this.setState({ data: json[0], traits: json[1], rowCount:json[1].length + 2},function(){
@@ -443,6 +443,8 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     _getYLabel(rowIndex) { // TODO: Add reference to return a trait number from DB
+        console.log(rowIndex)
+        console.log(this.state.traits)
         if (((this.state.traits[rowIndex-2]).length)>=4) {
             return this.state.traits[rowIndex - 2].substring(0, 4);
         }else{

@@ -30,6 +30,7 @@ protected:
     static float sigmoid(float x){return 1.0 / (1.0 + exp(-x));}
     void checkLogisticRegression();
 public:
+    void imputation();
     void setX(const MatrixXf&);
     void setY(const MatrixXf&);
     virtual void setAttributeMatrix(const string&, MatrixXf*);

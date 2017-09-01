@@ -293,7 +293,6 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
                 + req.body.code + '</b>'
                 + html_2
             };
-            console.log("hello22222222222")
 
             // send mail with defined transport object
             transporter.sendMail(mailOptions, function (error, info) {
@@ -944,6 +943,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             }
             Scheduler.setX(jobId, markerFile.path);
             Scheduler.setY(jobId, traitFile.path);
+            Scheduler.imputation(jobId);
             const startJobFinish = function () {
                 const userId = extractUserIdFromHeader(req.headers)
                 const id = guid()
@@ -1014,7 +1014,8 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             var ready = req.body.other_data.map((value, index) => {
                 false
             });
-            if (req.body.other_data.length > 0) {
+            app.models.file.findOne({id: req.body.marker.data.labelId}).exec(function (err, mLabelsFile) {
+            if (req.body.other_data.length > 0 && typeof mLabelsFile != 'undefined') {
                 req.body.other_data.map((value, index) => {
                     console.log(value);
                     if (!value.val || !value.val.data || !value.val.data.id || value.val.data.id < 0) {
@@ -1043,9 +1044,10 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                         }
                     })
                 })
-            } else {
-                startJobFinish();
             }
+            else {
+                startJobFinish();
+            }})
             /*results.map((value, index) => assert(value));*/
 
         });
