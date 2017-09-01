@@ -276,7 +276,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
                 var width2=width*i
                 style_t = Object.assign(style_t,{width:width })
                 style_t = Object.assign(style_t,{left:width2 })
-                console.log(width,width2)
+                // console.log(width,width2)
                 this._cellRenderer({i, key, j, style_t})
             }
         }
@@ -298,7 +298,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     _updateZoom({event}) {
-        console.log("hello")
+        // console.log("hello")
         let zoomamt = this.state.zoomamount
         switch (event.key){
 
@@ -443,8 +443,6 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     _getYLabel(rowIndex) { // TODO: Add reference to return a trait number from DB
-        console.log(rowIndex)
-        console.log(this.state.traits)
         if (((this.state.traits[rowIndex-2]).length)>=4) {
             return this.state.traits[rowIndex - 2].substring(0, 4);
         }else{

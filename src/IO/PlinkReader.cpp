@@ -48,7 +48,6 @@ void PlinkReader::readData(string filename) {
     long m0 = 0;
     while (getline(infile, line)){
         vector<string> values = FileIO::getInstance().split(line, " ");
-        cout << values[values.size() - 1]<<endl;
         y(m0, 0) = stof(values[values.size() - 1]);
         m0 += 1;
     }
