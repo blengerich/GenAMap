@@ -6,7 +6,6 @@ import MenuItem from 'material-ui/MenuItem'
 import TextField from 'material-ui/TextField'
 import {ListItem} from 'material-ui/List'
 import FontIcon from 'material-ui/FontIcon'
-
 import config from '../../config'
 import GMFileInput from './GMFileInput'
 
@@ -41,12 +40,13 @@ class GMImportDialog extends Component {
   }
 
   validateForm () {
-    return this.state.projectValue === 'new' ?(!!this.state.projectName && !!this.state.speciesValue) : // New projects only require a name and a species
-      (!!this.state.projectValue && // If we are using an existing project, we can add markers and/or traits
-      (!!this.state.markerName && !!this.state.markerFileName && !!this.state.markerLabelFileName) ||
-      (!!this.state.traitName && !!this.state.traitFileName && !!this.state.traitLabelFileName) ||
-      (!!this.state.snpsFeatureName && !!this.state.snpsFeatureFileName) ||
-      (!!this.state.populationName && !!this.state.populationFileName))
+    // return this.state.projectValue === 'new' ?(!!this.state.projectName && !!this.state.speciesValue) : // New projects only require a name and a species
+    //   (!!this.state.projectValue && // If we are using an existing project, we can add markers and/or traits
+    //   (!!this.state.markerName && !!this.state.markerFileName && !!this.state.markerLabelFileName) ||
+    //   (!!this.state.traitName && !!this.state.traitFileName && !!this.state.traitLabelFileName) ||
+    //   (!!this.state.snpsFeatureName && !!this.state.snpsFeatureFileName) ||
+    //   (!!this.state.populationName && !!this.state.populationFileName))
+      return true
   }
 
   handleSubmit () {
@@ -98,12 +98,23 @@ class GMImportDialog extends Component {
     this.setState({markerLabelFileName: event.target.value.substr(12)})
   }
 
-  onChangeMarkerName (event) {
+  onChangeMarkerLabelFileName2(event,index, value) {
+      //this.setState({markerLabelFileName: event.target.value.substr(12)})
+      this.setState({markerLabelFileName: value})
+  }
+
+
+    onChangeMarkerName (event) {
     this.setState({markerName: event.target.value})
   }
 
   onChangeMarkerFileName (event) {
     this.setState({markerFileName: event.target.value.substr(12)})
+  }
+
+  onChangeMarkerFileName2 (event,index, value) {
+      this.setState({markerFileName: value})
+      // this.setState({markerFileName: event.target.value.substr(12)})
   }
 
   onChangeTraitLabelFileName(event) {
@@ -260,6 +271,34 @@ class GMImportDialog extends Component {
                       onChange={this.onChangeMarkerLabelFileName.bind(this)}
                       fileLabel={this.state.markerLabelFileName}
                     /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
+                    <div>
+                      <SelectField
+                          value={this.state.markerFileName}
+                          // disabled={false}
+                          hintText='Marker File'
+                          //errorText={!this.state.markerFileName &&errorText}
+                          onChange={this.onChangeMarkerFileName2.bind(this)}
+                      >
+                          {/*{speciesList}*/}
+                        <MenuItem value={'markers_values.csv'} primaryText='markers_values.csv' />
+                        <MenuItem value={'plink'} primaryText='PLINK data' />
+                        <MenuItem value={'bed'} primaryText='PLINK binary data' />
+
+                      </SelectField>
+                      <br />
+                      <SelectField
+                          value={this.state.markerLabelFileName}
+                          // disabled={false}
+                          hintText='Maker Label FIile'
+                          //errorText={!this.state.markerLabelFileName &&errorText}
+                          onChange={this.onChangeMarkerLabelFileName2.bind(this)}
+                      >
+                          {/*{speciesList}*/}
+                        <MenuItem value={'markers_labels.csv'} primaryText='markers_labels.csv' />
+                        <MenuItem value={'plink'} primaryText='PLINK data' />
+                        <MenuItem value={'bed'} primaryText='PLINK binary data' />
+                      </SelectField>
+                    </div>
                   </div>
                   <br />
                   <div>

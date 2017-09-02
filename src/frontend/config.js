@@ -21,7 +21,8 @@ const config = {
     getActivityUrl: '/activity',
     cancelJobUrl: '/api/cancelJob',
     getAnalysisResultsUrl: '/analysis-results',
-    ChangePasswordUrl: '/user/change-password'
+    ChangePasswordUrl: '/user/change-password',
+    read_file:'/api/read_file'
   },
   ui: {
     navWidth: 300,
