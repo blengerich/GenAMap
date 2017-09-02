@@ -17,7 +17,28 @@ var Scheduler = require('../Scheduler/node/build/Release/scheduler.node')
 var jwt = require('jsonwebtoken')
 var psqlAdapter = require('sails-postgresql')
 
-// temp
+
+// const testFolder = "../../genamap2/";
+// fs.readdir(testFolder, (err, files) => {
+//     files.forEach(file => {
+//         console.log(file)
+//         // file2.push(file)
+//         // // if(file.indexOf('.csv') != -1){
+//         // //     console.log("true2")
+//         // // }
+//         //
+//         // for(var i_ in file2){
+//         //     console.log(i_)
+//         //     console.log(typeof file2[i_],file2[i_],"--")
+//         //     console.log(typeof i_)
+//         //     if(file2[i_].indexOf('.csv')!=-1){
+//         //         console.log("true2")
+//         //     }
+//         // }
+//         //
+//         // console.log(file2)
+//     });
+// })
 var http = require('http')
 var querystring = require('querystring')
 //var favicon = require('serve-favicon')
@@ -740,7 +761,7 @@ app.post(config.api.importDataUrl, function (req, res) {
                         var fstream = fs.createWriteStream(fullPath)
                         console.log('get a plink file, stored in ' + fullPath)
                         //file.pipe(fstream)
-                        var data2=fs.readFileSync('../../genamap2/data/'+temp_file2name)
+                        var data2=fs.readFileSync('../../genamap2/'+temp_file2name)
                         temp_file.pipe(fstream)
                         fs.writeFileSync(csv_fullPath, data2)
                         var data, newFieldname
@@ -772,7 +793,7 @@ app.post(config.api.importDataUrl, function (req, res) {
                         var csv_fstream = fs.createWriteStream(csv_fullPath+'1')
 
 
-                        var data2=fs.readFileSync('../../genamap2/data/'+temp_file2name)
+                        var data2=fs.readFileSync('../../genamap2/'+temp_file2name)
                         temp_file.pipe(csv_fstream)
                         fs.writeFileSync(csv_fullPath, data2)
 
@@ -1055,7 +1076,7 @@ app.post(config.api.importDataUrl, function (req, res) {
         //         const fstream = fs.createWriteStream(fullPath)
         //         console.log('get a plink file, stored in ' + fullPath)
         //         //file.pipe(fstream)
-        //         var data2=fs.readFileSync('../../genamap2/data/'+filename)
+        //         var data2=fs.readFileSync('../../genamap2/'+filename)
         //         file.pipe(fstream)
         //         fs.writeFileSync(csv_fullPath, data2)
         //         var data, newFieldname
@@ -1088,7 +1109,7 @@ app.post(config.api.importDataUrl, function (req, res) {
         //         const csv_fstream = fs.createWriteStream(csv_fullPath)
         //
         //
-        //         var data2=fs.readFileSync('../../genamap2/data/'+filename)
+        //         var data2=fs.readFileSync('../../genamap2/'+filename)
         //         file.pipe(csv_fstream)
         //         fs.writeFileSync(csv_fullPath, data2)
         //
