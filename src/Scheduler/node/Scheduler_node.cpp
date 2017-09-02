@@ -32,6 +32,16 @@ using namespace Eigen;
 using namespace std;
 using namespace v8;
 
+void imputation(const FunctionCallbackInfo<Value>& args) {
+    bool result = false;
+    Isolate* isolate = args.GetIsolate();
+    if (ArgsHaveJobID(args,0)) {
+        const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
+        result = Scheduler::Instance().imputation(job_id);
+    }
+    args.GetReturnValue().Set(Boolean::New(isolate, result));
+}
+
 void setMetaData(const FunctionCallbackInfo<Value>& args) {
     bool result = false;
     Isolate* isolate = args.GetIsolate();
