@@ -517,26 +517,12 @@ app.post(`${config.api.getActivityUrl}/:id`, function (req, res) {
 
 app.post(`${config.api.read_filelist}`, function (req, res) {
     var file2=[]
-    // console.log(typeof file2)
     const testFolder = "../../genamap2/";
     fs.readdir(testFolder, (err, files) => {
         files.forEach(file => {
-            // console.log(file)
+
             file2.push(file)
-            // if(file.indexOf('.csv') != -1){
-            //     console.log("true2")
-            // }
-            //
-            // for(var i_ in file2){
-            //     console.log(i_)
-            //     console.log(typeof file2[i_],file2[i_],"--")
-            //     console.log(typeof i_)
-            //     if(file2[i_].indexOf('.csv')!=-1){
-            //         console.log("true2")
-            //     }
-            // }
-            //
-            // console.log(file2)
+
         });
     })
 

@@ -37,13 +37,15 @@ class GMImportDialog extends Component {
   }
 
   constructor (props, context) {
-    super(props, context)
-    this.state = this.initialState()
-    this.state.filelist=this.read_filelist()
+      console.log("construt")
+      console.log('===================')
+      super(props, context)
+      this.state = this.initialState()
+      this.state.filelist=this.read_filelist()
   }
 
   read_filelist(){
-
+      console.log("construt2")
       var url = `/api/read_filelist`
       var dataRequest = {
           method: 'GET',
@@ -52,12 +54,13 @@ class GMImportDialog extends Component {
           }
       }
       fetch(url,dataRequest)
-          .then(res => {
-              res.json()
-                  .then (json => {
-                      console.log(json)
-                  })
-          })
+      .then(res => {
+          res.json()
+              .then (json => {
+                  console.log(json)
+              })
+      })
+      console.log("construt2")
   }
 
   validateForm () {
