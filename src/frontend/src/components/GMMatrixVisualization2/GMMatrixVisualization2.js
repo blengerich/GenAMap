@@ -118,7 +118,6 @@ export default class GMMatrixVisualization2 extends PureComponent {
         end_=end
         steps_=steps
         var url = `/api/get-range/${this.props.params.result}?start=${start}&end=${end}&zoom=${Math.floor((end-start)/steps)}`
-
         var dataRequest = {
           method: 'GET',
           headers: {
@@ -138,9 +137,8 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
                 }.bind(this))
 
+            })
         })
-    })
-
     }
 
 

@@ -30,13 +30,46 @@ class GMImportDialog extends Component {
       populationFileName: '',
       populationName: '',
       optionDisabled: true,
-      species: config.species
+      species: config.species,
+      filelist:''
     }
   }
 
   constructor (props, context) {
     super(props, context)
     this.state = this.initialState()
+    this.state.filelist=this.read_filelist()
+  }
+
+  read_filelist(){
+      // fetchData(start,end,steps){
+      //     start_=start
+      //     end_=end
+      //     steps_=steps
+      //     var url = `/api/get-range/${this.props.params.result}?start=${start}&end=${end}&zoom=${Math.floor((end-start)/steps)}`
+      //     var dataRequest = {
+      //         method: 'GET',
+      //         headers: {
+      //             'Content-Type': 'application/json'
+      //         }
+      //     }
+      //     fetch(url,dataRequest)
+      //         .then(res => {
+      //             res.json()
+      //                 .then (json => {
+      //                     //console.log(json)
+      //                     max_=json[2]['hi'];
+      //                     min_=json[2]['lo'];
+      //                     this.setState({ data: json[0], traits: json[1]},function(){
+      //
+      //                         this.axis.forceUpdate()
+      //
+      //                     }.bind(this))
+      //
+      //                 })
+      //         })
+      // }
+
   }
 
   validateForm () {

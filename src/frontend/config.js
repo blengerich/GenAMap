@@ -22,7 +22,7 @@ const config = {
     cancelJobUrl: '/api/cancelJob',
     getAnalysisResultsUrl: '/analysis-results',
     ChangePasswordUrl: '/user/change-password',
-    read_file:'/api/read_file'
+    read_filelist:'/api/read_filelist'
   },
   ui: {
     navWidth: 300,
