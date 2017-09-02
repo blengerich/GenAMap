@@ -138,7 +138,6 @@ export default class GMMatrixVisualization2 extends PureComponent {
           }
         }
         fetch(url,dataRequest)
-        fetch(url,dataRequest)
         .then(res => {
             res.json()
             .then (json => {
