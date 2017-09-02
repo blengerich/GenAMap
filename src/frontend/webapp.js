@@ -523,9 +523,9 @@ app.post(`${config.api.read_filelist}`, function (req, res) {
 
             file2.push(file)
         });
+        return res.json({file2})
     })
 
-    return res.json({file2})
 })
 
 

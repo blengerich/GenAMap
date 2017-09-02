@@ -32,7 +32,7 @@ class GMImportDialog extends Component {
       populationName: '',
       optionDisabled: true,
       species: config.species,
-      filelist:''
+      filelist:[]
     }
   }
 
@@ -42,7 +42,6 @@ class GMImportDialog extends Component {
   }
 
   read_filelist(){
-      console.log("construt2")
       var url = `/api/read_filelist/`
       var dataRequest = {
           method: 'POST',
@@ -50,14 +49,23 @@ class GMImportDialog extends Component {
               'Content-Type': 'application/json'
           }
       }
-      fetch(url,dataRequest)  //
+      fetch(url,dataRequest)
       .then(res => {
           res.json()
               .then (json => {
-                  console.log(json)
+                  ////file2  is just a name used in json
+                  var temp_list=[]
+                  for(var i=0;i<json['file2'].length;i++){
+                      // console.log(json['file2'][i])
+                      temp_list.push(<MenuItem  value={json['file2'][i]} primaryText={json['file2'][i]} />)
+                      this.state.filelist=temp_list
+                      console.log(temp_list)
+                      console.log(this.state.filelist)
+                  }
+
+                  return temp_list
               })
       })
-      console.log("construt2")
   }
 
   validateForm () {
@@ -77,8 +85,8 @@ class GMImportDialog extends Component {
   }
 
   handleOpen () {
-    this.setState({open: true})
-    this.state.filelist=this.read_filelist()
+      this.setState({open: true})
+      this.state.filelist=this.read_filelist()
   }
 
   handleClose () {
@@ -302,9 +310,10 @@ class GMImportDialog extends Component {
                           onChange={this.onChangeMarkerFileName2.bind(this)}
                       >
                           {/*{speciesList}*/}
-                        <MenuItem value={'markers_values.csv'} primaryText='markers_values.csv' />
-                        <MenuItem value={'plink'} primaryText='PLINK data' />
-                        <MenuItem value={'bed'} primaryText='PLINK binary data' />
+                        {/*<MenuItem value={'markers_values.csv'} primaryText='markers_values.csv' />*/}
+                        {/*<MenuItem value={'plink'} primaryText='PLINK data' />*/}
+                        {/*<MenuItem value={'bed'} primaryText='PLINK binary data' />*/}
+                          {this.state.filelist}
 
                       </SelectField>
                       <br />
