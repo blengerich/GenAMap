@@ -8,6 +8,7 @@ import {ListItem} from 'material-ui/List'
 import FontIcon from 'material-ui/FontIcon'
 import config from '../../config'
 import GMFileInput from './GMFileInput'
+import fetch from './fetch'
 
 const errorText = 'This is a required field'
 
@@ -42,34 +43,21 @@ class GMImportDialog extends Component {
   }
 
   read_filelist(){
-      // fetchData(start,end,steps){
-      //     start_=start
-      //     end_=end
-      //     steps_=steps
-      //     var url = `/api/get-range/${this.props.params.result}?start=${start}&end=${end}&zoom=${Math.floor((end-start)/steps)}`
-      //     var dataRequest = {
-      //         method: 'GET',
-      //         headers: {
-      //             'Content-Type': 'application/json'
-      //         }
-      //     }
-      //     fetch(url,dataRequest)
-      //         .then(res => {
-      //             res.json()
-      //                 .then (json => {
-      //                     //console.log(json)
-      //                     max_=json[2]['hi'];
-      //                     min_=json[2]['lo'];
-      //                     this.setState({ data: json[0], traits: json[1]},function(){
-      //
-      //                         this.axis.forceUpdate()
-      //
-      //                     }.bind(this))
-      //
-      //                 })
-      //         })
-      // }
 
+      var url = `/api/read_filelist`
+      var dataRequest = {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      }
+      fetch(url,dataRequest)
+          .then(res => {
+              res.json()
+                  .then (json => {
+                      console.log(json)
+                  })
+          })
   }
 
   validateForm () {
