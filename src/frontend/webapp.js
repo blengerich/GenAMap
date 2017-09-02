@@ -584,6 +584,7 @@ app.post(config.api.importDataUrl, function (req, res) {
 
         if(temp_fieldname!==""){
                 temp_file2name=val
+            //here if you dont want to use the file read from the filesystem please comment this line
                 if (!!temp_file2name) {
 
                     var folderPath = path.join('./.tmp', userId)
@@ -898,6 +899,7 @@ app.post(config.api.importDataUrl, function (req, res) {
 
         temp_fieldname=fieldname
         temp_file=file
+        //here is the former code that I want to keep in case I wrote something wrong to recover lol
         // if (!!filename) {
         //
         //     const folderPath = path.join('./.tmp', userId)
