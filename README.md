@@ -20,5 +20,21 @@ To install GenAMap locally, first you need to [Install Docker](https://docs.dock
 
 After that, you can enjoy the next-generation GWAS by visiting __localhost:49160__ on Linux. On Mac, this is __192.168.99.100:49160__, or __0.0.0.0:49160__ if your docker version > 1.2.x
 
+## Run GenAMap:
+To run GenAMap
+```bash
+curl https://raw.githubusercontent.com/blengerich/GenAMap/master/scripts/dev_genamap.sh > dev_genamap.sh
+chmod +x dev_genamap.sh
+```
+
+Then use the command
+
+```bash
+./dev_genamap.sh $FILE_FOLDER1 $FILE_FOLDER2
+```
+$FILE_FOLDER1 denotes the folder where your dataset locates 
+$FILE_FOLDER2 denotes the folder where your authorization file that contains administrator email and password locates in  
+
+
 ## Contact:
 Have a question about GenAMap? Email us at genamap.team@gmail.com. To help us to get to know you better, please provide your name and affiliation when requesting support. We also have a [Google group](https://groups.google.com/forum/#!forum/genamap-users) for users.
