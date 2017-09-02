@@ -81,6 +81,7 @@ class GMImportDialog extends Component {
 
   handleOpen () {
     this.setState({open: true})
+    this.state.filelist=this.read_filelist()
   }
 
   handleClose () {

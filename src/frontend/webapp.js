@@ -517,16 +517,17 @@ app.post(`${config.api.getActivityUrl}/:id`, function (req, res) {
 
 app.post(`${config.api.read_filelist}`, function (req, res) {
     var file2=[]
+    console.log("~~~~~~~~~~~~~~~~~~get")
     const testFolder = "../../genamap2/";
     fs.readdir(testFolder, (err, files) => {
         files.forEach(file => {
 
             file2.push(file)
-
+            console.log(file2)
         });
     })
 
-
+    console.log(file2)
     return res.json({file2})
 })
 
