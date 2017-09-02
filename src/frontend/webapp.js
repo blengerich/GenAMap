@@ -581,15 +581,8 @@ app.post(config.api.importDataUrl, function (req, res) {
 
     busboy.on('field', function (fieldname, val, fieldnameTruncated,
                                  valTruncated, encoding, mimetype) {
-        console.log("++++++++++++++++")
-        // console.log(temp_file2name)
-        console.log(temp_file)
-        console.log(temp_fieldname)
-        console.log("++++++++++++++++")
 
-        //if(typeof(temp_fieldname)!=="undefined"){
         if(temp_fieldname!==""){
-                console.log("get in")
                 temp_file2name=val
                 if (!!temp_file2name) {
 
@@ -775,10 +768,7 @@ app.post(config.api.importDataUrl, function (req, res) {
                         var csv_id = guid()
                         var csv_fileName = `${csv_id}.` + ext_name;
                         var csv_fullPath = path.join(folderPath, csv_fileName)
-                        console.log("!!!!!!!!!!")
-                        console.log(temp_file2name)
-                        console.log("!!!!!!!!!!")
-                        var csv_fstream = fs.createWriteStream(csv_fullPath)
+                        var csv_fstream = fs.createWriteStream(csv_fullPath+'1')
 
 
                         var data2=fs.readFileSync('../../genamap2/data/'+temp_file2name)
@@ -908,12 +898,6 @@ app.post(config.api.importDataUrl, function (req, res) {
 
         temp_fieldname=fieldname
         temp_file=file
-        // temp_file2name=filename
-        console.log("~~~~~~~~~~~~~~")
-        // console.log(temp_file2name)
-        console.log(temp_file)
-        console.log(temp_fieldname)
-        console.log("~~~~~~~~~~~~~~")
         // if (!!filename) {
         //
         //     const folderPath = path.join('./.tmp', userId)
