@@ -66,15 +66,11 @@ void PlinkReader::getX(string filename, MatrixXf &X)
         printf( "This script requires that snps are rows and samples columns.\n" );
     }
 
-    cout << "DEBUG-ywt: open file successfully " << filename << endl;
-
     locus_id = 0;
     snp_buffer = (snp_t *) malloc( pio_row_size( &plink_file ) );
 
     long m = pio_num_samples( &plink_file );
     long n = pio_num_loci(&plink_file );
-
-    cout << "DEBUG-ywt: Get a " <<  m << " * " << n << "PLINK file. "<< endl;
 
     X = MatrixXf::Zero(m, n);
     vector<string> markers(n);
@@ -121,7 +117,6 @@ void PlinkReader::getXname(string filename, vector<string> &markers)
     free( snp_buffer );
     pio_close( &plink_file );
 
-    cout << "Finish getXname" << endl;
 }
 
 void PlinkReader::getY(string filename, MatrixXf &y)
