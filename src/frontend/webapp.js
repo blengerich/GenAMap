@@ -23,6 +23,33 @@ var querystring = require('querystring')
 //var favicon = require('serve-favicon')
 var request = require('request');
 
+/////here is an example
+
+// var file2=[]
+// console.log(typeof file2)
+// const testFolder = "../../genamap2/data/";
+// fs.readdir(testFolder, (err, files) => {
+//     files.forEach(file => {
+//         console.log(file)
+//         file2.push(file)
+//         // if(file.indexOf('.csv') != -1){
+//         //     console.log("true2")
+//         // }
+//
+//         for(var i_ in file2){
+//             console.log(i_)
+//             console.log(typeof file2[i_],file2[i_],"--")
+//             console.log(typeof i_)
+//             if(file2[i_].indexOf('.csv')!=-1){
+//                 console.log("true2")
+//             }
+//         }
+//
+//         console.log(file2)
+//     });
+// })
+
+
 const getTokenContent = (token) => {
     try {
         const decoded = jwt.verify(token, config.secret)
@@ -486,6 +513,38 @@ app.post(`${config.api.getActivityUrl}/:id`, function (req, res) {
 
     return res.json({progress})
 })
+
+
+app.post(`${config.api.read_filelist}`, function (req, res) {
+    var file2=[]
+    // console.log(typeof file2)
+    const testFolder = "../../genamap2/";
+    fs.readdir(testFolder, (err, files) => {
+        files.forEach(file => {
+            // console.log(file)
+            file2.push(file)
+            // if(file.indexOf('.csv') != -1){
+            //     console.log("true2")
+            // }
+            //
+            // for(var i_ in file2){
+            //     console.log(i_)
+            //     console.log(typeof file2[i_],file2[i_],"--")
+            //     console.log(typeof i_)
+            //     if(file2[i_].indexOf('.csv')!=-1){
+            //         console.log("true2")
+            //     }
+            // }
+            //
+            // console.log(file2)
+        });
+    })
+
+
+    return res.json({file2})
+})
+
+
 
 app.post(`${config.api.getAnalysisResultsUrl}`, function (req, res) {
     const projectId = req.body.projectId
