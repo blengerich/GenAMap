@@ -9,7 +9,6 @@ import Grid from 'react-virtualized/dist/commonjs/Grid'
 import TopAxis from './topaxis'
 import fetch from '../fetch'
 import GMMatrixToolbar from '../GMMatrixToolbar'
-// var dimensions = require('dimensions');
 /*
 TODO LIST
 - Axis ( Make the major and minor axis
@@ -19,19 +18,11 @@ TODO LIST
 - Make it look prettier
 
  */
-
-// var style_t="{ height:30px; left:0px; position:absolute;top:90px; width:0px;} "
-
-
-
-
 const colorRange = ["#990000", "#eeeeee", "#ffffff", "#eeeeee", "#000099"];
-// const Dimensions2 = require('Dimensions');
 const zoomFactor = 100;
 const maxZoom = 4;
 const yAxisCellSize = 1;
 let dataIndex = 0;
-// const windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 var min_=0;
 var max_=1;
 var label_value=0;
@@ -43,10 +34,7 @@ var position=0
 var first=true
 var style_t
 var value_all=0.0
-// var temp_event
 
-
-//style = Object.assign(style,{backgroundColor: " transparent"})
 //TODO : Remove d3 deps
 const calculateColorScale = (min, max, threshold) => {
     const mid = (min + max) / 2
