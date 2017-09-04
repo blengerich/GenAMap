@@ -9,6 +9,7 @@ import Grid from 'react-virtualized/dist/commonjs/Grid'
 import TopAxis from './topaxis'
 import fetch from '../fetch'
 import GMMatrixToolbar from '../GMMatrixToolbar'
+// var dimensions = require('dimensions');
 /*
 TODO LIST
 - Axis ( Make the major and minor axis
@@ -18,7 +19,9 @@ TODO LIST
 - Make it look prettier
 
  */
+
 const colorRange = ["#990000", "#eeeeee", "#ffffff", "#eeeeee", "#000099"];
+
 const zoomFactor = 100;
 const maxZoom = 4;
 const yAxisCellSize = 1;
@@ -128,14 +131,14 @@ export default class GMMatrixVisualization2 extends PureComponent {
         .then(res => {
             res.json()
             .then (json => {
-                //console.log(json)
                 max_=json[2]['hi'];
                 min_=json[2]['lo'];
-                this.setState({ data: json[0], traits: json[1]},function(){
+                this.setState({ data: json[0], traits: json[1], rowCount:json[1].length + 2},function(){
 
                    this.axis.forceUpdate()
 
                 }.bind(this))
+
 
             })
         })
@@ -252,20 +255,20 @@ export default class GMMatrixVisualization2 extends PureComponent {
         });
 
 
-        var key="0-0" //useless
-        value_all=value
-        for (var i=0;i<=99;i++)
-        {
-            for (var j=0;j<=this.state.data[dataIndex]["data"].length+2;j++){
-                // console.log(i,j)
-                var width=this._getColumnWidth()
-                var width2=width*i
-                style_t = Object.assign(style_t,{width:width })
-                style_t = Object.assign(style_t,{left:width2 })
-                console.log(width,width2)
-                this._cellRenderer({i, key, j, style_t})
-            }
-        }
+//         var key="0-0" //useless
+//         value_all=value
+//         for (var i=0;i<=99;i++)
+//         {
+//             for (var j=0;j<=this.state.data[dataIndex]["data"].length+2;j++){
+//                 // console.log(i,j)
+//                 var width=this._getColumnWidth()
+//                 var width2=width*i
+//                 style_t = Object.assign(style_t,{width:width })
+//                 style_t = Object.assign(style_t,{left:width2 })
+
+//                 this._cellRenderer({i, key, j, style_t})
+//             }
+//         }
         // this._updateZoom({event})
 
     }
@@ -284,7 +287,6 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     _updateZoom({event}) {
-        //console.log("hello")
         let zoomamt = this.state.zoomamount
         switch (event.key){
 

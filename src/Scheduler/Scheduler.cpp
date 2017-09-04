@@ -115,7 +115,7 @@ algorithm_id_t Scheduler::newAlgorithm(const AlgorithmOptions_t& options) {
 				algorithms_map[id] = shared_ptr<IterativeUpdate>(new IterativeUpdate(options.options));
 				break;
 			case algorithm_type::proximal_gradient_descent:
-				algorithms_map[id] = shared_ptr<ProximalGradientDescent>(new ProximalGradientDescent(options.options));	
+				algorithms_map[id] = shared_ptr<ProximalGradientDescent>(new ProximalGradientDescent(options.options));
 				break;
 			case algorithm_type::hypo_test:
 				algorithms_map[id] = shared_ptr<HypoTestPlaceHolder>(new HypoTestPlaceHolder(options.options));
@@ -184,6 +184,14 @@ model_id_t Scheduler::newModel(const ModelOptions_t& options) {
 	}
 
 	return id;
+}
+
+bool Scheduler::imputation(const job_id_t job_id) {
+    if (JobIdUsed(job_id) && getJob(job_id)->model) {
+        getJob(job_id)->model->imputation();
+        return true;
+    }
+    return false;
 }
 
 bool Scheduler::setMetaData(const job_id_t job_id, const string& filename, vector<string>& marker_ids) {

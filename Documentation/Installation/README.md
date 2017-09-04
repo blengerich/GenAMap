@@ -23,7 +23,7 @@ chmod +x run_genamap.sh
 
 
 ### Enjoy next generation GWAS
-* Once the script has setup the server, visit __localhost:49160__
+* Once the script has setup the server, visit __localhost__
     * The site will be ready a few minutes after run_genamap.sh completes. The server has to load SNP data which will take a couple of minutes.
 * There is already a demo user setup with the following credentials
     * *email*: demo@demo.com

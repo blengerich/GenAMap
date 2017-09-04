@@ -53,6 +53,8 @@ public:
 	// Sets the Y matrix for the job at the given job_id.
 	// returns true on success, false otherwise.
 
+    bool imputation(const job_id_t);
+
 	bool setModelAttributeMatrix(const job_id_t, const string&, Eigen::MatrixXf*);
 	// Sets a matrix with the given name for the job at the given job_id.
 	// returns true on success, false otherwise.
