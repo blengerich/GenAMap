@@ -304,11 +304,13 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
             if (err) {
                 throw err
             }
+
             var json_file=fs.readFileSync('../../genamap3/Authentication.json')
 
 
             var jsonContent = JSON.parse(json_file);
             var transporter = nodemailer.createTransport(jsonContent.user + ':' + jsonContent.password);
+
 
 
             var mailOptions = {
@@ -348,7 +350,7 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
  text: 'Registration Comfiration',
  html: 'Hi! <br/>'+
  'Thanks for registering for GenAMap. Now you can enjoy visual machine learning software totally free!<br/>'
- + 'Verification code: ' + req.body.code + '<br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code + '<br/'
+ + 'Verification code: ' + req.body.code + '<br/>Or confirm at 192.168.99.100:80/#/confirm/' + req.body.code + '<br/'
  + 'Yours sincerely<br/>' + 'GenAMap Team'
  };*/
 
@@ -1600,6 +1602,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             }
             Scheduler.setX(jobId, markerFile.path);
             Scheduler.setY(jobId, traitFile.path);
+            Scheduler.imputation(jobId);
             const startJobFinish = function () {
                 const userId = extractUserIdFromHeader(req.headers)
                 const id = guid()
@@ -1670,7 +1673,8 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             var ready = req.body.other_data.map((value, index) => {
                 false
             });
-            if (req.body.other_data.length > 0) {
+            app.models.file.findOne({id: req.body.marker.data.labelId}).exec(function (err, mLabelsFile) {
+            if (req.body.other_data.length > 0 && typeof mLabelsFile != 'undefined') {
                 req.body.other_data.map((value, index) => {
                     console.log(value);
                     if (!value.val || !value.val.data || !value.val.data.id || value.val.data.id < 0) {
@@ -1699,9 +1703,10 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                         }
                     })
                 })
-            } else {
-                startJobFinish();
             }
+            else {
+                startJobFinish();
+            }})
             /*results.map((value, index) => assert(value));*/
 
         });

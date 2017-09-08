@@ -18,6 +18,21 @@
 using namespace Eigen;
 using namespace std;
 
+void Model::imputation() {
+    std::vector<int> dirty;
+    for (int i = 0; i < y.rows(); i++)
+        for (int j = 0; j < y.cols(); j++)
+            if (y(i, j) != y(i, j)) {
+                dirty.push_back(i);
+                break;
+            }
+    for (auto const& i: dirty)
+    {
+        Math::getInstance().removeRow(&X, i);
+        Math::getInstance().removeRow(&y, i);
+    }
+}
+
 void Model::setX(const MatrixXf& m) { X = m; }
 
 void Model::setY(const MatrixXf& n) { y = n; };
@@ -80,12 +95,12 @@ modelResult Model::getClusteringResult() {
     queue<treeNode*> nodes;
     long count = -1;
     nodes.push(t1->getRoot());
-    while (nodes.size()>0){
+    while (nodes.size()>0) {
         treeNode * n = nodes.front();
         if (n->children.size()==0){
             tmp.col(++count) = B.col(n->trait[0]);
         }
-        else{
+        else {
             for (unsigned int i=0; i<n->children.size();i++){
                 nodes.push(n->children[i]);
             }
