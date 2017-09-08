@@ -6,9 +6,9 @@ import MenuItem from 'material-ui/MenuItem'
 import TextField from 'material-ui/TextField'
 import {ListItem} from 'material-ui/List'
 import FontIcon from 'material-ui/FontIcon'
-
 import config from '../../config'
 import GMFileInput from './GMFileInput'
+import fetch from './fetch'
 
 const errorText = 'This is a required field'
 
@@ -31,23 +31,51 @@ class GMImportDialog extends Component {
       populationFileName: '',
       populationName: '',
       optionDisabled: true,
-      species: config.species
+      species: config.species,
+      filelist:[]
     }
   }
 
   constructor (props, context) {
-    super(props, context)
-    this.state = this.initialState()
+      super(props, context)
+      this.state = this.initialState()
+  }
+
+  read_filelist(){
+      var url = `/api/read_filelist/`
+      var dataRequest = {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      }
+      fetch(url,dataRequest)
+      .then(res => {
+          res.json()
+              .then (json => {
+                  ////file2  is just a name used in json
+                  var temp_list=[]
+                  for(var i=0;i<json['file2'].length;i++){
+                      // console.log(json['file2'][i])
+                      temp_list.push(<MenuItem  value={json['file2'][i]} primaryText={json['file2'][i]} />)
+                      this.state.filelist=temp_list
+                      console.log(temp_list)
+                      console.log(this.state.filelist)
+                  }
+
+                  return temp_list
+              })
+      })
   }
 
   validateForm () {
-    return this.state.projectValue === 'new' ?
-      (!!this.state.projectName && !!this.state.speciesValue) : // New projects only require a name and a species
+    return this.state.projectValue === 'new' ?(!!this.state.projectName && !!this.state.speciesValue) : // New projects only require a name and a species
       (!!this.state.projectValue && // If we are using an existing project, we can add markers and/or traits
-        (!!this.state.markerName && !!this.state.markerFileName && !!this.state.markerLabelFileName) ||
-        (!!this.state.traitName && !!this.state.traitFileName && !!this.state.traitLabelFileName) ||
-        (!!this.state.snpsFeatureName && !!this.state.snpsFeatureFileName) ||
-        (!!this.state.populationName && !!this.state.populationFileName))
+      (!!this.state.markerName && !!this.state.markerFileName && !!this.state.markerLabelFileName) ||
+      (!!this.state.traitName && !!this.state.traitFileName && !!this.state.traitLabelFileName) ||
+      (!!this.state.snpsFeatureName && !!this.state.snpsFeatureFileName) ||
+      (!!this.state.populationName && !!this.state.populationFileName))
+      // return true
   }
 
   handleSubmit () {
@@ -57,7 +85,8 @@ class GMImportDialog extends Component {
   }
 
   handleOpen () {
-    this.setState({open: true})
+      this.setState({open: true})
+      this.state.filelist=this.read_filelist()
   }
 
   handleClose () {
@@ -99,7 +128,13 @@ class GMImportDialog extends Component {
     this.setState({markerLabelFileName: event.target.value.substr(12)})
   }
 
-  onChangeMarkerName (event) {
+  onChangeMarkerLabelFileName2(event,index, value) {
+      //this.setState({markerLabelFileName: event.target.value.substr(12)})
+      this.setState({markerLabelFileName: value})
+  }
+
+
+    onChangeMarkerName (event) {
     this.setState({markerName: event.target.value})
   }
 
@@ -107,17 +142,35 @@ class GMImportDialog extends Component {
     this.setState({markerFileName: event.target.value.substr(12)})
   }
 
+  onChangeMarkerFileName2 (event,index, value) {
+      this.setState({markerFileName: value})
+      // this.setState({markerFileName: event.target.value.substr(12)})
+  }
+
   onChangeTraitLabelFileName(event) {
     this.setState({traitLabelFileName: event.target.value.substr(12)})
+  }
+
+  onChangeTraitLabelFileName2(event,index, value) {
+      this.setState({traitLabelFileName: value})
   }
 
   onChangeTraitName (event) {
     this.setState({traitName: event.target.value})
   }
 
+
+  // onChangeTraitName2(event,index, value) {
+  //     this.setState({traitName: value})
+  // }
+
   onChangeTraitFileName (event) {
     this.setState({traitFileName: event.target.value.substr(12)})
   }
+
+    onChangeTraitFileName2 (event,index, value) {
+        this.setState({traitFileName:value})
+    }
 
   onChangeSnpsFeatureName (event) {
     this.setState({snpsFeatureName: event.target.value})
@@ -127,6 +180,10 @@ class GMImportDialog extends Component {
     this.setState({snpsFeatureFileName: event.target.value.substr(12)})
   }
 
+  onChangeSnpsFeatureFileName2 (event,index, value) {
+      this.setState({snpsFeatureFileName: value})
+  }
+
   onChangePopulationName(event) {
     this.setState({populationName: event.target.value})
   }
@@ -134,6 +191,10 @@ class GMImportDialog extends Component {
   onChangePopulationFileName (event) {
     this.setState({populationFileName: event.target.value.substr(12)})
   }
+
+    onChangePopulationFileName2 (event,index, value) {
+        this.setState({populationFileName: value})
+    }
 
   render () {
     var actions = [
@@ -261,6 +322,30 @@ class GMImportDialog extends Component {
                       onChange={this.onChangeMarkerLabelFileName.bind(this)}
                       fileLabel={this.state.markerLabelFileName}
                     /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
+                    <div>
+                      <SelectField
+                          value={this.state.markerFileName}
+                          // disabled={false}
+                          hintText='Marker File'
+                          //errorText={!this.state.markerFileName &&errorText}
+                          onChange={this.onChangeMarkerFileName2.bind(this)}
+                      >
+                          {/*{speciesList}*/}
+                        {/*<MenuItem value={'markers_values.csv'} primaryText='markers_values.csv' />*/}
+                        {/*<MenuItem value={'plink'} primaryText='PLINK data' />*/}
+                        {/*<MenuItem value={'bed'} primaryText='PLINK binary data' />*/}
+                          {this.state.filelist}
+
+                      </SelectField>
+                      <br />
+                      <SelectField
+                          value={this.state.markerLabelFileName}
+                          hintText='Maker Label FIile'
+                          onChange={this.onChangeMarkerLabelFileName2.bind(this)}
+                      >
+                          {this.state.filelist}
+                      </SelectField>
+                    </div>
                   </div>
                   <br />
                   <div>
@@ -285,6 +370,25 @@ class GMImportDialog extends Component {
                       onChange={this.onChangeTraitLabelFileName.bind(this)}
                       fileLabel={this.state.traitLabelFileName}
                     /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
+                    <div>
+                      <SelectField
+                          value={this.state.traitFileName}
+                          hintText='Trait File'
+                          onChange={this.onChangeTraitFileName2.bind(this)}
+                      >
+                          {this.state.filelist}
+
+                      </SelectField>
+                      <br />
+                      <SelectField
+                          value={this.state.traitLabelFileName}
+                          hintText='Trait Label FIile'
+                          onChange={this.onChangeTraitLabelFileName2.bind(this)}
+                      >
+                          {this.state.filelist}
+                      </SelectField>
+                    </div>
+
                   </div>
                   <div id="populationDiv">
                     <TextField
@@ -301,6 +405,16 @@ class GMImportDialog extends Component {
                       onChange={this.onChangePopulationFileName.bind(this)}
                       fileLabel={this.state.populationFileName}
                     /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
+                    <div>
+                      <SelectField
+                          value={this.state.populationFileName}
+                          hintText='Population File'
+                          onChange={this.onChangePopulationFileName2.bind(this)}
+                      >
+                          {this.state.filelist}
+
+                      </SelectField>
+                    </div>
                   </div>
                   <div id="snpFeaturesDiv">
                     <TextField
@@ -317,6 +431,16 @@ class GMImportDialog extends Component {
                       onChange={this.onChangeSnpsFeatureFileName.bind(this)}
                       fileLabel={this.state.snpsFeatureFileName}
                     /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
+                    <div>
+                      <SelectField
+                          value={this.state.snpsFeatureFileName}
+                          hintText='SNPs Feature File'
+                          onChange={this.onChangeSnpsFeatureFileName2.bind(this)}
+                      >
+                          {this.state.filelist}
+
+                      </SelectField>
+                    </div>
                   </div>
                 </div>:
                (this.state.datatype == 'plink') ?
@@ -338,6 +462,16 @@ class GMImportDialog extends Component {
                       onChange={this.onChangeMarkerFileName.bind(this)}
                       fileLabel={this.state.markerFileName}
                     /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
+                    <div>
+                      <SelectField
+                          value={this.state.markerFileName}
+                          hintText='Marker File'
+                          onChange={this.onChangeMarkerFileName2.bind(this)}
+                      >
+                        {this.state.filelist}
+
+                      </SelectField>
+                    </div>
                   </div>
                   <br />
                   <div>
@@ -356,6 +490,16 @@ class GMImportDialog extends Component {
                       onChange={this.onChangeTraitFileName.bind(this)}
                       fileLabel={this.state.traitFileName}
                     /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
+                    <div>
+                      <SelectField
+                          value={this.state.traitFileName}
+                          hintText='Trait File'
+                          onChange={this.onChangeTraitFileName2.bind(this)}
+                      >
+                          {this.state.filelist}
+
+                      </SelectField>
+                    </div>
                   </div>
                 </div>:
                (this.state.datatype == 'bed') ?
@@ -406,6 +550,37 @@ class GMImportDialog extends Component {
                     fileLabel={this.state.snpsFeatureFileName}
                   />
                 </div>
+
+                  <div>
+                    <SelectField
+                        value={this.state.markerFileName}
+                        hintText='BED File'
+                        onChange={this.onChangeMarkerFileName2.bind(this)}
+                    >
+                        {this.state.filelist}
+
+                    </SelectField>
+                    <br/>
+                    <SelectField
+                        value={this.state.traitFileName}
+                        hintText='BIM File'
+                        onChange={this.onChangeTraitFileName2.bind(this)}
+                    >
+                        {this.state.filelist}
+
+                    </SelectField>
+                    <br/>
+                    <SelectField
+                        value={this.state.snpsFeatureFileName}
+                        hintText='FAM File'
+                        onChange={this.onChangeSnpsFeatureFileName2.bind(this)}
+                    >
+                        {this.state.filelist}
+
+                    </SelectField>
+                  </div>
+
+
                 </div>:
                 null}
           </form>

@@ -21,7 +21,8 @@ const config = {
     getActivityUrl: '/activity',
     cancelJobUrl: '/api/cancelJob',
     getAnalysisResultsUrl: '/analysis-results',
-    ChangePasswordUrl: '/user/change-password'
+    ChangePasswordUrl: '/user/change-password',
+    read_filelist:'/api/read_filelist/'
   },
   ui: {
     navWidth: 300,
@@ -99,34 +100,38 @@ const config = {
     name: 'Linear Regression',
     image: '',
     info: 'info about Linear Regression'
-  }, {
-    id: 1,
-    name: 'Adaptive Multi-Task Lasso',
-    image: 'images/grid_search.png',
-    info: 'info about Grid Search'
-  }, {
-    id: 2,
-    name: 'GfLasso',
-    image: '',
-    info: 'info about IU'
-  }, {
-    id: 3,
-    name: 'Multi-Population Lasso',
-    image: '',
-    info: 'info about IU'
-  }, {
+  },
+  //     {
+  //   id: 1,
+  //   name: 'Adaptive Multi-Task Lasso',
+  //   image: 'images/grid_search.png',
+  //   info: 'info about Grid Search'
+  // }, {
+  //   id: 2,
+  //   name: 'GfLasso',
+  //   image: '',
+  //   info: 'info about IU'
+  // }, {
+  //   id: 3,
+  //   name: 'Multi-Population Lasso',
+  //   image: '',
+  //   info: 'info about IU'
+  // },
+      {
     id: 4,
     name: 'Tree Lasso',
     image: '',
     info: 'info about IU'
   }],
 
-  Hypomodels: [{
-    id: 5,
-    name: 'Fisher Exact Test',
-    image: '',
-    info: 'info about Fisher Exact Test'
-  }, {
+  Hypomodels: [
+  //     {
+  //   id: 5,
+  //   name: 'Fisher Exact Test',
+  //   image: '',
+  //   info: 'info about Fisher Exact Test'
+  // },
+  {
     id: 6,
     name: 'Chi-squared Test',
     image: 'images/grid_search.png',

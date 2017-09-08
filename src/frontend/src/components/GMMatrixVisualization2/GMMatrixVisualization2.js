@@ -20,18 +20,12 @@ TODO LIST
 
  */
 
-// var style_t="{ height:30px; left:0px; position:absolute;top:90px; width:0px;} "
-
-
-
-
 const colorRange = ["#990000", "#eeeeee", "#ffffff", "#eeeeee", "#000099"];
-// const Dimensions2 = require('Dimensions');
+
 const zoomFactor = 100;
 const maxZoom = 4;
 const yAxisCellSize = 1;
 let dataIndex = 0;
-// const windowWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 var min_=0;
 var max_=1;
 var label_value=0;
@@ -43,10 +37,7 @@ var position=0
 var first=true
 var style_t
 var value_all=0.0
-// var temp_event
 
-
-//style = Object.assign(style,{backgroundColor: " transparent"})
 //TODO : Remove d3 deps
 const calculateColorScale = (min, max, threshold) => {
     const mid = (min + max) / 2
@@ -130,14 +121,12 @@ export default class GMMatrixVisualization2 extends PureComponent {
         end_=end
         steps_=steps
         var url = `/api/get-range/${this.props.params.result}?start=${start}&end=${end}&zoom=${Math.floor((end-start)/steps)}`
-
         var dataRequest = {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
           }
         }
-        fetch(url,dataRequest)
         fetch(url,dataRequest)
         .then(res => {
             res.json()
@@ -149,9 +138,10 @@ export default class GMMatrixVisualization2 extends PureComponent {
                    this.axis.forceUpdate()
 
                 }.bind(this))
-        })
-    })
 
+
+            })
+        })
     }
 
 
@@ -265,20 +255,20 @@ export default class GMMatrixVisualization2 extends PureComponent {
         });
 
 
-        var key="0-0" //useless
-        value_all=value
-        for (var i=0;i<=99;i++)
-        {
-            for (var j=0;j<=this.state.data[dataIndex]["data"].length+2;j++){
-                // console.log(i,j)
-                var width=this._getColumnWidth()
-                var width2=width*i
-                style_t = Object.assign(style_t,{width:width })
-                style_t = Object.assign(style_t,{left:width2 })
-                // console.log(width,width2)
-                this._cellRenderer({i, key, j, style_t})
-            }
-        }
+//         var key="0-0" //useless
+//         value_all=value
+//         for (var i=0;i<=99;i++)
+//         {
+//             for (var j=0;j<=this.state.data[dataIndex]["data"].length+2;j++){
+//                 // console.log(i,j)
+//                 var width=this._getColumnWidth()
+//                 var width2=width*i
+//                 style_t = Object.assign(style_t,{width:width })
+//                 style_t = Object.assign(style_t,{left:width2 })
+
+//                 this._cellRenderer({i, key, j, style_t})
+//             }
+//         }
         // this._updateZoom({event})
 
     }
@@ -297,7 +287,6 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     _updateZoom({event}) {
-        // console.log("hello")
         let zoomamt = this.state.zoomamount
         switch (event.key){
 

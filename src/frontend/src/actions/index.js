@@ -7,7 +7,7 @@ import {removeToken, extractFromToken, setToken} from '../middleware/token'
 /*
  * action types
  */
-
+export const READ_FILELIST='READ_FILELIST'
 export const IMPORT_DATA = 'IMPORT_DATA'
 export const IMPORT_DATA_REQUEST = 'IMPORT_DATA_REQUEST'
 export const IMPORT_DATA_RECEIVE = 'IMPORT_DATA_RECEIVE'
@@ -77,6 +77,7 @@ function createFormData(form) {
   return formData
 }
 
+
 export function importData(form) {
   let importDataRequest = {
     method: 'POST',
@@ -109,6 +110,10 @@ function runAnalysisReceive(data) {
     data
   }
 }
+
+
+
+
 
 export function runAnalysis(data) {
   let runAnalysisRequestInit = {
@@ -284,6 +289,7 @@ export function receiveUpdateActivity(activity, response) {
     resultsPath: activity.resultsPath
   }
 }
+
 
 export function fetchUpdateActivity(activity) {
   return (dispatch) => {

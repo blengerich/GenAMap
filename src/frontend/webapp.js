@@ -23,6 +23,33 @@ var querystring = require('querystring')
 //var favicon = require('serve-favicon')
 var request = require('request');
 
+/////here is an example
+
+// var file2=[]
+// console.log(typeof file2)
+// const testFolder = "../../genamap2/data/";
+// fs.readdir(testFolder, (err, files) => {
+//     files.forEach(file => {
+//         console.log(file)
+//         file2.push(file)
+//         // if(file.indexOf('.csv') != -1){
+//         //     console.log("true2")
+//         // }
+//
+//         for(var i_ in file2){
+//             console.log(i_)
+//             console.log(typeof file2[i_],file2[i_],"--")
+//             console.log(typeof i_)
+//             if(file2[i_].indexOf('.csv')!=-1){
+//                 console.log("true2")
+//             }
+//         }
+//
+//         console.log(file2)
+//     });
+// })
+
+
 const getTokenContent = (token) => {
     try {
         const decoded = jwt.verify(token, config.secret)
@@ -277,9 +304,14 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
             if (err) {
                 throw err
             }
-            //fs.readFile('./static/email/Authentication.txt', 'utf8', function (err, auth_details) {
-            //var transporter = nodemailer.createTransport(auth_details.user + ':' + auth_details.pass);
-            var transporter = nodemailer.createTransport('smtps://email@gmail.com:pass@smtp.gmail.com');
+
+            var json_file=fs.readFileSync('../../genamap3/Authentication.json')
+
+
+            var jsonContent = JSON.parse(json_file);
+            var transporter = nodemailer.createTransport(jsonContent.user + ':' + jsonContent.password);
+
+
 
             var mailOptions = {
                 from: '"GenAMap" <genamap.team@gmail.com>', // sender address
@@ -484,6 +516,22 @@ app.post(`${config.api.getActivityUrl}/:id`, function (req, res) {
     return res.json({progress})
 })
 
+
+app.post(`${config.api.read_filelist}`, function (req, res) {
+    var file2=[]
+    const testFolder = "../../genamap2/";
+    fs.readdir(testFolder, (err, files) => {
+        files.forEach(file => {
+
+            file2.push(file)
+        });
+        return res.json({file2})
+    })
+
+})
+
+
+
 app.post(`${config.api.getAnalysisResultsUrl}`, function (req, res) {
     const projectId = req.body.projectId
 
@@ -535,15 +583,22 @@ app.delete(`${config.api.dataUrl}/:id`, function (req, res) {
     })
 })
 
+
 app.post(config.api.importDataUrl, function (req, res) {
     var busboy = new Busboy({headers: req.headers})
     var projectId // eslint-disable-line no-unused-vars
     var projectObj = {}
+    var temp_file_name=""
     /*var marker = { files: [] }
      var trait = { files: [] }
      var snpsFeature = { files: [] }
      var population = { files: [] }
      var fileDataList = {*/
+
+    var temp_fieldname=""
+    var temp_file=""
+    var temp_file2name=""
+
     var dataList = {
         marker: {
             name: 'Marker Values'
@@ -571,6 +626,223 @@ app.post(config.api.importDataUrl, function (req, res) {
 
     busboy.on('field', function (fieldname, val, fieldnameTruncated,
                                  valTruncated, encoding, mimetype) {
+
+        if(temp_fieldname!==""){
+                temp_file2name=val
+            //here if you dont want to use the file read from the filesystem please comment this line
+                if (!!temp_file2name) {
+
+                    var folderPath = path.join('./.tmp', userId)
+                    mkdirp.sync(folderPath)
+                    var ext_name = temp_file2name.split('.')[temp_file2name.split('.').length - 1];
+                    if (ext_name == 'ped') {
+                        temp_file.on('data', function (data) {
+                            result = data.toString()
+                            var lines = result.split('\n')
+                            var traitLabel = 'defaultTrait'
+                            var id_traitval = guid()
+                            var traitval_fileName = `${id_traitval}.csv`
+                            var traitval_fullPath = path.join(folderPath, traitval_fileName)
+                            var traitValStream = fs.createWriteStream(traitval_fullPath, {'flags': 'a'})
+                            dataList.trait.filetype = 'traitFile'
+                            dataList.trait.path = traitval_fullPath
+
+                            var id_markerval = guid()
+                            var markerval_fileName = `${id_markerval}.csv`
+                            var markerval_fullPath = path.join(folderPath, markerval_fileName)
+                            var markerValStream = fs.createWriteStream(markerval_fullPath, {'flags': 'a'})
+                            dataList.marker.filetype = 'markerFile'
+                            dataList.marker.path = markerval_fullPath
+
+                            var count = new Array();
+                            var genes = lines[0].split(' ');
+                            if (genes.length <= 2) {
+                                genes = lines[0].split('\t');
+                            }
+                            for (var i = 0; i < 6; i++) {
+                                count[i] = new Array();
+                                for (var j = 0; j < genes.length - 6; j++) {
+                                    count[i][j] = 0
+                                }
+                            }
+                            var linelength = 0
+                            var markerValue = new Array()
+                            var markerVal = new Array()
+                            for (var i = 0; i < lines.length; i++) {
+                                if (lines[i] != null && lines[i] != '') {
+                                    linelength++
+                                    markerVal[i] = new Array()
+                                    markerValue[i] = new Array()
+                                }
+                            }
+                            for (var line = 0; line < linelength; line++) {
+                                var values = lines[line].split(' ')
+                                if (values.length <= 2) {
+                                    values = lines[line].split('\t')
+                                }
+                                if (values.length <= 2) {
+                                    // console.log('invalid delimiter1')
+                                    break
+                                }
+                                traitValStream.write(values[5] + '\n')
+                                for (var i = 0; i < values.length - 6; i++) {
+                                    if (values[i + 6] == '-9' || values[i + 6] == '0' || values[i + 6] == 'N') {
+                                        count[0][i]++;
+                                        markerVal[line][i] = 0;
+                                    }
+                                    else if (values[i + 6] == '1' || values[i + 6] == 'A') {
+                                        count[1][i]++;
+                                        markerVal[line][i] = 1;
+                                    }
+                                    else if (values[i + 6] == '2' || values[i + 6] == 'T') {
+                                        count[2][i]++;
+                                        markerVal[line][i] = 2;
+                                    }
+                                    else if (values[i + 6] == '3' || values[i + 6] == 'G') {
+                                        count[3][i]++;
+                                        markerVal[line][i] = 3;
+                                    }
+                                    else if (values[i + 6] == '4' || values[i + 6] == 'C') {
+                                        count[4][i]++;
+                                        markerVal[line][i] = 4;
+                                    }
+                                    else {
+                                        count[5][i]++;
+                                        markerVal[line][i] = 5;
+                                    }
+                                }
+                            }
+                            for (var line = 0; line < linelength; line++) {
+                                var snp = 0
+                                for (var i = 0; i < genes.length - 6; i++) {
+                                    var domin = 1
+                                    for (var j = 2; j < 6; j++) {
+                                        if (count[j][i] > count[domin][i]) {
+                                            domin = j
+                                        }
+                                    }
+                                    // if (domin == 5){console.log(line +' '+ i + ' invalid marker');}
+                                    if (markerVal[line][i] == domin) {
+                                        markerVal[line][i] = 0;
+                                    }
+                                    else {
+                                        markerVal[line][i] = 1;
+                                    }
+                                    if (i % 2 == 1) {
+                                        snp++;
+                                        markerValue[line][snp] = markerVal[line][i - 1] + markerVal[line][i];
+                                    }
+                                }
+                                markerValStream.write(markerValue[line].slice(1, markerValue[line].length) + '\n');
+                            }
+                            traitValStream.end()
+                            markerValStream.end()
+                            var id_traitLabel = guid()
+                            var traitLabel_fileName = `${id_traitLabel}.csv`
+                            var traitLabel_fullPath = path.join(folderPath, traitLabel_fileName)
+                            dataList.traitLabel.filetype = 'traitLabelFile'
+                            dataList.traitLabel.path = traitLabel_fullPath
+                            fs.writeFile(traitLabel_fullPath, traitLabel, function (err) {
+                                if (err) {
+                                    throw err;
+                                    console.log(err);
+                                }
+                                else {
+                                    console.log('trait Label done');
+                                }
+                            })
+
+                        })
+                    }
+                    else if (ext_name == 'map') {
+                        temp_file.on('data', function (data) {
+                            result = data.toString()
+                            var lines = result.split('\n')
+                            var id_markerLabel = guid()
+                            var markerLabel_fileName = `${id_markerLabel}.csv`
+                            var markerLabel_fullPath = path.join(folderPath, markerLabel_fileName)
+                            var markerLabelStream = fs.createWriteStream(markerLabel_fullPath, {'flags': 'a'})
+                            dataList.markerLabel.filetype = 'markerLabelFile'
+                            dataList.markerLabel.path = markerLabel_fullPath
+                            for (var line = 0; line < lines.length; line++) {
+                                var values = lines[line].split(' ')
+                                if (values.length <= 2) {
+                                    values = lines[line].split('\t')
+                                }
+                                if (values.length <= 2) {
+                                    console.log('invalid delimiter2')
+                                    break
+                                }
+                                markerLabelStream.write(values[1] + "," + values[0] + '\n')
+                            }
+                            markerLabelStream.end()
+                        })
+                    }
+                    else if (ext_name == 'bim' || ext_name == 'bed' || ext_name == 'fam') {
+                        var id = guid()
+                        var temp_file2name = temp_file2name
+                        var fullPath = path.join(folderPath, temp_file2name)
+                        var fstream = fs.createWriteStream(fullPath)
+                        console.log('get a plink file, stored in ' + fullPath)
+                        //file.pipe(fstream)
+                        var data2=fs.readFileSync('../../genamap2/data/'+temp_file2name)
+                        temp_file.pipe(fstream)
+                        fs.writeFileSync(csv_fullPath, data2)
+                        var data, newFieldname
+                        if (temp_fieldname === 'bedFile')        // for BED file
+                        {
+                            data = dataList.marker
+                            temp_fieldname = "markerFile"
+                        }
+                        else if (temp_fieldname === 'File')      // for BIM file
+                        {
+                            data = dataList.trait
+                            temp_fieldname = 'traitFile'
+                        }
+                        else if (temp_fieldname === 'traitFile') // for FAM file
+                        {
+                            data = dataList.snpsFeature
+                            temp_fieldname = 'snpsFeatureFile'
+                        } // not used
+                        else console.log("Unhandled file:", temp_fieldname)
+                        data.filetype = temp_fieldname
+                        data.path = fullPath
+                        data.projectItem = temp_file2name
+                        data.name = 'PLINK File'
+                    }
+                    else if (ext_name == 'csv') {
+                        var csv_id = guid()
+                        var csv_fileName = `${csv_id}.` + ext_name;
+                        var csv_fullPath = path.join(folderPath, csv_fileName)
+                        var csv_fstream = fs.createWriteStream(csv_fullPath+'1')
+
+
+                        var data2=fs.readFileSync('../../genamap2/data/'+temp_file2name)
+                        temp_file.pipe(csv_fstream)
+                        fs.writeFileSync(csv_fullPath, data2)
+
+                        var data
+                        if (temp_fieldname === 'markerFile') data = dataList.marker
+                        else if (temp_fieldname === 'traitFile') data = dataList.trait
+                        else if (temp_fieldname === 'markerLabelFile') data = dataList.markerLabel
+                        else if (temp_fieldname === 'traitLabelFile') data = dataList.traitLabel
+                        else if (temp_fieldname === 'snpsFeatureFile') data = dataList.snpsFeature
+                        else if (temp_fieldname === 'populationFile') data = dataList.population
+                        else if (temp_fieldname === 'bedFile') data = dataList.population
+                        else console.log("Unhandled file:", temp_fieldname)
+                        data.filetype = temp_fieldname
+                        data.path = csv_fullPath
+                    }
+                    else {
+                        console.log('not recognized data format')
+                    }
+                }
+            }
+
+
+        temp_fieldname=""
+        temp_file=""
+        temp_file2name=""
         switch (fieldname) {
             case 'project':
                 projectId = val
@@ -607,7 +879,7 @@ app.post(config.api.importDataUrl, function (req, res) {
                 console.log('Unhandled fieldname "' + fieldname + '" of value "' + val + '"')
         }
         if (!!GDCdatainfo.disease_type) {
-            const folderPath = path.join('./.tmp', userId)
+            var folderPath = path.join('./.tmp', userId)
             mkdirp.sync(folderPath)
             console.log(GDCdatainfo.disease_type)
             console.log(GDCdatainfo.datatype)
@@ -667,211 +939,225 @@ app.post(config.api.importDataUrl, function (req, res) {
 
     }
 
-
     busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
-            if (!!filename) {
-                const folderPath = path.join('./.tmp', userId)
-                mkdirp.sync(folderPath)
-                var ext_name = filename.split('.')[filename.split('.').length - 1];
-                if (ext_name == 'ped') {
-                    file.on('data', function (data) {
-                        result = data.toString()
-                        var lines = result.split('\n')
-                        var traitLabel = 'defaultTrait'
-                        const id_traitval = guid()
-                        const traitval_fileName = `${id_traitval}.csv`
-                        const traitval_fullPath = path.join(folderPath, traitval_fileName)
-                        var traitValStream = fs.createWriteStream(traitval_fullPath, {'flags': 'a'})
-                        dataList.trait.filetype = 'traitFile'
-                        dataList.trait.path = traitval_fullPath
 
-                        const id_markerval = guid()
-                        const markerval_fileName = `${id_markerval}.csv`
-                        const markerval_fullPath = path.join(folderPath, markerval_fileName)
-                        var markerValStream = fs.createWriteStream(markerval_fullPath, {'flags': 'a'})
-                        dataList.marker.filetype = 'markerFile'
-                        dataList.marker.path = markerval_fullPath
 
-                        var count = new Array();
-                        var genes = lines[0].split(' ');
-                        if (genes.length <= 2) {
-                            genes = lines[0].split('\t');
-                        }
-                        for (var i = 0; i < 6; i++) {
-                            count[i] = new Array();
-                            for (var j = 0; j < genes.length - 6; j++) {
-                                count[i][j] = 0
-                            }
-                        }
-                        var linelength = 0
-                        var markerValue = new Array()
-                        var markerVal = new Array()
-                        for (var i = 0; i < lines.length; i++) {
-                            if (lines[i] != null && lines[i] != '') {
-                                linelength++
-                                markerVal[i] = new Array()
-                                markerValue[i] = new Array()
-                            }
-                        }
-                        for (var line = 0; line < linelength; line++) {
-                            var values = lines[line].split(' ')
-                            if (values.length <= 2) {
-                                values = lines[line].split('\t')
-                            }
-                            if (values.length <= 2) {
-                                // console.log('invalid delimiter1')
-                                break
-                            }
-                            traitValStream.write(values[5] + '\n')
-                            for (var i = 0; i < values.length - 6; i++) {
-                                if (values[i + 6] == '-9' || values[i + 6] == '0' || values[i + 6] == 'N') {
-                                    count[0][i]++;
-                                    markerVal[line][i] = 0;
-                                }
-                                else if (values[i + 6] == '1' || values[i + 6] == 'A') {
-                                    count[1][i]++;
-                                    markerVal[line][i] = 1;
-                                }
-                                else if (values[i + 6] == '2' || values[i + 6] == 'T') {
-                                    count[2][i]++;
-                                    markerVal[line][i] = 2;
-                                }
-                                else if (values[i + 6] == '3' || values[i + 6] == 'G') {
-                                    count[3][i]++;
-                                    markerVal[line][i] = 3;
-                                }
-                                else if (values[i + 6] == '4' || values[i + 6] == 'C') {
-                                    count[4][i]++;
-                                    markerVal[line][i] = 4;
-                                }
-                                else {
-                                    count[5][i]++;
-                                    markerVal[line][i] = 5;
-                                }
-                            }
-                        }
-                        for (var line = 0; line < linelength; line++) {
-                            var snp = 0
-                            for (var i = 0; i < genes.length - 6; i++) {
-                                var domin = 1
-                                for (var j = 2; j < 6; j++) {
-                                    if (count[j][i] > count[domin][i]) {
-                                        domin = j
-                                    }
-                                }
-                                // if (domin == 5){console.log(line +' '+ i + ' invalid marker');}
-                                if (markerVal[line][i] == domin) {
-                                    markerVal[line][i] = 0;
-                                }
-                                else {
-                                    markerVal[line][i] = 1;
-                                }
-                                if (i % 2 == 1) {
-                                    snp++;
-                                    markerValue[line][snp] = markerVal[line][i - 1] + markerVal[line][i];
-                                }
-                            }
-                            markerValStream.write(markerValue[line].slice(1, markerValue[line].length) + '\n');
-                        }
-                        traitValStream.end()
-                        markerValStream.end()
-                        const id_traitLabel = guid()
-                        const traitLabel_fileName = `${id_traitLabel}.csv`
-                        const traitLabel_fullPath = path.join(folderPath, traitLabel_fileName)
-                        dataList.traitLabel.filetype = 'traitLabelFile'
-                        dataList.traitLabel.path = traitLabel_fullPath
-                        fs.writeFile(traitLabel_fullPath, traitLabel, function (err) {
-                            if (err) {
-                                throw err;
-                                console.log(err);
-                            }
-                            else {
-                                console.log('trait Label done');
-                            }
-                        })
-
-                    })
-                }
-                else if (ext_name == 'map') {
-                    file.on('data', function (data) {
-                        result = data.toString()
-                        var lines = result.split('\n')
-                        const id_markerLabel = guid()
-                        const markerLabel_fileName = `${id_markerLabel}.csv`
-                        const markerLabel_fullPath = path.join(folderPath, markerLabel_fileName)
-                        var markerLabelStream = fs.createWriteStream(markerLabel_fullPath, {'flags': 'a'})
-                        dataList.markerLabel.filetype = 'markerLabelFile'
-                        dataList.markerLabel.path = markerLabel_fullPath
-                        for (var line = 0; line < lines.length; line++) {
-                            var values = lines[line].split(' ')
-                            if (values.length <= 2) {
-                                values = lines[line].split('\t')
-                            }
-                            if (values.length <= 2) {
-                                console.log('invalid delimiter2')
-                                break
-                            }
-                            markerLabelStream.write(values[1] + "," + values[0] + '\n')
-                        }
-                        markerLabelStream.end()
-                    })
-                }
-                else if (ext_name == 'bim' || ext_name == 'bed' || ext_name == 'fam') {
-                    const id = guid()
-                    const fileName = filename
-                    const fullPath = path.join(folderPath, fileName)
-                    const fstream = fs.createWriteStream(fullPath)
-                    console.log('get a plink file, stored in ' + fullPath)
-                    file.pipe(fstream)
-                    var data, newFieldname
-                    if (fieldname === 'bedFile')        // for BED file
-                    {
-                        data = dataList.marker
-                        fieldname = "markerFile"
-                    }
-                    else if (fieldname === 'File')      // for BIM file
-                    {
-                        data = dataList.trait
-                        fieldname = 'traitFile'
-                    }
-                    else if (fieldname === 'traitFile') // for FAM file
-                    {
-                        data = dataList.snpsFeature
-                        fieldname = 'snpsFeatureFile'
-                    } // not used
-                    else console.log("Unhandled file:", fieldname)
-                    data.filetype = fieldname
-                    data.path = fullPath
-                    data.projectItem = fileName
-                    data.name = 'PLINK File'
-                }
-                else if (ext_name == 'csv') {
-                    const csv_id = guid()
-                    const csv_fileName = `${csv_id}.` + ext_name;
-                    const csv_fullPath = path.join(folderPath, csv_fileName)
-                    const csv_fstream = fs.createWriteStream(csv_fullPath)
-                    file.pipe(csv_fstream)
-                    var data
-                    if (fieldname === 'markerFile') data = dataList.marker
-                    else if (fieldname === 'traitFile') data = dataList.trait
-                    else if (fieldname === 'markerLabelFile') data = dataList.markerLabel
-                    else if (fieldname === 'traitLabelFile') data = dataList.traitLabel
-                    else if (fieldname === 'snpsFeatureFile') data = dataList.snpsFeature
-                    else if (fieldname === 'populationFile') data = dataList.population
-                    else if (fieldname === 'bedFile') data = dataList.population
-                    else console.log("Unhandled file:", fieldname)
-                    data.filetype = fieldname
-                    data.path = csv_fullPath
-                }
-                else {
-                    console.log('not recognized data format')
-                }
-            }
-
-        }
-    )
+        temp_fieldname=fieldname
+        temp_file=file
+        //here is the former code that I want to keep in case I wrote something wrong to rev
+        // if (!!filename) {
+        //
+        //     const folderPath = path.join('./.tmp', userId)
+        //     mkdirp.sync(folderPath)
+        //     var ext_name = filename.split('.')[filename.split('.').length - 1];
+        //     if (ext_name == 'ped') {
+        //         file.on('data', function (data) {
+        //             result = data.toString()
+        //             var lines = result.split('\n')
+        //             var traitLabel = 'defaultTrait'
+        //             const id_traitval = guid()
+        //             const traitval_fileName = `${id_traitval}.csv`
+        //             const traitval_fullPath = path.join(folderPath, traitval_fileName)
+        //             var traitValStream = fs.createWriteStream(traitval_fullPath, {'flags': 'a'})
+        //             dataList.trait.filetype = 'traitFile'
+        //             dataList.trait.path = traitval_fullPath
+        //
+        //             const id_markerval = guid()
+        //             const markerval_fileName = `${id_markerval}.csv`
+        //             const markerval_fullPath = path.join(folderPath, markerval_fileName)
+        //             var markerValStream = fs.createWriteStream(markerval_fullPath, {'flags': 'a'})
+        //             dataList.marker.filetype = 'markerFile'
+        //             dataList.marker.path = markerval_fullPath
+        //
+        //             var count = new Array();
+        //             var genes = lines[0].split(' ');
+        //             if (genes.length <= 2) {
+        //                 genes = lines[0].split('\t');
+        //             }
+        //             for (var i = 0; i < 6; i++) {
+        //                 count[i] = new Array();
+        //                 for (var j = 0; j < genes.length - 6; j++) {
+        //                     count[i][j] = 0
+        //                 }
+        //             }
+        //             var linelength = 0
+        //             var markerValue = new Array()
+        //             var markerVal = new Array()
+        //             for (var i = 0; i < lines.length; i++) {
+        //                 if (lines[i] != null && lines[i] != '') {
+        //                     linelength++
+        //                     markerVal[i] = new Array()
+        //                     markerValue[i] = new Array()
+        //                 }
+        //             }
+        //             for (var line = 0; line < linelength; line++) {
+        //                 var values = lines[line].split(' ')
+        //                 if (values.length <= 2) {
+        //                     values = lines[line].split('\t')
+        //                 }
+        //                 if (values.length <= 2) {
+        //                     // console.log('invalid delimiter1')
+        //                     break
+        //                 }
+        //                 traitValStream.write(values[5] + '\n')
+        //                 for (var i = 0; i < values.length - 6; i++) {
+        //                     if (values[i + 6] == '-9' || values[i + 6] == '0' || values[i + 6] == 'N') {
+        //                         count[0][i]++;
+        //                         markerVal[line][i] = 0;
+        //                     }
+        //                     else if (values[i + 6] == '1' || values[i + 6] == 'A') {
+        //                         count[1][i]++;
+        //                         markerVal[line][i] = 1;
+        //                     }
+        //                     else if (values[i + 6] == '2' || values[i + 6] == 'T') {
+        //                         count[2][i]++;
+        //                         markerVal[line][i] = 2;
+        //                     }
+        //                     else if (values[i + 6] == '3' || values[i + 6] == 'G') {
+        //                         count[3][i]++;
+        //                         markerVal[line][i] = 3;
+        //                     }
+        //                     else if (values[i + 6] == '4' || values[i + 6] == 'C') {
+        //                         count[4][i]++;
+        //                         markerVal[line][i] = 4;
+        //                     }
+        //                     else {
+        //                         count[5][i]++;
+        //                         markerVal[line][i] = 5;
+        //                     }
+        //                 }
+        //             }
+        //             for (var line = 0; line < linelength; line++) {
+        //                 var snp = 0
+        //                 for (var i = 0; i < genes.length - 6; i++) {
+        //                     var domin = 1
+        //                     for (var j = 2; j < 6; j++) {
+        //                         if (count[j][i] > count[domin][i]) {
+        //                             domin = j
+        //                         }
+        //                     }
+        //                     // if (domin == 5){console.log(line +' '+ i + ' invalid marker');}
+        //                     if (markerVal[line][i] == domin) {
+        //                         markerVal[line][i] = 0;
+        //                     }
+        //                     else {
+        //                         markerVal[line][i] = 1;
+        //                     }
+        //                     if (i % 2 == 1) {
+        //                         snp++;
+        //                         markerValue[line][snp] = markerVal[line][i - 1] + markerVal[line][i];
+        //                     }
+        //                 }
+        //                 markerValStream.write(markerValue[line].slice(1, markerValue[line].length) + '\n');
+        //             }
+        //             traitValStream.end()
+        //             markerValStream.end()
+        //             const id_traitLabel = guid()
+        //             const traitLabel_fileName = `${id_traitLabel}.csv`
+        //             const traitLabel_fullPath = path.join(folderPath, traitLabel_fileName)
+        //             dataList.traitLabel.filetype = 'traitLabelFile'
+        //             dataList.traitLabel.path = traitLabel_fullPath
+        //             fs.writeFile(traitLabel_fullPath, traitLabel, function (err) {
+        //                 if (err) {
+        //                     throw err;
+        //                     console.log(err);
+        //                 }
+        //                 else {
+        //                     console.log('trait Label done');
+        //                 }
+        //             })
+        //
+        //         })
+        //     }
+        //     else if (ext_name == 'map') {
+        //         file.on('data', function (data) {
+        //             result = data.toString()
+        //             var lines = result.split('\n')
+        //             const id_markerLabel = guid()
+        //             const markerLabel_fileName = `${id_markerLabel}.csv`
+        //             const markerLabel_fullPath = path.join(folderPath, markerLabel_fileName)
+        //             var markerLabelStream = fs.createWriteStream(markerLabel_fullPath, {'flags': 'a'})
+        //             dataList.markerLabel.filetype = 'markerLabelFile'
+        //             dataList.markerLabel.path = markerLabel_fullPath
+        //             for (var line = 0; line < lines.length; line++) {
+        //                 var values = lines[line].split(' ')
+        //                 if (values.length <= 2) {
+        //                     values = lines[line].split('\t')
+        //                 }
+        //                 if (values.length <= 2) {
+        //                     console.log('invalid delimiter2')
+        //                     break
+        //                 }
+        //                 markerLabelStream.write(values[1] + "," + values[0] + '\n')
+        //             }
+        //             markerLabelStream.end()
+        //         })
+        //     }
+        //     else if (ext_name == 'bim' || ext_name == 'bed' || ext_name == 'fam') {
+        //         const id = guid()
+        //         const fileName = filename
+        //         const fullPath = path.join(folderPath, fileName)
+        //         const fstream = fs.createWriteStream(fullPath)
+        //         console.log('get a plink file, stored in ' + fullPath)
+        //         //file.pipe(fstream)
+        //         var data2=fs.readFileSync('../../genamap2/data/'+filename)
+        //         file.pipe(fstream)
+        //         fs.writeFileSync(csv_fullPath, data2)
+        //         var data, newFieldname
+        //         if (fieldname === 'bedFile')        // for BED file
+        //         {
+        //             data = dataList.marker
+        //             fieldname = "markerFile"
+        //         }
+        //         else if (fieldname === 'File')      // for BIM file
+        //         {
+        //             data = dataList.trait
+        //             fieldname = 'traitFile'
+        //         }
+        //         else if (fieldname === 'traitFile') // for FAM file
+        //         {
+        //             data = dataList.snpsFeature
+        //             fieldname = 'snpsFeatureFile'
+        //         } // not used
+        //         else console.log("Unhandled file:", fieldname)
+        //         data.filetype = fieldname
+        //         data.path = fullPath
+        //         data.projectItem = fileName
+        //         data.name = 'PLINK File'
+        //     }
+        //     else if (ext_name == 'csv') {
+        //         const csv_id = guid()
+        //         const csv_fileName = `${csv_id}.` + ext_name;
+        //         var csv_fullPath = path.join(folderPath, csv_fileName)
+        //
+        //         const csv_fstream = fs.createWriteStream(csv_fullPath)
+        //
+        //
+        //         var data2=fs.readFileSync('../../genamap2/data/'+filename)
+        //         file.pipe(csv_fstream)
+        //         fs.writeFileSync(csv_fullPath, data2)
+        //
+        //         var data
+        //         if (fieldname === 'markerFile') data = dataList.marker
+        //         else if (fieldname === 'traitFile') data = dataList.trait
+        //         else if (fieldname === 'markerLabelFile') data = dataList.markerLabel
+        //         else if (fieldname === 'traitLabelFile') data = dataList.traitLabel
+        //         else if (fieldname === 'snpsFeatureFile') data = dataList.snpsFeature
+        //         else if (fieldname === 'populationFile') data = dataList.population
+        //         else if (fieldname === 'bedFile') data = dataList.population
+        //         else console.log("Unhandled file:", fieldname)
+        //         data.filetype = fieldname
+        //         data.path = csv_fullPath
+        //     }
+        //     else {
+        //         console.log('not recognized data format')
+        //     }
+        // }
+    })
 
     busboy.on('finish', function () {
+        console.log("end")
+
         const projectFinish = function (err, project) {
             // if (err) return res.status(500).json({err: err})
             if (err) throw err
@@ -908,6 +1194,379 @@ app.post(config.api.importDataUrl, function (req, res) {
 
     req.pipe(busboy)
 })
+// app.post(config.api.importDataUrl, function (req, res) {
+//     var busboy = new Busboy({headers: req.headers})
+//     var projectId // eslint-disable-line no-unused-vars
+//     var projectObj = {}
+//     /*var marker = { files: [] }
+//      var trait = { files: [] }
+//      var snpsFeature = { files: [] }
+//      var population = { files: [] }
+//      var fileDataList = {*/
+//     var dataList = {
+//         marker: {
+//             name: 'Marker Values'
+//         },
+//         trait: {
+//             name: 'Trait Values'
+//         },
+//         markerLabel: {
+//             name: 'Marker Labels'
+//         },
+//         traitLabel: {
+//             name: 'Trait Labels'
+//         },
+//         snpsFeature: {
+//             name: 'SNPs Features'
+//         },
+//         population: {
+//             name: 'Populations'
+//         }
+//     }
+//
+//     var GDCdatainfo = {disease_type: '', datatype: ''}
+//
+//     const userId = extractUserIdFromHeader(req.headers)
+//
+//     busboy.on('field', function (fieldname, val, fieldnameTruncated,
+//                                  valTruncated, encoding, mimetype) {
+//         switch (fieldname) {
+//             case 'project':
+//                 projectId = val
+//                 break
+//             case 'projectName':
+//                 projectObj.name = val
+//                 break
+//             case 'species':
+//                 projectObj.species = val
+//                 break
+//             case 'markerName':
+//                 dataList.marker.projectItem = dataList.markerLabel.projectItem = val
+//                 break
+//             case 'traitName':
+//                 dataList.trait.projectItem = dataList.traitLabel.projectItem = val
+//                 break
+//             case 'snpsFeature':
+//                 dataList.snpsFeature.projectItem = val
+//                 break
+//             case 'population':
+//                 dataList.population.projectItem = val
+//                 break
+//             case 'disease_type':
+//                 GDCdatainfo.disease_type = val
+//                 console.log(val)
+//                 projectObj.species = 'Human'
+//                 dataList.marker.projectItem = dataList.markerLabel.projectItem = 'marker'
+//                 dataList.trait.projectItem = dataList.traitLabel.projectItem = 'trait'
+//                 break
+//             case 'dataType':
+//                 GDCdatainfo.datatype = val
+//                 break
+//             default:
+//                 console.log('Unhandled fieldname "' + fieldname + '" of value "' + val + '"')
+//         }
+//         if (!!GDCdatainfo.disease_type) {
+//             const folderPath = path.join('./.tmp', userId)
+//             mkdirp.sync(folderPath)
+//             console.log(GDCdatainfo.disease_type)
+//             console.log(GDCdatainfo.datatype)
+//             getfile(GDCdatainfo.disease_type, folderPath, GDCdatainfo.datatype.toString())
+//         }
+//     })
+//
+//     function getfile(disease_type, folderPath, file_type) {
+//         if (!file_type) {
+//             file_type = "FPKM"
+//         }
+//         const id_traitval = guid()
+//         const traitval_fileName = `${id_traitval}.csv`
+//         const traitval_fullPath = path.join(folderPath, traitval_fileName)
+//
+//         const id_traitLabel = guid()
+//         const traitLabel_fileName = `${id_traitLabel}.csv`
+//         const traitLabel_fullPath = path.join(folderPath, traitLabel_fileName)
+//
+//         const id_markerval = guid()
+//         const markerval_fileName = `${id_markerval}.csv`
+//         const markerval_fullPath = path.join(folderPath, markerval_fileName)
+//
+//         const id_markerLabel = guid()
+//         const markerLabel_fileName = `${id_markerLabel}.csv`
+//         const markerLabel_fullPath = path.join(folderPath, markerLabel_fileName)
+//
+//         const origindirpath = path.join('./GDCdata/data', disease_type)
+//         const origintraitlabelfile = path.join(origindirpath, 'traitLabel.csv')
+//         const origintraitvaluefile = path.join(origindirpath, 'traitValue.csv')
+//         const originmarkerlabelfile = path.join(origindirpath, 'markerLabel.csv')
+//         const originmarkervaluefile = path.join(origindirpath, file_type + '.csv')
+//
+//         dataList.markerLabel.filetype = 'markerLabelFile'
+//         dataList.markerLabel.path = markerLabel_fullPath
+//         fs.copy(originmarkerlabelfile, markerLabel_fullPath, function (err) {
+//             if (err) return console.error(err)
+//         })
+//
+//         dataList.marker.filetype = 'markerFile'
+//         dataList.marker.path = markerval_fullPath
+//         fs.copy(originmarkervaluefile, markerval_fullPath, function (err) {
+//             if (err) return console.error(err)
+//         })
+//
+//         dataList.traitLabel.filetype = 'traitLabelFile'
+//         dataList.traitLabel.path = traitLabel_fullPath
+//         fs.copy(origintraitlabelfile, traitLabel_fullPath, function (err) {
+//             if (err) return console.error(err)
+//         })
+//
+//         dataList.trait.filetype = 'traitFile'
+//         dataList.trait.path = traitval_fullPath
+//         fs.copy(origintraitvaluefile, traitval_fullPath, function (err) {
+//             if (err) return console.error(err)
+//         })
+//
+//     }
+//
+//
+//     busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+//             if (!!filename) {
+//                 const folderPath = path.join('./.tmp', userId)
+//                 mkdirp.sync(folderPath)
+//                 var ext_name = filename.split('.')[filename.split('.').length - 1];
+//                 if (ext_name == 'ped') {
+//                     file.on('data', function (data) {
+//                         result = data.toString()
+//                         var lines = result.split('\n')
+//                         var traitLabel = 'defaultTrait'
+//                         const id_traitval = guid()
+//                         const traitval_fileName = `${id_traitval}.csv`
+//                         const traitval_fullPath = path.join(folderPath, traitval_fileName)
+//                         var traitValStream = fs.createWriteStream(traitval_fullPath, {'flags': 'a'})
+//                         dataList.trait.filetype = 'traitFile'
+//                         dataList.trait.path = traitval_fullPath
+//
+//                         const id_markerval = guid()
+//                         const markerval_fileName = `${id_markerval}.csv`
+//                         const markerval_fullPath = path.join(folderPath, markerval_fileName)
+//                         var markerValStream = fs.createWriteStream(markerval_fullPath, {'flags': 'a'})
+//                         dataList.marker.filetype = 'markerFile'
+//                         dataList.marker.path = markerval_fullPath
+//
+//                         var count = new Array();
+//                         var genes = lines[0].split(' ');
+//                         if (genes.length <= 2) {
+//                             genes = lines[0].split('\t');
+//                         }
+//                         for (var i = 0; i < 6; i++) {
+//                             count[i] = new Array();
+//                             for (var j = 0; j < genes.length - 6; j++) {
+//                                 count[i][j] = 0
+//                             }
+//                         }
+//                         var linelength = 0
+//                         var markerValue = new Array()
+//                         var markerVal = new Array()
+//                         for (var i = 0; i < lines.length; i++) {
+//                             if (lines[i] != null && lines[i] != '') {
+//                                 linelength++
+//                                 markerVal[i] = new Array()
+//                                 markerValue[i] = new Array()
+//                             }
+//                         }
+//                         for (var line = 0; line < linelength; line++) {
+//                             var values = lines[line].split(' ')
+//                             if (values.length <= 2) {
+//                                 values = lines[line].split('\t')
+//                             }
+//                             if (values.length <= 2) {
+//                                 // console.log('invalid delimiter1')
+//                                 break
+//                             }
+//                             traitValStream.write(values[5] + '\n')
+//                             for (var i = 0; i < values.length - 6; i++) {
+//                                 if (values[i + 6] == '-9' || values[i + 6] == '0' || values[i + 6] == 'N') {
+//                                     count[0][i]++;
+//                                     markerVal[line][i] = 0;
+//                                 }
+//                                 else if (values[i + 6] == '1' || values[i + 6] == 'A') {
+//                                     count[1][i]++;
+//                                     markerVal[line][i] = 1;
+//                                 }
+//                                 else if (values[i + 6] == '2' || values[i + 6] == 'T') {
+//                                     count[2][i]++;
+//                                     markerVal[line][i] = 2;
+//                                 }
+//                                 else if (values[i + 6] == '3' || values[i + 6] == 'G') {
+//                                     count[3][i]++;
+//                                     markerVal[line][i] = 3;
+//                                 }
+//                                 else if (values[i + 6] == '4' || values[i + 6] == 'C') {
+//                                     count[4][i]++;
+//                                     markerVal[line][i] = 4;
+//                                 }
+//                                 else {
+//                                     count[5][i]++;
+//                                     markerVal[line][i] = 5;
+//                                 }
+//                             }
+//                         }
+//                         for (var line = 0; line < linelength; line++) {
+//                             var snp = 0
+//                             for (var i = 0; i < genes.length - 6; i++) {
+//                                 var domin = 1
+//                                 for (var j = 2; j < 6; j++) {
+//                                     if (count[j][i] > count[domin][i]) {
+//                                         domin = j
+//                                     }
+//                                 }
+//                                 // if (domin == 5){console.log(line +' '+ i + ' invalid marker');}
+//                                 if (markerVal[line][i] == domin) {
+//                                     markerVal[line][i] = 0;
+//                                 }
+//                                 else {
+//                                     markerVal[line][i] = 1;
+//                                 }
+//                                 if (i % 2 == 1) {
+//                                     snp++;
+//                                     markerValue[line][snp] = markerVal[line][i - 1] + markerVal[line][i];
+//                                 }
+//                             }
+//                             markerValStream.write(markerValue[line].slice(1, markerValue[line].length) + '\n');
+//                         }
+//                         traitValStream.end()
+//                         markerValStream.end()
+//                         const id_traitLabel = guid()
+//                         const traitLabel_fileName = `${id_traitLabel}.csv`
+//                         const traitLabel_fullPath = path.join(folderPath, traitLabel_fileName)
+//                         dataList.traitLabel.filetype = 'traitLabelFile'
+//                         dataList.traitLabel.path = traitLabel_fullPath
+//                         fs.writeFile(traitLabel_fullPath, traitLabel, function (err) {
+//                             if (err) {
+//                                 throw err;
+//                                 console.log(err);
+//                             }
+//                             else {
+//                                 console.log('trait Label done');
+//                             }
+//                         })
+//
+//                     })
+//                 }
+//                 else if (ext_name == 'map') {
+//                     file.on('data', function (data) {
+//                         result = data.toString()
+//                         var lines = result.split('\n')
+//                         const id_markerLabel = guid()
+//                         const markerLabel_fileName = `${id_markerLabel}.csv`
+//                         const markerLabel_fullPath = path.join(folderPath, markerLabel_fileName)
+//                         var markerLabelStream = fs.createWriteStream(markerLabel_fullPath, {'flags': 'a'})
+//                         dataList.markerLabel.filetype = 'markerLabelFile'
+//                         dataList.markerLabel.path = markerLabel_fullPath
+//                         for (var line = 0; line < lines.length; line++) {
+//                             var values = lines[line].split(' ')
+//                             if (values.length <= 2) {
+//                                 values = lines[line].split('\t')
+//                             }
+//                             if (values.length <= 2) {
+//                                 console.log('invalid delimiter2')
+//                                 break
+//                             }
+//                             markerLabelStream.write(values[1] + "," + values[0] + '\n')
+//                         }
+//                         markerLabelStream.end()
+//                     })
+//                 }
+//                 else if (ext_name == 'bim' || ext_name == 'bed' || ext_name == 'fam') {
+//                     const id = guid()
+//                     const fileName = filename
+//                     const fullPath = path.join(folderPath, fileName)
+//                     const fstream = fs.createWriteStream(fullPath)
+//                     console.log('get a plink file, stored in ' + fullPath)
+//                     file.pipe(fstream)
+//                     var data, newFieldname
+//                     if (fieldname === 'bedFile')        // for BED file
+//                     {
+//                         data = dataList.marker
+//                         fieldname = "markerFile"
+//                     }
+//                     else if (fieldname === 'File')      // for BIM file
+//                     {
+//                         data = dataList.trait
+//                         fieldname = 'traitFile'
+//                     }
+//                     else if (fieldname === 'traitFile') // for FAM file
+//                     {
+//                         data = dataList.snpsFeature
+//                         fieldname = 'snpsFeatureFile'
+//                     } // not used
+//                     else console.log("Unhandled file:", fieldname)
+//                     data.filetype = fieldname
+//                     data.path = fullPath
+//                     data.projectItem = fileName
+//                     data.name = 'PLINK File'
+//                 }
+//                 else if (ext_name == 'csv') {
+//                     const csv_id = guid()
+//                     const csv_fileName = `${csv_id}.` + ext_name;
+//                     const csv_fullPath = path.join(folderPath, csv_fileName)
+//                     const csv_fstream = fs.createWriteStream(csv_fullPath)
+//                     file.pipe(csv_fstream)
+//                     var data
+//                     if (fieldname === 'markerFile') data = dataList.marker
+//                     else if (fieldname === 'traitFile') data = dataList.trait
+//                     else if (fieldname === 'markerLabelFile') data = dataList.markerLabel
+//                     else if (fieldname === 'traitLabelFile') data = dataList.traitLabel
+//                     else if (fieldname === 'snpsFeatureFile') data = dataList.snpsFeature
+//                     else if (fieldname === 'populationFile') data = dataList.population
+//                     else if (fieldname === 'bedFile') data = dataList.population
+//                     else console.log("Unhandled file:", fieldname)
+//                     data.filetype = fieldname
+//                     data.path = csv_fullPath
+//                 }
+//                 else {
+//                     console.log('not recognized data format')
+//                 }
+//             }
+//
+//         }
+//     )
+//
+//     busboy.on('finish', function () {
+//         const projectFinish = function (err, project) {
+//             // if (err) return res.status(500).json({err: err})
+//             if (err) throw err
+//             var files = [] // not really used right now
+//
+//             async.each(dataList,
+//                 function (datum, callback) {
+//                     if (!!datum.name && !!datum.filetype && !!datum.path) {
+//                         datum.project = project.id
+//                         app.models.file.create(datum).exec(function (err, file) {
+//                             if (err) throw err
+//                             files.push(file)
+//                             callback()
+//                         })
+//                     } else {
+//                         callback()
+//                     }
+//                 }, function (err) {
+//                     if (err) throw err
+//                     //return res.json({ project, files, marker, trait, snpsFeature, population })
+//                     return res.json({project, files})
+//                 }
+//             )
+//         }
+//
+//         app.models.project.findOne({id: projectId}).exec(function (err, project) {
+//             if (!project) {
+//                 app.models.project.findOrCreate(projectObj).exec(projectFinish)
+//             } else {
+//                 projectFinish(err, project)
+//             }
+//         })
+//     })
+//
+//     req.pipe(busboy)
+// })
 /**
  * @param {Object} req
  * @param {Object} [req.body]
