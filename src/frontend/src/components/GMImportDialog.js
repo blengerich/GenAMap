@@ -9,7 +9,9 @@ import FontIcon from 'material-ui/FontIcon'
 import config from '../../config'
 import GMFileInput from './GMFileInput'
 import fetch from './fetch'
+
 //comment:here tells how we change to upload file(we must use the GMFileInput to create a file stream!!)
+
 const errorText = 'This is a required field'
 
 class GMImportDialog extends Component {
@@ -335,6 +337,7 @@ class GMImportDialog extends Component {
                           value={this.state.markerFileName}
                           // disabled={false}
                           hintText='Marker File(Remote)'
+
                           //errorText={!this.state.markerFileName &&errorText}
                           onChange={this.onChangeMarkerFileName2.bind(this)}
                       >
@@ -381,7 +384,9 @@ class GMImportDialog extends Component {
                     <div>
                       <SelectField
                           value={this.state.traitFileName}
+
                           hintText='Trait File(Remote)'
+
                           onChange={this.onChangeTraitFileName2.bind(this)}
                       >
                           {this.state.filelist}
@@ -390,7 +395,9 @@ class GMImportDialog extends Component {
                       <br />
                       <SelectField
                           value={this.state.traitLabelFileName}
+
                           hintText='Trait Label FIile(Remote)'
+
                           onChange={this.onChangeTraitLabelFileName2.bind(this)}
                       >
                           {this.state.filelist}
@@ -416,7 +423,10 @@ class GMImportDialog extends Component {
                     <div>
                       <SelectField
                           value={this.state.populationFileName}
+
+               
                           hintText='Population File(Remote)'
+
                           onChange={this.onChangePopulationFileName2.bind(this)}
                       >
                           {this.state.filelist}
@@ -443,6 +453,7 @@ class GMImportDialog extends Component {
                       <SelectField
                           value={this.state.snpsFeatureFileName}
                           hintText='SNPs Feature File(Remote)'
+
                           onChange={this.onChangeSnpsFeatureFileName2.bind(this)}
                       >
                           {this.state.filelist}
@@ -473,7 +484,9 @@ class GMImportDialog extends Component {
                     <div>
                       <SelectField
                           value={this.state.markerFileName}
+
                           hintText='Marker File(Remote)'
+
                           onChange={this.onChangeMarkerFileName2.bind(this)}
                       >
                         {this.state.filelist}
@@ -501,7 +514,9 @@ class GMImportDialog extends Component {
                     <div>
                       <SelectField
                           value={this.state.traitFileName}
+
                           hintText='Trait File(Remote)'
+
                           onChange={this.onChangeTraitFileName2.bind(this)}
                       >
                           {this.state.filelist}
@@ -562,7 +577,9 @@ class GMImportDialog extends Component {
                   <div>
                     <SelectField
                         value={this.state.markerFileName}
+
                         hintText='BED File(Remote)'
+
                         onChange={this.onChangeMarkerFileName2.bind(this)}
                     >
                         {this.state.filelist}
@@ -571,7 +588,9 @@ class GMImportDialog extends Component {
                     <br/>
                     <SelectField
                         value={this.state.traitFileName}
+
                         hintText='BIM File(Remote)'
+
                         onChange={this.onChangeTraitFileName2.bind(this)}
                     >
                         {this.state.filelist}
@@ -581,6 +600,7 @@ class GMImportDialog extends Component {
                     <SelectField
                         value={this.state.snpsFeatureFileName}
                         hintText='FAM File(Remote)'
+
                         onChange={this.onChangeSnpsFeatureFileName2.bind(this)}
                     >
                         {this.state.filelist}
