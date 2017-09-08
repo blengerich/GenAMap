@@ -783,7 +783,7 @@ app.post(config.api.importDataUrl, function (req, res) {
                         var fstream = fs.createWriteStream(fullPath)
                         console.log('get a plink file, stored in ' + fullPath)
                         //file.pipe(fstream)
-                        var data2=fs.readFileSync('../../genamap2/data/'+temp_file2name)
+                        var data2=fs.readFileSync('../../genamap2/'+temp_file2name)
                         temp_file.pipe(fstream)
                         fs.writeFileSync(csv_fullPath, data2)
                         var data, newFieldname
@@ -815,7 +815,7 @@ app.post(config.api.importDataUrl, function (req, res) {
                         var csv_fstream = fs.createWriteStream(csv_fullPath+'1')
 
 
-                        var data2=fs.readFileSync('../../genamap2/data/'+temp_file2name)
+                        var data2=fs.readFileSync('../../genamap2/'+temp_file2name)
                         temp_file.pipe(csv_fstream)
                         fs.writeFileSync(csv_fullPath, data2)
 
@@ -1154,7 +1154,7 @@ app.post(config.api.importDataUrl, function (req, res) {
     })
 
     busboy.on('finish', function () {
-        console.log("end")
+        // console.log("end")
 
         const projectFinish = function (err, project) {
             // if (err) return res.status(500).json({err: err})
