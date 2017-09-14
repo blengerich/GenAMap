@@ -338,7 +338,7 @@ void TreeLasso::penaltyWeights() {
         }
         else{
             for (unsigned int i=0; i<n->children.size();i++){
-                if(n->children[i].children.size==0){
+                if(n->children[i]->children.size()==0){
                     n->children[i]->s=0;
                 }
                 n->children[i]->weight = n->s*(1-n->children[i]->s);
