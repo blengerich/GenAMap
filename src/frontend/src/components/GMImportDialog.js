@@ -10,6 +10,8 @@ import config from '../../config'
 import GMFileInput from './GMFileInput'
 import fetch from './fetch'
 
+//comment:here tells how we change to upload file(we must use the GMFileInput to create a file stream!!)
+
 const errorText = 'This is a required field'
 
 class GMImportDialog extends Component {
@@ -204,12 +206,20 @@ class GMImportDialog extends Component {
         onClick={this.handleClose.bind(this)}
       />,
       <FlatButton
-        label='Import'
+        label='Import' //(Local)
         primary={true}
         keyboardFocused={true}
         onClick={this.handleSubmit.bind(this)}
         disabled={!this.validateForm()}
       />
+      //   ,
+      // <FlatButton
+      //   label='Import(Remote)'
+      //   primary={true}
+      //   keyboardFocused={true}
+      //   onClick={this.handleSubmit.bind(this)}
+      // disabled={!this.validateForm()}
+      // />
     ]
     var projectList = this.props.projects.map((project, i) =>
       <MenuItem key={i} value={project.id} primaryText={project.name} />
@@ -310,14 +320,14 @@ class GMImportDialog extends Component {
                     <br />
                     <GMFileInput
                       id='markerFile'
-                      buttonLabel='Marker File'
+                      buttonLabel='Marker File(Local)'
                       accept='.csv'
                       onChange={this.onChangeMarkerFileName.bind(this)}
                       fileLabel={this.state.markerFileName}
                     /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
                     <GMFileInput
                       id='markerLabelFile'
-                      buttonLabel='Marker Label File'
+                      buttonLabel='Marker Label File(Local)'
                       accept='.csv'
                       onChange={this.onChangeMarkerLabelFileName.bind(this)}
                       fileLabel={this.state.markerLabelFileName}
@@ -326,7 +336,8 @@ class GMImportDialog extends Component {
                       <SelectField
                           value={this.state.markerFileName}
                           // disabled={false}
-                          hintText='Marker File'
+                          hintText='Marker File(Remote)'
+
                           //errorText={!this.state.markerFileName &&errorText}
                           onChange={this.onChangeMarkerFileName2.bind(this)}
                       >
@@ -340,7 +351,7 @@ class GMImportDialog extends Component {
                       <br />
                       <SelectField
                           value={this.state.markerLabelFileName}
-                          hintText='Maker Label FIile'
+                          hintText='Maker Label File(Remote)'
                           onChange={this.onChangeMarkerLabelFileName2.bind(this)}
                       >
                           {this.state.filelist}
@@ -358,14 +369,14 @@ class GMImportDialog extends Component {
                     />
                     <GMFileInput
                       id='traitFile'
-                      buttonLabel='Trait File'
+                      buttonLabel='Trait File(Local)'
                       accept='.csv'
                       onChange={this.onChangeTraitFileName.bind(this)}
                       fileLabel={this.state.traitFileName}
                     /><a target="_blank" href="https://github.com/blengerich/GenAMap/blob/master/Documentation/ExampleData/data_description.md">&#9432;</a>
                     <GMFileInput
                       id='traitLabelFile'
-                      buttonLabel='Trait Label File'
+                      buttonLabel='Trait Label File(Local)'
                       accept='.csv'
                       onChange={this.onChangeTraitLabelFileName.bind(this)}
                       fileLabel={this.state.traitLabelFileName}
@@ -373,7 +384,9 @@ class GMImportDialog extends Component {
                     <div>
                       <SelectField
                           value={this.state.traitFileName}
-                          hintText='Trait File'
+
+                          hintText='Trait File(Remote)'
+
                           onChange={this.onChangeTraitFileName2.bind(this)}
                       >
                           {this.state.filelist}
@@ -382,7 +395,9 @@ class GMImportDialog extends Component {
                       <br />
                       <SelectField
                           value={this.state.traitLabelFileName}
-                          hintText='Trait Label FIile'
+
+                          hintText='Trait Label FIile(Remote)'
+
                           onChange={this.onChangeTraitLabelFileName2.bind(this)}
                       >
                           {this.state.filelist}
@@ -400,7 +415,7 @@ class GMImportDialog extends Component {
                     />
                     <GMFileInput
                       id='populationFile'
-                      buttonLabel='Population File'
+                      buttonLabel='Population File(Local)'
                       accept='.csv'
                       onChange={this.onChangePopulationFileName.bind(this)}
                       fileLabel={this.state.populationFileName}
@@ -408,7 +423,10 @@ class GMImportDialog extends Component {
                     <div>
                       <SelectField
                           value={this.state.populationFileName}
-                          hintText='Population File'
+
+               
+                          hintText='Population File(Remote)'
+
                           onChange={this.onChangePopulationFileName2.bind(this)}
                       >
                           {this.state.filelist}
@@ -426,7 +444,7 @@ class GMImportDialog extends Component {
                     />
                     <GMFileInput
                       id='snpsFeatureFile'
-                      buttonLabel='SNPs Feature File'
+                      buttonLabel='SNPs Feature File(Local)'
                       accept='.csv'
                       onChange={this.onChangeSnpsFeatureFileName.bind(this)}
                       fileLabel={this.state.snpsFeatureFileName}
@@ -434,7 +452,8 @@ class GMImportDialog extends Component {
                     <div>
                       <SelectField
                           value={this.state.snpsFeatureFileName}
-                          hintText='SNPs Feature File'
+                          hintText='SNPs Feature File(Remote)'
+
                           onChange={this.onChangeSnpsFeatureFileName2.bind(this)}
                       >
                           {this.state.filelist}
@@ -456,7 +475,7 @@ class GMImportDialog extends Component {
                     <br />
                     <GMFileInput
                       id='markerFile'
-                      buttonLabel='Marker File'
+                      buttonLabel='Marker File(Local)'
                       hintText= 'PED file can be put here'
                       accept='.ped'
                       onChange={this.onChangeMarkerFileName.bind(this)}
@@ -465,7 +484,9 @@ class GMImportDialog extends Component {
                     <div>
                       <SelectField
                           value={this.state.markerFileName}
-                          hintText='Marker File'
+
+                          hintText='Marker File(Remote)'
+
                           onChange={this.onChangeMarkerFileName2.bind(this)}
                       >
                         {this.state.filelist}
@@ -484,7 +505,7 @@ class GMImportDialog extends Component {
                     />
                     <GMFileInput
                       id='traitFile'
-                      buttonLabel='Trait File'
+                      buttonLabel='Trait File(Local)'
                       hintText = 'MAP file can be put here'
                       accept='.map'
                       onChange={this.onChangeTraitFileName.bind(this)}
@@ -493,7 +514,9 @@ class GMImportDialog extends Component {
                     <div>
                       <SelectField
                           value={this.state.traitFileName}
-                          hintText='Trait File'
+
+                          hintText='Trait File(Remote)'
+
                           onChange={this.onChangeTraitFileName2.bind(this)}
                       >
                           {this.state.filelist}
@@ -525,7 +548,7 @@ class GMImportDialog extends Component {
                 <div>
                   <GMFileInput
                     id='bedFile'
-                    buttonLabel='BED File'
+                    buttonLabel='BED File(Local)'
                     hintText= 'BED file can be put here'
                     accept='.bed'
                     onChange={this.onChangeMarkerFileName.bind(this)}
@@ -534,7 +557,7 @@ class GMImportDialog extends Component {
                   <br />
                   <GMFileInput
                     id='File'
-                    buttonLabel='BIM File'
+                    buttonLabel='BIM File(Local)'
                     hintText = 'BIM file can be put here'
                     accept='.bim'
                     onChange={this.onChangeTraitFileName.bind(this)}
@@ -543,7 +566,7 @@ class GMImportDialog extends Component {
                   <br />
                   <GMFileInput
                     id='traitFile'
-                    buttonLabel='FAM File'
+                    buttonLabel='FAM File(Local)'
                     hintText = 'FAM file can be put here'
                     accept='.fam'
                     onChange={this.onChangeSnpsFeatureFileName.bind(this)}
@@ -554,7 +577,9 @@ class GMImportDialog extends Component {
                   <div>
                     <SelectField
                         value={this.state.markerFileName}
-                        hintText='BED File'
+
+                        hintText='BED File(Remote)'
+
                         onChange={this.onChangeMarkerFileName2.bind(this)}
                     >
                         {this.state.filelist}
@@ -563,7 +588,9 @@ class GMImportDialog extends Component {
                     <br/>
                     <SelectField
                         value={this.state.traitFileName}
-                        hintText='BIM File'
+
+                        hintText='BIM File(Remote)'
+
                         onChange={this.onChangeTraitFileName2.bind(this)}
                     >
                         {this.state.filelist}
@@ -572,7 +599,8 @@ class GMImportDialog extends Component {
                     <br/>
                     <SelectField
                         value={this.state.snpsFeatureFileName}
-                        hintText='FAM File'
+                        hintText='FAM File(Remote)'
+
                         onChange={this.onChangeSnpsFeatureFileName2.bind(this)}
                     >
                         {this.state.filelist}

@@ -7,7 +7,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 
 const config = {
-    devtool: 'source-map',
+    devtool: 'eval-source-map',
     entry: [
         'webpack-dev-server/client?http://localhost:3001/',
         'babel-polyfill',

@@ -311,6 +311,7 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
             var transporter = nodemailer.createTransport(jsonContent.user + ':' + jsonContent.password);
 
 
+
             var mailOptions = {
                 from: '"GenAMap" <genamap.team@gmail.com>', // sender address
                 to: req.body.email,
@@ -348,7 +349,7 @@ app.post(config.api.requestUserConfirmUrl, function (req, res) {
  text: 'Registration Comfiration',
  html: 'Hi! <br/>'+
  'Thanks for registering for GenAMap. Now you can enjoy visual machine learning software totally free!<br/>'
- + 'Verification code: ' + req.body.code + '<br/>Or confirm at 192.168.99.100:49160/#/confirm/' + req.body.code + '<br/'
+ + 'Verification code: ' + req.body.code + '<br/>Or confirm at 192.168.99.100:80/#/confirm/' + req.body.code + '<br/'
  + 'Yours sincerely<br/>' + 'GenAMap Team'
  };*/
 
@@ -624,7 +625,6 @@ app.post(config.api.importDataUrl, function (req, res) {
 
     busboy.on('field', function (fieldname, val, fieldnameTruncated,
                                  valTruncated, encoding, mimetype) {
-
         temp_fieldname=""
         temp_file=""
         temp_file2name=""
@@ -1158,6 +1158,7 @@ app.post(config.api.importDataUrl, function (req, res) {
     busboy.on('finish', function () {
         console.log("end")
 
+
         const projectFinish = function (err, project) {
             // if (err) return res.status(500).json({err: err})
             if (err) throw err
@@ -1602,6 +1603,7 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             }
             Scheduler.setX(jobId, markerFile.path);
             Scheduler.setY(jobId, traitFile.path);
+            Scheduler.imputation(jobId);
             const startJobFinish = function () {
                 const userId = extractUserIdFromHeader(req.headers)
                 const id = guid()
@@ -1672,7 +1674,8 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
             var ready = req.body.other_data.map((value, index) => {
                 false
             });
-            if (req.body.other_data.length > 0) {
+            app.models.file.findOne({id: req.body.marker.data.labelId}).exec(function (err, mLabelsFile) {
+            if (req.body.other_data.length > 0 && typeof mLabelsFile != 'undefined') {
                 req.body.other_data.map((value, index) => {
                     console.log(value);
                     if (!value.val || !value.val.data || !value.val.data.id || value.val.data.id < 0) {
@@ -1701,9 +1704,10 @@ app.post(config.api.runAnalysisUrl, function (req, res) {
                         }
                     })
                 })
-            } else {
-                startJobFinish();
             }
+            else {
+                startJobFinish();
+            }})
             /*results.map((value, index) => assert(value));*/
 
         });
