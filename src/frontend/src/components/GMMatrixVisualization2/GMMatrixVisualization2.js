@@ -254,23 +254,8 @@ export default class GMMatrixVisualization2 extends PureComponent {
             correlationThreshold: value
         });
 
-
-//         var key="0-0" //useless
-//         value_all=value
-//         for (var i=0;i<=99;i++)
-//         {
-//             for (var j=0;j<=this.state.data[dataIndex]["data"].length+2;j++){
-//                 // console.log(i,j)
-//                 var width=this._getColumnWidth()
-//                 var width2=width*i
-//                 style_t = Object.assign(style_t,{width:width })
-//                 style_t = Object.assign(style_t,{left:width2 })
-
-//                 this._cellRenderer({i, key, j, style_t})
-//             }
-//         }
-        // this._updateZoom({event})
-
+        value_all=this.state.correlationThreshold
+        this.axis.forceUpdate()
     }
 
 
@@ -665,8 +650,6 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
 
     _onKeyDown (event) {
-        // temp_event=event
-        // console.log(event)
         return this._updateZoom({event})
     }
 
