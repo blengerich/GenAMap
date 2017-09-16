@@ -83,7 +83,7 @@ if ! docker ps --format "{{.Names}}" | grep -q ${g_name}; then
             || { echo "starting genamap failed" >&2; exit 1; }
     else
         docker run -ti -p 3000:3000 -p 3001:3001 --name ${g_name} --link ${m_name}:mongo --link ${p_name}:postgres \
-            -w /usr/src/genamap \-v ${PWD}/../src/:/usr/src/genamap -v $1:/usr/src/genamap2  -v  $2:/usr/src/genamap3  blengerich/genamap \
+            -w /usr/src/genamap \-v ${PWD}/../src/:/usr/src/genamap -v $1:/usr/src/genamap_data  -v  $2:/usr/src/genamap_config  blengerich/genamap \
             || { echo "starting genamap failed" >&2; exit 1; }
 
     fi
