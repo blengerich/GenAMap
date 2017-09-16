@@ -41,6 +41,7 @@ class GMImportDialog extends Component {
   constructor (props, context) {
       super(props, context)
       this.state = this.initialState()
+      this.state.filelist=this.read_filelist()
   }
 
   read_filelist(){
