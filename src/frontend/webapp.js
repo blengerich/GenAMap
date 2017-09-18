@@ -663,11 +663,16 @@ app.post(config.api.importDataUrl, function (req, res) {
                 GDCdatainfo.datatype = val
                 break
             default:
-                if(val!==""){
-                    if (typeof val != "undefined" && val!="undefined") {
-                        var data2 = fs.readFileSync('../../genamap_data/' + val)
-                        fs.writeFileSync(temp_final_path, data2)
+                try {
+                    if (val !== "") {
+                        if (typeof val != "undefined" && val != "undefined") {
+                            console.log(val)
+                            var data2 = fs.readFileSync('../../genamap_data/' + val)
+                            fs.writeFileSync(temp_final_path, data2)
+                        }
                     }
+                }catch(e){
+                    console.log("local")
                 }
 
                 console.log('Unhandled fieldname "' + fieldname + '" of value "' + val + '"')
@@ -895,12 +900,9 @@ app.post(config.api.importDataUrl, function (req, res) {
                 var temp_file2name = temp_file2name
                 var fullPath = path.join(folderPath, temp_file2name)
                 var fstream = fs.createWriteStream(fullPath)
-                console.log('get a plink file, stored in ' + fullPath)
-                //file.pipe(fstream)
+                //console.log('get a plink file, stored in ' + fullPath)
                 file.pipe(fstream)
-                var data2=fs.readFileSync('../../genamap_data/'+temp_file2name)
-
-                fs.writeFileSync(csv_fullPath, data2)
+                temp_final_path=fullPath
                 var data, newFieldname
                 if (temp_fieldname === 'bedFile')        // for BED file
                 {
@@ -927,7 +929,7 @@ app.post(config.api.importDataUrl, function (req, res) {
                 var csv_id = guid()
                 var csv_fileName = `${csv_id}.` + ext_name;
                 var csv_fullPath = path.join(folderPath, csv_fileName)
-                var csv_fstream = fs.createWriteStream(csv_fullPath+'1')
+                var csv_fstream = fs.createWriteStream(csv_fullPath)
 
 
                 file.pipe(csv_fstream)
