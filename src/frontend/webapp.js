@@ -666,7 +666,10 @@ app.post(config.api.importDataUrl, function (req, res) {
                 try {
                     if (val !== "") {
                         if (typeof val != "undefined" && val != "undefined") {
+                            // console.log("-----------------------debug")
                             console.log(val)
+                            console.log(temp_final_path)
+                            // console.log("-----------------------debug")
                             var data2 = fs.readFileSync('../../genamap_data/' + val)
                             fs.writeFileSync(temp_final_path, data2)
                         }
@@ -899,7 +902,7 @@ app.post(config.api.importDataUrl, function (req, res) {
                 var id = guid()
                 var temp_file2name = temp_file2name
                 var fullPath = path.join(folderPath, temp_file2name)
-                var fstream = fs.createWriteStream(fullPath)
+                var fstream = fs.createWriteStream('temp')//rabbish
                 //console.log('get a plink file, stored in ' + fullPath)
                 file.pipe(fstream)
                 temp_final_path=fullPath
@@ -929,7 +932,7 @@ app.post(config.api.importDataUrl, function (req, res) {
                 var csv_id = guid()
                 var csv_fileName = `${csv_id}.` + ext_name;
                 var csv_fullPath = path.join(folderPath, csv_fileName)
-                var csv_fstream = fs.createWriteStream(csv_fullPath)
+                var csv_fstream = fs.createWriteStream('temp')//rabbish
 
 
                 file.pipe(csv_fstream)
