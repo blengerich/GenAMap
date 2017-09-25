@@ -626,6 +626,8 @@ app.post(config.api.importDataUrl, function (req, res) {
 
     busboy.on('field', function (fieldname, val, fieldnameTruncated,
                                  valTruncated, encoding, mimetype) {
+
+
         temp_fieldname=""
         temp_file=""
         temp_file2name=""
@@ -663,15 +665,36 @@ app.post(config.api.importDataUrl, function (req, res) {
                 GDCdatainfo.datatype = val
                 break
             default:
+                // try {
+                //     if (val !== "") {
+                //         if (typeof val != "undefined" && val != "undefined") {
+                //
+                //             fs.unlinkSync(temp_final_path)
+                //         }
+                //     }
+                // }catch(e){
+                //     console.log("local_pre")
+                // }
+                // console.log("pre")
+
                 try {
                     if (val !== "") {
                         if (typeof val != "undefined" && val != "undefined") {
-                            // console.log("-----------------------debug")
-                            console.log(val)
-                            console.log(temp_final_path)
-                            // console.log("-----------------------debug")
+
+                            //{
                             var data2 = fs.readFileSync('../../genamap_data/' + val)
+                            fs.unlinkSync(temp_final_path)
+                            console.log("-----------------------debug")
+                            console.log(temp_final_path)
+                            //fs.writeFileSync(temp_final_path, '')
+                            // console.log(val)
+
+                            console.log("-----------------------debug")
+                            //console.log("")
+
+                            console.log(data2)
                             fs.writeFileSync(temp_final_path, data2)
+                            //}
                         }
                     }
                 }catch(e){
@@ -744,6 +767,8 @@ app.post(config.api.importDataUrl, function (req, res) {
     busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
         temp_file2name=filename
         temp_fieldname=fieldname
+
+
 
 
         if (typeof temp_file2name=== "undefined") {
@@ -902,8 +927,15 @@ app.post(config.api.importDataUrl, function (req, res) {
                 var id = guid()
                 var temp_file2name = temp_file2name
                 var fullPath = path.join(folderPath, temp_file2name)
-                var fstream = fs.createWriteStream('temp')//rabbish
+                //var fullPath2 = path.join(folderPath, temp_file2name+'1')
+                var fstream = fs.createWriteStream(fullPath)//rabbish
+                //var fstream2 = fs.createWriteStream(fullPath2)//rabbish
                 //console.log('get a plink file, stored in ' + fullPath)
+
+
+
+                console.log("~~~~~~~~~~~~~lueluelue")
+
                 file.pipe(fstream)
                 temp_final_path=fullPath
                 var data, newFieldname
@@ -932,10 +964,18 @@ app.post(config.api.importDataUrl, function (req, res) {
                 var csv_id = guid()
                 var csv_fileName = `${csv_id}.` + ext_name;
                 var csv_fullPath = path.join(folderPath, csv_fileName)
-                var csv_fstream = fs.createWriteStream('temp')//rabbish
+                //var csv_fullPath2 = path.join(folderPath, csv_fileName+'1')
+                var csv_fstream = fs.createWriteStream(csv_fullPath)//rabbish
+                //var csv_fstream2 = fs.createWriteStream(csv_fullPath2)//rabbish
+
+                console.log("~~~~~~~~~~~~~lueluelue")
+                console.log(temp_file2name)
 
 
                 file.pipe(csv_fstream)
+
+
+
                 temp_final_path=csv_fullPath
 
                 var data
