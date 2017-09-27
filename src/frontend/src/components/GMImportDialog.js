@@ -41,6 +41,7 @@ class GMImportDialog extends Component {
   constructor (props, context) {
       super(props, context)
       this.state = this.initialState()
+      this.state.filelist=this.read_filelist()
   }
 
   read_filelist(){
@@ -76,7 +77,7 @@ class GMImportDialog extends Component {
       (!!this.state.markerName && !!this.state.markerFileName && !!this.state.markerLabelFileName) ||
       (!!this.state.traitName && !!this.state.traitFileName && !!this.state.traitLabelFileName) ||
       (!!this.state.snpsFeatureName && !!this.state.snpsFeatureFileName) ||
-      (!!this.state.populationName && !!this.state.populationFileName))
+      (!!this.state.populationName && !!this.state.populationFileName))||(!!this.state.markerFileName && !!this.state.traitFileName)
       // return true
   }
 
