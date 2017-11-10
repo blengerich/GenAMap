@@ -35,7 +35,7 @@ void Model::imputation() {
 
 void Model::setX(const MatrixXf& m) { X = m; }
 
-void Model::setY(const MatrixXf& n) { y = n; };
+void Model::setY(const MatrixXf& n) { y = n; }
 
 void Model::setAttributeMatrix(const string& str, MatrixXf* Z) {
     //throw runtime_error("This type of model has no attribute matrix with name " + str);

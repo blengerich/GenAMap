@@ -31,8 +31,8 @@ protected:
     void checkLogisticRegression();
 public:
     void imputation();
-    void setX(const MatrixXf&);
-    void setY(const MatrixXf&);
+    virtual void setX(const MatrixXf&);
+    virtual void setY(const MatrixXf&);
     virtual void setAttributeMatrix(const string&, MatrixXf*);
     void initBeta();
     void initBeta(MatrixXf);

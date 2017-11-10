@@ -221,7 +221,7 @@ int Gflasso::get_num_edges(){
     for(row_idx=0;row_idx<row;row_idx++) {
         for(col_idx=0;col_idx<col;col_idx++) {
 
-            std::cout <<  corr_coff(row_idx, col_idx) << " " ;
+//            std::cout <<  corr_coff(row_idx, col_idx) << " " ;
             if (corr_coff(row_idx, col_idx) != 0){
                 num_edges++;
             }
