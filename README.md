@@ -21,8 +21,7 @@ chmod +x run_genamap.sh
 ```
 
 where $DATA_FOLDER is the folder where your dataset is and
-$CONFIG_FOLDER is the folder where your authorization file that contains administrator email and password is. And they must be in the format of absolute path.
-Note that these two paths are preferred to be absolute paths.
+$CONFIG_FOLDER is the folder where your authorization file that contains administrator email and password is. These should be absolute, not relative paths.
 
 Further, we have to note that if you want to use your own data, please follow the GenAMap/Documentation/Development/README.md.
 
