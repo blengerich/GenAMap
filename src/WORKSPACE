@@ -1,0 +1,23 @@
+new_local_repository(
+    name = "gtest",
+    path = "external/gtest/googletest-release-1.7.0",
+    build_file = "gtest.BUILD",
+    #strip_prefix = "google-test-release-1.7.0",
+)
+
+#new_http_archive(
+#    name = "gtest",
+#    url = "https://github.com/google/googletest/archive/release-1.7.0.zip",
+#    sha256 = "b58cb7547a28b2c718d1e38aee18a3659c9e3ff52440297e965f5edffe34b6d0",
+#    build_file = "gtest.BUILD",
+#    strip_prefix = "googletest-release-1.7.0",
+#)
+
+#new_http_archive(
+#	name = "eigen",
+#	url = "https://bitbucket.org/eigen/eigen/get/3.2.7.tar.gz",
+#	sha256 = "5a50a006f83480a31f1f9beabec9e91dad95138df19363ee73ccf57676f10405",
+#	build_file = "eigen.BUILD",
+#	strip_prefix = "eigen-eigen-b30b87236a1b",
+#)
+

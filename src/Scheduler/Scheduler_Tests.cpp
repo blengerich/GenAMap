@@ -1,0 +1,387 @@
+//
+//  Scheduler_Tests.cpp
+//  
+//
+//  Created by Ben Lengerich on 1/27/16.
+//
+//
+
+#include "gtest/gtest.h"
+#include <Eigen/Dense>
+#include <memory>
+#include <stdio.h>
+#include <unordered_map>
+
+#include "Scheduler/Scheduler.hpp"
+#include "Scheduler/Job.hpp"
+#include "Algorithms/AlgorithmOptions.hpp"
+#include "Models/ModelOptions.hpp"
+
+using namespace std;
+using namespace Eigen;
+
+class SchedulerTest : public testing::Test {
+protected:
+    virtual void SetUp() {
+        alg_opts = AlgorithmOptions_t(
+            proximal_gradient_descent,
+            {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
+
+        model_opts = ModelOptions_t(
+            linear_regression,
+            {{"lambda", "0.01"}, {"L2_lambda", "0.01"}});
+
+        X = MatrixXf(10, 5);
+        X << 0.8147,    0.1576,    0.6557,    0.7060,    0.4387,
+        0.9058,    0.9706,    0.0357,    0.0318,    0.3816,
+        0.1270,    0.9572,    0.8491,    0.2769,    0.7655,
+        0.9134,    0.4854,    0.9340,    0.0462,    0.7952,
+        0.6324,    0.8003,    0.6787,    0.0971,    0.1869,
+        0.0975,    0.1419,    0.7577,    0.8235,    0.4898,
+        0.2785,    0.4218,    0.7431,    0.6948,    0.4456,
+        0.5469,    0.9157,    0.3922,    0.3171,    0.6463,
+        0.9575,    0.7922,    0.6555,    0.9502,    0.7094,
+        0.9649,    0.9595,    0.1712,    0.0344,    0.7547;
+    	y = MatrixXf(10, 1);
+        y << 0.4173,
+        0.0497,
+        0.9027,
+        0.9448,
+        0.4909,
+        0.4893,
+        0.3377,
+        0.9001,
+        0.3692,
+        0.1112;
+
+        LargeX = MatrixXf(n_patients, n_markers);
+        for (int i = 0; i < n_patients; i++) {
+            for (int j = 0; j < n_markers; j++) {
+                LargeX(i,j) = rand();
+            }
+        }
+    	LargeY = MatrixXf(n_patients, n_traits);
+        for (int i = 0; i < n_patients; i++) {
+            for (int j = 0; j < n_traits; j++) {
+                LargeY(i,j) = rand();
+            }
+        }
+    }
+
+    virtual void TearDown() {}
+
+    const int n_patients = 1000;
+    const int n_markers = 1000;
+    const int n_traits = 1;
+    AlgorithmOptions_t alg_opts;
+    MatrixXf X;
+    MatrixXf y;
+    MatrixXf LargeX;
+    MatrixXf LargeY;
+    ModelOptions_t model_opts;
+};
+
+
+TEST_F(SchedulerTest, Singleton) {
+	ASSERT_EQ(&(Scheduler::Instance()), &(Scheduler::Instance()));
+}
+
+
+TEST_F(SchedulerTest, getNewAlgorithmId) {
+    int alg_num1 = Scheduler::Instance().getNewAlgorithmId();
+    EXPECT_GE(alg_num1, 0);
+    int alg_num2 = Scheduler::Instance().getNewAlgorithmId();
+    EXPECT_GT(alg_num2, alg_num1);
+
+    // Since we aren't actually making any algorithms, we shouldn't run out of IDs.
+    for (int i = 0; i < 1000; i++) {
+        EXPECT_GE(Scheduler::Instance().getNewAlgorithmId(), 0);
+    }
+}
+
+
+TEST_F(SchedulerTest, newAlgorithm) {
+    int alg_num1 = Scheduler::Instance().newAlgorithm(alg_opts);
+    EXPECT_GE(alg_num1, 0);
+    EXPECT_TRUE(Scheduler::Instance().deleteAlgorithm(alg_num1));
+
+    AlgorithmOptions_t alg_opts2 = AlgorithmOptions_t(brent_search, 
+        {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
+    int alg_num2 = Scheduler::Instance().newAlgorithm(alg_opts2);
+    EXPECT_GE(alg_num2, 0);
+    EXPECT_TRUE(Scheduler::Instance().deleteAlgorithm(alg_num2));
+
+    AlgorithmOptions_t alg_opts3 = AlgorithmOptions_t( grid_search, 
+        {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
+    int alg_num3 = Scheduler::Instance().newAlgorithm(alg_opts3);
+    EXPECT_GE(alg_num3, 0);
+    EXPECT_TRUE(Scheduler::Instance().deleteAlgorithm(alg_num3));
+
+    AlgorithmOptions_t alg_opts4 = AlgorithmOptions_t(iterative_update,
+        {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
+    int alg_num4 = Scheduler::Instance().newAlgorithm(alg_opts4);
+    EXPECT_GE(alg_num4, 0);
+    EXPECT_TRUE(Scheduler::Instance().deleteAlgorithm(alg_num4));
+    
+    AlgorithmOptions_t alg_opts5 = AlgorithmOptions_t(hypo_test,
+        {{"tolerance", "0.01"}, {"learning_rate", "0.01"}});
+    int alg_num5 = Scheduler::Instance().newAlgorithm(alg_opts5);
+    EXPECT_GE(alg_num5, 0);
+    EXPECT_TRUE(Scheduler::Instance().deleteAlgorithm(alg_num5));
+}
+
+
+TEST_F(SchedulerTest, getNewModelId) {
+    int model_num1 = Scheduler::Instance().getNewModelId();
+    EXPECT_GE(model_num1, 0);
+    int model_num2 = Scheduler::Instance().getNewModelId();
+    EXPECT_GT(model_num2, model_num1);
+
+    // Since we aren't actually making any models, we shouldn't run out of IDs.
+    for (int i = 0; i < 1000; i++) {
+        EXPECT_GE(Scheduler::Instance().getNewModelId(), 0);
+    }
+}
+
+
+TEST_F(SchedulerTest, newModel) {
+    int model_num1 = Scheduler::Instance().newModel(model_opts);
+    EXPECT_GE(model_num1, 0);
+}
+
+
+TEST_F(SchedulerTest, SetX) {
+    job_id_t job_id = Scheduler::Instance().newJob(JobOptions_t(alg_opts, model_opts));
+    Eigen::MatrixXf m(2,3);
+    m << 1, 2,
+         3, 4,
+         5, 6;
+    EXPECT_EQ(true, Scheduler::Instance().setX(job_id, m));
+}
+
+
+TEST_F(SchedulerTest, SetY) {
+    job_id_t job_id = Scheduler::Instance().newJob(JobOptions_t(alg_opts, model_opts));
+    Eigen::MatrixXf m(2,3);
+    m << 1, 2,
+         3, 4,
+         5, 6;
+    EXPECT_EQ(true, Scheduler::Instance().setY(job_id, m));
+}
+
+
+TEST_F(SchedulerTest, getNewJobId) {
+    job_id_t job_id1 = Scheduler::Instance().getNewJobId();
+    EXPECT_GT(job_id1, 0);
+    job_id_t job_id2 = Scheduler::Instance().getNewJobId();
+    EXPECT_GT(job_id2, job_id1);
+
+    for (int i = 0; i < 1000; i++) {
+        EXPECT_GT(Scheduler::Instance().getNewJobId(), 0);
+    }
+}
+
+
+TEST_F(SchedulerTest, newJob) {
+    job_id_t job_id1 = Scheduler::Instance().newJob(JobOptions_t(alg_opts, model_opts));
+    ASSERT_GT(job_id1, 0);
+}
+
+TEST_F(SchedulerTest, ValidAlgorithmId) {
+    ASSERT_FALSE(Scheduler::Instance().ValidAlgorithmId(-1));
+    EXPECT_TRUE(Scheduler::Instance().ValidAlgorithmId(Scheduler::Instance().getNewAlgorithmId()));
+    const algorithm_id_t alg_num = Scheduler::Instance().newAlgorithm(alg_opts);
+    ASSERT_TRUE(Scheduler::Instance().ValidAlgorithmId(alg_num));
+}
+
+
+TEST_F(SchedulerTest, ValidModelId) {
+    ASSERT_FALSE(Scheduler::Instance().ValidModelId(-1));
+    EXPECT_TRUE(Scheduler::Instance().ValidModelId(Scheduler::Instance().getNewModelId()));
+    const model_id_t model_num1 = Scheduler::Instance().newModel(model_opts);
+    ASSERT_TRUE(Scheduler::Instance().ValidModelId(model_num1));
+}
+
+
+TEST_F(SchedulerTest, ValidJobId) {
+    ASSERT_FALSE(Scheduler::Instance().ValidJobId(-1));
+    EXPECT_TRUE(Scheduler::Instance().ValidJobId(Scheduler::Instance().getNewJobId()));
+    const job_id_t job_id1 = Scheduler::Instance().newJob(JobOptions_t(alg_opts, model_opts));
+    ASSERT_TRUE(Scheduler::Instance().ValidJobId(job_id1));
+    Scheduler::Instance().deleteJob(job_id1);
+    ASSERT_TRUE(Scheduler::Instance().ValidJobId(job_id1));
+}
+
+
+TEST_F(SchedulerTest, AlgorithmIdUsed) {
+    ASSERT_FALSE(Scheduler::Instance().AlgorithmIdUsed(-1));
+    EXPECT_FALSE(Scheduler::Instance().AlgorithmIdUsed(Scheduler::Instance().getNewAlgorithmId()));
+    const algorithm_id_t alg_num = Scheduler::Instance().newAlgorithm(alg_opts);
+    ASSERT_TRUE(Scheduler::Instance().AlgorithmIdUsed(alg_num));
+}
+
+
+TEST_F(SchedulerTest, ModelIdUsed) {
+    ASSERT_FALSE(Scheduler::Instance().ModelIdUsed(-1));
+    EXPECT_FALSE(Scheduler::Instance().ModelIdUsed(Scheduler::Instance().getNewModelId()));
+    const model_id_t model_num1 = Scheduler::Instance().newModel(model_opts);
+    ASSERT_TRUE(Scheduler::Instance().ModelIdUsed(model_num1));
+}
+
+
+TEST_F(SchedulerTest, JobIdUsed) {
+    ASSERT_FALSE(Scheduler::Instance().JobIdUsed(-1));
+    EXPECT_FALSE(Scheduler::Instance().JobIdUsed(Scheduler::Instance().getNewJobId()));
+    const job_id_t job_id1 = Scheduler::Instance().newJob(JobOptions_t(alg_opts, model_opts));
+    ASSERT_TRUE(Scheduler::Instance().JobIdUsed(job_id1));
+    Scheduler::Instance().deleteJob(job_id1);
+    ASSERT_FALSE(Scheduler::Instance().JobIdUsed(job_id1));
+}
+
+
+void NullFunc(uv_work_t* req, int status) {};
+
+
+TEST_F(SchedulerTest, Train_Not_Found) {
+    try {
+        Scheduler::Instance().startJob(-1, NullFunc);
+    } catch (const exception& e) {
+        EXPECT_STREQ("Job id must correspond to a job that has been created.", e.what());
+    }
+}
+
+
+TEST_F(SchedulerTest, Train) {
+    job_id_t job_id = Scheduler::Instance().newJob(JobOptions_t(alg_opts, model_opts));
+    ASSERT_TRUE(Scheduler::Instance().setX(job_id, X));
+    ASSERT_TRUE(Scheduler::Instance().setY(job_id, y));
+    ASSERT_TRUE(Scheduler::Instance().startJob(job_id, NullFunc));
+}
+
+TEST_F(SchedulerTest, CheckJobProgress) {
+    EXPECT_EQ(-1, Scheduler::Instance().checkJobProgress(-1));	// job progress == -1 for bad ID
+
+    // Large Job
+    job_id_t job_id = Scheduler::Instance().newJob(JobOptions_t(alg_opts, model_opts));
+    ASSERT_TRUE(Scheduler::Instance().setX(job_id, LargeX));
+    ASSERT_TRUE(Scheduler::Instance().setY(job_id, LargeY));
+    ASSERT_EQ(0, Scheduler::Instance().checkJobProgress(job_id));	// job progress == 0 before being run
+    ASSERT_TRUE(Scheduler::Instance().startJob(job_id, NullFunc));
+    while(Scheduler::Instance().checkJobProgress(job_id) == 0) {
+    	usleep(1);
+    }
+    float progress = Scheduler::Instance().checkJobProgress(job_id);	// 0 < job progress < 1 before end of run
+    ASSERT_GE(progress, 0);
+    ASSERT_LT(progress, 1);
+    float progress_2 = Scheduler::Instance().checkJobProgress(job_id);	// job progress monotonically increasing
+    ASSERT_GE(progress_2, progress);
+    while(Scheduler::Instance().checkJobProgress(job_id) < 1.0) {
+        usleep(1);
+    }
+    ASSERT_EQ(1.0, Scheduler::Instance().checkJobProgress(job_id));	// job progress == 1 after run
+
+    // Everything should be the same for a second run (this small job only takes 1 iteration, though).
+    job_id_t job_id2 = Scheduler::Instance().newJob(JobOptions_t(alg_opts, model_opts));
+    Scheduler::Instance().setX(job_id2, X);
+    Scheduler::Instance().setY(job_id2, y);
+    ASSERT_TRUE(Scheduler::Instance().startJob(job_id2, NullFunc));
+
+    progress = Scheduler::Instance().checkJobProgress(job_id2);
+    ASSERT_GE(progress, 0);
+    progress_2 = Scheduler::Instance().checkJobProgress(job_id2);
+    ASSERT_GE(progress_2, progress);
+
+    while(Scheduler::Instance().checkJobProgress(job_id2) < 1.0) {
+        usleep(1);
+    }
+    ASSERT_EQ(1.0, Scheduler::Instance().checkJobProgress(job_id2));
+
+    // Run large job again
+    job_id_t job_id3 = Scheduler::Instance().newJob(JobOptions_t(alg_opts, model_opts));
+    ASSERT_NE(job_id, job_id3);
+    Scheduler::Instance().setX(job_id3, LargeX);
+    Scheduler::Instance().setY(job_id3, LargeY);
+    ASSERT_EQ(0, Scheduler::Instance().checkJobProgress(job_id3));
+    ASSERT_TRUE(Scheduler::Instance().startJob(job_id3, NullFunc));
+    while(Scheduler::Instance().checkJobProgress(job_id3) == 0) {
+    	usleep(1);
+    }
+    progress = Scheduler::Instance().checkJobProgress(job_id3);
+    ASSERT_GE(progress, 0);
+    ASSERT_LT(progress, 1);
+    progress_2 = Scheduler::Instance().checkJobProgress(job_id3);
+    ASSERT_GE(progress_2, progress);
+    while(Scheduler::Instance().checkJobProgress(job_id3) < 1.0) {
+        usleep(1);
+    }
+    ASSERT_EQ(1.0, Scheduler::Instance().checkJobProgress(job_id3));
+
+    ASSERT_TRUE(Scheduler::Instance().deleteJob(job_id3));
+    ASSERT_EQ(Scheduler::Instance().checkJobProgress(job_id3), -1);	// job progress == -1 after being deleted
+}
+
+
+TEST_F(SchedulerTest, DeleteJob) {
+    ASSERT_FALSE(Scheduler::Instance().deleteJob(-1));  // can't delete non-existent job
+
+    // Short job - delete after finishing
+    job_id_t job_id = Scheduler::Instance().newJob(JobOptions_t(alg_opts, model_opts));
+    Scheduler::Instance().setX(job_id, X);
+    Scheduler::Instance().setY(job_id, y);
+    ASSERT_TRUE(Scheduler::Instance().startJob(job_id, NullFunc));
+
+    float progress = Scheduler::Instance().checkJobProgress(job_id);
+    ASSERT_GE(progress, 0);
+    float progress_2 = Scheduler::Instance().checkJobProgress(job_id);
+    ASSERT_GE(progress_2, progress);
+    while(Scheduler::Instance().checkJobProgress(job_id) < 1.0) {
+        usleep(1);
+    }
+    ASSERT_EQ(1.0, Scheduler::Instance().checkJobProgress(job_id));
+    ASSERT_TRUE(Scheduler::Instance().deleteJob(job_id));
+    ASSERT_FALSE(Scheduler::Instance().deleteJob(job_id));  // can't delete job twice
+
+    // Large job - delete while it is running
+    job_id = Scheduler::Instance().newJob(JobOptions_t(alg_opts, model_opts));
+    ASSERT_TRUE(Scheduler::Instance().setX(job_id, LargeX));
+    ASSERT_TRUE(Scheduler::Instance().setY(job_id, LargeY));
+    ASSERT_EQ(0, Scheduler::Instance().checkJobProgress(job_id));   // job progress == 0 before being run
+    ASSERT_TRUE(Scheduler::Instance().startJob(job_id, NullFunc));
+    while(Scheduler::Instance().checkJobProgress(job_id) == 0) {
+        usleep(1);
+    }
+    progress = Scheduler::Instance().checkJobProgress(job_id);   // 0 < job progress < 1 before end of run
+    ASSERT_GE(progress, 0);
+    ASSERT_LT(progress, 1);
+    ASSERT_TRUE(Scheduler::Instance().deleteJob(job_id));   // should be able to safely delete a job while it's running (it gets cancelled)    
+    ASSERT_EQ(-1, Scheduler::Instance().checkJobProgress(job_id)); // deleted job has progress = -1
+
+    // Should be able to do it all again.
+    job_id = Scheduler::Instance().newJob(JobOptions_t(alg_opts, model_opts));
+    ASSERT_TRUE(Scheduler::Instance().setX(job_id, LargeX));
+    ASSERT_TRUE(Scheduler::Instance().setY(job_id, LargeY));
+    ASSERT_EQ(0, Scheduler::Instance().checkJobProgress(job_id));   // job progress == 0 before being run
+    ASSERT_TRUE(Scheduler::Instance().startJob(job_id, NullFunc));
+    while(Scheduler::Instance().checkJobProgress(job_id) == 0) {
+        usleep(1);
+    }
+    progress = Scheduler::Instance().checkJobProgress(job_id);   // 0 < job progress < 1 before end of run
+    ASSERT_GE(progress, 0);
+    ASSERT_LT(progress, 1);
+    ASSERT_TRUE(Scheduler::Instance().deleteJob(job_id));   // should be able to safely delete a job while it's running (it gets cancelled)    
+    ASSERT_EQ(-1, Scheduler::Instance().checkJobProgress(job_id)); // deleted job has progress = -1
+}
+
+
+TEST_F(SchedulerTest, GetJobResult) {
+    job_id_t job_id = Scheduler::Instance().newJob(JobOptions_t(alg_opts, model_opts));
+    Scheduler::Instance().setX(job_id, X);
+    Scheduler::Instance().setY(job_id, y);    
+    ASSERT_TRUE(Scheduler::Instance().startJob(job_id, NullFunc));
+
+    MatrixXf results = Scheduler::Instance().getJobResult(job_id);
+    while (Scheduler::Instance().checkJobProgress(job_id) < 1.0) {
+        usleep(1);
+    }
+    results = Scheduler::Instance().getJobResult(job_id);
+}

@@ -1,0 +1,141 @@
+import React from 'react'
+// import FontIcon from 'material-ui/FontIcon'
+// import FlatButton from 'material-ui/FlatButton'
+// import Badge from 'material-ui/lib/badge'
+import Slider from 'material-ui/Slider'
+// import AutoComplete from 'material-ui/AutoComplete'
+// import MenuItem from 'material-ui/MenuItem'
+// import Popover from 'material-ui/Popover'
+// import Menu from 'material-ui/lib/menus/menu'
+// import GMProjectSearch from './GMProjectSearch'
+import GMToolbar from './GMToolbar'
+// import GMManhattanDialog from './GMManhattanDialog'
+
+const styles = {
+  slider: {
+    width: '300px'
+  },
+  sliderValue: {
+    // word-break:'normal',
+    // display:"inline-block",
+    position: 'relative',
+    fontSize: '14px',
+    fontFamily: 'Roboto,sans-serif',
+    fontWeight: 'bold',
+    // left: '-40px',
+    // bottom: '7px',
+    marginLeft: '15px',
+    marginRight: '20px'
+  },
+  sliderValue_L: {
+      position: 'relative',
+      fontSize: '12px',
+      fontFamily: 'Roboto,sans-serif',
+      fontWeight: 'bold',
+      // left: '-70px',
+      // bottom: '7px',
+      marginLeft: '15px',
+      marginRight: '20px'
+  },
+
+  disclaimer: {
+    fontFamily: 'Roboto',
+    color: '#BDBDBD',
+    fontSize: '0.9em'
+  },
+  webLinks: {
+    color: '#9E9E9E',
+    textDecoration: 'underline'
+  }
+}
+
+const GMSliderName = React.createClass({
+  render: function() {
+    var labelStyle = {
+      position: 'absolute',
+      fontSize: '15px',
+      fontFamily: 'Roboto, sans-serif',
+      fontWeight: 'bold',
+      textAlign: 'center',
+    };
+
+    var slider = document.getElementById('slider');
+    if (slider) {
+      var sliderBounds = slider.getBoundingClientRect();
+      var left = slider.offsetLeft;
+      labelStyle.left = left + 'px';
+      labelStyle.bottom = '15px';
+      labelStyle.width = sliderBounds.width;
+      labelStyle.visibility = 'visible';
+    } else {
+      labelStyle.visibility = 'hidden';
+    }
+
+    return (
+      <span style={labelStyle}>Effect Size Threshold </span>
+      // max:{(this.props.max).toFixed(3)} min:{(this.props.min).toFixed(3)}
+    )
+  }
+})
+
+const GMMatrixToolbar = React.createClass({
+  getInitialState: function () {
+    return {
+        open: true,
+        slider: {
+          threshold: 0
+        }
+    };
+  },
+  handleToggle: function () {
+    this.setState({open: !this.state.open});
+  },
+  onThresholdChange: function(event, value) {
+    this.props.slider.onThresholdChange(event, value);
+    this.setState({
+      slider: {
+        threshold: value
+      }
+    })
+  },
+  render: function () {
+    return (
+      <div>
+
+        <GMToolbar
+          open={this.state.open}
+          height={60}
+          style={{
+            overflow: 'hidden',
+            margin: '0 auto',
+            width: 'calc(80vw + 40px)'
+        }}
+          left={this.props.left}
+          right={this.props.right}
+
+        >
+          <Slider id={"slider"}
+            style={styles.slider}
+            onChange={this.onThresholdChange}
+            defaultValue={0}
+            step={0.1}
+          />
+
+          <span style={styles.sliderValue_L}>max:{(this.props.max).toFixed(3)} min:{(this.props.min).toFixed(3)} | {this.state.slider.threshold.toFixed(1)} </span>
+          <span style={styles.sliderValue}>{this.props.name_value} {this.props.position}:{(this.props.label).toFixed(3)}</span>
+          <GMSliderName />
+          {/*<GMManhattanDialog*/}
+            {/*pageParams={this.props.pageParams}*/}
+            {/*traitLabels={this.props.traitLabels}*/}
+          {/*/>*/}
+          <p style={styles.disclaimer}>GenAMap is a project of&nbsp;
+            <a style={styles.webLinks} href="http://www.sailing.cs.cmu.edu/main/">Sailing Lab</a> at&nbsp;
+            <a style={styles.webLinks} href="http://www.cmu.edu/">Carnegie Mellon University.</a>
+          </p>
+        </GMToolbar>
+      </div>
+    )
+  }
+})
+
+export default GMMatrixToolbar

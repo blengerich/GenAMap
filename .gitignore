@@ -1,0 +1,45 @@
+# Private Authentication
+**/Authentication.*
+
+# Makefile deps
+bazel-*
+CMakeLists.txt
+
+# IDEs
+.todos*
+.idea*
+.DS_Store
+*.iml
+
+# node stuff
+**/node/build*
+**/npm-debug.log*
+**/node_modules/
+**/.npm
+
+# log files
+**/logs
+**/*.log
+
+# data files
+sampleData/*
+
+# Auto-generated files
+**/.tmp/
+**/genamapApp/activity/*
+**/frontend/dist/*
+**/bundle.js
+**/*.start
+**/Scheduler/**/build/*
+
+# TeX Documentation
+**/*.out
+**/*.toc
+**/*.synctex.gz
+
+# main.cpp for testing backend
+src/main.cpp
+
+#Database
+scripts/postgresdbpath/*
+scripts/mongodbpath/*
