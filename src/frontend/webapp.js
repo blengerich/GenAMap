@@ -17,14 +17,12 @@ var Scheduler = require('../Scheduler/node/build/Release/scheduler.node')
 var jwt = require('jsonwebtoken')
 var psqlAdapter = require('sails-postgresql')
 
-// temp
 var http = require('http')
 var querystring = require('querystring')
 //var favicon = require('serve-favicon')
 var request = require('request');
 
-/////here is an example
-
+/////here is an example about how to read file system
 // var file2=[]
 // console.log(typeof file2)
 // const testFolder = "../../genamap_data/data/";
@@ -521,7 +519,7 @@ app.post(`${config.api.read_filelist}`, function (req, res) {
     const testFolder = "../../genamap_data/";
     fs.readdir(testFolder, (err, files) => {
         files.forEach(file => {
-            console.log(file2)
+            console.log(file2+'HHH')
             file2.push(file)
         });
         return res.json({file2})
@@ -582,7 +580,7 @@ app.delete(`${config.api.dataUrl}/:id`, function (req, res) {
     })
 })
 
-
+////here is pretty weird that we have to know that somethings we have to load local data then the remote data
 app.post(config.api.importDataUrl, function (req, res) {
     var busboy = new Busboy({headers: req.headers})
     var projectId // eslint-disable-line no-unused-vars
@@ -593,7 +591,6 @@ app.post(config.api.importDataUrl, function (req, res) {
      var snpsFeature = { files: [] }
      var population = { files: [] }
      var fileDataList = {*/
-    var temp_file_name=""
     var temp_final_path=""
     var temp_fieldname=""
     var temp_file=""
@@ -665,36 +662,19 @@ app.post(config.api.importDataUrl, function (req, res) {
                 GDCdatainfo.datatype = val
                 break
             default:
-                // try {
-                //     if (val !== "") {
-                //         if (typeof val != "undefined" && val != "undefined") {
-                //
-                //             fs.unlinkSync(temp_final_path)
-                //         }
-                //     }
-                // }catch(e){
-                //     console.log("local_pre")
-                // }
-                // console.log("pre")
 
                 try {
                     if (val !== "") {
                         if (typeof val != "undefined" && val != "undefined") {
 
-                            //{
+                            //if we can get access to it
                             var data2 = fs.readFileSync('../../genamap_data/' + val)
                             fs.unlinkSync(temp_final_path)
                             console.log("-----------------------debug")
                             console.log(temp_final_path)
-                            //fs.writeFileSync(temp_final_path, '')
-                            // console.log(val)
-
                             console.log("-----------------------debug")
-                            //console.log("")
-
                             console.log(data2)
                             fs.writeFileSync(temp_final_path, data2)
-                            //}
                         }
                     }
                 }catch(e){
@@ -765,11 +745,9 @@ app.post(config.api.importDataUrl, function (req, res) {
     }
 
     busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
+
         temp_file2name=filename
         temp_fieldname=fieldname
-
-
-
 
         if (typeof temp_file2name=== "undefined") {
             console.log("no")
@@ -927,14 +905,9 @@ app.post(config.api.importDataUrl, function (req, res) {
                 var id = guid()
                 var temp_file2name = temp_file2name
                 var fullPath = path.join(folderPath, temp_file2name)
-                //var fullPath2 = path.join(folderPath, temp_file2name+'1')
                 var fstream = fs.createWriteStream(fullPath)//rabbish
+
                 //var fstream2 = fs.createWriteStream(fullPath2)//rabbish
-                //console.log('get a plink file, stored in ' + fullPath)
-
-
-
-                console.log("~~~~~~~~~~~~~lueluelue")
 
                 file.pipe(fstream)
                 temp_final_path=fullPath
@@ -961,6 +934,7 @@ app.post(config.api.importDataUrl, function (req, res) {
                 data.name = 'PLINK File'
             }
             else if (ext_name == 'csv') {
+
                 var csv_id = guid()
                 var csv_fileName = `${csv_id}.` + ext_name;
                 var csv_fullPath = path.join(folderPath, csv_fileName)
@@ -968,17 +942,15 @@ app.post(config.api.importDataUrl, function (req, res) {
                 var csv_fstream = fs.createWriteStream(csv_fullPath)//rabbish
                 //var csv_fstream2 = fs.createWriteStream(csv_fullPath2)//rabbish
 
-                console.log("~~~~~~~~~~~~~lueluelue")
                 console.log(temp_file2name)
 
 
                 file.pipe(csv_fstream)
 
-
-
                 temp_final_path=csv_fullPath
 
                 var data
+
                 if (temp_fieldname === 'markerFile') data = dataList.marker
                 else if (temp_fieldname === 'traitFile') data = dataList.trait
                 else if (temp_fieldname === 'markerLabelFile') data = dataList.markerLabel
@@ -1035,6 +1007,8 @@ app.post(config.api.importDataUrl, function (req, res) {
 
     req.pipe(busboy)
 })
+
+////here is the example of the code before
 // app.post(config.api.importDataUrl, function (req, res) {
 //     var busboy = new Busboy({headers: req.headers})
 //     var projectId // eslint-disable-line no-unused-vars
@@ -1594,11 +1568,11 @@ app.get('/api/algorithms', function (req, res) {
      };
      */
     return res.json([
-        {name: 'Linear Regression', id: 1}
-        /*{name: "Ada Multi Lasso", id: 2},
-         {name: "GF Lasso", id: 3},
-         {name: "Multi Pop Lasso": 4},
-         {name: "Tree Lasso", id: 5} */
+        {name: 'Linear Regression', id: 1},
+      /*{name: "Ada Multi Lasso", id: 2},
+        {name: "GF Lasso", id: 3},
+        {name: "Multi Pop Lasso": 4}, */
+         {name: "Tree Lasso", id: 5}  //here is something wrong before i think
     ])
 })
 

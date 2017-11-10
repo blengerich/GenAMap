@@ -9,7 +9,7 @@ import Grid from 'react-virtualized/dist/commonjs/Grid'
 import TopAxis from './topaxis'
 import fetch from '../fetch'
 import GMMatrixToolbar from '../GMMatrixToolbar'
-// var dimensions = require('dimensions');
+
 /*
 TODO LIST
 - Axis ( Make the major and minor axis
@@ -57,7 +57,6 @@ export default class GMMatrixVisualization2 extends PureComponent {
 
         const zoominfo = [{"start": 1,"end": 3088286401}]
         let items = [];
-
         //Aggregating labels
         let factor = ((zoominfo[0].end - zoominfo[0].start) / zoomFactor);
         for (let i = zoominfo[0].start; i < (zoominfo[0].end); i = i + factor) {
@@ -79,14 +78,12 @@ export default class GMMatrixVisualization2 extends PureComponent {
             zoomLevel: 0,
             zoomStack: Immutable.List(zoominfo),
             data:[],
-            traits:[],
+            traits:"none—name",// if nothing
             dataIndex: 0,
             lastFactor: factor,
             start: 1,
             end: 3088286401,
             correlationThreshold:0.0,
-            // maxmax:maxmax_,
-            // minmin:minmin_
         }
 
         this._cellRenderer = this._cellRenderer.bind(this)
@@ -112,6 +109,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     componentWillMount(){
+        console.log("hello")
         this.fetchData(1,3088286401,zoomFactor)
     }
 
@@ -133,6 +131,10 @@ export default class GMMatrixVisualization2 extends PureComponent {
             .then (json => {
                 max_=json[2]['hi'];
                 min_=json[2]['lo'];
+
+                console.log(json)
+
+                //this.setState({ data: json[0], traits: json[1], rowCount:json[1].length + 2},function(){
                 this.setState({ data: json[0], traits: json[1], rowCount:json[1].length + 2},function(){
 
                    this.axis.forceUpdate()
@@ -416,6 +418,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
     }
 
     _getYLabel(rowIndex) { // TODO: Add reference to return a trait number from DB
+
         if (((this.state.traits[rowIndex-2]).length)>=4) {
             return this.state.traits[rowIndex - 2].substring(0, 4);
         }else{
@@ -443,6 +446,7 @@ export default class GMMatrixVisualization2 extends PureComponent {
             let label = ""
             let color = ""
             var name = this.state.traits[rowIndex - 2]
+
 
             if (this.state.data.length > 0) {
 

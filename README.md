@@ -21,8 +21,10 @@ chmod +x run_genamap.sh
 ```
 
 where $DATA_FOLDER is the folder where your dataset is and
-$CONFIG_FOLDER is the folder where your authorization file that contains administrator email and password is.  
-Note that these two paths are preferred to be absolute paths. 
+$CONFIG_FOLDER is the folder where your authorization file that contains administrator email and password is. And they must be in the format of absolute path.
+Note that these two paths are preferred to be absolute paths.
+
+Further, we have to note that if you want to use your own data, please follow the GenAMap/Documentation/Development/README.md.
 
 After that, you can enjoy the next-generation GWAS by visiting __localhost__ on Linux. On Mac, this is __192.168.99.100__, or __0.0.0.0__ if your docker version > 1.2.x
 
