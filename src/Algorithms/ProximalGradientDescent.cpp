@@ -363,7 +363,7 @@ bool ProximalGradientDescent::checkVectorConvergence(VectorXf v1, VectorXf v2, f
 void ProximalGradientDescent::run(shared_ptr<SparseLMM> model) {
     BrentSearch *brentSearch = new BrentSearch();
     brentSearch->set_delta(0.5);
-    brentSearch->run(model);
+    brentSearch->sub_run(model);
     float delta = model->get_lambda();
     model->rotateXY(delta);
     shared_ptr<LinearRegression> lr = shared_ptr<LinearRegression>(new LinearRegression());

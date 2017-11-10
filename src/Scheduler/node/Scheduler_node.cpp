@@ -49,7 +49,7 @@ void setMetaData(const FunctionCallbackInfo<Value>& args) {
         const job_id_t job_id = (unsigned int)Local<Number>::Cast(args[0])->Value();
         string filename(*v8::String::Utf8Value(args[1]->ToString()));
         string marker_ids_path(*v8::String::Utf8Value(args[2]->ToString()));
-		cout << "DEBUG-ywt: " << marker_ids_path << endl;
+//		cout << "DEBUG-ywt: " << marker_ids_path << endl;
 
         /* Get the markerName file extension type */
         vector<string> marker_ids;
@@ -91,7 +91,6 @@ void setX(const FunctionCallbackInfo<Value>& args) {
 			path_name.erase(path_name.length() - 4, 4); // cut the extension
 			PlinkReader::getInstance().getX(path_name, mat);
 		}
-
 		result = Scheduler::Instance().setX(job_id, mat);
 	}
 	args.GetReturnValue().Set(Boolean::New(isolate, result));

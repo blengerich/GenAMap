@@ -323,11 +323,11 @@ void trainAlgorithmThread(uv_work_t* req) {
 		    } else if (shared_ptr<MultiPopLasso> model = dynamic_pointer_cast<MultiPopLasso>(job->model)) {
 		        alg->run(model);
 		    } else if (shared_ptr<SparseLMM> model = dynamic_pointer_cast<SparseLMM>(job->model)) {
-		        alg->run(model);
+		        alg->sub_run(model);
 		    } else if (shared_ptr<TreeLasso> model = dynamic_pointer_cast<TreeLasso>(job->model)) {
 		        alg->run(model);
 		    } else if (shared_ptr<LinearMixedModel> model = dynamic_pointer_cast<LinearMixedModel>(job->model)) {
-				alg->run(model);
+				alg->sub_run(model);
 			} else {
 		        throw runtime_error("Requested model type not implemented for the requested algorithm");
 		    }
@@ -343,7 +343,7 @@ void trainAlgorithmThread(uv_work_t* req) {
 		    } else if (shared_ptr<MultiPopLasso> model = dynamic_pointer_cast<MultiPopLasso>(job->model)) {
 		        alg->run(model);
 		    } else if (shared_ptr<SparseLMM> model = dynamic_pointer_cast<SparseLMM>(job->model)) {
-		        alg->run(model);
+		        alg->sub_run(model);
 		    } else if (shared_ptr<TreeLasso> model = dynamic_pointer_cast<TreeLasso>(job->model)) {
 		        alg->run(model);
 		    } else if (shared_ptr<LinearMixedModel> model = dynamic_pointer_cast<LinearMixedModel>(job->model)) {

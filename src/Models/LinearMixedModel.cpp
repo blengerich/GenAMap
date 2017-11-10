@@ -23,9 +23,15 @@ LinearMixedModel::LinearMixedModel(const unordered_map<string, string> &options)
     initFlag = false;
 }
 
+void LinearMixedModel::setX(const MatrixXf& xx)
+{
+    this->X = xx;
+    this->n = this->X.rows();
+    this->d = this->X.cols();
+}
+
 // Methods to set the training data
 void LinearMixedModel::setXY(MatrixXf X, MatrixXf Y) {
-//    cout << "LMM: Training set X and Y are provided !" << endl;
     this->X = X; // Input
     this->y = Y; // Output
 
@@ -38,7 +44,6 @@ void LinearMixedModel::setXY(MatrixXf X, MatrixXf Y) {
 }
 
 void LinearMixedModel::setXYK(MatrixXf X, MatrixXf Y, MatrixXf K) {
-//    cout << "LMM: Training set X,Y and K are provided !" << endl;
     this->X = X;
     this->y = Y;
     this->K = K; // Matrix that needs to be decomposed
@@ -83,7 +88,7 @@ long LinearMixedModel::get_num_samples() {
 }
 
 void LinearMixedModel::assertReadyToRun() {
-    throw runtime_error("LinearMixedModel not implemented");
+    return;
 }
 
 // Decomposition of Similarity Matrix ->
@@ -170,7 +175,6 @@ float LinearMixedModel::get_log_likelihood_value(float lambda) {
     } else {
         third_term = n * log(this->sigma);
     }
-
     ret_val = first_term + second_term + third_term;
     ret_val = -1.0 / 2.0 * ret_val;
     return ret_val;

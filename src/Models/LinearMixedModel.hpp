@@ -64,6 +64,7 @@ public:
     void set_lambda(float);
     void set_S(MatrixXf);
     void set_U(MatrixXf);
+    void setX(const MatrixXf&);
     void setXY(MatrixXf, MatrixXf);
     void setXYK(MatrixXf, MatrixXf, MatrixXf);
     void setUS(MatrixXf, MatrixXf);
