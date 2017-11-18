@@ -67,22 +67,30 @@ fi
 
 # Run the GenAMap server
 g_name="genamap_production_server"
-if ! docker ps --format "{{.Names}}"| grep -q ${g_name}; then
-    if ! docker ps -a --format "{{.Names}}"| grep -q ${g_name}; then
-        docker run -d -p 80:3000 --name ${g_name} --link ${m_name}:mongo --link ${p_name}:postgres -v $1:/usr/src/genamap/genamap_data -v $2:/usr/src/genamap/genamap_config haohanwang/genamap_server \
-            || { echo "starting genamap failed" >&2; exit 1; }
-    else
-        docker start ${g_name} \
-            || { echo "starting genamap failed' >&2" exit 1; }
-    fi
-    hr
-    echo "GenAMap Prouction Server container has been successfully launched!"
-    hr
+
+if ! ls first.txt ; then
+    docker run -d -p 80:3000 --name ${g_name} --link ${m_name}:mongo --link ${p_name}:postgres -v $1:/usr/src/genamap/genamap_data -v $2:/usr/src/genamap/genamap_config haohanwang/genamap_server \
+    || { echo "starting genamap failed" >&2; exit 1; }
+    echo "first" > first.txt
 else
-    hr
-    echo "GenAMap Production Server container is already running..."
-    hr
+    if ! docker ps --format "{{.Names}}"| grep -q ${g_name}; then
+        if ! docker ps -a --format "{{.Names}}"| grep -q ${g_name}; then
+                docker run -d -p 80:3000 --name ${g_name} --link ${m_name}:mongo --link ${p_name}:postgres -v $1:/usr/src/genamap/genamap_data -v $2:/usr/src/genamap/genamap_config haohanwang/genamap_server \
+                    || { echo "starting genamap failed" >&2; exit 1; }
+        else
+            docker start ${g_name} \
+                || { echo "starting genamap failed' >&2" exit 1; }
+        fi
+        hr
+        echo "GenAMap Prouction Server container has been successfully launched!"
+        hr
+    else
+        hr
+        echo "GenAMap Production Server container is already running..."
+        hr
+    fi
 fi
+echo $FIRST
 hr
 echo "Server is running in the background successfully on port 80..."
 hr
