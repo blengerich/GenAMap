@@ -28,5 +28,6 @@ Further, we have to note that if you want to use your own data, please follow th
 After that, you can enjoy the next-generation GWAS by visiting __localhost__ on Linux. On Mac, this is __192.168.99.100__, or __0.0.0.0__ if your docker version > 1.2.x
 
 
-## Contact:
-Have a question about GenAMap? Email us at genamap.team@gmail.com. To help us to get to know you better, please provide your name and affiliation when requesting support. We also have a [Google group](https://groups.google.com/forum/#!forum/genamap-users) for users.
+[//]: # (## Contact:)
+
+[//]: # (Have a question about GenAMap? Email us at genamap.team@gmail.com. To help us to get to know you better, please provide your name and affiliation when requesting support. We also have a [Google group]https://groups.google.com/forum/#!forum/genamap-users for users.)
