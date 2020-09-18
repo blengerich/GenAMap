@@ -101,7 +101,6 @@ void AdaMultiLasso::updateV(VectorXf xd) {
 VectorXf AdaMultiLasso::gradient_w() {
     long c = snpsFeatures1.cols();
     long k = beta.cols();
-//    updateTheta();
     VectorXf grad = VectorXf::Zero(c);
     for (long j=0;j<c;j++){
         grad(j) += (-k*snpsFeatures1.col(j).array()/theta.array()).sum();
@@ -113,7 +112,6 @@ VectorXf AdaMultiLasso::gradient_w() {
 VectorXf AdaMultiLasso::gradient_v() {
     long c = snpsFeatures2.cols();
     long k = beta.cols();
-//    updateRho();
     VectorXf grad = VectorXf::Zero(c);
     for (long j=0;j<c;j++){
         grad(j) += (-k*snpsFeatures1.col(j).array()/theta.array()).sum();
@@ -251,7 +249,6 @@ void AdaMultiLasso::assertReadyToRun() {
 void AdaMultiLasso::initTraining() {
     if (!initTrainingFlag){
         initTrainingFlag = true;
-        // resize X and Y for single task
         initTheta();
         initRho();
         long n = X.rows();

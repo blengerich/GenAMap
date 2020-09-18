@@ -317,7 +317,6 @@ MatrixXf optimize_block_prox(MatrixXf X,
 
 void ICLasso::optimize_theta(){
 
-    //get dimensions ISSUE
     int q = Y.rows();
 
     //precompute sample covariance & penalty matrices

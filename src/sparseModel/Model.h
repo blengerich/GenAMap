@@ -34,8 +34,6 @@ public:
     virtual float cost();
 
     Model();
-//    Model(SparseMatrix<double> , VectorXf);
-
     virtual ~Model(){};
 };
 
