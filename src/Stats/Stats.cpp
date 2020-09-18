@@ -116,8 +116,6 @@ void StatsBasic::BonferroniCorrection() {
     }
 }
 
-// algorithm use
-
 float StatsBasic::getProgress() {
     return progress;
 }
