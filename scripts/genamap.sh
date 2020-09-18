@@ -21,7 +21,7 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
   IP=`docker-machine ip default`  # for Mac  
 elif [[ "$OSTYPE" == "cygwin" ]]; then
   # POSIX compatibility layer and Linux environment emulation for Windows
-  IP="" # I don't know the Docker IP for Windows
+  IP="" # Docker IP for Windows
 else
   'echo "Running on unrecognized platform" '
 fi
