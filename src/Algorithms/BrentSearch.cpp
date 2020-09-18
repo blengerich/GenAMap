@@ -88,7 +88,7 @@ void BrentSearch::set_t(float t) {
     this->t = e;
 }
 
-// Defines the window of search i.e set a and b.
+// Defines the window of search i.e, set a and b.
 void BrentSearch::set_delta(float delta) {
     this->delta = delta;
 }

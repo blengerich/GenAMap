@@ -117,42 +117,19 @@ void Gflasso::assertReadyToRun() {
     checkLogisticRegression();
 }
 
-// Training functions : X,Y and other parameters
-//void Gflasso::train(){
-//    std::cout << " Error : No Training Parameters are provided. Cannot perform GFLasso regression !" << std::endl;
-//}
 
 void Gflasso::setXY(MatrixXf X,MatrixXf Y){
-//    std::cout << "Training set X and Y is provided !" << std::endl;
     this->X = X;
     this->y = Y;
     long row=0, col=0;
     row = X.cols();
     col = y.cols();
-
     // Initialize beta to zero values
     this->beta = MatrixXf::Random(row,col);
     this->beta.setZero();
-//    std::cout << "Initializing the beta matrix. Dimen : rows " << this->beta.rows() << " col " << this->beta.cols() <<
-//            std::endl;
-
 }
 
-// Training data provided along with initial beta estimation
-//void Gflasso::train(MatrixXf X,MatrixXf Y,MatrixXf Beta){
-//    this->X = X;
-//    this->y = Y;
-//    this->beta = Beta;
-//}
-//
-//// Everything is provided i.e. Training data,traits corr. and regularization params
-//void Gflasso::train(MatrixXf X,MatrixXf Y,MatrixXf corr_coeff,float lamdba,float gamma){
-//    this->X = X;
-//    this->y = Y;
-//    this->corr_coff = corr_coff;
-//    this->lambda_flasso = lamdba;
-//    this->gamma_flasso = gamma;
-//}
+
 
 // Helper functions to calculate the Cost function
 float Gflasso::gflasso_fusion_penalty(){
@@ -177,7 +154,6 @@ float Gflasso::gflasso_fusion_penalty(){
                 mul_factor = corr_coff(start_node, end_node);
             }
 
-            //  Beta is N*J matrix, where N are the number of input sample and J aer the no. of features in Y.
             total_sum += mul_factor*abs(beta.col(start_node).sum() - sign * beta.col(end_node).sum());
         }
     }

@@ -39,8 +39,6 @@ void LinearMixedModel::setXY(MatrixXf X, MatrixXf Y) {
     this->K = X*X.transpose();
     this->n = get_num_samples();
     this->d = X.cols();
-//    beta.setZero();
-//    K.setZero();
 }
 
 void LinearMixedModel::setXYK(MatrixXf X, MatrixXf Y, MatrixXf K) {
@@ -115,9 +113,6 @@ void LinearMixedModel::calculate_beta(float lambda) {
     MatrixXf U_X_trans = (U_trans_X).transpose(); // d*n
     MatrixXf S_lambda_inv = (S + lambda * Id).inverse(); // n*n
 
-//    MatrixXf first_term = MatrixXf::Random(d, d); // d*d
-//    MatrixXf second_term = MatrixXf::Random(d, 1); // d*1
-
     MatrixXf first_term = ((U_X_trans * S_lambda_inv) * U_trans_X).inverse();
     MatrixXf second_term = (U_X_trans * S_lambda_inv) * U_trans_Y;
 
@@ -162,8 +157,6 @@ float LinearMixedModel::get_log_likelihood_value(float lambda) {
 
         // Check if the term is less then zero or not, if yes skip it as it will be inf.
         if (float(S(i, i) + lambda) <= 0.0) {
-//            std::cout << "LLM Err : Log term is neg.... val = " << float(S(i, i) + lambda) << " for n = " <<
-//            i << std::endl;
             continue;
         }
         second_term += log(float(S(i, i) + lambda));
