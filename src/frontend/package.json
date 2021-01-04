@@ -18,7 +18,7 @@
   "author": "Anuraag Jain",
   "dependencies": {
     "async": "2.0.1",
-    "axios": "^0.16.2",
+    "axios": "^0.21.1",
     "body-parser": "1.15.1",
     "browserify-css": "^0.10.1",
     "busboy": "0.2.12",
